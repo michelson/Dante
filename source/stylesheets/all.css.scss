@@ -53,7 +53,6 @@ h1 {
 
 /*MENU*/
 
-
 .editor-menu:after {
     left: 50%;
 }
@@ -205,4 +204,129 @@ h1 {
 }
 .editor-menu .icon-createlink:before {
     content: "";
+}
+
+
+.notesSource {
+    position: relative;
+}
+
+/*TOOLTIP*/
+.inlineTooltip2.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.notesSource .inlineTooltip2 {
+    height: 40px;
+    margin-left: -58px;
+    margin-top: 5px;
+    //opacity: 0;
+    overflow: hidden;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 40px;
+    z-index: 900;
+}
+
+.button--small.button--circle {
+    height: 32px;
+    padding: 0;
+    width: 32px;
+}
+.button--inlineTooltipControl {
+    transform: rotate(0deg);
+    transition: transform 0.1s ease 0s;
+}
+.button--small, .button--small.button--link, .button--small.button--chromeless {
+    font-size: 12px;
+}
+.button--small {
+    height: 32px;
+    line-height: 31px;
+    padding: 0 14px;
+}
+.button--neutral {
+    border-color: rgba(0, 0, 0, 0.44);
+    color: rgba(0, 0, 0, 0.44);
+}
+.button--circle {
+    padding: 0;
+    text-align: center;
+    width: 38px;
+}
+.button {
+    -moz-osx-font-smoothing: grayscale;
+    -moz-user-select: none;
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 999em;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.44);
+    cursor: pointer;
+    display: inline-block;
+    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    height: 38px;
+    letter-spacing: -0.02em;
+    line-height: 31px;
+    outline: 0 none;
+    padding: 0 16px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    text-rendering: optimizelegibility;
+    transition: background-color 0.1s ease 0s, border-color 0.1s ease 0s, color 0.1s ease 0s;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+button, html input[type="button"], input[type="reset"], input[type="submit"] {
+    cursor: pointer;
+}
+
+.button-scalableGroup .icon.icon--addMediaPlus:before, .button-scalableGroup .icon.icon--addMediaImage:before, .button-scalableGroup .icon.icon--addMediaVideo:before, .button-scalableGroup .icon.icon--addMediaEmbed:before, .button-scalableGroup .icon.icon--addMediaPart:before {
+    font-size: 39px;
+    top: 13px;
+}
+.button--neutral > .icon:before {
+    color: rgba(0, 0, 0, 0.44);
+}
+.button .icon.is-pulledRight:before, .button--circle .icon:before, .button--expandable .icon:before {
+    margin-right: 0;
+}
+.button .icon:before {
+    color: rgba(0, 0, 0, 0.3);
+    font-size: 20px;
+    line-height: 0;
+    margin-right: 8px;
+    position: relative;
+    top: 1px;
+}
+.icon--addMediaPlus:before {
+    content: "";
+}
+.button--small .icon {
+    font-size: 18px;
+}
+.button .icon {
+    line-height: 100%;
+}
+.icon {
+    -moz-osx-font-smoothing: grayscale;
+    font-family: "medium-icons";
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: none;
+    text-rendering: optimizelegibility;
+    text-transform: none;
+}
+
+
+.graf--p, .graf--blockquote, .graf--pullquote {
+    margin-bottom: 30px;
+}
+p.is-selected{
+  border: 1px solid #ccc;
 }

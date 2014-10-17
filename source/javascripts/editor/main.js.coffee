@@ -2,6 +2,12 @@ window.Editor = {
 
 }
 
+###
+#TODO:
++ set selected <p> like medium
++ shows the + when selected <p> is empty
+###
+
 # make it accessible
 window.selection = 0
 
@@ -15,7 +21,7 @@ class Editor.MainEditor extends Backbone.View
     #"mouseup" : "handleCaret"
     "selectstart": "getSelection"
     "mousedown": "getSelection"
-
+    "keydown" : "handleCarriageReturn"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -32,9 +38,16 @@ class Editor.MainEditor extends Backbone.View
     @template()
     $(@el).html @template()
     $(@el).attr("contenteditable", "true")
+
+    $(@el).wrap("<div class='notesSource'></div>")
+
     $("<div id='editor-menu' class='editor-menu' style='display: none;'></div>").insertAfter(@el)
+    $("<div class='inlineTooltip2 button-scalableGroup is-active'></div>").insertAfter(@el)
+
     @editor_menu = new Editor.Menu()
-    @editor_menu.delegateEvents()
+
+    @tooltip_view = new Editor.Tooltip()
+    @tooltip_view.render()
 
   handleBlur: (ev)=>
     console.log("Handle blur #{ev}")
@@ -79,6 +92,63 @@ class Editor.MainEditor extends Backbone.View
       .html("Position: left: " + position.left + ", " + "top: " + position.top + "&nbsp;");
     ###
 
+  handleCarriageReturn: (e)->
+    #console.log e.which
+
+    #e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
+
+    selection
+    if (window.getSelection)
+      selection = window.getSelection()
+    else if (document.selection && document.selection.type != "Control")
+      selection = document.selection
+
+    anchor_node = selection.anchorNode #current node on which cursor is positioned
+    previous_node = anchor_node.previousSibling
+    next_node = anchor_node.nextSibling
+
+    if (e.which == 13) #enter key
+      #e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
+
+
+      $(anchor_node).addClass("is-selected")
+      $(previous_node).removeClass("is-selected")
+      $(next_node).removeClass("is-selected")
+
+      console.log($(previous_node))
+      console.log($(anchor_node))
+      console.log($(next_node))
+
+      if _.isEmpty $(anchor_node).text()
+        @position = $(anchor_node).offset()
+        @tooltip_view.move(left: @position.left - 60 , top: @position.top + 43 )
+
+
+      ###
+      if window.getSelection
+        selection = window.getSelection()
+        range = selection.getRangeAt(0)
+        p = document.createElement("p")
+        range.deleteContents()
+        range.insertNode p
+        range.setStartAfter p
+        range.setEndAfter p
+        range.collapse false
+        selection.removeAllRanges()
+        selection.addRange range
+      ###
+
+
+
+    if (e.which == 8) #delete key
+      node = document.getSelection().anchorNode;
+      #current_node = $(if node.nodeType == 3 then node.parentNode else node)
+      if $(anchor_node).text() is ""
+        @position = $(anchor_node).offset()
+        setTimeout(
+          ()=>
+            @tooltip_view.move(left: @position.left - 60 , top: @position.top - 55 )
+        , 200)
 
 
 class Editor.Menu extends Backbone.View
@@ -90,10 +160,11 @@ class Editor.Menu extends Backbone.View
     '<i class="editor-icon icon-blockquote" data-action="blockquote"></i>
       <i class="editor-icon icon-h2" data-action="h2"></i>
       <i class="editor-icon icon-h3" data-action="h3"></i>'
+
   render: ()=>
-    console.log "RENDER"
+    #console.log "RENDER"
     $(@el).html(@template())
-    console.log $(@el).length
+    #console.log $(@el).length
     @show()
 
   show: ()->
@@ -101,6 +172,28 @@ class Editor.Menu extends Backbone.View
 
   hide: ()->
     $(@el).hide()
+
+
+class Editor.Tooltip extends Backbone.View
+  el: ".inlineTooltip2"
+
+  initialize: ()=>
+    console.log $(@el).length
+
+  template: ()->
+    '<button class="button button--small button--circle button--neutral button--inlineTooltipControl" title="Add an image, video, embed, or new part" data-action="inline-menu">
+        <span class="fa fa-plus"></span>
+    </button>'
+
+  render: ()=>
+    #console.log @template()
+    $(@el).html(@template())
+
+  move: (coords)->
+    $(@el).offset(coords)
+
+
+
 ###
 addEvent(document.getElementById('clear'), 'click', function () {
   localStorage.clear();
