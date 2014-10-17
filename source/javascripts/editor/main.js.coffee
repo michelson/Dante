@@ -14,6 +14,8 @@ class Editor.MainEditor extends Backbone.View
     #"keyup"   : "handleCaret"
     #"mouseup" : "handleCaret"
     "selectstart": "getSelection"
+    "mousedown": "getSelection"
+
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -49,8 +51,8 @@ class Editor.MainEditor extends Backbone.View
   displayMenu: (sel)->
     #we only display menu if sel.type is "Range"
     console.log sel
-    return unless sel.type is "Range"
-    if sel.extentOffset > 0 and sel.baseOffset > 0
+    #return unless sel.type is "Range"
+    if sel.baseOffset > 0 or sel.focusOffset > 0
       @handleCaret()
       @editor_menu.render()
     else
