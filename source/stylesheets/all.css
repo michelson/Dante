@@ -1,0 +1,208 @@
+@charset "utf-8";
+
+body {
+  /*background: #d4d4d4 url("../images/background.png");*/
+}
+
+h1 {
+  color: rgba(0, 0, 0, .3);
+  font-weight: bold;
+  font-size: 32px;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  padding: 50px 0 10px;
+  margin: 0; }
+
+
+#editor{
+  margin: 0 auto;
+  width: 50%;
+}
+
+
+
+.postField--body:before, .postField--body:after {
+    content: " ";
+    display: table;
+}
+.postField--body:after {
+    clear: both;
+}
+.postField--body:before, .postField--body:after {
+    content: " ";
+    display: table;
+}
+.postField, .postField:focus {
+    outline: 0 none;
+    word-wrap: break-word;
+}
+.postField--body {
+    margin-bottom: 30px;
+}
+.postContent {
+    font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+    font-size: 22px;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0.01rem;
+    line-height: 1.5;
+}
+
+
+
+/*MENU*/
+
+
+.editor-menu:after {
+    left: 50%;
+}
+.editor-menu:after {
+    left: 50%;
+}
+.editor-menu:after {
+    border-color: #333 rgba(51, 51, 51, 0) rgba(51, 51, 51, 0);
+    border-width: 6px;
+    left: 50%;
+    margin-left: -6px;
+}
+.editor-menu:after {
+    border-color: #333 rgba(51, 51, 51, 0) rgba(51, 51, 51, 0);
+    border-width: 6px;
+    left: 50%;
+    margin-left: -6px;
+}
+.editor-menu:after {
+    border: medium solid transparent;
+    content: " ";
+    height: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 100%;
+    width: 0;
+}
+.editor-menu:after {
+    border: medium solid transparent;
+    content: " ";
+    height: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 100%;
+    width: 0;
+}
+.editor-menu {
+    background: linear-gradient(to bottom, #222, #333) repeat scroll 0 0 #333;
+    border: 1px solid #333;
+    border-radius: 3px;
+    box-shadow: 1px 2px 3px -2px #222;
+    display: none;
+    height: 36px;
+    opacity: 0.9;
+    position: fixed;
+    white-space: nowrap;
+    z-index: 1000;
+}
+.editor-menu {
+    background: linear-gradient(to bottom, #222, #333) repeat scroll 0 0 #333;
+    border: 1px solid #333;
+    border-radius: 3px;
+    box-shadow: 1px 2px 3px -2px #222;
+    display: none;
+    height: 36px;
+    opacity: 0.9;
+    position: fixed;
+    white-space: nowrap;
+    z-index: 1000;
+}
+.editor-menu, .editor-input {
+    font-size: 14px;
+    line-height: 1;
+}
+.editor-menu, .editor-input {
+    font-size: 14px;
+    line-height: 1;
+}
+.pen, .editor-menu, .editor-input, .pen textarea {
+    color: #331;
+    font: 400 1.16em/1.45 Palatino,Optima,Georgia,serif;
+}
+.pen, .editor-menu, .editor-input, .pen textarea {
+    color: #331;
+    font: 400 1.16em/1.45 Palatino,Optima,Georgia,serif;
+}
+
+.editor-menu .icon-blockquote:before {
+    content: "";
+}
+.editor-menu [class^="icon-"]:before, .editor-menu [class*=" icon-"]:before {
+    display: inline-block;
+    font-family: "pen";
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 1em;
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+    text-align: center;
+    text-decoration: inherit;
+    text-transform: none;
+    width: 1em;
+}
+.editor-icon:first-of-type {
+    border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
+}
+.editor-menu [class^="icon-"], .editor-menu [class*=" icon-"] {
+    background: none repeat scroll 0 0 transparent;
+}
+.editor-icon {
+    -moz-user-select: none;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font: 900 16px/40px Georgia serif;
+    height: 36px;
+    min-width: 20px;
+    overflow: hidden;
+    padding: 0 10px;
+    text-align: center;
+}
+.editor-menu .icon-h2:before {
+    content: "H2";
+}
+.editor-menu .icon-h3:before {
+    content: "H3";
+}
+.editor-menu .icon-p:before {
+    content: "P";
+}
+.editor-menu .icon-code:before {
+    content: "";
+}
+.editor-menu .icon-insertorderedlist:before {
+    content: "";
+}
+.editor-menu .icon-insertunorderedlist:before {
+    content: "";
+}
+.editor-menu .icon-inserthorizontalrule:before {
+    content: "";
+}
+.editor-menu .icon-indent:before {
+    content: "";
+}
+.editor-menu .icon-outdent:before {
+    content: "";
+}
+.editor-menu .icon-bold:before {
+    content: "";
+}
+.editor-menu .icon-italic:before {
+    content: "";
+}
+.editor-menu .icon-underline:before {
+    content: "";
+}
+.editor-menu .icon-createlink:before {
+    content: "";
+}
