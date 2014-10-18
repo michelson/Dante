@@ -108,36 +108,29 @@ class Editor.MainEditor extends Backbone.View
     next_node = anchor_node.nextSibling
 
     if (e.which == 13) #enter key
-      #e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
+      e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
 
+      #removes all childs
+      $(@el).find(".graf--p").removeClass("is-selected")
 
-      $(anchor_node).addClass("is-selected")
-      $(previous_node).removeClass("is-selected")
-      $(next_node).removeClass("is-selected")
+      range = selection.getRangeAt(0)
 
-      console.log($(previous_node))
-      console.log($(anchor_node))
-      console.log($(next_node))
+      parent = $(range.commonAncestorContainer.parentElement)
+      current_node = $("<p class='graf--p graf--empty is-selected'></p>")
+      current_node.insertAfter(parent)
 
-      if _.isEmpty $(anchor_node).text()
-        @position = $(anchor_node).offset()
-        @tooltip_view.move(left: @position.left - 60 , top: @position.top + 43 )
+      #set caret on new <p>
+      range = document.createRange()
+      sel = window.getSelection()
+      range.setStart(current_node[0], 0);
+      range.collapse(true)
+      sel.removeAllRanges()
+      sel.addRange(range)
+      @el.focus()
 
-
-      ###
-      if window.getSelection
-        selection = window.getSelection()
-        range = selection.getRangeAt(0)
-        p = document.createElement("p")
-        range.deleteContents()
-        range.insertNode p
-        range.setStartAfter p
-        range.setEndAfter p
-        range.collapse false
-        selection.removeAllRanges()
-        selection.addRange range
-      ###
-
+      #shows tooltip ###if _.isEmpty $(anchor_node).text()
+      @position = $(current_node).offset()
+      @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
 
 
     if (e.which == 8) #delete key
