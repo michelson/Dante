@@ -96,6 +96,10 @@ header{
     z-index: 1000;
     display:block;
 
+    -webkit-transition: opacity 0.2s ease-in-out;
+    -moz-transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out;
+
     &:after {
       left: 50%;
     }

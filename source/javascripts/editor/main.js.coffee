@@ -12,6 +12,7 @@ window.Editor = {
 
 # make it accessible
 window.selection = 0
+selected_menu = false
 
 class Editor.MainEditor extends Backbone.View
   el: "#editor"
@@ -50,7 +51,11 @@ class Editor.MainEditor extends Backbone.View
 
   handleBlur: (ev)=>
     console.log(ev)
-    #@editor_menu.hide()
+    #hide menu only if is not in use
+    setTimeout ()=>
+      @editor_menu.hide() unless selected_menu
+    , 200
+
     @tooltip_view.hide()
 
   handleFocus: (ev)=>
@@ -113,7 +118,10 @@ class Editor.MainEditor extends Backbone.View
     offset
 
   resizeBox: (offset, position)->
-    @editor_menu.$el.offset({left: offset.left-50, top: offset.top + offset.height + 2})
+    padd = @editor_menu.$el.width() / 2
+    padd = padd + (padd * 0.1)
+    top =  offset.top - offset.height - 16
+    @editor_menu.$el.offset({left: offset.left - padd, top: top })
 
   handleKeyDown: (e)->
     e.preventDefault() if _.contains([13], e.which)
@@ -200,6 +208,8 @@ class Editor.Menu extends Backbone.View
 
   events:
     "click .editor-icon" : "handleClick"
+    "mouseenter" : "handleOver"
+    "mouseleave" : "handleOut"
 
   initialize: (opts={})=>
     @config = opts.buttons || @default_config()
@@ -219,8 +229,14 @@ class Editor.Menu extends Backbone.View
     @delegateEvents()
 
   handleClick: ()->
-    console.log("uya")
+    console.log("menu item clicked, we should do something here!")
     false
+
+  handleOut: ()->
+    selected_menu = false
+
+  handleOver: ()->
+    selected_menu = true
 
   show: ()->
     $(@el).css("opacity", 1)
