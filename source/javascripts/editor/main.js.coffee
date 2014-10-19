@@ -13,6 +13,7 @@ window.Editor = {
 # make it accessible
 window.selection = 0
 selected_menu = false
+window.current_editor = null
 
 class Editor.MainEditor extends Backbone.View
   el: "#editor"
@@ -25,6 +26,22 @@ class Editor.MainEditor extends Backbone.View
 
   initialize: (opts = {})=>
     @editor_options = opts
+    window.current_editor = @
+    #globals for selected text and node
+    @current_range = null
+    @current_node = null
+
+    if (localStorage.getItem('contenteditable'))
+      $(@el).html  localStorage.getItem('contenteditable')
+
+    @store()
+
+  store: ()->
+    localStorage.setItem("contenteditable", $(@el).html )
+    setTimeout ()=>
+      console.log("storing")
+      @store()
+    , 5000
 
   template: ()=>
     "<section class='section-content'>
@@ -49,18 +66,6 @@ class Editor.MainEditor extends Backbone.View
     @tooltip_view = new Editor.Tooltip()
     @tooltip_view.render()
 
-  handleBlur: (ev)=>
-    console.log(ev)
-    #hide menu only if is not in use
-    setTimeout ()=>
-      @editor_menu.hide() unless selected_menu
-    , 200
-
-    @tooltip_view.hide()
-
-  handleFocus: (ev)=>
-    console.log("Handle focus #{ev}")
-
   getSelectedText: () ->
     text = ""
     if typeof window.getSelection != "undefined"
@@ -68,6 +73,7 @@ class Editor.MainEditor extends Backbone.View
     else if typeof document.selection != "undefined" && document.selection.type == "Text"
       text = document.selection.createRange().text
     text
+    #text
 
   selection: ()=>
     selection
@@ -75,6 +81,48 @@ class Editor.MainEditor extends Backbone.View
       selection = window.getSelection()
     else if (document.selection && document.selection.type != "Control")
       selection = document.selection
+
+  getRange: () ->
+    editor = $(@el)[0]
+    range = selection.rangeCount && selection.getRangeAt(0)
+    range = document.createRange() if (!range)
+    if !editor.contains(range.commonAncestorContainer)
+      range.selectNodeContents(editor)
+      range.collapse(false)
+    range
+
+  setRange: (range)->
+    range = range || this.current_range
+    if !range
+      range = this.getRange()
+      range.collapse(false); # set to end
+
+    @selection().removeAllRanges()
+    @selection().addRange(range)
+    @
+
+  #set focus and caret position on element
+  setRangeAt: (element)->
+    range = document.createRange()
+    sel = window.getSelection()
+
+    range.setStart(element, 0);
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
+    @el.focus()
+
+  focus: (focusStart) ->
+    @.setRange() if (!focusStart)
+    $(@el).focus()
+    @
+
+  #NOT USED
+  focusNode: (node, range)->
+    range.setStartAfter(node)
+    range.setEndBefore(node)
+    range.collapse(false)
+    @.setRange(range)
 
   #get the element that wraps Caret position
   getNode: ()->
@@ -92,25 +140,6 @@ class Editor.MainEditor extends Backbone.View
     @editor_menu.render()
     @editor_menu.show()
 
-  #get text of selected and displays menu
-  handleTextSelection: (ev)->
-    @editor_menu.hide()
-    text = @getSelectedText()
-    @.displayMenu() unless _.isEmpty text
-
-  handleCaret: ()->
-    @resetOffset($(@el));
-
-  handleArrow: (ev)=>
-    console.log("ENTER ARROWS")
-    console.log @getNode()
-    #range = @selection().getRangeAt(0)
-    #debugger
-    current_node = $(@getNode())
-
-    @displayTooltipAt( current_node )
-    @markAsSelected( current_node )
-
   resetOffset: ($textField)=>
     offset = $textField.caret('offset');
     position = $textField.caret('position');
@@ -123,36 +152,43 @@ class Editor.MainEditor extends Backbone.View
     top =  offset.top - offset.height - 16
     @editor_menu.$el.offset({left: offset.left - padd, top: top })
 
-  handleKeyDown: (e)->
-    e.preventDefault() if _.contains([13], e.which)
 
-  #shows the (+) tooltip at current element
-  displayTooltipAt: (element)->
-    console.log $(element)
+  handleBlur: (ev)=>
+    #console.log(ev)
+    #hide menu only if is not in use
+    setTimeout ()=>
+      @editor_menu.hide() unless selected_menu
+    , 200
 
     @tooltip_view.hide()
-    return unless _.isEmpty( $(element).text() )
-    @position = $(element).offset()
-    @tooltip_view.render()
-    @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
+    false
 
-  #mak the current row as selected
-  markAsSelected: (element)->
-    #console.log "selecting."
-    #console.log $(element)
-    $(@el).find(".is-selected").removeClass("is-selected")
-    $(element).addClass("is-selected")
+  handleFocus: (ev)=>
+    console.log("Handle focus #{ev}")
 
-  #set focus and caret position on element
-  setRangeAt: (element)->
-    range = document.createRange()
-    sel = window.getSelection()
+  #get text of selected and displays menu
+  handleTextSelection: (ev)->
+    @editor_menu.hide()
+    text = @getSelectedText()
+    unless _.isEmpty text
+      @current_range = @getRange()
+      @current_node  = @getNode()
+      #console.log(@current_range)
+      @.displayMenu()
 
-    range.setStart(element, 0);
-    range.collapse(true)
-    sel.removeAllRanges()
-    sel.addRange(range)
-    @el.focus()
+  handleCaret: ()->
+    @resetOffset($(@el));
+
+  handleArrow: (ev)=>
+    console.log("ENTER ARROWS")
+    #console.log @getNode()
+    current_node = $(@getNode())
+    @displayTooltipAt( current_node )
+    @markAsSelected( current_node )
+
+  #overrides default behavior
+  handleKeyDown: (e)->
+    e.preventDefault() if _.contains([13], e.which)
 
   handleCarriageReturn: (e)->
     @editor_menu.hide() #hides menu just in case
@@ -168,22 +204,24 @@ class Editor.MainEditor extends Backbone.View
       #removes all childs
       $(@el).find(".is-selected").removeClass("is-selected")
 
-      #range = @selection().getRangeAt(0)
-
       parent = $(anchor_node)
 
+      #return unless $(@el).is( @getRange().commonAncestorContainer )
+
       if parent.prop("tagName") != "P"
+        #debugger
+        # if matches the linebreak match
+        if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
+          @handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent.parent()  )
+        else
+
+          if parent.parent().is('[class^="graf--"]')
+            @handleLineBreakWith("p", parent.parent())
+
         #TODO: we block more enters because we don't now how to handle this yet
-        return
-
-      current_node = $("<p class='graf--p graf--empty is-selected'><br/></p>")
-      current_node.insertAfter(parent)
-
-      #set caret on new <p>
-      @setRangeAt(current_node[0])
-
-      #shows tooltip
-      @displayTooltipAt($(current_node))
+        #return
+      else
+        @handleLineBreakWith("p", parent)
 
     #delete key
     if (e.which == 8)
@@ -201,21 +239,66 @@ class Editor.MainEditor extends Backbone.View
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
 
+    @cleanContents()
 
+  handleLineBreakWith: (element_type, from_element)->
+    new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
+    new_paragraph.insertAfter(from_element)
+    #set caret on new <p>
+    @setRangeAt(new_paragraph[0])
+    #shows tooltip
+    @displayTooltipAt($(new_paragraph))
+
+
+  #shows the (+) tooltip at current element
+  displayTooltipAt: (element)->
+    #console.log $(element)
+    @tooltip_view.hide()
+    return unless _.isEmpty( $(element).text() )
+    @position = $(element).offset()
+    @tooltip_view.render()
+    @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
+
+  #mak the current row as selected
+  markAsSelected: (element)->
+    $(@el).find(".is-selected").removeClass("is-selected")
+    $(element).addClass("is-selected")
+
+  cleanContents: ()->
+    #TODO: should config tags
+    console.log("CLEAN CONTENTS NAW")
+    node = @getNode()
+    $(node).find("span").contents().unwrap()
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
 
   events:
-    "click .editor-icon" : "handleClick"
+    "mousedown i" : "handleClick"
+    #"click .editor-icon" : "handleClick"
     "mouseenter" : "handleOver"
     "mouseleave" : "handleOut"
 
   initialize: (opts={})=>
     @config = opts.buttons || @default_config()
 
+    @commandsReg = {
+      block: /^(?:p|h[1-6]|blockquote|pre)$/
+      inline: /^(?:bold|italic|underline|insertorderedlist|insertunorderedlist|indent|outdent)$/,
+      source: /^(?:insertimage|createlink|unlink)$/
+      insert: /^(?:inserthorizontalrule|insert)$/
+      wrap: /^(?:code)$/
+    }
+
+    @lineBreakReg = /^(?:blockquote|pre|div)$/i;
+
+    @effectNodeReg = /(?:[pubia]|h[1-6]|blockquote|[uo]l|li)/i;
+
   default_config: ()->
-    buttons: ["blockquote", "h2", "h3", "code", "bold", "italic", "underline", "createlink"]
+    buttons: [
+        'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+        'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
+      ]
 
   template: ()=>
     html = ""
@@ -228,9 +311,69 @@ class Editor.Menu extends Backbone.View
     @show()
     @delegateEvents()
 
-  handleClick: ()->
-    console.log("menu item clicked, we should do something here!")
+  handleClick: (ev)->
+    element = $(ev.currentTarget)
+    name = element.data("action")
+    value = $(@el).find("input").val()
+
+    console.log("menu #{name} item clicked!")
+
+    if @commandsReg.block.test(name)
+      console.log "block here"
+      @commandBlock name
+    else if @commandsReg.inline.test(name) or @commandsReg.source.test(name)
+      console.log "overall here"
+      @commandOverall name, value
+    else if @commandsReg.insert.test(name)
+      console.log "insert here"
+      @commandInsert name
+    else if @commandsReg.wrap.test(name)
+      console.log "wrap here"
+      @commandWrap name
+    else
+      console.log "can't find command function for name: " + name
+
+    @cleanContents()
     false
+
+  cleanContents: ()->
+    current_editor.cleanContents()
+
+  commandOverall: (cmd, val) ->
+    message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
+    if document.execCommand(cmd, false, val)
+      console.log "success" + message
+    else
+      console.log "fail" + message, true
+    return
+
+  commandInsert: (name) ->
+    node = current_editor.current_node
+    return  unless node
+    current_editor.current_range.selectNode node
+    current_editor.current_range.collapse false
+    @commandOverall node, name
+
+  commandBlock: (name) ->
+    node = current_editor.current_node
+    list = @effectNode(current_editor.getNode(node), true)
+    debugger
+    name = "p" if list.indexOf(name) isnt -1
+    @commandOverall node, "formatblock", name
+
+  commandWrap: (tag) ->
+    node = current_editor.current_node
+    val = "<" + tag + ">" + selection + "</" + tag + ">"
+    @commandOverall node, "insertHTML", val
+
+  # node effects
+  effectNode: (el, returnAsNodeName) ->
+    nodes = []
+    el = el or current_editor.$el[0]
+    while el isnt current_editor.$el[0]
+      nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)  if el.nodeName.match(@effectNodeReg)
+      el = el.parentNode
+    nodes
 
   handleOut: ()->
     selected_menu = false
