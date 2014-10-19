@@ -383,3 +383,30 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     white-space: pre-wrap;
 }
 
+.graf--blockquote + .graf--blockquote {
+    margin-top: -30px;
+    padding-top: 30px;
+}
+.graf--blockquote {
+    border-left: 3px solid rgba(0, 0, 0, 0.8);
+    font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.01rem;
+    margin-left: -23px;
+    padding-bottom: 3px;
+    padding-left: 20px;
+}
+.graf--p, .graf--blockquote, .graf--pullquote {
+    margin-bottom: 30px;
+}
+
+.graf--pre {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
+    font-family: Monaco,"Courier New","Courier",monospace;
+    font-size: 16px;
+    margin-bottom: 20px;
+    padding: 20px;
+    white-space: pre-wrap;
+}
+

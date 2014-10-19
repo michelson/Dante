@@ -23,6 +23,7 @@ class Editor.MainEditor extends Backbone.View
     "mouseup" : "handleTextSelection"
     "keydown" : "handleKeyDown"
     "keyup"   : "handleCarriageReturn"
+    "paste"   : "handlePaste"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -127,12 +128,12 @@ class Editor.MainEditor extends Backbone.View
   #get the element that wraps Caret position
   getNode: ()->
     node = undefined
-    root = @el
+    root = $(@el).find(".section-inner")[0]
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
     return null  if not node or node is root
     node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
-    #node = node.parentNode  while node and (node.parentNode isnt root)
+    node = node.parentNode  while node and (node.parentNode isnt root)
     (if root.contains(node) then node else null)
 
   displayMenu: (sel)->
@@ -151,7 +152,6 @@ class Editor.MainEditor extends Backbone.View
     padd = padd + (padd * 0.1)
     top =  offset.top - offset.height - 16
     @editor_menu.$el.offset({left: offset.left - padd, top: top })
-
 
   handleBlur: (ev)=>
     #console.log(ev)
@@ -186,6 +186,12 @@ class Editor.MainEditor extends Backbone.View
     @displayTooltipAt( current_node )
     @markAsSelected( current_node )
 
+  handlePaste: (ev)=>
+    console.log("pasted!")
+    debugger
+    @cleanContents()
+    @setupElementsClasses()
+
   #overrides default behavior
   handleKeyDown: (e)->
     e.preventDefault() if _.contains([13], e.which)
@@ -212,11 +218,9 @@ class Editor.MainEditor extends Backbone.View
         #debugger
         # if matches the linebreak match
         if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
-          @handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent.parent()  )
+          @handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
         else
-
-          if parent.parent().is('[class^="graf--"]')
-            @handleLineBreakWith("p", parent.parent())
+          @handleLineBreakWith("p", parent)
 
         #TODO: we block more enters because we don't now how to handle this yet
         #return
@@ -243,12 +247,17 @@ class Editor.MainEditor extends Backbone.View
 
   handleLineBreakWith: (element_type, from_element)->
     new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
-    new_paragraph.insertAfter(from_element)
+
+    if from_element.parent().is('[class^="graf--"]')
+      new_paragraph.insertAfter(from_element.parent())
+    else
+      new_paragraph.insertAfter(from_element)
+
     #set caret on new <p>
     @setRangeAt(new_paragraph[0])
     #shows tooltip
-    @displayTooltipAt($(new_paragraph))
 
+    @displayTooltipAt($(new_paragraph))
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
@@ -264,11 +273,20 @@ class Editor.MainEditor extends Backbone.View
     $(@el).find(".is-selected").removeClass("is-selected")
     $(element).addClass("is-selected")
 
+  setupElementsClasses: ()->
+    setTimeout ()=>
+      $(@el).find(".section-inner").find("span , div").contents().unwrap()
+      _.each  $(@el).find(".section-inner").children(), (n)->
+        name = $(n).prop("tagName").toLowerCase()
+        $(n).removeClass().addClass("graf--#{name}")
+    , 200
+
+
   cleanContents: ()->
     #TODO: should config tags
     console.log("CLEAN CONTENTS NAW")
     node = @getNode()
-    $(node).find("span").contents().unwrap()
+    $(node).find("span , div").contents().unwrap()
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
@@ -357,14 +375,13 @@ class Editor.Menu extends Backbone.View
   commandBlock: (name) ->
     node = current_editor.current_node
     list = @effectNode(current_editor.getNode(node), true)
-    debugger
     name = "p" if list.indexOf(name) isnt -1
-    @commandOverall node, "formatblock", name
+    @commandOverall "formatblock", name
 
   commandWrap: (tag) ->
     node = current_editor.current_node
     val = "<" + tag + ">" + selection + "</" + tag + ">"
-    @commandOverall node, "insertHTML", val
+    @commandOverall "insertHTML", val
 
   # node effects
   effectNode: (el, returnAsNodeName) ->
@@ -383,9 +400,11 @@ class Editor.Menu extends Backbone.View
 
   show: ()->
     $(@el).css("opacity", 1)
+    $(@el).css('visibility', 'visible')
 
   hide: ()->
     $(@el).css("opacity", 0)
+    $(@el).css('visibility', 'hidden')
 
 
 class Editor.Tooltip extends Backbone.View
