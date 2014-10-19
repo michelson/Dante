@@ -4,8 +4,10 @@ window.Editor = {
 
 ###
 #TODO:
-+ set selected <p> like medium
-+ shows the + when selected <p> is empty
++ OK set selected <p> like medium
++ OK shows the + when selected <p> is empty
++ detect enter key between words to split and duplicate tags
++ actions over text
 ###
 
 # make it accessible
@@ -16,13 +18,9 @@ class Editor.MainEditor extends Backbone.View
 
   events:
     "blur"    : "handleBlur"
-    #"focus"   : "handleCaret"
-    #"keyup"   : "handleCaret"
-    #"mouseup" : "handleCaret"
-    "selectstart": "getSelection"
-    "mousedown": "getSelection"
+    "mouseup" : "handleTextSelection"
     "keydown" : "handleKeyDown"
-    "keyup" : "handleCarriageReturn"
+    "keyup"   : "handleCarriageReturn"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -42,7 +40,7 @@ class Editor.MainEditor extends Backbone.View
 
     $(@el).wrap("<div class='notesSource'></div>")
 
-    $("<div id='editor-menu' class='editor-menu' style='display: none;'></div>").insertAfter(@el)
+    $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
     $("<div class='inlineTooltip2 button-scalableGroup is-active'></div>").insertAfter(@el)
 
     @editor_menu = new Editor.Menu()
@@ -51,20 +49,30 @@ class Editor.MainEditor extends Backbone.View
     @tooltip_view.render()
 
   handleBlur: (ev)=>
-    console.log("Handle blur #{ev}")
-    @editor_menu.hide()
+    console.log(ev)
+    #@editor_menu.hide()
     @tooltip_view.hide()
 
   handleFocus: (ev)=>
     console.log("Handle focus #{ev}")
 
-  getSelection: (ev)->
-    _this = @
-    $(document).one 'mouseup', ()->
-      _this.displayMenu @.getSelection()
+  getSelectedText: () ->
+    text = ""
+    if typeof window.getSelection != "undefined"
+      text = window.getSelection().toString()
+    else if typeof document.selection != "undefined" && document.selection.type == "Text"
+      text = document.selection.createRange().text
+    text
 
+  selection: ()=>
+    selection
+    if (window.getSelection)
+      selection = window.getSelection()
+    else if (document.selection && document.selection.type != "Control")
+      selection = document.selection
+
+  #get the element that wraps Caret position
   getNode: ()->
-
     node = undefined
     root = @el
     range = @selection().getRangeAt(0)
@@ -75,15 +83,15 @@ class Editor.MainEditor extends Backbone.View
     (if root.contains(node) then node else null)
 
   displayMenu: (sel)->
-    #we only display menu if sel.type is "Range"
-    #console.log sel
-    return if _.isEmpty(sel.anchorNode.textContent)
-    #return unless sel.type is "Range"
-    if sel.baseOffset > 0 or sel.focusOffset > 0
-      @handleCaret()
-      @editor_menu.render()
-    else
-      @editor_menu.hide()
+    @handleCaret()
+    @editor_menu.render()
+    @editor_menu.show()
+
+  #get text of selected and displays menu
+  handleTextSelection: (ev)->
+    @editor_menu.hide()
+    text = @getSelectedText()
+    @.displayMenu() unless _.isEmpty text
 
   handleCaret: ()->
     @resetOffset($(@el));
@@ -107,16 +115,10 @@ class Editor.MainEditor extends Backbone.View
   resizeBox: (offset, position)->
     @editor_menu.$el.offset({left: offset.left-50, top: offset.top + offset.height + 2})
 
-  selection: ()=>
-    selection
-    if (window.getSelection)
-      selection = window.getSelection()
-    else if (document.selection && document.selection.type != "Control")
-      selection = document.selection
-
   handleKeyDown: (e)->
     e.preventDefault() if _.contains([13], e.which)
 
+  #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
     console.log $(element)
 
@@ -126,16 +128,28 @@ class Editor.MainEditor extends Backbone.View
     @tooltip_view.render()
     @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
 
+  #mak the current row as selected
   markAsSelected: (element)->
-    console.log "selecting."
-    console.log $(element)
+    #console.log "selecting."
+    #console.log $(element)
     $(@el).find(".is-selected").removeClass("is-selected")
     $(element).addClass("is-selected")
+
+  #set focus and caret position on element
+  setRangeAt: (element)->
+    range = document.createRange()
+    sel = window.getSelection()
+
+    range.setStart(element, 0);
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
+    @el.focus()
 
   handleCarriageReturn: (e)->
     @editor_menu.hide() #hides menu just in case
 
-    anchor_node = @selection().anchorNode #current node on which cursor is positioned
+    anchor_node = @getNode() #current node on which cursor is positioned
     previous_node = anchor_node.previousSibling
     next_node = anchor_node.nextSibling
 
@@ -144,12 +158,11 @@ class Editor.MainEditor extends Backbone.View
       e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
 
       #removes all childs
-      $(@el).find(".graf--p").removeClass("is-selected")
+      $(@el).find(".is-selected").removeClass("is-selected")
 
-      range = @selection().getRangeAt(0)
+      #range = @selection().getRangeAt(0)
 
-      console.log("here it is parent")
-      parent = $(range.commonAncestorContainer.parentElement)
+      parent = $(anchor_node)
 
       if parent.prop("tagName") != "P"
         #TODO: we block more enters because we don't now how to handle this yet
@@ -159,14 +172,7 @@ class Editor.MainEditor extends Backbone.View
       current_node.insertAfter(parent)
 
       #set caret on new <p>
-      range = document.createRange()
-      sel = window.getSelection()
-
-      range.setStart(current_node[0], 0);
-      range.collapse(true)
-      sel.removeAllRanges()
-      sel.addRange(range)
-      @el.focus()
+      @setRangeAt(current_node[0])
 
       #shows tooltip
       @displayTooltipAt($(current_node))
@@ -174,14 +180,13 @@ class Editor.MainEditor extends Backbone.View
     #delete key
     if (e.which == 8)
       @tooltip_view.hide()
-      node = document.getSelection().anchorNode;
-      #current_node = $(if node.nodeType == 3 then node.parentNode else node)
+
       if $(anchor_node).text() is ""
         @position = $(anchor_node).offset()
         setTimeout(
           ()=>
             @tooltip_view.render()
-            @tooltip_view.move(left: @position.left - 60 , top: @position.top - 55 )
+            @tooltip_view.move(left: @position.left - 60 , top: @position.top - 10 )
         , 200)
 
     #arrows key
@@ -193,24 +198,35 @@ class Editor.MainEditor extends Backbone.View
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
 
-  initialize: ()=>
+  events:
+    "click .editor-icon" : "handleClick"
+
+  initialize: (opts={})=>
+    @config = opts.buttons || @default_config()
+
+  default_config: ()->
+    buttons: ["blockquote", "h2", "h3", "code", "bold", "italic", "underline", "createlink"]
 
   template: ()=>
-    '<i class="editor-icon icon-blockquote" data-action="blockquote"></i>
-    <i class="editor-icon icon-h2" data-action="h2"></i>
-    <i class="editor-icon icon-h3" data-action="h3"></i>'
+    html = ""
+    _.each @config.buttons, (item)->
+      html += "<i class=\"editor-icon icon-#{item}\" data-action=\"#{item}\"></i>"
+    html
 
   render: ()=>
-    #console.log "RENDER"
     $(@el).html(@template())
-    #console.log $(@el).length
     @show()
+    @delegateEvents()
+
+  handleClick: ()->
+    console.log("uya")
+    false
 
   show: ()->
-    $(@el).show()
+    $(@el).css("opacity", 1)
 
   hide: ()->
-    $(@el).hide()
+    $(@el).css("opacity", 0)
 
 
 class Editor.Tooltip extends Backbone.View
