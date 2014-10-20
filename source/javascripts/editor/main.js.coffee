@@ -56,6 +56,7 @@ class Editor.MainEditor extends Backbone.View
     @template()
     $(@el).html @template()
     $(@el).attr("contenteditable", "true")
+    $(@el).addClass("postField--body")
 
     $(@el).wrap("<div class='notesSource'></div>")
 
@@ -101,6 +102,29 @@ class Editor.MainEditor extends Backbone.View
     @selection().removeAllRanges()
     @selection().addRange(range)
     @
+
+  getCharacterPrecedingCaret: ->
+    precedingChar = ""
+    sel = undefined
+    range = undefined
+    precedingRange = undefined
+    if window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount > 0
+        range = sel.getRangeAt(0).cloneRange()
+        range.collapse true
+        range.setStart @getNode(), 0
+        precedingChar = range.toString().slice(0)
+    else if (sel = document.selection) and sel.type isnt "Control"
+      range = sel.createRange()
+      precedingRange = range.duplicate()
+      precedingRange.moveToElementText containerEl
+      precedingRange.setEndPoint "EndToStart", range
+      precedingChar = precedingRange.text.slice(0)
+    precedingChar
+
+  isLastChar: ()->
+    $(@getNode()).text().length is @getCharacterPrecedingCaret().length
 
   #set focus and caret position on element
   setRangeAt: (element)->
@@ -183,49 +207,76 @@ class Editor.MainEditor extends Backbone.View
     console.log("ENTER ARROWS")
     #console.log @getNode()
     current_node = $(@getNode())
-    @displayTooltipAt( current_node )
     @markAsSelected( current_node )
+    @displayTooltipAt( current_node )
 
   handlePaste: (ev)=>
     console.log("pasted!")
-    debugger
     @cleanContents()
     @setupElementsClasses()
 
   #overrides default behavior
   handleKeyDown: (e)->
-    e.preventDefault() if _.contains([13], e.which)
-
-  handleCarriageReturn: (e)->
-    @editor_menu.hide() #hides menu just in case
+    #e.preventDefault() if _.contains([13], e.which)
 
     anchor_node = @getNode() #current node on which cursor is positioned
-    previous_node = anchor_node.previousSibling
-    next_node = anchor_node.nextSibling
+    #previous_node = anchor_node.previousSibling
+    #next_node = anchor_node.nextSibling
 
     #enter key
     if (e.which == 13)
-      e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
-
       #removes all childs
       $(@el).find(".is-selected").removeClass("is-selected")
 
       parent = $(anchor_node)
 
-      #return unless $(@el).is( @getRange().commonAncestorContainer )
+      #debugger
+      console.log @isLastChar()
+
+      #if parent.prop("tagName") != "P"
+      # if matches the linebreak match
+      if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
+        #new paragraph is it the last character
+        if @isLastChar()
+          e.preventDefault()
+          @handleLineBreakWith("p", parent)
+        else
+          #@handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
+      else if !anchor_node
+        console.log "AYAYAY"
+        e.preventDefault()
+        @handleLineBreakWith("p", parent)
+
+      @setupElementsClasses()
+
+  handleCarriageReturn: (e)->
+    @editor_menu.hide() #hides menu just in case
+
+    anchor_node = @getNode() #current node on which cursor is positioned
+    #previous_node = anchor_node.previousSibling
+    #next_node = anchor_node.nextSibling
+
+    #enter key
+    ###
+    if (e.which == 13)
+      #removes all childs
+      $(@el).find(".is-selected").removeClass("is-selected")
+
+      parent = $(anchor_node)
+
+
+      e.preventDefault()
 
       if parent.prop("tagName") != "P"
-        #debugger
         # if matches the linebreak match
         if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
+
           @handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
         else
           @handleLineBreakWith("p", parent)
-
-        #TODO: we block more enters because we don't now how to handle this yet
-        #return
       else
         @handleLineBreakWith("p", parent)
+    ###
 
     #delete key
     if (e.which == 8)
@@ -239,12 +290,15 @@ class Editor.MainEditor extends Backbone.View
             @tooltip_view.move(left: @position.left - 60 , top: @position.top - 10 )
         , 200)
 
+      @setupElementsClasses()
+
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
 
     @cleanContents()
 
+  #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
     new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
 
@@ -275,12 +329,19 @@ class Editor.MainEditor extends Backbone.View
 
   setupElementsClasses: ()->
     setTimeout ()=>
-      $(@el).find(".section-inner").find("span , div").contents().unwrap()
+      #$(@el).find(".section-inner").find("span , div").contents().unwrap()
+      #_.each $(@el).find(".section-inner:first").find("span , div"), (n)->
+      #  $(n).replaceWith("<p>#{$(n).text()}<br></p>")
+
       _.each  $(@el).find(".section-inner").children(), (n)->
         name = $(n).prop("tagName").toLowerCase()
         $(n).removeClass().addClass("graf--#{name}")
-    , 200
 
+      node = @getNode()
+      @markAsSelected( node ) #set selected
+      @displayTooltipAt( node )
+
+    , 20
 
   cleanContents: ()->
     #TODO: should config tags

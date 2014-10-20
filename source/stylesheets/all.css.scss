@@ -374,6 +374,10 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     margin-top: 40px;
 }
 
+.graf--pre + .graf--pre {
+    margin-top: -20px;
+}
+
 .graf--pre {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
     font-family: Monaco,"Courier New","Courier",monospace;
