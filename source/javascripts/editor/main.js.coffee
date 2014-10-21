@@ -21,11 +21,12 @@ class Editor.MainEditor extends Backbone.View
 
   events:
     "blur"    : "handleBlur"
-    "mouseup" : "handleTextSelection"
+    "mouseup" : "handleMouseUp"
     "keydown" : "handleKeyDown"
     "keyup"   : "handleCarriageReturn"
     "paste"   : "handlePaste"
     "destroyed .graf--first" : "handleDeletedContainer"
+    #".graf--p focus"   : "handleFocus"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -40,8 +41,11 @@ class Editor.MainEditor extends Backbone.View
     @store()
     @setupElementsClasses()
 
+    @title_placeholder = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
+    @body_placeholder  =  "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
+
   store: ()->
-    localStorage.setItem("contenteditable", $(@el).html )
+    localStorage.setItem("contenteditable", $(@el).html() )
     setTimeout ()=>
       console.log("storing")
       @store()
@@ -50,8 +54,8 @@ class Editor.MainEditor extends Backbone.View
   template: ()=>
     "<section class='section-content'>
       <div class='section-inner'>
-        <h3 class='graf--h3'>title here</h3>
-        <p class='graf--p'>body here<p>
+        <h3 class='graf--h3'>#{@title_placeholder}</h3>
+        <p class='graf--p'>#{@body_placeholder}<p>
       </div>
     </section>"
 
@@ -194,6 +198,16 @@ class Editor.MainEditor extends Backbone.View
     top =  offset.top - offset.height - 16
     @editor_menu.$el.offset({left: offset.left - padd, top: top })
 
+  hidePlaceholder: (element)->
+    $(element).find("span.defaultValue").remove().html("<br>")
+    #element.focus()
+    #@setRangeAt(element)
+
+
+  displayEmptyPlaceholder: (element)->
+    $(".graf--first").html(@title_placeholder)
+    $(".graf--last").html(@body_placeholder)
+
   handleBlur: (ev)=>
     #console.log(ev)
     #hide menu only if is not in use
@@ -204,17 +218,21 @@ class Editor.MainEditor extends Backbone.View
     @tooltip_view.hide()
     false
 
-  handleFocus: (ev)=>
-    console.log("Handle focus #{ev}")
+  handleMouseUp: (ev)=>
+    anchor_node = @getNode()
+    @handleTextSelection(anchor_node)
+    console.log anchor_node
+    @hidePlaceholder(anchor_node)
+    @markAsSelected( anchor_node )
+
 
   #get text of selected and displays menu
-  handleTextSelection: (ev)->
+  handleTextSelection: (anchor_node)->
     @editor_menu.hide()
     text = @getSelectedText()
     unless _.isEmpty text
       @current_range = @getRange()
-      @current_node  = @getNode()
-      #console.log(@current_range)
+      @current_node  = anchor_node
       @.displayMenu()
 
   handleCaret: ()->
@@ -224,8 +242,9 @@ class Editor.MainEditor extends Backbone.View
     console.log("ENTER ARROWS")
     #console.log @getNode()
     current_node = $(@getNode())
-    @markAsSelected( current_node )
-    @displayTooltipAt( current_node )
+    if current_node
+      @markAsSelected( current_node )
+      @displayTooltipAt( current_node )
 
   handlePaste: (ev)=>
     console.log("pasted!")
@@ -238,6 +257,8 @@ class Editor.MainEditor extends Backbone.View
     anchor_node = @getNode() #current node on which cursor is positioned
     #previous_node = anchor_node.previousSibling
     #next_node = anchor_node.nextSibling
+
+    @markAsSelected( anchor_node ) if anchor_node
 
     #enter key
     if (e.which == 13)
@@ -271,6 +292,7 @@ class Editor.MainEditor extends Backbone.View
       @tooltip_view.hide()
 
       if $(anchor_node).text() is ""
+        @displayEmptyPlaceholder()
         @position = $(anchor_node).offset()
         setTimeout(
           ()=>
@@ -310,12 +332,14 @@ class Editor.MainEditor extends Backbone.View
     #next_node = anchor_node.nextSibling
 
     if (e.which == 8)
-      console.log $(anchor_node).parent() if !$(anchor_node).parent()
-      if !@getNode()
+      console.log anchor_node
+      console.log $(anchor_node).parent() #if !$(anchor_node).parent()
+
+      if !anchor_node or anchor_node.nodeType is 3
         e.preventDefault()
         @render()
 
-        #  console.log "setting existing range"
+        console.log "setting existing range"
         @setupElementsClasses ()=>
           existent = $(@el).find('.section-inner').children().first()
           console.log("hogi")
@@ -332,6 +356,14 @@ class Editor.MainEditor extends Backbone.View
       @handleArrow(e)
 
     #@cleanContents()
+
+    #hides or display placeholder
+    #debugger
+    if anchor_node and !_.isEmpty $(anchor_node).text()
+      @hidePlaceholder(anchor_node)
+    #else if _.isEmpty $(anchor_node).text()
+    #  #@displayEmptyPlaceholder()
+
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
@@ -365,10 +397,6 @@ class Editor.MainEditor extends Backbone.View
 
   setupElementsClasses: (cb)->
     setTimeout ()=>
-      $(@el).find(".section-inner").find("div, span").contents().unwrap()
-      #_.each $(@el).find(".section-inner:first").find("span , div"), (n)->
-      #  $(n).replaceWith("<p>#{$(n).text()}<br></p>")
-
       _.each  $(@el).find(".section-inner").children(), (n)->
         name = $(n).prop("tagName").toLowerCase()
         $(n).removeClass().addClass("graf--#{name}")
@@ -377,15 +405,13 @@ class Editor.MainEditor extends Backbone.View
       childs.removeClass("graf--last , graf--first")
       childs.first().addClass("graf--first")
       childs.last().addClass("graf--last")
-
+      #childs.first().addClass("graf--first").attr('data-placeholder', "chualo");
       node = @getNode()
-
       @cleanContents()
-
       @markAsSelected( node ) #set selected
       @displayTooltipAt( node )
-      cb() if cb()
-    , 20
+      cb() if _.isFunction(cb)
+    , 2
 
   cleanContents: ()->
     #TODO: should config tags
@@ -418,15 +444,11 @@ class Editor.MainEditor extends Backbone.View
     getTextNodes node
     textNodes
 
-
   wrapTextNodes: ()->
     @textnodes = @getTextNodesIn($(@el).find(".section-inner")[0])
     _.each @textnodes.length , (num, index)=>
       if $(@textnodes[i]).parent().is(".section-inner")
-        $(@textnodes[i]).wrap("<p>");
-
-
-
+        $(@textnodes[i]).wrap("<p>")
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
@@ -569,15 +591,3 @@ class Editor.Tooltip extends Backbone.View
   hide: ()=>
     $(@el).hide()
 
-
-
-###
-addEvent(document.getElementById('clear'), 'click', function () {
-  localStorage.clear();
-  window.location = window.location; // refresh
-});
-
-if (localStorage.getItem('contenteditable')) {
-  editable.innerHTML = localStorage.getItem('contenteditable');
-}
-###
