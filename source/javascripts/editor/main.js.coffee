@@ -8,6 +8,7 @@ window.Editor = {
 + OK shows the + when selected <p> is empty
 + detect enter key between words to split and duplicate tags
 + actions over text
++ placeholders for first (empty) node
 ###
 
 # make it accessible
@@ -24,6 +25,7 @@ class Editor.MainEditor extends Backbone.View
     "keydown" : "handleKeyDown"
     "keyup"   : "handleCarriageReturn"
     "paste"   : "handlePaste"
+    "destroyed .graf--first" : "handleDeletedContainer"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -36,6 +38,7 @@ class Editor.MainEditor extends Backbone.View
       $(@el).html  localStorage.getItem('contenteditable')
 
     @store()
+    @setupElementsClasses()
 
   store: ()->
     localStorage.setItem("contenteditable", $(@el).html )
@@ -52,21 +55,31 @@ class Editor.MainEditor extends Backbone.View
       </div>
     </section>"
 
+  appendMenus: ()=>
+    $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
+    $("<div class='inlineTooltip2 button-scalableGroup is-active'></div>").insertAfter(@el)
+    @editor_menu = new Editor.Menu()
+    @tooltip_view = new Editor.Tooltip()
+    @tooltip_view.render()
+
+  start: ()=>
+    @render()
+    $(@el).attr("contenteditable", "true")
+    $(@el).addClass("postField--body")
+    $(@el).wrap("<div class='notesSource'></div>")
+    @appendMenus()
+
+  restart: ()=>
+    @render()
+
   render: ()=>
     @template()
     $(@el).html @template()
-    $(@el).attr("contenteditable", "true")
-    $(@el).addClass("postField--body")
 
-    $(@el).wrap("<div class='notesSource'></div>")
 
-    $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
-    $("<div class='inlineTooltip2 button-scalableGroup is-active'></div>").insertAfter(@el)
-
-    @editor_menu = new Editor.Menu()
-
-    @tooltip_view = new Editor.Tooltip()
-    @tooltip_view.render()
+  handleDeletedContainer: ()->
+    #only forefox ctrl+a or select all delete
+    alert("deleted")
 
   getSelectedText: () ->
     text = ""
@@ -86,7 +99,7 @@ class Editor.MainEditor extends Backbone.View
 
   getRange: () ->
     editor = $(@el)[0]
-    range = selection.rangeCount && selection.getRangeAt(0)
+    range = selection && selection.rangeCount && selection.getRangeAt(0)
     range = document.createRange() if (!range)
     if !editor.contains(range.commonAncestorContainer)
       range.selectNodeContents(editor)
@@ -135,7 +148,8 @@ class Editor.MainEditor extends Backbone.View
     range.collapse(true)
     sel.removeAllRanges()
     sel.addRange(range)
-    @el.focus()
+    #@el.focus()
+    element.focus()
 
   focus: (focusStart) ->
     @.setRange() if (!focusStart)
@@ -158,12 +172,15 @@ class Editor.MainEditor extends Backbone.View
     return null  if not node or node is root
     node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
     node = node.parentNode  while node and (node.parentNode isnt root)
-    (if root.contains(node) then node else null)
+    (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
-    @handleCaret()
-    @editor_menu.render()
-    @editor_menu.show()
+    #TODO: find out why this isn't propperly positioned the first time
+    setTimeout ()=>
+      @handleCaret()
+      @editor_menu.render()
+      @editor_menu.show()
+    , 10
 
   resetOffset: ($textField)=>
     offset = $textField.caret('offset');
@@ -212,7 +229,6 @@ class Editor.MainEditor extends Backbone.View
 
   handlePaste: (ev)=>
     console.log("pasted!")
-    @cleanContents()
     @setupElementsClasses()
 
   #overrides default behavior
@@ -234,7 +250,7 @@ class Editor.MainEditor extends Backbone.View
       console.log @isLastChar()
 
       #if parent.prop("tagName") != "P"
-      # if matches the linebreak match
+      #if matches the linebreak match
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph is it the last character
         if @isLastChar()
@@ -247,38 +263,10 @@ class Editor.MainEditor extends Backbone.View
         e.preventDefault()
         @handleLineBreakWith("p", parent)
 
-      @setupElementsClasses()
-
-  handleCarriageReturn: (e)->
-    @editor_menu.hide() #hides menu just in case
-
-    anchor_node = @getNode() #current node on which cursor is positioned
-    #previous_node = anchor_node.previousSibling
-    #next_node = anchor_node.nextSibling
-
-    #enter key
-    ###
-    if (e.which == 13)
-      #removes all childs
-      $(@el).find(".is-selected").removeClass("is-selected")
-
-      parent = $(anchor_node)
-
-
-      e.preventDefault()
-
-      if parent.prop("tagName") != "P"
-        # if matches the linebreak match
-        if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
-
-          @handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
-        else
-          @handleLineBreakWith("p", parent)
-      else
-        @handleLineBreakWith("p", parent)
-    ###
+      #@setupElementsClasses()
 
     #delete key
+
     if (e.which == 8)
       @tooltip_view.hide()
 
@@ -286,17 +274,64 @@ class Editor.MainEditor extends Backbone.View
         @position = $(anchor_node).offset()
         setTimeout(
           ()=>
+            return unless @position
             @tooltip_view.render()
             @tooltip_view.move(left: @position.left - 60 , top: @position.top - 10 )
         , 200)
 
-      @setupElementsClasses()
+      #@setupElementsClasses()
+
+      #AQUI ES LA COSA
+      # si esta borrando el primer , entonces que no borre
+      # si se borra todo el contenido, crea el first y setea el caret ahi
+
+      #si no encuentra parent , borra toda la guea
+
+      if !anchor_node
+        console.log("preventing now!")
+        e.preventDefault()
+
+
+
+        #if !anchor_node or !$(anchor_node).parent().is(".section-inner")
+        #  @handleLineBreakWith("p", $(@el).find(".section-inner") )
+        #false
+
+      #if $(anchor_node).hasClass("graf--last") or $(anchor_node).hasClass("graf--first")
+      #  console.log "REMOVING PREVENTED!"
+      #  e.preventDefault()
+
+
+  handleCarriageReturn: (e , node)->
+    @editor_menu.hide() #hides menu just in case
+
+    anchor_node = @getNode() #current node on which cursor is positioned
+    #previous_node = anchor_node.previousSibling
+    #next_node = anchor_node.nextSibling
+
+    if (e.which == 8)
+      console.log $(anchor_node).parent() if !$(anchor_node).parent()
+      if !@getNode()
+        e.preventDefault()
+        @render()
+
+        #  console.log "setting existing range"
+        @setupElementsClasses ()=>
+          existent = $(@el).find('.section-inner').children().first()
+          console.log("hogi")
+          console.log existent
+          existent.focus()
+          @setRangeAt(existent[0])
+
+          @wrapTextNodes()
+
+        false
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
 
-    @cleanContents()
+    #@cleanContents()
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
@@ -316,6 +351,7 @@ class Editor.MainEditor extends Backbone.View
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
     #console.log $(element)
+    return if !element
     @tooltip_view.hide()
     return unless _.isEmpty( $(element).text() )
     @position = $(element).offset()
@@ -327,9 +363,9 @@ class Editor.MainEditor extends Backbone.View
     $(@el).find(".is-selected").removeClass("is-selected")
     $(element).addClass("is-selected")
 
-  setupElementsClasses: ()->
+  setupElementsClasses: (cb)->
     setTimeout ()=>
-      #$(@el).find(".section-inner").find("span , div").contents().unwrap()
+      $(@el).find(".section-inner").find("div, span").contents().unwrap()
       #_.each $(@el).find(".section-inner:first").find("span , div"), (n)->
       #  $(n).replaceWith("<p>#{$(n).text()}<br></p>")
 
@@ -337,17 +373,60 @@ class Editor.MainEditor extends Backbone.View
         name = $(n).prop("tagName").toLowerCase()
         $(n).removeClass().addClass("graf--#{name}")
 
+      childs = $(@el).find(".section-inner").children()
+      childs.removeClass("graf--last , graf--first")
+      childs.first().addClass("graf--first")
+      childs.last().addClass("graf--last")
+
       node = @getNode()
+
+      @cleanContents()
+
       @markAsSelected( node ) #set selected
       @displayTooltipAt( node )
-
+      cb() if cb()
     , 20
 
   cleanContents: ()->
     #TODO: should config tags
     console.log("CLEAN CONTENTS NAW")
-    node = @getNode()
-    $(node).find("span , div").contents().unwrap()
+    s = new Sanitize
+      elements: ['a', 'span', 'pre', 'p', 'h1', 'h2', 'h3']
+      attributes:
+          '__ALL__': ['class']
+          a: ['href', 'title']
+      protocols:
+          a: { href: ['http', 'https', 'mailto'] }
+
+    console.log "CLEAN HTML"
+    $(@el).find('.section-inner').html(s.clean_node( $(@el).find('.section-inner')[0] ))
+    #.contents().unwrap()
+
+  getTextNodesIn: (node, includeWhitespaceNodes) ->
+    getTextNodes = (node) ->
+      if node.nodeType is 3
+        textNodes.push node  if includeWhitespaceNodes or not whitespace.test(node.nodeValue)
+      else
+        i = 0
+        len = node.childNodes.length
+        while i < len
+          getTextNodes node.childNodes[i]
+          ++i
+      return
+    textNodes = []
+    whitespace = /^\s*$/
+    getTextNodes node
+    textNodes
+
+
+  wrapTextNodes: ()->
+    @textnodes = @getTextNodesIn($(@el).find(".section-inner")[0])
+    _.each @textnodes.length , (num, index)=>
+      if $(@textnodes[i]).parent().is(".section-inner")
+        $(@textnodes[i]).wrap("<p>");
+
+
+
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
