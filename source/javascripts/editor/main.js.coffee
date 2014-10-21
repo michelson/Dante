@@ -303,25 +303,9 @@ class Editor.MainEditor extends Backbone.View
 
       #@setupElementsClasses()
 
-      #AQUI ES LA COSA
-      # si esta borrando el primer , entonces que no borre
-      # si se borra todo el contenido, crea el first y setea el caret ahi
-
-      #si no encuentra parent , borra toda la guea
-
       if !anchor_node
         console.log("preventing now!")
         e.preventDefault()
-
-
-
-        #if !anchor_node or !$(anchor_node).parent().is(".section-inner")
-        #  @handleLineBreakWith("p", $(@el).find(".section-inner") )
-        #false
-
-      #if $(anchor_node).hasClass("graf--last") or $(anchor_node).hasClass("graf--first")
-      #  console.log "REMOVING PREVENTED!"
-      #  e.preventDefault()
 
 
   handleCarriageReturn: (e , node)->
@@ -332,22 +316,38 @@ class Editor.MainEditor extends Backbone.View
     #next_node = anchor_node.nextSibling
 
     if (e.which == 8)
+      console.log "DELETING"
       console.log anchor_node
       console.log $(anchor_node).parent() #if !$(anchor_node).parent()
 
+      #if there is no anchor and is only a text node
       if !anchor_node or anchor_node.nodeType is 3
         e.preventDefault()
-        @render()
 
-        console.log "setting existing range"
-        @setupElementsClasses ()=>
-          existent = $(@el).find('.section-inner').children().first()
-          console.log("hogi")
-          console.log existent
+        existent = $(@el).find('.section-inner').find("p:first")
+        if _.isEmpty(existent)
+          @render()
+          console.log "setting existing range"
+          @setupElementsClasses ()=>
+            new_node = $(@el).find('.section-inner').children().first()
+            console.log("hogi")
+            console.log existent
+            new_node.focus()
+            @setRangeAt(new_node[0])
+            #@wrapTextNodes()
+        else
           existent.focus()
           @setRangeAt(existent[0])
+          #@wrapTextNodes()
+        false
+      if !anchor_node
 
-          @wrapTextNodes()
+        existent = $(@el).find('.section-inner').find("p:first")
+        console.log(existent)
+        if !_.isEmpty(existent)
+          existent.focus()
+          debugger
+          @setRangeAt(existent[0])
 
         false
 
@@ -417,7 +417,7 @@ class Editor.MainEditor extends Backbone.View
     #TODO: should config tags
     console.log("CLEAN CONTENTS NAW")
     s = new Sanitize
-      elements: ['a', 'span', 'pre', 'p', 'h1', 'h2', 'h3']
+      elements: ['a', 'blockquote', 'b', 'u', 'i' ,  'span', 'pre', 'p', 'h1', 'h2', 'h3']
       attributes:
           '__ALL__': ['class']
           a: ['href', 'title']
@@ -513,7 +513,7 @@ class Editor.Menu extends Backbone.View
     else
       console.log "can't find command function for name: " + name
 
-    @cleanContents()
+    #@cleanContents()
     false
 
   cleanContents: ()->
