@@ -9,6 +9,7 @@ window.Editor = {
 + detect enter key between words to split and duplicate tags
 + actions over text
 + placeholders for first (empty) node
++ on paste set caret to the last (or first?) element
 ###
 
 # make it accessible
@@ -26,6 +27,7 @@ class Editor.MainEditor extends Backbone.View
     "keyup"   : "handleCarriageReturn"
     "paste"   : "handlePaste"
     "destroyed .graf--first" : "handleDeletedContainer"
+
     #".graf--p focus"   : "handleFocus"
 
   initialize: (opts = {})=>
@@ -42,7 +44,7 @@ class Editor.MainEditor extends Backbone.View
     @setupElementsClasses()
 
     @title_placeholder = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
-    @body_placeholder  =  "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
+    @body_placeholder  = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
 
   store: ()->
     localStorage.setItem("contenteditable", $(@el).html() )
@@ -54,7 +56,7 @@ class Editor.MainEditor extends Backbone.View
   template: ()=>
     "<section class='section-content'>
       <div class='section-inner'>
-        <h3 class='graf--h3'>#{@title_placeholder}</h3>
+        <p class='graf--h3'>#{@title_placeholder}</p>
         <p class='graf--p'>#{@body_placeholder}<p>
       </div>
     </section>"
@@ -248,7 +250,67 @@ class Editor.MainEditor extends Backbone.View
 
   handlePaste: (ev)=>
     console.log("pasted!")
-    @setupElementsClasses()
+
+    setTimeout ()=>
+      @aa =  @getNode()
+      @setupElementsClasses ()=>
+        debugger
+        $(@aa).prev('[class^="graf--"]').focus()
+    , 20
+    #@setupElementsClasses ()=>
+    #  $(@el).find(".section-inner").focus()
+
+  ###
+  handlepaste: (elem, e) ->
+    savedcontent = elem.innerHTML
+    console.log("pasted! #{elem.innerHTML}")
+    if e and e.clipboardData and e.clipboardData.getData # Webkit - get data from clipboard, put into editdiv, cleanup, then cancel event
+      if /text\/html/.test(e.clipboardData.types)
+        elem.innerHTML = e.clipboardData.getData("text/html")
+      else if /text\/plain/.test(e.clipboardData.types)
+        elem.innerHTML = e.clipboardData.getData("text/plain")
+      else
+        elem.innerHTML = ""
+      @waitforpastedata elem, savedcontent
+      if e.preventDefault
+        e.stopPropagation()
+        e.preventDefault()
+      false
+    else # Everything else - empty editdiv and allow browser to paste content into it, then cleanup
+      elem.innerHTML = ""
+      @waitforpastedata elem, savedcontent
+      true
+
+  waitforpastedata: (elem, savedcontent) ->
+    if elem.childNodes and elem.childNodes.length > 0
+      @processpaste elem, savedcontent
+    else
+      that =
+        e: elem
+        s: savedcontent
+
+      that.callself = =>
+        @waitforpastedata that.e, that.s
+        return
+
+      setTimeout that.callself, 20
+    return
+
+  processpaste: (elem, savedcontent) ->
+    pasteddata = elem.innerHTML
+    console.log savedcontent
+    #^^Alternatively loop through dom (elem.childNodes or elem.getElementsByTagName) here
+    elem.innerHTML = savedcontent
+
+    # Do whatever with gathered data;
+    alert pasteddata
+
+    #@setupElementsClasses
+    #()=>
+    #$(@el).focus()
+
+    return
+  ###
 
   #overrides default behavior
   handleKeyDown: (e)->
@@ -320,36 +382,66 @@ class Editor.MainEditor extends Backbone.View
       console.log anchor_node
       console.log $(anchor_node).parent() #if !$(anchor_node).parent()
 
-      #if there is no anchor and is only a text node
-      if !anchor_node or anchor_node.nodeType is 3
+
+      if !anchor_node
+        console.log("preventing now!")
         e.preventDefault()
 
-        existent = $(@el).find('.section-inner').find("p:first")
-        if _.isEmpty(existent)
-          @render()
-          console.log "setting existing range"
+      #if there is no anchor and is only a text node
+      if !anchor_node or anchor_node.nodeType is 3
+        console.log "HADLING TXT NODES"
+        e.preventDefault()
+        #debugger
+
+        #case when anchor is text and is a previous grap-- class
+
+        if !_.isNull(anchor_node) && $(anchor_node).prev().is('[class^="graf--"]')
+          console.log anchor_node.textContent
+          console.log $(anchor_node).prev()
+          content = anchor_node.textContent
+          prev = $(anchor_node).prev()
+          prev.append(content)
+          console.log("appended content to p")
+
+          return
+
+
+        existent = $(@el).find('.section-inner').children('[class^="graf--"]').first()
+        #when
+        if !_.isEmpty(existent)
+          #@render()
+          console.log "setting new range"
           @setupElementsClasses ()=>
-            new_node = $(@el).find('.section-inner').children().first()
+            #new_node = $(@el).find('.section-inner').children().first()
+            new_node = $("<p class='graf graf--p graf--empty is-selected'><br/></p>")
+            $(@el).find('.section-inner').prepend(new_node)
             console.log("hogi")
             console.log existent
             new_node.focus()
             @setRangeAt(new_node[0])
-            #@wrapTextNodes()
+            @wrapTextNodes()
         else
+          console.log "setting existing range"
+          console.log existent
           existent.focus()
           @setRangeAt(existent[0])
           #@wrapTextNodes()
         false
-      if !anchor_node
+
+      else if !anchor_node
+
+        console.log "HADLING EMPTY NODE"
 
         existent = $(@el).find('.section-inner').find("p:first")
         console.log(existent)
         if !_.isEmpty(existent)
-          existent.focus()
-          debugger
-          @setRangeAt(existent[0])
+          @setupElementsClasses ()=>
+            existent = $(@el).find('.section-inner').children().first()
+            existent.focus()
+            @setRangeAt(existent[0])
 
         false
+
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
@@ -359,10 +451,8 @@ class Editor.MainEditor extends Backbone.View
 
     #hides or display placeholder
     #debugger
-    if anchor_node and !_.isEmpty $(anchor_node).text()
-      @hidePlaceholder(anchor_node)
-    #else if _.isEmpty $(anchor_node).text()
-    #  #@displayEmptyPlaceholder()
+    #if anchor_node and !_.isEmpty $(anchor_node).text()
+    #  @hidePlaceholder(anchor_node)
 
 
   #TODO: Separate in little functions
@@ -411,7 +501,7 @@ class Editor.MainEditor extends Backbone.View
       @markAsSelected( node ) #set selected
       @displayTooltipAt( node )
       cb() if _.isFunction(cb)
-    , 2
+    , 200
 
   cleanContents: ()->
     #TODO: should config tags
