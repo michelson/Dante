@@ -254,8 +254,8 @@ class Editor.MainEditor extends Backbone.View
     setTimeout ()=>
       @aa =  @getNode()
       @setupElementsClasses ()=>
-        debugger
-        $(@aa).prev('[class^="graf--"]').focus()
+        #debugger
+        #$(@aa).next('[class^="graf--"]').focus()
     , 20
     #@setupElementsClasses ()=>
     #  $(@el).find(".section-inner").focus()

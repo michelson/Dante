@@ -121,7 +121,7 @@ header{
 .postField--body {
     margin-bottom: 30px;
 }
-.postContent {
+.postContent, .notesSource {
     font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
     font-size: 22px;
     font-style: normal;
@@ -405,7 +405,9 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
 
 .section-inner {
   .is-selected{
-    border: 1px solid #ccc;
+    outline-color: rgb(85, 182, 179);
+    outline-width: thin;
+    outline-style: dotted;
   }
 }
 
