@@ -145,6 +145,9 @@ class Editor.MainEditor extends Backbone.View
   isLastChar: ()->
     $(@getNode()).text().length is @getCharacterPrecedingCaret().length
 
+  isFirstChar: ()->
+    @getCharacterPrecedingCaret().length is 0
+
   #set focus and caret position on element
   setRangeAt: (element)->
     range = document.createRange()
@@ -171,18 +174,11 @@ class Editor.MainEditor extends Backbone.View
 
   #get the element that wraps Caret position
   getNode: ()->
-    ###
+
     node = undefined
     root = $(@el).find(".section-inner")[0]
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
-    return null  if not node or node is root
-    node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
-    node = node.parentNode  while node and (node.parentNode isnt root)
-    (if root && root.contains(node) then node else null)
-    ###
-    root = $(@el).find(".section-inner")[0]
-    node = document.getSelection().anchorNode
     return null  if not node or node is root
     node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
     node = node.parentNode  while node and (node.parentNode isnt root)
@@ -213,7 +209,6 @@ class Editor.MainEditor extends Backbone.View
     #element.focus()
     #@setRangeAt(element)
 
-
   displayEmptyPlaceholder: (element)->
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
@@ -237,7 +232,6 @@ class Editor.MainEditor extends Backbone.View
     console.log anchor_node
     @hidePlaceholder(anchor_node)
     @markAsSelected( anchor_node )
-
 
   #get text of selected and displays menu
   handleTextSelection: (anchor_node)->
@@ -324,7 +318,12 @@ class Editor.MainEditor extends Backbone.View
   ###
 
   #overrides default behavior
+  #handleKeyPress: (e)=>
+  #  console.log "SSS"
+  #  false
+
   handleKeyDown: (e)->
+    console.log "KEYDOWN"
     #e.preventDefault() if _.contains([13], e.which)
 
     anchor_node = @getNode() #current node on which cursor is positioned
@@ -373,12 +372,11 @@ class Editor.MainEditor extends Backbone.View
     if (e.which == 8)
       @tooltip_view.hide()
 
+      #console.log @isFirstChar()
       console.log "REACHED TOP" if @reachedTop
-      top = @reachedTop
-      @reachedTop = false
-      return false if top && _.isEmpty editor.getCharacterPrecedingCaret()
+      return false if @prevented or @reachedTop && @isFirstChar()
 
-      #@setupElementsClasses()
+      return if !anchor_node or anchor_node.nodeType is 3
 
       if !anchor_node
         console.log("preventing now!")
@@ -394,19 +392,17 @@ class Editor.MainEditor extends Backbone.View
             @tooltip_view.move(left: @position.left - 60 , top: @position.top - 10 )
         , 200)
 
-
-
   handleKeyUp: (e , node)->
-    @editor_menu.hide() #hides menu just in case
+    console.log "KEYUP"
 
+    @editor_menu.hide() #hides menu just in case
+    @reachedTop = false
     anchor_node = @getNode() #current node on which cursor is positioned
     #previous_node = anchor_node.previousSibling
     #next_node = anchor_node.nextSibling
 
     if (e.which == 8)
-      console.log "DELETING"
-      console.log anchor_node
-      console.log $(anchor_node).parent() #if !$(anchor_node).parent()
+      return false if !anchor_node or anchor_node.nodeType is 3
 
       if $(@getNode()).hasClass("graf--first")
         console.log "THE FIRST ONE! UP"
@@ -417,22 +413,8 @@ class Editor.MainEditor extends Backbone.View
 
       if !anchor_node
         console.log("preventing now!")
-        e.preventDefault()
-
-      #if there is no anchor and is only a text node
-      if !anchor_node or anchor_node.nodeType is 3
-        console.log "HADLING TXT NODES WITH"
-        existent = $(@el).find('.section-inner').children('[class^="graf--"]').first()
-        if !_.isEmpty(existent)
-          console.log "setting new range"
-          @setupElementsClasses ()=>
-            new_node = $("<p class='graf graf--p graf--empty is-selected'><br/></p>")
-            $(@el).find('.section-inner').prepend(new_node)
-            console.log("hogi")
-            console.log existent
-            new_node.focus()
-            @setRangeAt(new_node[0])
-            @wrapTextNodes()
+        @prevented = true
+        #e.preventDefault()
         false
 
       @markAsSelected(@getNode())
@@ -441,13 +423,6 @@ class Editor.MainEditor extends Backbone.View
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
-
-    #@cleanContents()
-
-    #hides or display placeholder
-    #debugger
-    #if anchor_node and !_.isEmpty $(anchor_node).text()
-    #  @hidePlaceholder(anchor_node)
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
@@ -479,6 +454,8 @@ class Editor.MainEditor extends Backbone.View
     $(@el).find(".is-selected").removeClass("is-selected")
     $(element).addClass("is-selected")
     $(element).find(".defaultValue").remove()
+    #set reached top if element is first!
+    @reachedTop = true if $(element).hasClass("graf--first")
 
   setupElementsClasses: (cb)->
     setTimeout ()=>
