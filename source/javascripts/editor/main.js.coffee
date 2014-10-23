@@ -24,10 +24,10 @@ class Editor.MainEditor extends Backbone.View
     "blur"    : "handleBlur"
     "mouseup" : "handleMouseUp"
     "keydown" : "handleKeyDown"
-    "keyup"   : "handleCarriageReturn"
+    "keyup"   : "handleKeyUp"
     "paste"   : "handlePaste"
     "destroyed .graf--first" : "handleDeletedContainer"
-
+    "focus .graf" : "handleFocus"
     #".graf--p focus"   : "handleFocus"
 
   initialize: (opts = {})=>
@@ -171,10 +171,18 @@ class Editor.MainEditor extends Backbone.View
 
   #get the element that wraps Caret position
   getNode: ()->
+    ###
     node = undefined
     root = $(@el).find(".section-inner")[0]
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
+    return null  if not node or node is root
+    node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
+    node = node.parentNode  while node and (node.parentNode isnt root)
+    (if root && root.contains(node) then node else null)
+    ###
+    root = $(@el).find(".section-inner")[0]
+    node = document.getSelection().anchorNode
     return null  if not node or node is root
     node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
     node = node.parentNode  while node and (node.parentNode isnt root)
@@ -209,6 +217,9 @@ class Editor.MainEditor extends Backbone.View
   displayEmptyPlaceholder: (element)->
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
+
+  handleFocus: (ev)=>
+    markAsSelected(ev.currentTarget)
 
   handleBlur: (ev)=>
     #console.log(ev)
@@ -348,13 +359,33 @@ class Editor.MainEditor extends Backbone.View
 
       #@setupElementsClasses()
 
+
+      console.log "OAOAOA"
+      console.log  @getNode()
+      setTimeout ()=>
+        @markAsSelected( @getNode() ) #if anchor_node
+        @setupFirstAndLast()
+      , 2
+
+
     #delete key
 
     if (e.which == 8)
       @tooltip_view.hide()
 
-      if $(anchor_node).text() is ""
-        @displayEmptyPlaceholder()
+      console.log "REACHED TOP" if @reachedTop
+      top = @reachedTop
+      @reachedTop = false
+      return false if top && _.isEmpty editor.getCharacterPrecedingCaret()
+
+      #@setupElementsClasses()
+
+      if !anchor_node
+        console.log("preventing now!")
+        #e.preventDefault()
+
+      if anchor_node = @getNode() && $(@getNode()).text() is ""
+        #@displayEmptyPlaceholder()
         @position = $(anchor_node).offset()
         setTimeout(
           ()=>
@@ -363,14 +394,9 @@ class Editor.MainEditor extends Backbone.View
             @tooltip_view.move(left: @position.left - 60 , top: @position.top - 10 )
         , 200)
 
-      #@setupElementsClasses()
-
-      if !anchor_node
-        console.log("preventing now!")
-        e.preventDefault()
 
 
-  handleCarriageReturn: (e , node)->
+  handleKeyUp: (e , node)->
     @editor_menu.hide() #hides menu just in case
 
     anchor_node = @getNode() #current node on which cursor is positioned
@@ -382,6 +408,12 @@ class Editor.MainEditor extends Backbone.View
       console.log anchor_node
       console.log $(anchor_node).parent() #if !$(anchor_node).parent()
 
+      if $(@getNode()).hasClass("graf--first")
+        console.log "THE FIRST ONE! UP"
+        @reachedTop = true
+        @markAsSelected(@getNode())
+        @setupFirstAndLast()
+        false
 
       if !anchor_node
         console.log("preventing now!")
@@ -389,30 +421,11 @@ class Editor.MainEditor extends Backbone.View
 
       #if there is no anchor and is only a text node
       if !anchor_node or anchor_node.nodeType is 3
-        console.log "HADLING TXT NODES"
-        e.preventDefault()
-        #debugger
-
-        #case when anchor is text and is a previous grap-- class
-
-        if !_.isNull(anchor_node) && $(anchor_node).prev().is('[class^="graf--"]')
-          console.log anchor_node.textContent
-          console.log $(anchor_node).prev()
-          content = anchor_node.textContent
-          prev = $(anchor_node).prev()
-          prev.append(content)
-          console.log("appended content to p")
-
-          return
-
-
+        console.log "HADLING TXT NODES WITH"
         existent = $(@el).find('.section-inner').children('[class^="graf--"]').first()
-        #when
         if !_.isEmpty(existent)
-          #@render()
           console.log "setting new range"
           @setupElementsClasses ()=>
-            #new_node = $(@el).find('.section-inner').children().first()
             new_node = $("<p class='graf graf--p graf--empty is-selected'><br/></p>")
             $(@el).find('.section-inner').prepend(new_node)
             console.log("hogi")
@@ -420,28 +433,10 @@ class Editor.MainEditor extends Backbone.View
             new_node.focus()
             @setRangeAt(new_node[0])
             @wrapTextNodes()
-        else
-          console.log "setting existing range"
-          console.log existent
-          existent.focus()
-          @setRangeAt(existent[0])
-          #@wrapTextNodes()
         false
 
-      else if !anchor_node
-
-        console.log "HADLING EMPTY NODE"
-
-        existent = $(@el).find('.section-inner').find("p:first")
-        console.log(existent)
-        if !_.isEmpty(existent)
-          @setupElementsClasses ()=>
-            existent = $(@el).find('.section-inner').children().first()
-            existent.focus()
-            @setRangeAt(existent[0])
-
-        false
-
+      @markAsSelected(@getNode())
+      @setupFirstAndLast()
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
@@ -453,7 +448,6 @@ class Editor.MainEditor extends Backbone.View
     #debugger
     #if anchor_node and !_.isEmpty $(anchor_node).text()
     #  @hidePlaceholder(anchor_node)
-
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
@@ -484,28 +478,25 @@ class Editor.MainEditor extends Backbone.View
   markAsSelected: (element)->
     $(@el).find(".is-selected").removeClass("is-selected")
     $(element).addClass("is-selected")
+    $(element).find(".defaultValue").remove()
 
   setupElementsClasses: (cb)->
     setTimeout ()=>
       _.each  $(@el).find(".section-inner").children(), (n)->
         name = $(n).prop("tagName").toLowerCase()
-        $(n).removeClass().addClass("graf--#{name}")
+        $(n).removeClass().addClass("graf , graf--#{name}")
 
-      childs = $(@el).find(".section-inner").children()
-      childs.removeClass("graf--last , graf--first")
-      childs.first().addClass("graf--first")
-      childs.last().addClass("graf--last")
+      @setupFirstAndLast()
       #childs.first().addClass("graf--first").attr('data-placeholder', "chualo");
       node = @getNode()
       @cleanContents()
       @markAsSelected( node ) #set selected
       @displayTooltipAt( node )
       cb() if _.isFunction(cb)
-    , 200
+    , 20
 
   cleanContents: ()->
     #TODO: should config tags
-    console.log("CLEAN CONTENTS NAW")
     s = new Sanitize
       elements: ['a', 'blockquote', 'b', 'u', 'i' ,  'span', 'pre', 'p', 'h1', 'h2', 'h3']
       attributes:
@@ -515,8 +506,15 @@ class Editor.MainEditor extends Backbone.View
           a: { href: ['http', 'https', 'mailto'] }
 
     console.log "CLEAN HTML"
-    $(@el).find('.section-inner').html(s.clean_node( $(@el).find('.section-inner')[0] ))
+    unless _.isEmpty $(@el).find('.section-inner')
+      $(@el).find('.section-inner').html(s.clean_node( $(@el).find('.section-inner')[0] ))
     #.contents().unwrap()
+
+  setupFirstAndLast: ()=>
+    childs = $(@el).find(".section-inner").children()
+    childs.removeClass("graf--last , graf--first")
+    childs.first().addClass("graf--first")
+    childs.last().addClass("graf--last")
 
   getTextNodesIn: (node, includeWhitespaceNodes) ->
     getTextNodes = (node) ->
