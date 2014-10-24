@@ -10,6 +10,11 @@ window.Editor = {
 + actions over text
 + placeholders for first (empty) node
 + on paste set caret to the last (or first?) element
++ parse images or objects
++ remove inner spans and other shits
++ WRAP INTO PARAGRAPHS ORPHANS
+  + convert divs into p
+  + a, img,  wrap with p
 ###
 
 # make it accessible
@@ -81,7 +86,6 @@ class Editor.MainEditor extends Backbone.View
   render: ()=>
     @template()
     $(@el).html @template()
-
 
   handleDeletedContainer: ()->
     #only forefox ctrl+a or select all delete
@@ -174,7 +178,6 @@ class Editor.MainEditor extends Backbone.View
 
   #get the element that wraps Caret position
   getNode: ()->
-
     node = undefined
     root = $(@el).find(".section-inner")[0]
     range = @selection().getRangeAt(0)
@@ -317,11 +320,6 @@ class Editor.MainEditor extends Backbone.View
     return
   ###
 
-  #overrides default behavior
-  #handleKeyPress: (e)=>
-  #  console.log "SSS"
-  #  false
-
   handleKeyDown: (e)->
     console.log "KEYDOWN"
     #e.preventDefault() if _.contains([13], e.which)
@@ -339,58 +337,45 @@ class Editor.MainEditor extends Backbone.View
 
       parent = $(anchor_node)
 
-      #debugger
       console.log @isLastChar()
 
-      #if parent.prop("tagName") != "P"
-      #if matches the linebreak match
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph is it the last character
         if @isLastChar()
+          console.log "new paragraph is it the last character"
           e.preventDefault()
           @handleLineBreakWith("p", parent)
         else
           #@handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
       else if !anchor_node
-        console.log "AYAYAY"
+        console.log "creating new line break"
         e.preventDefault()
         @handleLineBreakWith("p", parent)
 
       #@setupElementsClasses()
 
-
       console.log "OAOAOA"
-      console.log  @getNode()
+      console.log  anchor_node
       setTimeout ()=>
         @markAsSelected( @getNode() ) #if anchor_node
         @setupFirstAndLast()
       , 2
 
-
     #delete key
-
     if (e.which == 8)
       @tooltip_view.hide()
-
-      #console.log @isFirstChar()
+      console.log("removing from down")
       console.log "REACHED TOP" if @reachedTop
       return false if @prevented or @reachedTop && @isFirstChar()
+      #return false if !anchor_node or anchor_node.nodeType is 3
 
-      return if !anchor_node or anchor_node.nodeType is 3
-
-      if !anchor_node
-        console.log("preventing now!")
-        #e.preventDefault()
+      console.log("pass initial validations")
 
       if anchor_node = @getNode() && $(@getNode()).text() is ""
         #@displayEmptyPlaceholder()
-        @position = $(anchor_node).offset()
-        setTimeout(
-          ()=>
-            return unless @position
-            @tooltip_view.render()
-            @tooltip_view.move(left: @position.left - 60 , top: @position.top - 10 )
-        , 200)
+        console.log("TextNode detected from Down!")
+
+      #@displayTooltipAt(anchor_node)
 
   handleKeyUp: (e , node)->
     console.log "KEYUP"
@@ -402,19 +387,13 @@ class Editor.MainEditor extends Backbone.View
     #next_node = anchor_node.nextSibling
 
     if (e.which == 8)
-      return false if !anchor_node or anchor_node.nodeType is 3
+      #console.log "false from keyup" if !anchor_node or anchor_node.nodeType is 3
+      #return false if !anchor_node or anchor_node.nodeType is 3
 
       if $(@getNode()).hasClass("graf--first")
         console.log "THE FIRST ONE! UP"
-        @reachedTop = true
         @markAsSelected(@getNode())
         @setupFirstAndLast()
-        false
-
-      if !anchor_node
-        console.log("preventing now!")
-        @prevented = true
-        #e.preventDefault()
         false
 
       @markAsSelected(@getNode())
@@ -441,7 +420,8 @@ class Editor.MainEditor extends Backbone.View
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
-    #console.log $(element)
+    console.log ("POSITION FOR TOOLTIP")
+    console.log $(element)
     return if !element
     @tooltip_view.hide()
     return unless _.isEmpty( $(element).text() )
@@ -449,13 +429,15 @@ class Editor.MainEditor extends Backbone.View
     @tooltip_view.render()
     @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
 
-  #mak the current row as selected
+  #mark the current row as selected
   markAsSelected: (element)->
     $(@el).find(".is-selected").removeClass("is-selected")
     $(element).addClass("is-selected")
     $(element).find(".defaultValue").remove()
     #set reached top if element is first!
-    @reachedTop = true if $(element).hasClass("graf--first")
+    if $(element).hasClass("graf--first")
+      @reachedTop = true
+      $(element).append("<br>") if $(element).find("br").length is 0
 
   setupElementsClasses: (cb)->
     setTimeout ()=>
@@ -467,6 +449,7 @@ class Editor.MainEditor extends Backbone.View
       #childs.first().addClass("graf--first").attr('data-placeholder', "chualo");
       node = @getNode()
       @cleanContents()
+      @wrapTextNodes()
       @markAsSelected( node ) #set selected
       @displayTooltipAt( node )
       cb() if _.isFunction(cb)
@@ -493,27 +476,10 @@ class Editor.MainEditor extends Backbone.View
     childs.first().addClass("graf--first")
     childs.last().addClass("graf--last")
 
-  getTextNodesIn: (node, includeWhitespaceNodes) ->
-    getTextNodes = (node) ->
-      if node.nodeType is 3
-        textNodes.push node  if includeWhitespaceNodes or not whitespace.test(node.nodeValue)
-      else
-        i = 0
-        len = node.childNodes.length
-        while i < len
-          getTextNodes node.childNodes[i]
-          ++i
-      return
-    textNodes = []
-    whitespace = /^\s*$/
-    getTextNodes node
-    textNodes
-
   wrapTextNodes: ()->
-    @textnodes = @getTextNodesIn($(@el).find(".section-inner")[0])
-    _.each @textnodes.length , (num, index)=>
-      if $(@textnodes[i]).parent().is(".section-inner")
-        $(@textnodes[i]).wrap("<p>")
+    $(@el).find(".section-inner").contents().filter(->
+      @nodeType is 3 and @data.trim().length > 0
+    ).wrap "<p class='graf grap--p'></p>"
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
