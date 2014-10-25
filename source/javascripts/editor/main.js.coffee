@@ -6,15 +6,19 @@ window.Editor = {
 #TODO:
 + OK set selected <p> like medium
 + OK shows the + when selected <p> is empty
+  + check from key 8
+  + check from enter
 + detect enter key between words to split and duplicate tags
 + actions over text
-+ placeholders for first (empty) node
++ OK placeholders for first (empty) node
 + on paste set caret to the last (or first?) element
 + parse images or objects
 + remove inner spans and other shits
-+ WRAP INTO PARAGRAPHS ORPHANS
++ CLEAN PROCESS:
+  + OK WRAP INTO PARAGRAPHS ORPHANS
   + convert divs into p
   + a, img,  wrap with p
+  + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
 ###
 
 # make it accessible
@@ -389,6 +393,7 @@ class Editor.MainEditor extends Backbone.View
     if (e.which == 8)
       #console.log "false from keyup" if !anchor_node or anchor_node.nodeType is 3
       #return false if !anchor_node or anchor_node.nodeType is 3
+      @handleCompleteDeletion($(@el))
 
       if $(@getNode()).hasClass("graf--first")
         console.log "THE FIRST ONE! UP"
@@ -480,6 +485,16 @@ class Editor.MainEditor extends Backbone.View
     $(@el).find(".section-inner").contents().filter(->
       @nodeType is 3 and @data.trim().length > 0
     ).wrap "<p class='graf grap--p'></p>"
+
+  handleCompleteDeletion: (element)->
+    console.log $(element).text()
+    if _.isEmpty( $(element).text() )
+      @render()
+      setTimeout =>
+        @setRangeAt($(@el).find(".graf--first")[0])
+      , 20
+      false
+
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
