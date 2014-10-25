@@ -2,6 +2,8 @@ window.Editor = {
 
 }
 
+utils = {}
+
 ###
 #TODO:
 + OK set selected <p> like medium
@@ -25,6 +27,14 @@ window.Editor = {
 window.selection = 0
 selected_menu = false
 window.current_editor = null
+debugMode = true
+
+utils.log = (message, force) ->
+  if (debugMode || force)
+    #console.log('%cDANTE DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+    console.log('%cDANTE DEBUGGER: %c', 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+    console.log( message );
+
 
 class Editor.MainEditor extends Backbone.View
   el: "#editor"
@@ -43,6 +53,7 @@ class Editor.MainEditor extends Backbone.View
     @editor_options = opts
     window.current_editor = @
     #globals for selected text and node
+    @initial_html = $(@el).html()
     @current_range = null
     @current_node = null
 
@@ -58,7 +69,7 @@ class Editor.MainEditor extends Backbone.View
   store: ()->
     localStorage.setItem("contenteditable", $(@el).html() )
     setTimeout ()=>
-      console.log("storing")
+      utils.log("storing")
       @store()
     , 5000
 
@@ -77,12 +88,16 @@ class Editor.MainEditor extends Backbone.View
     @tooltip_view = new Editor.Tooltip()
     @tooltip_view.render()
 
+  appendInitialContent: ()=>
+    $(@el).find(".section-inner").html(@initial_html)
+
   start: ()=>
     @render()
     $(@el).attr("contenteditable", "true")
     $(@el).addClass("postField--body")
     $(@el).wrap("<div class='notesSource'></div>")
     @appendMenus()
+    @appendInitialContent() if @initial_html
 
   restart: ()=>
     @render()
@@ -224,7 +239,7 @@ class Editor.MainEditor extends Backbone.View
     markAsSelected(ev.currentTarget)
 
   handleBlur: (ev)=>
-    #console.log(ev)
+    #utils.log(ev)
     #hide menu only if is not in use
     setTimeout ()=>
       @editor_menu.hide() unless selected_menu
@@ -236,7 +251,7 @@ class Editor.MainEditor extends Backbone.View
   handleMouseUp: (ev)=>
     anchor_node = @getNode()
     @handleTextSelection(anchor_node)
-    console.log anchor_node
+    utils.log anchor_node
     @hidePlaceholder(anchor_node)
     @markAsSelected( anchor_node )
 
@@ -253,15 +268,14 @@ class Editor.MainEditor extends Backbone.View
     @resetOffset($(@el));
 
   handleArrow: (ev)=>
-    console.log("ENTER ARROWS")
-    #console.log @getNode()
+    utils.log("ENTER ARROWS")
     current_node = $(@getNode())
     if current_node
       @markAsSelected( current_node )
       @displayTooltipAt( current_node )
 
   handlePaste: (ev)=>
-    console.log("pasted!")
+    utils.log("pasted!")
 
     setTimeout ()=>
       @aa =  @getNode()
@@ -275,7 +289,7 @@ class Editor.MainEditor extends Backbone.View
   ###
   handlepaste: (elem, e) ->
     savedcontent = elem.innerHTML
-    console.log("pasted! #{elem.innerHTML}")
+    utils.log("pasted! #{elem.innerHTML}")
     if e and e.clipboardData and e.clipboardData.getData # Webkit - get data from clipboard, put into editdiv, cleanup, then cancel event
       if /text\/html/.test(e.clipboardData.types)
         elem.innerHTML = e.clipboardData.getData("text/html")
@@ -310,7 +324,7 @@ class Editor.MainEditor extends Backbone.View
 
   processpaste: (elem, savedcontent) ->
     pasteddata = elem.innerHTML
-    console.log savedcontent
+    utils.log savedcontent
     #^^Alternatively loop through dom (elem.childNodes or elem.getElementsByTagName) here
     elem.innerHTML = savedcontent
 
@@ -325,7 +339,7 @@ class Editor.MainEditor extends Backbone.View
   ###
 
   handleKeyDown: (e)->
-    console.log "KEYDOWN"
+    utils.log "KEYDOWN"
     #e.preventDefault() if _.contains([13], e.which)
 
     anchor_node = @getNode() #current node on which cursor is positioned
@@ -341,25 +355,25 @@ class Editor.MainEditor extends Backbone.View
 
       parent = $(anchor_node)
 
-      console.log @isLastChar()
+      utils.log @isLastChar()
 
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph is it the last character
         if @isLastChar()
-          console.log "new paragraph is it the last character"
+          utils.log "new paragraph is it the last character"
           e.preventDefault()
           @handleLineBreakWith("p", parent)
         else
           #@handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
       else if !anchor_node
-        console.log "creating new line break"
+        utils.log "creating new line break"
         e.preventDefault()
         @handleLineBreakWith("p", parent)
 
       #@setupElementsClasses()
 
-      console.log "OAOAOA"
-      console.log  anchor_node
+      utils.log "OAOAOA"
+      utils.log  anchor_node
       setTimeout ()=>
         @markAsSelected( @getNode() ) #if anchor_node
         @setupFirstAndLast()
@@ -368,35 +382,32 @@ class Editor.MainEditor extends Backbone.View
     #delete key
     if (e.which == 8)
       @tooltip_view.hide()
-      console.log("removing from down")
-      console.log "REACHED TOP" if @reachedTop
+      utils.log("removing from down")
+      utils.log "REACHED TOP" if @reachedTop
       return false if @prevented or @reachedTop && @isFirstChar()
       #return false if !anchor_node or anchor_node.nodeType is 3
 
-      console.log("pass initial validations")
+      utils.log("pass initial validations")
 
       if anchor_node = @getNode() && $(@getNode()).text() is ""
         #@displayEmptyPlaceholder()
-        console.log("TextNode detected from Down!")
+        utils.log("TextNode detected from Down!")
 
       #@displayTooltipAt(anchor_node)
 
   handleKeyUp: (e , node)->
-    console.log "KEYUP"
+    utils.log "KEYUP"
 
     @editor_menu.hide() #hides menu just in case
     @reachedTop = false
     anchor_node = @getNode() #current node on which cursor is positioned
-    #previous_node = anchor_node.previousSibling
-    #next_node = anchor_node.nextSibling
 
     if (e.which == 8)
-      #console.log "false from keyup" if !anchor_node or anchor_node.nodeType is 3
-      #return false if !anchor_node or anchor_node.nodeType is 3
+      #if detect all text deleted , re render
       @handleCompleteDeletion($(@el))
 
       if $(@getNode()).hasClass("graf--first")
-        console.log "THE FIRST ONE! UP"
+        utils.log "THE FIRST ONE! UP"
         @markAsSelected(@getNode())
         @setupFirstAndLast()
         false
@@ -425,8 +436,8 @@ class Editor.MainEditor extends Backbone.View
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
-    console.log ("POSITION FOR TOOLTIP")
-    console.log $(element)
+    utils.log ("POSITION FOR TOOLTIP")
+    utils.log $(element)
     return if !element
     @tooltip_view.hide()
     return unless _.isEmpty( $(element).text() )
@@ -446,15 +457,39 @@ class Editor.MainEditor extends Backbone.View
 
   setupElementsClasses: (cb)->
     setTimeout ()=>
-      _.each  $(@el).find(".section-inner").children(), (n)->
-        name = $(n).prop("tagName").toLowerCase()
-        $(n).removeClass().addClass("graf , graf--#{name}")
-
-      @setupFirstAndLast()
-      #childs.first().addClass("graf--first").attr('data-placeholder', "chualo");
-      node = @getNode()
       @cleanContents()
       @wrapTextNodes()
+
+      _.each  $(@el).find(".section-inner").children(), (n)=>
+        name = $(n).prop("tagName").toLowerCase()
+        console.log name
+
+        #n = @preCleanNode n
+
+        switch name
+          when "p", "h2", "h3", "pre", "div"
+            utils.log n
+            $(n).removeClass().addClass("graf graf--#{name}")
+          when "code"
+            utils.log n
+            $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
+          when "ol", "ul"
+            utils.log "lists"
+            $(n).removeClass().addClass("postList")
+            _.each $(n).find("li"), (li)->
+              $(n).removeClass().addClass("graf graf--li")
+            #postList , and li as graf
+          when "img"
+            utils.log "images"
+            #set figure non editable
+          when "a"
+            utils.log "links"
+            $(n).wrap("<p class='graf graf--#{name}'></p>")
+            #dont know
+
+      @setupLinks($(@el).find(".section-inner a"))
+      @setupFirstAndLast()
+      node = @getNode()
       @markAsSelected( node ) #set selected
       @displayTooltipAt( node )
       cb() if _.isFunction(cb)
@@ -463,17 +498,45 @@ class Editor.MainEditor extends Backbone.View
   cleanContents: ()->
     #TODO: should config tags
     s = new Sanitize
-      elements: ['a', 'blockquote', 'b', 'u', 'i' ,  'span', 'pre', 'p', 'h1', 'h2', 'h3']
+      elements: ['a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
       attributes:
           '__ALL__': ['class']
           a: ['href', 'title']
       protocols:
           a: { href: ['http', 'https', 'mailto'] }
+    ###
+    transformers: [(input)->
+                    if(input.node_name == 'p')
+                      return whitelist_nodes: [input.node]
+                  ,
+                  (input)->
+                    if(input.node_name == 'pre')
+                      debugger
+                      return null
+                  ]
+    ###
 
-    console.log "CLEAN HTML"
+    utils.log "CLEAN HTML"
     unless _.isEmpty $(@el).find('.section-inner')
       $(@el).find('.section-inner').html(s.clean_node( $(@el).find('.section-inner')[0] ))
     #.contents().unwrap()
+
+  setupLinks: (elems)->
+    _.each elems, (n)->
+      parent_name = $(n).parent().prop("tagName").toLowerCase()
+      $(n).addClass("markup--anchor markup--#{parent_name}-anchor")
+      href = $(n).attr("href")
+      $(n).attr("data-href", href)
+
+  preCleanNode: (element)->
+    s = new Sanitize
+      elements: ['a', 'b', 'u', 'i', 'pre', 'blockquote']
+      attributes:
+        a: ['href', 'title']
+    #debugger
+    $(element).html(s.clean_node( $($(element).html())[0] ))
+    $(element)
+
 
   setupFirstAndLast: ()=>
     childs = $(@el).find(".section-inner").children()
@@ -487,7 +550,7 @@ class Editor.MainEditor extends Backbone.View
     ).wrap "<p class='graf grap--p'></p>"
 
   handleCompleteDeletion: (element)->
-    console.log $(element).text()
+    utils.log $(element).text()
     if _.isEmpty( $(element).text() )
       @render()
       setTimeout =>
@@ -542,22 +605,22 @@ class Editor.Menu extends Backbone.View
     name = element.data("action")
     value = $(@el).find("input").val()
 
-    console.log("menu #{name} item clicked!")
+    utils.log("menu #{name} item clicked!")
 
     if @commandsReg.block.test(name)
-      console.log "block here"
+      utils.log "block here"
       @commandBlock name
     else if @commandsReg.inline.test(name) or @commandsReg.source.test(name)
-      console.log "overall here"
+      utils.log "overall here"
       @commandOverall name, value
     else if @commandsReg.insert.test(name)
-      console.log "insert here"
+      utils.log "insert here"
       @commandInsert name
     else if @commandsReg.wrap.test(name)
-      console.log "wrap here"
+      utils.log "wrap here"
       @commandWrap name
     else
-      console.log "can't find command function for name: " + name
+      utils.log "can't find command function for name: " + name
 
     #@cleanContents()
     false
@@ -568,9 +631,9 @@ class Editor.Menu extends Backbone.View
   commandOverall: (cmd, val) ->
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
     if document.execCommand(cmd, false, val)
-      console.log "success" + message
+      utils.log "success" + message
     else
-      console.log "fail" + message, true
+      utils.log "fail" + message, true
     return
 
   commandInsert: (name) ->
@@ -619,7 +682,7 @@ class Editor.Tooltip extends Backbone.View
   el: ".inlineTooltip2"
 
   initialize: ()=>
-    #console.log $(@el).length
+    #utils.log $(@el).length
 
   template: ()->
     '<button class="button button--small button--circle button--neutral button--inlineTooltipControl" title="Add an image, video, embed, or new part" data-action="inline-menu">
@@ -627,7 +690,7 @@ class Editor.Tooltip extends Backbone.View
     </button>'
 
   render: ()=>
-    #console.log @template()
+    #utils.log @template()
     $(@el).html(@template())
     $(@el).show()
 
