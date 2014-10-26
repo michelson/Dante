@@ -15,11 +15,13 @@ utils = {}
 + OK placeholders for first (empty) node
 + on paste set caret to the last (or first?) element
 + parse images or objects
++ handle remove from pre, it set rare span, just remove it
+  + clean node when remove one
 + remove inner spans and other shits
 + CLEAN PROCESS:
   + OK WRAP INTO PARAGRAPHS ORPHANS
-  + convert divs into p
-  + a, img,  wrap with p
+  + OK convert divs into p
+  + OK a,  wrap with p
   + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
 ###
 
@@ -74,11 +76,19 @@ class Editor.MainEditor extends Backbone.View
     , 5000
 
   template: ()=>
-    "<section class='section-content'>
-      <div class='section-inner'>
-        <p class='graf--h3'>#{@title_placeholder}</p>
-        <p class='graf--p'>#{@body_placeholder}<p>
+    "<section class='section--first section--last'>
+
+      <div class='section-divider layoutSingleColumn'>
+        <hr class='section-divider'>
       </div>
+
+      <div class='section-content'>
+        <div class='section-inner'>
+          <p class='graf--h3'>#{@title_placeholder}</p>
+          <p class='graf--p'>#{@body_placeholder}<p>
+        </div>
+      </div>
+
     </section>"
 
   appendMenus: ()=>
@@ -97,7 +107,8 @@ class Editor.MainEditor extends Backbone.View
     $(@el).addClass("postField--body")
     $(@el).wrap("<div class='notesSource'></div>")
     @appendMenus()
-    @appendInitialContent() if @initial_html
+    utils.log "oli" + @initial_html
+    @appendInitialContent() unless _.isEmpty @initial_html.trim()
 
   restart: ()=>
     @render()
@@ -498,7 +509,7 @@ class Editor.MainEditor extends Backbone.View
   cleanContents: ()->
     #TODO: should config tags
     s = new Sanitize
-      elements: ['a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+      elements: ['a', 'span', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
       attributes:
           '__ALL__': ['class']
           a: ['href', 'title']
