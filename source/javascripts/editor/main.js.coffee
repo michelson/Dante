@@ -59,6 +59,9 @@ class Editor.MainEditor extends Backbone.View
     @current_range = null
     @current_node = null
 
+    @upload_url = opts.upload_url || "/images.json"
+    @oembed_url = opts.oembed_url || "/oembed.json"
+
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -93,7 +96,7 @@ class Editor.MainEditor extends Backbone.View
 
   appendMenus: ()=>
     $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
-    $("<div class='inlineTooltip2 button-scalableGroup is-active'></div>").insertAfter(@el)
+    $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
     @editor_menu = new Editor.Menu()
     @tooltip_view = new Editor.Tooltip()
     @tooltip_view.render()
@@ -256,7 +259,7 @@ class Editor.MainEditor extends Backbone.View
       @editor_menu.hide() unless selected_menu
     , 200
 
-    @tooltip_view.hide()
+    #@tooltip_view.hide()
     false
 
   handleMouseUp: (ev)=>
@@ -381,13 +384,11 @@ class Editor.MainEditor extends Backbone.View
         e.preventDefault()
         @handleLineBreakWith("p", parent)
 
-      #@setupElementsClasses()
-
-      utils.log "OAOAOA"
-      utils.log  anchor_node
       setTimeout ()=>
         @markAsSelected( @getNode() ) #if anchor_node
         @setupFirstAndLast()
+        #shows tooltip
+        @displayTooltipAt($(@el).find(".is-selected"))
       , 2
 
     #delete key
@@ -397,14 +398,12 @@ class Editor.MainEditor extends Backbone.View
       utils.log "REACHED TOP" if @reachedTop
       return false if @prevented or @reachedTop && @isFirstChar()
       #return false if !anchor_node or anchor_node.nodeType is 3
-
       utils.log("pass initial validations")
 
       if anchor_node = @getNode() && $(@getNode()).text() is ""
         #@displayEmptyPlaceholder()
         utils.log("TextNode detected from Down!")
 
-      #@displayTooltipAt(anchor_node)
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -425,6 +424,7 @@ class Editor.MainEditor extends Backbone.View
 
       @markAsSelected(@getNode())
       @setupFirstAndLast()
+      @displayTooltipAt($(@el).find(".is-selected"))
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
@@ -433,17 +433,12 @@ class Editor.MainEditor extends Backbone.View
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
     new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
-
     if from_element.parent().is('[class^="graf--"]')
       new_paragraph.insertAfter(from_element.parent())
     else
       new_paragraph.insertAfter(from_element)
-
     #set caret on new <p>
     @setRangeAt(new_paragraph[0])
-    #shows tooltip
-
-    @displayTooltipAt($(new_paragraph))
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
@@ -692,22 +687,119 @@ class Editor.Menu extends Backbone.View
 class Editor.Tooltip extends Backbone.View
   el: ".inlineTooltip2"
 
+  events:
+    "click .button--inlineTooltipControl" : "toggleOptions"
+    "click .inlineTooltip2-menu .button" : "handleClick"
+
   initialize: ()=>
+    @buttons = [
+      {icon: "fa-camera", title: "Add an image", action: "image"  },
+      {icon: "fa-play", title: "Add a video", action: "embed", action_value: "Paste a YouTube, Vine, Vimeo, or other video link, and press Enter"  },
+      {icon: "fa-code", title: "Add an embed", action: "embed", action_value: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"  },
+      {icon: "fa-minus", title: "Add a new part", action: "hr"  }
+    ]
     #utils.log $(@el).length
 
   template: ()->
-    '<button class="button button--small button--circle button--neutral button--inlineTooltipControl" title="Add an image, video, embed, or new part" data-action="inline-menu">
-        <span class="fa fa-plus"></span>
-    </button>'
+    menu = ""
+    _.each @buttons, (b)->
+      data_action_value = if b.action_value then "data-action-value='#{b.action_value}'" else  ""
+      menu += "<button class='button button--small button--circle button--neutral button--scale u-transitionSeries' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
+        <span class='fa #{b.icon}'></span>
+      </button>"
+
+    "<button class='button button--small button--circle button--neutral button--inlineTooltipControl' title='Close Menu' data-action='inline-menu'>
+        <span class='fa fa-plus'></span>
+    </button>
+    <div class='inlineTooltip2-menu'>
+      #{menu}
+    </div>"
 
   render: ()=>
     #utils.log @template()
     $(@el).html(@template())
     $(@el).show()
 
+  toggleOptions: ()=>
+    utils.log "OLI!!"
+    $(@el).toggleClass("is-active is-scaled")
+
   move: (coords)->
     $(@el).offset(coords)
 
+  handleClick: (ev)->
+    name = $(ev.currentTarget).data('action')
+    console.log name
+    switch name
+      when "inline-menu-image"
+        @placeholder = "<p>PLACEHOLDER</p>"
+        @imageSelect(ev)
+      when "inline-menu-embed"
+        @displayEmbed()
+      when "inline-menu-hr"
+        @splitSection()
+
+  imageSelect: (ev)->
+    $selectFile = $('<input type="file" multiple="multiple">').click()
+    self = @
+    $selectFile.change ()->
+      t = this
+      self.uploadFiles(t.files)
+
+  formatData: (file)->
+    formData = new FormData()
+    formData.append('file', file)
+    return formData
+
+  uploadFiles: (files)=>
+    acceptedTypes =
+      "image/png": true
+      "image/jpeg": true
+      "image/gif": true
+
+    i = 0
+    while i < files.length
+      file = files[i]
+      if acceptedTypes[file.type] is true
+        $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
+        @uploadFile file
+      i++
+
+  uploadFile: (file)=>
+
+    $.ajax
+      type: "post"
+      url: current_editor.upload_url
+      xhr: =>
+        xhr = new XMLHttpRequest()
+        xhr.upload.onprogress = @updateProgressBar
+        xhr
+      cache: false
+      contentType: false
+      complete: (jqxhr) =>
+        @uploadCompleted jqxhr
+        return
+
+      processData: false
+      data: @formatData(file)
+
+  updateProgressBar: (e)=>
+    $progress = $('.progress:first', this.$el)
+    complete = ""
+
+    if (e.lengthComputable)
+      complete = e.loaded / e.total * 100
+      complete = complete ? complete : 0
+      #$progress.attr('value', complete)
+      #$progress.html(complete)
+      console.log "complete"
+      console.log complete
+
+  uploadCompleted: (jqxhr)=>
+    console.log jqxhr
+
   hide: ()=>
     $(@el).hide()
+    $(@el).removeClass("is-active is-scaled")
+
 

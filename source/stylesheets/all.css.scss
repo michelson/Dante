@@ -304,6 +304,7 @@ header{
 .inlineTooltip2.is-active {
     opacity: 1;
     pointer-events: auto;
+    width:auto !important;
 }
 .notesSource .inlineTooltip2 {
     height: 40px;
@@ -312,7 +313,7 @@ header{
     //opacity: 0;
     overflow: hidden;
     padding: 0;
-    pointer-events: none;
+    //pointer-events: none;
     position: absolute;
     width: 40px;
     z-index: 900;
@@ -412,6 +413,48 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     text-transform: none;
 }
 
+.inlineTooltip2.is-scaled > .button--inlineTooltipControl {
+  -webkit-transition: -webkit-transform .25s;
+  transition: transform .25s;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.inlineTooltip2-menu {
+    display: inline-block;
+    padding-left: 22px;
+}
+.inlineTooltip2.is-active {
+    pointer-events: auto;
+}
+
+.inlineTooltip2-menu .button {
+margin-right: 9px;
+}
+
+.button-scalableGroup.is-scaled .button--scale {
+  -webkit-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+  -webkit-transition-duration: 200ms;
+  transition-duration: 200ms;
+}
+
+.button--scale {
+  -webkit-transform: scale(0);
+  -ms-transform: scale(0);
+  transform: scale(0);
+  -webkit-transition-property: -webkit-transform;
+  transition-property: transform;
+  -webkit-transition-duration: 100ms;
+  transition-duration: 100ms;
+}
+
+.u-transitionSeries:nth-child(2) {
+-webkit-transition-delay: 30ms;
+transition-delay: 30ms;
+}
 
 .graf--p, .graf--blockquote, .graf--pullquote {
     margin-bottom: 30px;
@@ -512,22 +555,6 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     //content: " ";
     //display: table;
 }
-/*
-.graf--first:before, .graf--first:after {
-    content: " ";
-    display: table;
-}*/
-/*
-.graf--first:empty:not(:focus):before {
-  content:attr(data-placeholder);
-  color: rgba(0,0,0,0.3);
-  letter-spacing: 0.01rem;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 22px;
-  line-height: 1.5;
-  //content:"placeholder" !important;
-}*/
 
 .editor a {
   a {
