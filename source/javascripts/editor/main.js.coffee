@@ -30,7 +30,7 @@ utils = {}
     + focus caption
     + mark selected
     + when image is uploaded update blob src to image src
-  + control enter when selected in caption
+  + handle enter (linebreak) when selected in caption (build new <p>)
   + embed connect with oembed service
 ###
 
@@ -330,8 +330,6 @@ class Editor.MainEditor extends Backbone.View
           @setRangeAt current_node.prev(".graf")[0]
           figure.removeClass("is-mediaFocused is-selected")
           false
-
-
 
   handlePaste: (ev)=>
     utils.log("pasted!")
