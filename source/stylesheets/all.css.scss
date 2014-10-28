@@ -547,6 +547,85 @@ transition-delay: 30ms;
     white-space: pre-wrap;
 }
 
+.graf--figure {
+    box-sizing: border-box;
+    clear: both;
+    margin-bottom: 30px;
+    outline: medium none;
+    position: relative;
+}
+
+.aspectRatioPlaceholder {
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+}
+
+.is-postEditMode .graf-image:before, .is-postEditMode .iframeContainer:before {
+    bottom: 0;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 500;
+}
+.graf--figure.is-mediaFocused .graf-image {
+    box-shadow: 0 0 0 3px #57ad68;
+}
+.aspectRatioPlaceholder.is-locked .graf-image, .aspectRatioPlaceholder.is-locked .graf-imageAnchor {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.graf-image, .graf-imageAnchor, .iframeContainer > iframe, .iframeContainer {
+    box-sizing: border-box;
+    display: block;
+    margin: auto;
+    max-width: 100%;
+}
+
+
+/*CAPTION*/
+
+.imageCaption:before {
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+    content: "";
+    display: block;
+    margin-bottom: 10px;
+    margin-left: 75%;
+    width: 25%;
+}
+.imageCaption {
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 400;
+    left: -172px;
+    letter-spacing: 0.01rem;
+    line-height: 1.4;
+    margin-top: 0;
+    outline: 0 none;
+    position: absolute;
+    text-align: right;
+    top: 0;
+    width: 150px;
+    z-index: 300;
+}
+
+.graf--figure.is-mediaFocused .imageCaption, .graf--figure.is-defaultValue.is-selected .imageCaption, section.is-mediaFocused .graf--sectionCaption, .graf--sectionCaption.is-defaultValue.is-selected {
+    display: block;
+}
+.graf--figure.is-mediaFocused .imageCaption, .graf--figure.is-defaultValue.is-selected .imageCaption, section.is-mediaFocused .graf--sectionCaption, .graf--sectionCaption.is-defaultValue.is-selected {
+    display: block;
+}
+figure.is-defaultValue .imageCaption, .graf--sectionCaption.is-defaultValue {
+    display: none;
+}
+
 .section-content:before, .section-content:after{
     content: " ";
     display: table;

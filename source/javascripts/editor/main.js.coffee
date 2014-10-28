@@ -14,7 +14,7 @@ utils = {}
 + actions over text
 + OK placeholders for first (empty) node
 + on paste set caret to the last (or first?) element
-+ parse images or objects
++ parse existing images or objects
 + handle remove from pre, it set rare span, just remove it
   + clean node when remove one
 + remove inner spans and other shits
@@ -23,6 +23,15 @@ utils = {}
   + OK convert divs into p
   + OK a,  wrap with p
   + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
+
++ IMAGES:
+  + upload complete, add figure and bla bla
+  + control arrows, detect selected
+    + focus caption
+    + mark selected
+    + when image is uploaded update blob src to image src
+  + control enter when selected in caption
+  + embed connect with oembed service
 ###
 
 # make it accessible
@@ -288,69 +297,50 @@ class Editor.MainEditor extends Backbone.View
       @markAsSelected( current_node )
       @displayTooltipAt( current_node )
 
+  handleArrowDown: (ev)=>
+    utils.log("ENTER ARROW DOWN #{ev.key}")
+
+    current_node = $(@getNode())
+    console.log(ev)
+    ev_type = ev.originalEvent.key
+
+    #handle keys for image figure
+    switch ev_type
+      when "Down"
+        #.isLastChar()
+        figure = current_node.next()
+        if figure.hasClass("graf--figure")
+          console.log "IS FIGURE!"
+          @setRangeAt current_node.next().find(".imageCaption")[0]
+          figure.addClass("is-mediaFocused is-selected")
+          false
+        else if current_node.hasClass("graf--figure")
+          @setRangeAt current_node.next(".graf")[0]
+          figure.removeClass("is-mediaFocused is-selected")
+          false
+
+      when "Up"
+        figure = current_node.prev()
+        if figure.hasClass("graf--figure")
+          console.log "IS FIGURE!"
+          @setRangeAt current_node.prev().find(".imageCaption")[0]
+          figure.addClass("is-mediaFocused is-selected")
+          false
+        else if current_node.hasClass("graf--figure")
+          @setRangeAt current_node.prev(".graf")[0]
+          figure.removeClass("is-mediaFocused is-selected")
+          false
+
+
+
   handlePaste: (ev)=>
     utils.log("pasted!")
-
     setTimeout ()=>
       @aa =  @getNode()
       @setupElementsClasses ()=>
         #debugger
         #$(@aa).next('[class^="graf--"]').focus()
     , 20
-    #@setupElementsClasses ()=>
-    #  $(@el).find(".section-inner").focus()
-
-  ###
-  handlepaste: (elem, e) ->
-    savedcontent = elem.innerHTML
-    utils.log("pasted! #{elem.innerHTML}")
-    if e and e.clipboardData and e.clipboardData.getData # Webkit - get data from clipboard, put into editdiv, cleanup, then cancel event
-      if /text\/html/.test(e.clipboardData.types)
-        elem.innerHTML = e.clipboardData.getData("text/html")
-      else if /text\/plain/.test(e.clipboardData.types)
-        elem.innerHTML = e.clipboardData.getData("text/plain")
-      else
-        elem.innerHTML = ""
-      @waitforpastedata elem, savedcontent
-      if e.preventDefault
-        e.stopPropagation()
-        e.preventDefault()
-      false
-    else # Everything else - empty editdiv and allow browser to paste content into it, then cleanup
-      elem.innerHTML = ""
-      @waitforpastedata elem, savedcontent
-      true
-
-  waitforpastedata: (elem, savedcontent) ->
-    if elem.childNodes and elem.childNodes.length > 0
-      @processpaste elem, savedcontent
-    else
-      that =
-        e: elem
-        s: savedcontent
-
-      that.callself = =>
-        @waitforpastedata that.e, that.s
-        return
-
-      setTimeout that.callself, 20
-    return
-
-  processpaste: (elem, savedcontent) ->
-    pasteddata = elem.innerHTML
-    utils.log savedcontent
-    #^^Alternatively loop through dom (elem.childNodes or elem.getElementsByTagName) here
-    elem.innerHTML = savedcontent
-
-    # Do whatever with gathered data;
-    alert pasteddata
-
-    #@setupElementsClasses
-    #()=>
-    #$(@el).focus()
-
-    return
-  ###
 
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
@@ -404,6 +394,9 @@ class Editor.MainEditor extends Backbone.View
         #@displayEmptyPlaceholder()
         utils.log("TextNode detected from Down!")
 
+    #arrows key
+    if _.contains([37,38,39,40], e.which)
+      @handleArrowDown(e)
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -453,8 +446,12 @@ class Editor.MainEditor extends Backbone.View
 
   #mark the current row as selected
   markAsSelected: (element)->
-    $(@el).find(".is-selected").removeClass("is-selected")
+    $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
+
+    if $(element).prop("tagName").toLowerCase() is "figure"
+      $(element).addClass("is-mediaFocused")
+
     $(element).find(".defaultValue").remove()
     #set reached top if element is first!
     if $(element).hasClass("graf--first")
@@ -715,8 +712,19 @@ class Editor.Tooltip extends Backbone.View
       #{menu}
     </div>"
 
+  insertTemplate: ()->
+    '<figure contenteditable="false" class="graf--figure is-defaultValue" name="ce25" tabindex="0">
+      <div style="max-width: 600px; max-height: 375px;" class="aspectRatioPlaceholder is-locked">
+        <div style="padding-bottom: 62.5%;" class="aspect-ratio-fill"></div>
+        <img src="" data-height="375" data-width="600" data-image-id="" class="graf-image" data-delayed-src="">
+      </div>
+      <figcaption contenteditable="true" data-default-value="Type caption for image (optional)" class="imageCaption">
+        <span class="defaultValue">Type caption for image (optional)</span>
+        <br>
+      </figcaption>
+    </figure>'
+
   render: ()=>
-    #utils.log @template()
     $(@el).html(@template())
     $(@el).show()
 
@@ -746,6 +754,15 @@ class Editor.Tooltip extends Backbone.View
       t = this
       self.uploadFiles(t.files)
 
+  displayCachedImage: (file)->
+    @node = current_editor.getNode()
+    replaced_node = $(@node).replaceWith(@insertTemplate())
+    current_editor.tooltip_view.hide()
+    reader = new FileReader()
+    reader.onload = (e)->
+      $('img.graf-image').attr('src', e.target.result)
+    reader.readAsDataURL(file)
+
   formatData: (file)->
     formData = new FormData()
     formData.append('file', file)
@@ -762,6 +779,7 @@ class Editor.Tooltip extends Backbone.View
       file = files[i]
       if acceptedTypes[file.type] is true
         $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
+        @displayCachedImage(file)
         @uploadFile file
       i++
 
