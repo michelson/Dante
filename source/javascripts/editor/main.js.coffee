@@ -2,77 +2,240 @@ window.Editor = {
 
 }
 
+utils = {}
+
 ###
 #TODO:
-+ set selected <p> like medium
-+ shows the + when selected <p> is empty
++ OK set selected <p> like medium
++ OK shows the + when selected <p> is empty
+  + check from key 8
+  + check from enter
++ detect enter key between words to split and duplicate tags
++ actions over text
++ OK placeholders for first (empty) node
++ on paste set caret to the last (or first?) element
++ parse existing images or objects
++ handle remove from pre, it set rare span, just remove it
+  + clean node when remove one
++ remove inner spans and other shits
++ CLEAN PROCESS:
+  + OK WRAP INTO PARAGRAPHS ORPHANS
+  + OK convert divs into p
+  + OK a,  wrap with p
+  + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
+
++ IMAGES:
+  + upload complete, add figure and bla bla
+  + control arrows, detect selected
+    + focus caption
+    + mark selected
+    + when image is uploaded update blob src to image src
+  + handle enter (linebreak) when selected in caption (build new <p>)
+  + embed connect with oembed service
 ###
 
 # make it accessible
 window.selection = 0
+selected_menu = false
+window.current_editor = null
+debugMode = true
+
+utils.log = (message, force) ->
+  if (debugMode || force)
+    #console.log('%cDANTE DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+    console.log('%cDANTE DEBUGGER: %c', 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+    console.log( message );
+
 
 class Editor.MainEditor extends Backbone.View
   el: "#editor"
 
   events:
     "blur"    : "handleBlur"
-    #"focus"   : "handleCaret"
-    #"keyup"   : "handleCaret"
-    #"mouseup" : "handleCaret"
-    "selectstart": "getSelection"
-    "mousedown": "getSelection"
-    "keydown" : "handleCarriageReturn"
+    "mouseup" : "handleMouseUp"
+    "keydown" : "handleKeyDown"
+    "keyup"   : "handleKeyUp"
+    "paste"   : "handlePaste"
+    "destroyed .graf--first" : "handleDeletedContainer"
+    "focus .graf" : "handleFocus"
+    #".graf--p focus"   : "handleFocus"
 
   initialize: (opts = {})=>
     @editor_options = opts
+    window.current_editor = @
+    #globals for selected text and node
+    @initial_html = $(@el).html()
+    @current_range = null
+    @current_node = null
+
+    @upload_url = opts.upload_url || "/images.json"
+    @oembed_url = opts.oembed_url || "/oembed.json"
+
+    if (localStorage.getItem('contenteditable'))
+      $(@el).html  localStorage.getItem('contenteditable')
+
+    @store()
+    @setupElementsClasses()
+
+    @title_placeholder = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
+    @body_placeholder  = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
+
+  store: ()->
+    localStorage.setItem("contenteditable", $(@el).html() )
+    setTimeout ()=>
+      utils.log("storing")
+      @store()
+    , 5000
 
   template: ()=>
-    "<section class='section-content'>
-      <div class='section-inner'>
-        <h3 class='graf--h3'>title here</h3>
-        <p class='graf--p'>body here<p>
+    "<section class='section--first section--last'>
+
+      <div class='section-divider layoutSingleColumn'>
+        <hr class='section-divider'>
       </div>
+
+      <div class='section-content'>
+        <div class='section-inner'>
+          <p class='graf--h3'>#{@title_placeholder}</p>
+          <p class='graf--p'>#{@body_placeholder}<p>
+        </div>
+      </div>
+
     </section>"
+
+  appendMenus: ()=>
+    $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
+    $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
+    @editor_menu = new Editor.Menu()
+    @tooltip_view = new Editor.Tooltip()
+    @tooltip_view.render()
+
+  appendInitialContent: ()=>
+    $(@el).find(".section-inner").html(@initial_html)
+
+  start: ()=>
+    @render()
+    $(@el).attr("contenteditable", "true")
+    $(@el).addClass("postField--body")
+    $(@el).wrap("<div class='notesSource'></div>")
+    @appendMenus()
+    utils.log "oli" + @initial_html
+    @appendInitialContent() unless _.isEmpty @initial_html.trim()
+
+  restart: ()=>
+    @render()
 
   render: ()=>
     @template()
     $(@el).html @template()
-    $(@el).attr("contenteditable", "true")
 
-    $(@el).wrap("<div class='notesSource'></div>")
+  handleDeletedContainer: ()->
+    #only forefox ctrl+a or select all delete
+    alert("deleted")
 
-    $("<div id='editor-menu' class='editor-menu' style='display: none;'></div>").insertAfter(@el)
-    $("<div class='inlineTooltip2 button-scalableGroup is-active'></div>").insertAfter(@el)
+  getSelectedText: () ->
+    text = ""
+    if typeof window.getSelection != "undefined"
+      text = window.getSelection().toString()
+    else if typeof document.selection != "undefined" && document.selection.type == "Text"
+      text = document.selection.createRange().text
+    text
+    #text
 
-    @editor_menu = new Editor.Menu()
+  selection: ()=>
+    selection
+    if (window.getSelection)
+      selection = window.getSelection()
+    else if (document.selection && document.selection.type != "Control")
+      selection = document.selection
 
-    @tooltip_view = new Editor.Tooltip()
-    @tooltip_view.render()
+  getRange: () ->
+    editor = $(@el)[0]
+    range = selection && selection.rangeCount && selection.getRangeAt(0)
+    range = document.createRange() if (!range)
+    if !editor.contains(range.commonAncestorContainer)
+      range.selectNodeContents(editor)
+      range.collapse(false)
+    range
 
-  handleBlur: (ev)=>
-    console.log("Handle blur #{ev}")
-    @editor_menu.hide()
+  setRange: (range)->
+    range = range || this.current_range
+    if !range
+      range = this.getRange()
+      range.collapse(false); # set to end
 
-  handleFocus: (ev)=>
-    console.log("Handle focus #{ev}")
+    @selection().removeAllRanges()
+    @selection().addRange(range)
+    @
 
-  getSelection: (ev)->
-    _this = @
-    $(document).one 'mouseup', ()->
-      _this.displayMenu @.getSelection()
+  getCharacterPrecedingCaret: ->
+    precedingChar = ""
+    sel = undefined
+    range = undefined
+    precedingRange = undefined
+    if window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount > 0
+        range = sel.getRangeAt(0).cloneRange()
+        range.collapse true
+        range.setStart @getNode(), 0
+        precedingChar = range.toString().slice(0)
+    else if (sel = document.selection) and sel.type isnt "Control"
+      range = sel.createRange()
+      precedingRange = range.duplicate()
+      precedingRange.moveToElementText containerEl
+      precedingRange.setEndPoint "EndToStart", range
+      precedingChar = precedingRange.text.slice(0)
+    precedingChar
+
+  isLastChar: ()->
+    $(@getNode()).text().length is @getCharacterPrecedingCaret().length
+
+  isFirstChar: ()->
+    @getCharacterPrecedingCaret().length is 0
+
+  #set focus and caret position on element
+  setRangeAt: (element)->
+    range = document.createRange()
+    sel = window.getSelection()
+
+    range.setStart(element, 0);
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
+    #@el.focus()
+    element.focus()
+
+  focus: (focusStart) ->
+    @.setRange() if (!focusStart)
+    $(@el).focus()
+    @
+
+  #NOT USED
+  focusNode: (node, range)->
+    range.setStartAfter(node)
+    range.setEndBefore(node)
+    range.collapse(false)
+    @.setRange(range)
+
+  #get the element that wraps Caret position
+  getNode: ()->
+    node = undefined
+    root = $(@el).find(".section-inner")[0]
+    range = @selection().getRangeAt(0)
+    node = range.commonAncestorContainer
+    return null  if not node or node is root
+    node = node.parentNode  while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
+    node = node.parentNode  while node and (node.parentNode isnt root)
+    (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
-    #we only display menu if sel.type is "Range"
-    console.log sel
-    #return unless sel.type is "Range"
-    if sel.baseOffset > 0 or sel.focusOffset > 0
+    #TODO: find out why this isn't propperly positioned the first time
+    setTimeout ()=>
       @handleCaret()
       @editor_menu.render()
-    else
-      @editor_menu.hide()
-
-  handleCaret: ()->
-    @resetOffset($(@el));
+      @editor_menu.show()
+    , 10
 
   resetOffset: ($textField)=>
     offset = $textField.caret('offset');
@@ -81,126 +244,578 @@ class Editor.MainEditor extends Backbone.View
     offset
 
   resizeBox: (offset, position)->
-    @editor_menu.$el.offset({left: offset.left-50, top: offset.top + offset.height + 2})
+    padd = @editor_menu.$el.width() / 2
+    padd = padd + (padd * 0.1)
+    top =  offset.top - offset.height - 16
+    @editor_menu.$el.offset({left: offset.left - padd, top: top })
+
+  hidePlaceholder: (element)->
+    $(element).find("span.defaultValue").remove().html("<br>")
+    #element.focus()
+    #@setRangeAt(element)
+
+  displayEmptyPlaceholder: (element)->
+    $(".graf--first").html(@title_placeholder)
+    $(".graf--last").html(@body_placeholder)
+
+  handleFocus: (ev)=>
+    markAsSelected(ev.currentTarget)
+
+  handleBlur: (ev)=>
+    #utils.log(ev)
+    #hide menu only if is not in use
+    setTimeout ()=>
+      @editor_menu.hide() unless selected_menu
+    , 200
+
+    #@tooltip_view.hide()
+    false
+
+  handleMouseUp: (ev)=>
+    anchor_node = @getNode()
+    @handleTextSelection(anchor_node)
+    utils.log anchor_node
+    @hidePlaceholder(anchor_node)
+    @markAsSelected( anchor_node )
+
+  #get text of selected and displays menu
+  handleTextSelection: (anchor_node)->
+    @editor_menu.hide()
+    text = @getSelectedText()
+    unless _.isEmpty text
+      @current_range = @getRange()
+      @current_node  = anchor_node
+      @.displayMenu()
+
+  handleCaret: ()->
+    @resetOffset($(@el));
+
+  handleArrow: (ev)=>
+    utils.log("ENTER ARROWS")
+    current_node = $(@getNode())
+    if current_node
+      @markAsSelected( current_node )
+      @displayTooltipAt( current_node )
+
+  handleArrowDown: (ev)=>
+    utils.log("ENTER ARROW DOWN #{ev.key}")
+
+    current_node = $(@getNode())
+    console.log(ev)
+    ev_type = ev.originalEvent.key
+
+    #handle keys for image figure
+    switch ev_type
+      when "Down"
+        #.isLastChar()
+        figure = current_node.next()
+        if figure.hasClass("graf--figure")
+          console.log "IS FIGURE!"
+          @setRangeAt current_node.next().find(".imageCaption")[0]
+          figure.addClass("is-mediaFocused is-selected")
+          false
+        else if current_node.hasClass("graf--figure")
+          @setRangeAt current_node.next(".graf")[0]
+          figure.removeClass("is-mediaFocused is-selected")
+          false
+
+      when "Up"
+        figure = current_node.prev()
+        if figure.hasClass("graf--figure")
+          console.log "IS FIGURE!"
+          @setRangeAt current_node.prev().find(".imageCaption")[0]
+          figure.addClass("is-mediaFocused is-selected")
+          false
+        else if current_node.hasClass("graf--figure")
+          @setRangeAt current_node.prev(".graf")[0]
+          figure.removeClass("is-mediaFocused is-selected")
+          false
+
+  handlePaste: (ev)=>
+    utils.log("pasted!")
+    setTimeout ()=>
+      @aa =  @getNode()
+      @setupElementsClasses ()=>
+        #debugger
+        #$(@aa).next('[class^="graf--"]').focus()
+    , 20
+
+  handleKeyDown: (e)->
+    utils.log "KEYDOWN"
+    #e.preventDefault() if _.contains([13], e.which)
+
+    anchor_node = @getNode() #current node on which cursor is positioned
+    #previous_node = anchor_node.previousSibling
+    #next_node = anchor_node.nextSibling
+
+    @markAsSelected( anchor_node ) if anchor_node
+
+    #enter key
+    if (e.which == 13)
+      #removes all childs
+      $(@el).find(".is-selected").removeClass("is-selected")
+
+      parent = $(anchor_node)
+
+      utils.log @isLastChar()
+
+      if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
+        #new paragraph is it the last character
+        if @isLastChar()
+          utils.log "new paragraph is it the last character"
+          e.preventDefault()
+          @handleLineBreakWith("p", parent)
+        else
+          #@handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
+      else if !anchor_node
+        utils.log "creating new line break"
+        e.preventDefault()
+        @handleLineBreakWith("p", parent)
+
+      setTimeout ()=>
+        @markAsSelected( @getNode() ) #if anchor_node
+        @setupFirstAndLast()
+        #shows tooltip
+        @displayTooltipAt($(@el).find(".is-selected"))
+      , 2
+
+    #delete key
+    if (e.which == 8)
+      @tooltip_view.hide()
+      utils.log("removing from down")
+      utils.log "REACHED TOP" if @reachedTop
+      return false if @prevented or @reachedTop && @isFirstChar()
+      #return false if !anchor_node or anchor_node.nodeType is 3
+      utils.log("pass initial validations")
+
+      if anchor_node = @getNode() && $(@getNode()).text() is ""
+        #@displayEmptyPlaceholder()
+        utils.log("TextNode detected from Down!")
+
+    #arrows key
+    if _.contains([37,38,39,40], e.which)
+      @handleArrowDown(e)
+
+  handleKeyUp: (e , node)->
+    utils.log "KEYUP"
+
+    @editor_menu.hide() #hides menu just in case
+    @reachedTop = false
+    anchor_node = @getNode() #current node on which cursor is positioned
+
+    if (e.which == 8)
+      #if detect all text deleted , re render
+      @handleCompleteDeletion($(@el))
+
+      if $(@getNode()).hasClass("graf--first")
+        utils.log "THE FIRST ONE! UP"
+        @markAsSelected(@getNode())
+        @setupFirstAndLast()
+        false
+
+      @markAsSelected(@getNode())
+      @setupFirstAndLast()
+      @displayTooltipAt($(@el).find(".is-selected"))
+
+    #arrows key
+    if _.contains([37,38,39,40], e.which)
+      @handleArrow(e)
+
+  #TODO: Separate in little functions
+  handleLineBreakWith: (element_type, from_element)->
+    new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
+    if from_element.parent().is('[class^="graf--"]')
+      new_paragraph.insertAfter(from_element.parent())
+    else
+      new_paragraph.insertAfter(from_element)
+    #set caret on new <p>
+    @setRangeAt(new_paragraph[0])
+
+  #shows the (+) tooltip at current element
+  displayTooltipAt: (element)->
+    utils.log ("POSITION FOR TOOLTIP")
+    utils.log $(element)
+    return if !element
+    @tooltip_view.hide()
+    return unless _.isEmpty( $(element).text() )
+    @position = $(element).offset()
+    @tooltip_view.render()
+    @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
+
+  #mark the current row as selected
+  markAsSelected: (element)->
+    $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
+    $(element).addClass("is-selected")
+
+    if $(element).prop("tagName").toLowerCase() is "figure"
+      $(element).addClass("is-mediaFocused")
+
+    $(element).find(".defaultValue").remove()
+    #set reached top if element is first!
+    if $(element).hasClass("graf--first")
+      @reachedTop = true
+      $(element).append("<br>") if $(element).find("br").length is 0
+
+  setupElementsClasses: (cb)->
+    setTimeout ()=>
+      @cleanContents()
+      @wrapTextNodes()
+
+      _.each  $(@el).find(".section-inner").children(), (n)=>
+        name = $(n).prop("tagName").toLowerCase()
+        console.log name
+
+        #n = @preCleanNode n
+
+        switch name
+          when "p", "h2", "h3", "pre", "div"
+            utils.log n
+            $(n).removeClass().addClass("graf graf--#{name}")
+          when "code"
+            utils.log n
+            $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
+          when "ol", "ul"
+            utils.log "lists"
+            $(n).removeClass().addClass("postList")
+            _.each $(n).find("li"), (li)->
+              $(n).removeClass().addClass("graf graf--li")
+            #postList , and li as graf
+          when "img"
+            utils.log "images"
+            #set figure non editable
+          when "a"
+            utils.log "links"
+            $(n).wrap("<p class='graf graf--#{name}'></p>")
+            #dont know
+
+      @setupLinks($(@el).find(".section-inner a"))
+      @setupFirstAndLast()
+      node = @getNode()
+      @markAsSelected( node ) #set selected
+      @displayTooltipAt( node )
+      cb() if _.isFunction(cb)
+    , 20
+
+  cleanContents: ()->
+    #TODO: should config tags
+    s = new Sanitize
+      elements: ['a', 'span', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+      attributes:
+          '__ALL__': ['class']
+          a: ['href', 'title']
+      protocols:
+          a: { href: ['http', 'https', 'mailto'] }
     ###
-    $('.indicators')
-      .offset({left: offset.left, top: offset.top + offset.height + 2})
-      .find('.offset-indicator')
-      .html("Offset: left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;" + "height: " + offset.height);
-
-    $('.position-indicator')
-      .html("Position: left: " + position.left + ", " + "top: " + position.top + "&nbsp;");
+    transformers: [(input)->
+                    if(input.node_name == 'p')
+                      return whitelist_nodes: [input.node]
+                  ,
+                  (input)->
+                    if(input.node_name == 'pre')
+                      debugger
+                      return null
+                  ]
     ###
 
-  handleCarriageReturn: (e)->
-    #console.log e.which
+    utils.log "CLEAN HTML"
+    unless _.isEmpty $(@el).find('.section-inner')
+      $(@el).find('.section-inner').html(s.clean_node( $(@el).find('.section-inner')[0] ))
+    #.contents().unwrap()
 
-    #e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
+  setupLinks: (elems)->
+    _.each elems, (n)->
+      parent_name = $(n).parent().prop("tagName").toLowerCase()
+      $(n).addClass("markup--anchor markup--#{parent_name}-anchor")
+      href = $(n).attr("href")
+      $(n).attr("data-href", href)
 
-    selection
-    if (window.getSelection)
-      selection = window.getSelection()
-    else if (document.selection && document.selection.type != "Control")
-      selection = document.selection
-
-    anchor_node = selection.anchorNode #current node on which cursor is positioned
-    previous_node = anchor_node.previousSibling
-    next_node = anchor_node.nextSibling
-
-    if (e.which == 13) #enter key
-      #e.preventDefault() #http://stackoverflow.com/questions/6023307/dealing-with-line-breaks-on-contenteditable-div
-
-
-      $(anchor_node).addClass("is-selected")
-      $(previous_node).removeClass("is-selected")
-      $(next_node).removeClass("is-selected")
-
-      console.log($(previous_node))
-      console.log($(anchor_node))
-      console.log($(next_node))
-
-      if _.isEmpty $(anchor_node).text()
-        @position = $(anchor_node).offset()
-        @tooltip_view.move(left: @position.left - 60 , top: @position.top + 43 )
+  preCleanNode: (element)->
+    s = new Sanitize
+      elements: ['a', 'b', 'u', 'i', 'pre', 'blockquote']
+      attributes:
+        a: ['href', 'title']
+    #debugger
+    $(element).html(s.clean_node( $($(element).html())[0] ))
+    $(element)
 
 
-      ###
-      if window.getSelection
-        selection = window.getSelection()
-        range = selection.getRangeAt(0)
-        p = document.createElement("p")
-        range.deleteContents()
-        range.insertNode p
-        range.setStartAfter p
-        range.setEndAfter p
-        range.collapse false
-        selection.removeAllRanges()
-        selection.addRange range
-      ###
+  setupFirstAndLast: ()=>
+    childs = $(@el).find(".section-inner").children()
+    childs.removeClass("graf--last , graf--first")
+    childs.first().addClass("graf--first")
+    childs.last().addClass("graf--last")
 
+  wrapTextNodes: ()->
+    $(@el).find(".section-inner").contents().filter(->
+      @nodeType is 3 and @data.trim().length > 0
+    ).wrap "<p class='graf grap--p'></p>"
 
-
-    if (e.which == 8) #delete key
-      node = document.getSelection().anchorNode;
-      #current_node = $(if node.nodeType == 3 then node.parentNode else node)
-      if $(anchor_node).text() is ""
-        @position = $(anchor_node).offset()
-        setTimeout(
-          ()=>
-            @tooltip_view.move(left: @position.left - 60 , top: @position.top - 55 )
-        , 200)
+  handleCompleteDeletion: (element)->
+    utils.log $(element).text()
+    if _.isEmpty( $(element).text() )
+      @render()
+      setTimeout =>
+        @setRangeAt($(@el).find(".graf--first")[0])
+      , 20
+      false
 
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
 
-  initialize: ()=>
+  events:
+    "mousedown i" : "handleClick"
+    #"click .editor-icon" : "handleClick"
+    "mouseenter" : "handleOver"
+    "mouseleave" : "handleOut"
+
+  initialize: (opts={})=>
+    @config = opts.buttons || @default_config()
+
+    @commandsReg = {
+      block: /^(?:p|h[1-6]|blockquote|pre)$/
+      inline: /^(?:bold|italic|underline|insertorderedlist|insertunorderedlist|indent|outdent)$/,
+      source: /^(?:insertimage|createlink|unlink)$/
+      insert: /^(?:inserthorizontalrule|insert)$/
+      wrap: /^(?:code)$/
+    }
+
+    @lineBreakReg = /^(?:blockquote|pre|div)$/i;
+
+    @effectNodeReg = /(?:[pubia]|h[1-6]|blockquote|[uo]l|li)/i;
+
+  default_config: ()->
+    buttons: [
+        'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+        'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
+      ]
 
   template: ()=>
-    '<i class="editor-icon icon-blockquote" data-action="blockquote"></i>
-      <i class="editor-icon icon-h2" data-action="h2"></i>
-      <i class="editor-icon icon-h3" data-action="h3"></i>'
+    html = ""
+    _.each @config.buttons, (item)->
+      html += "<i class=\"editor-icon icon-#{item}\" data-action=\"#{item}\"></i>"
+    html
 
   render: ()=>
-    #console.log "RENDER"
     $(@el).html(@template())
-    #console.log $(@el).length
     @show()
+    @delegateEvents()
+
+  handleClick: (ev)->
+    element = $(ev.currentTarget)
+    name = element.data("action")
+    value = $(@el).find("input").val()
+
+    utils.log("menu #{name} item clicked!")
+
+    if @commandsReg.block.test(name)
+      utils.log "block here"
+      @commandBlock name
+    else if @commandsReg.inline.test(name) or @commandsReg.source.test(name)
+      utils.log "overall here"
+      @commandOverall name, value
+    else if @commandsReg.insert.test(name)
+      utils.log "insert here"
+      @commandInsert name
+    else if @commandsReg.wrap.test(name)
+      utils.log "wrap here"
+      @commandWrap name
+    else
+      utils.log "can't find command function for name: " + name
+
+    #@cleanContents()
+    false
+
+  cleanContents: ()->
+    current_editor.cleanContents()
+
+  commandOverall: (cmd, val) ->
+    message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
+    if document.execCommand(cmd, false, val)
+      utils.log "success" + message
+    else
+      utils.log "fail" + message, true
+    return
+
+  commandInsert: (name) ->
+    node = current_editor.current_node
+    return  unless node
+    current_editor.current_range.selectNode node
+    current_editor.current_range.collapse false
+    @commandOverall node, name
+
+  commandBlock: (name) ->
+    node = current_editor.current_node
+    list = @effectNode(current_editor.getNode(node), true)
+    name = "p" if list.indexOf(name) isnt -1
+    @commandOverall "formatblock", name
+
+  commandWrap: (tag) ->
+    node = current_editor.current_node
+    val = "<" + tag + ">" + selection + "</" + tag + ">"
+    @commandOverall "insertHTML", val
+
+  # node effects
+  effectNode: (el, returnAsNodeName) ->
+    nodes = []
+    el = el or current_editor.$el[0]
+    while el isnt current_editor.$el[0]
+      nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)  if el.nodeName.match(@effectNodeReg)
+      el = el.parentNode
+    nodes
+
+  handleOut: ()->
+    selected_menu = false
+
+  handleOver: ()->
+    selected_menu = true
 
   show: ()->
-    $(@el).show()
+    $(@el).css("opacity", 1)
+    $(@el).css('visibility', 'visible')
 
   hide: ()->
-    $(@el).hide()
+    $(@el).css("opacity", 0)
+    $(@el).css('visibility', 'hidden')
 
 
 class Editor.Tooltip extends Backbone.View
   el: ".inlineTooltip2"
 
+  events:
+    "click .button--inlineTooltipControl" : "toggleOptions"
+    "click .inlineTooltip2-menu .button" : "handleClick"
+
   initialize: ()=>
-    console.log $(@el).length
+    @buttons = [
+      {icon: "fa-camera", title: "Add an image", action: "image"  },
+      {icon: "fa-play", title: "Add a video", action: "embed", action_value: "Paste a YouTube, Vine, Vimeo, or other video link, and press Enter"  },
+      {icon: "fa-code", title: "Add an embed", action: "embed", action_value: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"  },
+      {icon: "fa-minus", title: "Add a new part", action: "hr"  }
+    ]
+    #utils.log $(@el).length
 
   template: ()->
-    '<button class="button button--small button--circle button--neutral button--inlineTooltipControl" title="Add an image, video, embed, or new part" data-action="inline-menu">
-        <span class="fa fa-plus"></span>
-    </button>'
+    menu = ""
+    _.each @buttons, (b)->
+      data_action_value = if b.action_value then "data-action-value='#{b.action_value}'" else  ""
+      menu += "<button class='button button--small button--circle button--neutral button--scale u-transitionSeries' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
+        <span class='fa #{b.icon}'></span>
+      </button>"
+
+    "<button class='button button--small button--circle button--neutral button--inlineTooltipControl' title='Close Menu' data-action='inline-menu'>
+        <span class='fa fa-plus'></span>
+    </button>
+    <div class='inlineTooltip2-menu'>
+      #{menu}
+    </div>"
+
+  insertTemplate: ()->
+    '<figure contenteditable="false" class="graf--figure is-defaultValue" name="ce25" tabindex="0">
+      <div style="max-width: 600px; max-height: 375px;" class="aspectRatioPlaceholder is-locked">
+        <div style="padding-bottom: 62.5%;" class="aspect-ratio-fill"></div>
+        <img src="" data-height="375" data-width="600" data-image-id="" class="graf-image" data-delayed-src="">
+      </div>
+      <figcaption contenteditable="true" data-default-value="Type caption for image (optional)" class="imageCaption">
+        <span class="defaultValue">Type caption for image (optional)</span>
+        <br>
+      </figcaption>
+    </figure>'
 
   render: ()=>
-    #console.log @template()
     $(@el).html(@template())
+    $(@el).show()
+
+  toggleOptions: ()=>
+    utils.log "OLI!!"
+    $(@el).toggleClass("is-active is-scaled")
 
   move: (coords)->
     $(@el).offset(coords)
 
+  handleClick: (ev)->
+    name = $(ev.currentTarget).data('action')
+    console.log name
+    switch name
+      when "inline-menu-image"
+        @placeholder = "<p>PLACEHOLDER</p>"
+        @imageSelect(ev)
+      when "inline-menu-embed"
+        @displayEmbed()
+      when "inline-menu-hr"
+        @splitSection()
+
+  imageSelect: (ev)->
+    $selectFile = $('<input type="file" multiple="multiple">').click()
+    self = @
+    $selectFile.change ()->
+      t = this
+      self.uploadFiles(t.files)
+
+  displayCachedImage: (file)->
+    @node = current_editor.getNode()
+    replaced_node = $(@node).replaceWith(@insertTemplate())
+    current_editor.tooltip_view.hide()
+    reader = new FileReader()
+    reader.onload = (e)->
+      $('img.graf-image').attr('src', e.target.result)
+    reader.readAsDataURL(file)
+
+  formatData: (file)->
+    formData = new FormData()
+    formData.append('file', file)
+    return formData
+
+  uploadFiles: (files)=>
+    acceptedTypes =
+      "image/png": true
+      "image/jpeg": true
+      "image/gif": true
+
+    i = 0
+    while i < files.length
+      file = files[i]
+      if acceptedTypes[file.type] is true
+        $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
+        @displayCachedImage(file)
+        @uploadFile file
+      i++
+
+  uploadFile: (file)=>
+
+    $.ajax
+      type: "post"
+      url: current_editor.upload_url
+      xhr: =>
+        xhr = new XMLHttpRequest()
+        xhr.upload.onprogress = @updateProgressBar
+        xhr
+      cache: false
+      contentType: false
+      complete: (jqxhr) =>
+        @uploadCompleted jqxhr
+        return
+
+      processData: false
+      data: @formatData(file)
+
+  updateProgressBar: (e)=>
+    $progress = $('.progress:first', this.$el)
+    complete = ""
+
+    if (e.lengthComputable)
+      complete = e.loaded / e.total * 100
+      complete = complete ? complete : 0
+      #$progress.attr('value', complete)
+      #$progress.html(complete)
+      console.log "complete"
+      console.log complete
+
+  uploadCompleted: (jqxhr)=>
+    console.log jqxhr
+
+  hide: ()=>
+    $(@el).hide()
+    $(@el).removeClass("is-active is-scaled")
 
 
-###
-addEvent(document.getElementById('clear'), 'click', function () {
-  localStorage.clear();
-  window.location = window.location; // refresh
-});
-
-if (localStorage.getItem('contenteditable')) {
-  editable.innerHTML = localStorage.getItem('contenteditable');
-}
-###
