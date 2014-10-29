@@ -698,7 +698,7 @@ class Editor.Tooltip extends Backbone.View
     @buttons = [
       {icon: "fa-camera", title: "Add an image", action: "image"  },
       {icon: "fa-play", title: "Add a video", action: "embed", action_value: "Paste a YouTube, Vine, Vimeo, or other video link, and press Enter"  },
-      {icon: "fa-code", title: "Add an embed", action: "embed", action_value: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"  },
+      {icon: "fa-code", title: "Add an embed", action: "embed-extract", action_value: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"  },
       {icon: "fa-minus", title: "Add a new part", action: "hr"  }
     ]
     #utils.log $(@el).length
@@ -773,6 +773,8 @@ class Editor.Tooltip extends Backbone.View
         @imageSelect(ev)
       when "inline-menu-embed"
         @displayEmbedPlaceHolder()
+      when "inline-menu-embed-extract"
+        @displayExtractPlaceHolder()
       when "inline-menu-hr"
         @splitSection()
 
@@ -868,7 +870,7 @@ class Editor.Tooltip extends Backbone.View
       @hide()
 
   ##EXTRACT
-  displayEmbedPlaceHolder: ()->
+  displayExtractPlaceHolder: ()->
     ph = current_editor.extract_placeholder
     @node = current_editor.getNode()
     $(@node).html(ph).addClass("is-extractable")
