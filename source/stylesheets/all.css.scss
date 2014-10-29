@@ -587,6 +587,71 @@ transition-delay: 30ms;
     max-width: 100%;
 }
 
+.is-postEditMode iframe {
+    border: 3px solid rgba(255, 255, 255, 0);
+}
+
+.graf--mixtapeEmbed {
+    border-color: rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    margin-bottom: 40px;
+    margin-top: 40px;
+    max-height: 310px;
+    max-width: 700px;
+    overflow: hidden;
+    padding: 30px;
+    position: relative;
+}
+
+.mixtapeImage {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    float: right;
+    height: 310px;
+    margin: -30px -30px 0 25px;
+    width: 310px;
+}
+
+
+.graf--mixtapeEmbed {
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+}
+
+.markup--mixtapeEmbed-strong {
+    color: #000;
+    display: block;
+    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: -14px;
+}
+
+.markup--mixtapeEmbed-em {
+    display: block;
+    font-size: 16px;
+    font-style: normal;
+    margin-bottom: 10px;
+    max-height: 120px;
+    overflow: hidden;
+}
 
 /*CAPTION*/
 
@@ -655,4 +720,12 @@ section:first-child > .section-divider, section.is-backgrounded + section > .sec
 .layoutSingleColumn {
     margin: 0 auto;
     width: 640px;
+}
+
+.defaultValue--prompt {
+    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -0.02em;
 }

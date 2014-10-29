@@ -68,8 +68,9 @@ class Editor.MainEditor extends Backbone.View
     @current_range = null
     @current_node = null
 
-    @upload_url = opts.upload_url || "/images.json"
-    @oembed_url = opts.oembed_url || "/oembed.json"
+    @upload_url  = opts.upload_url  || "/images.json"
+    @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
+    @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
 
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
@@ -77,8 +78,10 @@ class Editor.MainEditor extends Backbone.View
     @store()
     @setupElementsClasses()
 
-    @title_placeholder = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
-    @body_placeholder  = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
+    @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
+    @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
+    @embed_placeholder    = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
+    @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span>"
 
   store: ()->
     localStorage.setItem("contenteditable", $(@el).html() )
@@ -335,9 +338,9 @@ class Editor.MainEditor extends Backbone.View
     utils.log("pasted!")
     setTimeout ()=>
       @aa =  @getNode()
-      @setupElementsClasses ()=>
-        #debugger
-        #$(@aa).next('[class^="graf--"]').focus()
+      #@setupElementsClasses ()=>
+      #  #debugger
+      #  #$(@aa).next('[class^="graf--"]').focus()
     , 20
 
   handleKeyDown: (e)->
@@ -358,6 +361,11 @@ class Editor.MainEditor extends Backbone.View
       parent = $(anchor_node)
 
       utils.log @isLastChar()
+
+      if parent.hasClass("is-embedable")
+        @tooltip_view.getEmbedFromNode($(anchor_node))
+      else if parent.hasClass("is-extractable")
+        @tooltip_view.getExtractFromNode($(anchor_node))
 
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph is it the last character
@@ -722,6 +730,29 @@ class Editor.Tooltip extends Backbone.View
       </figcaption>
     </figure>'
 
+  extractTemplate: ()->
+    "<div class='graf--mixtapeEmbed is-selected' name='850a'>
+      <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''></a>
+      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
+        <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
+        <br>
+        <em class='markup--em markup--mixtapeEmbed-em'></em>
+      </a>
+    </div>"
+
+  embedTemplate: ()->
+    "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'>
+      <div class='iframeContainer'>
+        <iframe frameborder='0' width='700' height='393' data-media-id='' src='' data-height='480' data-width='854'>
+        </iframe>
+      </div>
+      <figcaption contenteditable='true' data-default-value='Type caption for embed (optional)' class='imageCaption'>
+        <a rel='nofollow' class='markup--anchor markup--figure-anchor' data-href='' href='' target='_blank'>
+
+        </a>
+      </figcaption>
+    </figure>"
+
   render: ()=>
     $(@el).html(@template())
     $(@el).show()
@@ -741,10 +772,11 @@ class Editor.Tooltip extends Backbone.View
         @placeholder = "<p>PLACEHOLDER</p>"
         @imageSelect(ev)
       when "inline-menu-embed"
-        @displayEmbed()
+        @displayEmbedPlaceHolder()
       when "inline-menu-hr"
         @splitSection()
 
+  #UPLOADER
   imageSelect: (ev)->
     $selectFile = $('<input type="file" multiple="multiple">').click()
     self = @
@@ -813,6 +845,56 @@ class Editor.Tooltip extends Backbone.View
 
   uploadCompleted: (jqxhr)=>
     console.log jqxhr
+  ##
+
+  ## EMBED
+  displayEmbedPlaceHolder: ()->
+    ph = current_editor.embed_placeholder
+    @node = current_editor.getNode()
+    $(@node).html(ph).addClass("is-embedable")
+
+    current_editor.setRangeAt(@node)
+    @hide()
+    false
+
+  getEmbedFromNode: (node)=>
+    @node = node
+    $.getJSON("#{current_editor.oembed_url}#{$(@node).text()}").done (data)=>
+      iframe_src = $(data.html).prop("src")
+      $(@node).replaceWith(@embedTemplate())
+      replaced_node = $(".graf--iframe[name=504e]")
+      replaced_node.find("iframe").attr("src", iframe_src)
+      replaced_node.find(".markup--anchor").attr("href", data.url ).text(data.url)
+      @hide()
+
+  ##EXTRACT
+  displayEmbedPlaceHolder: ()->
+    ph = current_editor.extract_placeholder
+    @node = current_editor.getNode()
+    $(@node).html(ph).addClass("is-extractable")
+
+    current_editor.setRangeAt(@node)
+    @hide()
+    false
+
+  # http://api.embed.ly/1/extract?key=:key&url=:url&maxwidth=:maxwidth&maxheight=:maxheight&format=:format&callback=:callback
+  getExtractFromNode: (node)=>
+    @node = node
+    $.getJSON("#{current_editor.extract_url}#{$(@node).text()}").done (data)=>
+      iframe_src = $(data.html).prop("src")
+      $(@node).replaceWith(@extractTemplate())
+      replaced_node = $(".graf--mixtapeEmbed[name=850a]")
+      replaced_node.find("strong").text(data.title)
+      replaced_node.find("em").text(data.description)
+      replaced_node.append(data.provider_url)
+      replaced_node.find(".markup--anchor").attr("href", data.url )
+      unless _.isEmpty data.images
+        replaced_node.find(".mixtapeImage").css("background-image", "url(#{data.images[0].url})")
+      @hide()
+
+  getExtract: (url)=>
+    $.getJSON("#{current_editor.extract_url}#{url}").done (data)->
+      console.log(data)
 
   hide: ()=>
     $(@el).hide()
