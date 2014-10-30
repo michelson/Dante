@@ -81,7 +81,7 @@ class Editor.MainEditor extends Backbone.View
     @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
     @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
     @embed_placeholder    = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
-    @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span>"
+    @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
 
   store: ()->
     localStorage.setItem("contenteditable", $(@el).html() )
@@ -367,6 +367,8 @@ class Editor.MainEditor extends Backbone.View
       else if parent.hasClass("is-extractable")
         @tooltip_view.getExtractFromNode($(anchor_node))
 
+      @tooltip_view.cleanOperationClasses($(anchor_node))
+
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph is it the last character
         if @isLastChar()
@@ -381,8 +383,11 @@ class Editor.MainEditor extends Backbone.View
         @handleLineBreakWith("p", parent)
 
       setTimeout ()=>
+        node = @getNode()
         @markAsSelected( @getNode() ) #if anchor_node
         @setupFirstAndLast()
+        #set name on new element
+        @setElementName($(node))
         #shows tooltip
         @displayTooltipAt($(@el).find(".is-selected"))
       , 2
@@ -496,6 +501,8 @@ class Editor.MainEditor extends Backbone.View
             $(n).wrap("<p class='graf graf--#{name}'></p>")
             #dont know
 
+        @setElementName(n)
+
       @setupLinks($(@el).find(".section-inner a"))
       @setupFirstAndLast()
       node = @getNode()
@@ -546,7 +553,6 @@ class Editor.MainEditor extends Backbone.View
     $(element).html(s.clean_node( $($(element).html())[0] ))
     $(element)
 
-
   setupFirstAndLast: ()=>
     childs = $(@el).find(".section-inner").children()
     childs.removeClass("graf--last , graf--first")
@@ -567,6 +573,11 @@ class Editor.MainEditor extends Backbone.View
       , 20
       false
 
+  setElementName: (element)->
+    $(element).attr("name", @generateUniqueName())
+
+  generateUniqueName: (element)->
+     Math.random().toString(36).slice(8)
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
@@ -697,8 +708,8 @@ class Editor.Tooltip extends Backbone.View
   initialize: ()=>
     @buttons = [
       {icon: "fa-camera", title: "Add an image", action: "image"  },
-      {icon: "fa-play", title: "Add a video", action: "embed", action_value: "Paste a YouTube, Vine, Vimeo, or other video link, and press Enter"  },
-      {icon: "fa-code", title: "Add an embed", action: "embed-extract", action_value: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"  },
+      {icon: "fa-play", title: "Add a video", action: "embed"  },
+      {icon: "fa-code", title: "Add an embed", action: "embed-extract"},
       {icon: "fa-minus", title: "Add a new part", action: "hr"  }
     ]
     #utils.log $(@el).length
@@ -719,21 +730,21 @@ class Editor.Tooltip extends Backbone.View
     </div>"
 
   insertTemplate: ()->
-    '<figure contenteditable="false" class="graf--figure is-defaultValue" name="ce25" tabindex="0">
-      <div style="max-width: 600px; max-height: 375px;" class="aspectRatioPlaceholder is-locked">
-        <div style="padding-bottom: 62.5%;" class="aspect-ratio-fill"></div>
-        <img src="" data-height="375" data-width="600" data-image-id="" class="graf-image" data-delayed-src="">
+    "<figure contenteditable='false' class='graf--figure is-defaultValue' name='' tabindex='0'>
+      <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
+        <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
+        <img src=' data-height='375' data-width='600' data-image-id=' class='graf-image' data-delayed-src='>
       </div>
-      <figcaption contenteditable="true" data-default-value="Type caption for image (optional)" class="imageCaption">
-        <span class="defaultValue">Type caption for image (optional)</span>
+      <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
+        <span class='defaultValue'>Type caption for image (optional)</span>
         <br>
       </figcaption>
-    </figure>'
+    </figure>"
 
   extractTemplate: ()->
-    "<div class='graf--mixtapeEmbed is-selected' name='850a'>
-      <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''></a>
-      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
+    "<div class='graf--mixtapeEmbed is-selected' name=''>
+      <a target='_blank' data-media-id=' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href='></a>
+      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip=' title=' class='markup--anchor markup--mixtapeEmbed-anchor' data-href=' href=' target='_blank'>
         <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
         <br>
         <em class='markup--em markup--mixtapeEmbed-em'></em>
@@ -863,8 +874,10 @@ class Editor.Tooltip extends Backbone.View
     @node = node
     $.getJSON("#{current_editor.oembed_url}#{$(@node).text()}").done (data)=>
       iframe_src = $(data.html).prop("src")
-      $(@node).replaceWith(@embedTemplate())
-      replaced_node = $(".graf--iframe[name=504e]")
+      tmpl = $(@embedTemplate())
+      tmpl.attr("name", @node.attr("name"))
+      $(@node).replaceWith(tmpl)
+      replaced_node = $(".graf--iframe[name=#{@node.attr("name")}]")
       replaced_node.find("iframe").attr("src", iframe_src)
       replaced_node.find(".markup--anchor").attr("href", data.url ).text(data.url)
       @hide()
@@ -879,13 +892,14 @@ class Editor.Tooltip extends Backbone.View
     @hide()
     false
 
-  # http://api.embed.ly/1/extract?key=:key&url=:url&maxwidth=:maxwidth&maxheight=:maxheight&format=:format&callback=:callback
   getExtractFromNode: (node)=>
     @node = node
     $.getJSON("#{current_editor.extract_url}#{$(@node).text()}").done (data)=>
       iframe_src = $(data.html).prop("src")
-      $(@node).replaceWith(@extractTemplate())
-      replaced_node = $(".graf--mixtapeEmbed[name=850a]")
+      tmpl = $(@extractTemplate())
+      tmpl.attr("name", @node.attr("name"))
+      $(@node).replaceWith(tmpl)
+      replaced_node = $(".graf--mixtapeEmbed[name=#{@node.attr("name")}]")
       replaced_node.find("strong").text(data.title)
       replaced_node.find("em").text(data.description)
       replaced_node.append(data.provider_url)
@@ -897,6 +911,9 @@ class Editor.Tooltip extends Backbone.View
   getExtract: (url)=>
     $.getJSON("#{current_editor.extract_url}#{url}").done (data)->
       console.log(data)
+
+  cleanOperationClasses: (node)->
+    node.removeClass("is-embedable is-extractable")
 
   hide: ()=>
     $(@el).hide()
