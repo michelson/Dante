@@ -58,7 +58,6 @@ class Editor.MainEditor extends Backbone.View
     "paste"   : "handlePaste"
     "destroyed .graf--first" : "handleDeletedContainer"
     "focus .graf" : "handleFocus"
-    #".graf--p focus"   : "handleFocus"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -86,8 +85,9 @@ class Editor.MainEditor extends Backbone.View
   store: ()->
     localStorage.setItem("contenteditable", $(@el).html() )
     setTimeout ()=>
-      utils.log("storing")
-      @store()
+      #utils.log("storing")
+      #@store()
+      1 +1
     , 5000
 
   template: ()=>
@@ -361,10 +361,15 @@ class Editor.MainEditor extends Backbone.View
 
       utils.log @isLastChar()
 
+      #embeds or extracts
       if parent.hasClass("is-embedable")
         @tooltip_view.getEmbedFromNode($(anchor_node))
       else if parent.hasClass("is-extractable")
         @tooltip_view.getExtractFromNode($(anchor_node))
+
+      #supress linebreak into embed unless last char
+      if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe")
+        return false unless @isLastChar()
 
       @tooltip_view.cleanOperationClasses($(anchor_node))
 
@@ -387,6 +392,13 @@ class Editor.MainEditor extends Backbone.View
         @setupFirstAndLast()
         #set name on new element
         @setElementName($(node))
+
+        #empty childs if text is empty
+        if _.isEmpty $(node).text().trim()
+          _.each $(node).children(), (n)->
+            $(n).remove()
+          $(node).append("<br>")
+
         #shows tooltip
         @displayTooltipAt($(@el).find(".is-selected"))
       , 2
@@ -482,7 +494,8 @@ class Editor.MainEditor extends Backbone.View
         switch name
           when "p", "h2", "h3", "pre", "div"
             utils.log n
-            $(n).removeClass().addClass("graf graf--#{name}")
+            unless $(n).hasClass("graf--mixtapeEmbed")
+              $(n).removeClass().addClass("graf graf--#{name}")
           when "code"
             utils.log n
             $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
@@ -515,7 +528,7 @@ class Editor.MainEditor extends Backbone.View
   cleanContents: ()->
     #TODO: should config tags
     s = new Sanitize
-      elements: ['a', 'span', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+      elements: ['div', 'strong', 'em', 'br', 'a', 'span', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
       attributes:
           '__ALL__': ['class']
           a: ['href', 'title']

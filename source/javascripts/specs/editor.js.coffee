@@ -25,3 +25,6 @@ QUnit.test "should init current_editor", ( assert )->
 QUnit.test "should build tooltip & menu", ( assert )->
   assert.ok( !_.isEmpty( $(".inlineTooltip2") ), "Passed!" )
   assert.ok( !_.isEmpty( $("#editor-menu") ), "Passed!" )
+
+QUnit.test "should display placeholders when empty content", (assert)->
+  assert.ok $("span.defaultValue").length is 2 , "Passed!"
