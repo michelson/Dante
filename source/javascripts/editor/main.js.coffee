@@ -48,7 +48,7 @@ utils.log = (message, force) ->
 
 
 class Editor.MainEditor extends Backbone.View
-  el: "#editor"
+  #el: "#editor"
 
   events:
     "blur"    : "handleBlur"
@@ -67,7 +67,7 @@ class Editor.MainEditor extends Backbone.View
     @initial_html = $(@el).html()
     @current_range = null
     @current_node = null
-
+    @el = opts.el || "#editor"
     @upload_url  = opts.upload_url  || "/images.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
@@ -122,7 +122,6 @@ class Editor.MainEditor extends Backbone.View
     $(@el).addClass("postField--body")
     $(@el).wrap("<div class='notesSource'></div>")
     @appendMenus()
-    utils.log "oli" + @initial_html
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
 
   restart: ()=>
@@ -225,6 +224,7 @@ class Editor.MainEditor extends Backbone.View
   getNode: ()->
     node = undefined
     root = $(@el).find(".section-inner")[0]
+    return if @selection().rangeCount < 1
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
     return null  if not node or node is root
@@ -254,8 +254,6 @@ class Editor.MainEditor extends Backbone.View
 
   hidePlaceholder: (element)->
     $(element).find("span.defaultValue").remove().html("<br>")
-    #element.focus()
-    #@setRangeAt(element)
 
   displayEmptyPlaceholder: (element)->
     $(".graf--first").html(@title_placeholder)
@@ -275,6 +273,7 @@ class Editor.MainEditor extends Backbone.View
     false
 
   handleMouseUp: (ev)=>
+    console.log "MOUSE UP"
     anchor_node = @getNode()
     @handleTextSelection(anchor_node)
     utils.log anchor_node
@@ -487,6 +486,7 @@ class Editor.MainEditor extends Backbone.View
           when "code"
             utils.log n
             $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
+            n = $(n).parent()
           when "ol", "ul"
             utils.log "lists"
             $(n).removeClass().addClass("postList")
@@ -499,15 +499,16 @@ class Editor.MainEditor extends Backbone.View
           when "a"
             utils.log "links"
             $(n).wrap("<p class='graf graf--#{name}'></p>")
+            n = $(n).parent()
             #dont know
 
         @setElementName(n)
 
       @setupLinks($(@el).find(".section-inner a"))
       @setupFirstAndLast()
-      node = @getNode()
-      @markAsSelected( node ) #set selected
-      @displayTooltipAt( node )
+      #node = @getNode()
+      #@markAsSelected( node ) #set selected
+      #@displayTooltipAt( node )
       cb() if _.isFunction(cb)
     , 20
 

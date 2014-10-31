@@ -11,7 +11,6 @@ title: Dante Editor example
 
   <div id="editor" class="postField postField--body editable smart-media-plugin">
     <%= partial "partials/example_1" %>
-
   </div>
 
 </div>
@@ -19,7 +18,7 @@ title: Dante Editor example
 
 <script type="text/javascript">
   editor = new Editor.MainEditor(
-    {upload_url: "/images.json"}
+    {el: "#editor", upload_url: "/images.json"}
   );
   editor.start()
 </script>

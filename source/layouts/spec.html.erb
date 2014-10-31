@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <title>Dante Wysiwyg Specs</title>
+   <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.15.0.css">
+   <%= javascript_include_tag  "all" %>
+
+  </head>
+
+  <body class="<%= page_classes %>">
+
+    <%= yield %>
+
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
+    <%= javascript_include_tag  "spec" %>
+
+  </body>
+</html>
