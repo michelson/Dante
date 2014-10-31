@@ -191,7 +191,8 @@ class Editor.MainEditor extends Backbone.View
     precedingChar
 
   isLastChar: ()->
-    $(@getNode()).text().length is @getCharacterPrecedingCaret().length
+    #console.log "#{$(@getNode()).text().trim().length} | #{@getCharacterPrecedingCaret().trim().length}"
+    $(@getNode()).text().trim().length is @getCharacterPrecedingCaret().trim().length
 
   isFirstChar: ()->
     @getCharacterPrecedingCaret().length is 0
