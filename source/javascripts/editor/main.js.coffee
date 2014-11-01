@@ -40,6 +40,13 @@ selected_menu = false
 window.current_editor = null
 debugMode = true
 
+String.prototype.killWhiteSpace = ()->
+  this.replace(/\s/g, '')
+
+
+String.prototype.reduceWhiteSpace = ()->
+  this.replace(/\s+/g, ' ')
+
 utils.log = (message, force) ->
   if (debugMode || force)
     #console.log('%cDANTE DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
@@ -105,6 +112,9 @@ class Editor.MainEditor extends Backbone.View
       </div>
 
     </section>"
+
+  baseParagraphTmpl: ()->
+    "<p class='graf--p' name='#{@generateUniqueName()}'><br></p>"
 
   appendMenus: ()=>
     $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
@@ -195,7 +205,12 @@ class Editor.MainEditor extends Backbone.View
     $(@getNode()).text().trim().length is @getCharacterPrecedingCaret().trim().length
 
   isFirstChar: ()->
-    @getCharacterPrecedingCaret().length is 0
+    @getCharacterPrecedingCaret().trim().length is 0
+
+  isSelectingAll: (element)->
+    a = @getSelectedText().killWhiteSpace().length
+    b = $(element).text().killWhiteSpace().length
+    a is b
 
   #set focus and caret position on element
   setRangeAt: (element)->
@@ -345,17 +360,14 @@ class Editor.MainEditor extends Backbone.View
 
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
-    #e.preventDefault() if _.contains([13], e.which)
 
     anchor_node = @getNode() #current node on which cursor is positioned
-    #previous_node = anchor_node.previousSibling
-    #next_node = anchor_node.nextSibling
 
     @markAsSelected( anchor_node ) if anchor_node
 
     #enter key
     if (e.which == 13)
-      #removes all childs
+      #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
       parent = $(anchor_node)
@@ -413,13 +425,48 @@ class Editor.MainEditor extends Backbone.View
       #return false if !anchor_node or anchor_node.nodeType is 3
       utils.log("pass initial validations")
 
-      if anchor_node = @getNode() && $(@getNode()).text() is ""
+      anchor_node = @getNode()
+
+      if anchor_node && anchor_node.nodeType is 3
         #@displayEmptyPlaceholder()
         utils.log("TextNode detected from Down!")
+        #return false
+
+      #supress del into embed if first char or delete if empty content
+      if $(anchor_node).hasClass("graf--mixtapeEmbed") or $(anchor_node).hasClass("graf--iframe")
+        if _.isEmpty $(anchor_node).text().trim()
+          console.log "EMPTY CHAR"
+          return false
+        else
+          if @isFirstChar()
+            console.log "FIRST CHAR"
+            @inmediateDeletion = true if @isSelectingAll(anchor_node)
+            return false
+          else
+            console.log "NORMAL"
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrowDown(e)
+
+
+  handleInmediateDeletion: (element)->
+    @inmediateDeletion = false
+    new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
+    new_node.addClass("is-selected")
+    @setRangeAt($(element).prev()[0])
+    $(element).remove()
+
+  #when found that the current node is text node
+  #create a new <p> and focus
+  handleUnwrappedNode: (element)->
+    tmpl = $(@baseParagraphTmpl())
+    @setElementName(tmpl)
+    $(element).wrap(tmpl)
+    new_node = $("[name='#{tmpl.attr('name')}']")
+    new_node.addClass("is-selected")
+    @setRangeAt(new_node[0])
+    return false
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -429,6 +476,14 @@ class Editor.MainEditor extends Backbone.View
     anchor_node = @getNode() #current node on which cursor is positioned
 
     if (e.which == 8)
+
+      #when user select all text delete complete node
+      if @inmediateDeletion
+        @handleInmediateDeletion(anchor_node)
+
+      if anchor_node && anchor_node.nodeType is 3
+        @handleUnwrappedNode(anchor_node)
+
       #if detect all text deleted , re render
       @handleCompleteDeletion($(@el))
 
@@ -459,7 +514,7 @@ class Editor.MainEditor extends Backbone.View
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
     utils.log ("POSITION FOR TOOLTIP")
-    utils.log $(element)
+    #utils.log $(element)
     return if !element
     @tooltip_view.hide()
     return unless _.isEmpty( $(element).text() )
@@ -494,15 +549,15 @@ class Editor.MainEditor extends Backbone.View
 
         switch name
           when "p", "h2", "h3", "pre", "div"
-            utils.log n
+            #utils.log n
             unless $(n).hasClass("graf--mixtapeEmbed")
               $(n).removeClass().addClass("graf graf--#{name}")
           when "code"
-            utils.log n
+            #utils.log n
             $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
             n = $(n).parent()
           when "ol", "ul"
-            utils.log "lists"
+            #utils.log "lists"
             $(n).removeClass().addClass("postList")
             _.each $(n).find("li"), (li)->
               $(n).removeClass().addClass("graf graf--li")
@@ -511,7 +566,7 @@ class Editor.MainEditor extends Backbone.View
             utils.log "images"
             #set figure non editable
           when "a"
-            utils.log "links"
+            #utils.log "links"
             $(n).wrap("<p class='graf graf--#{name}'></p>")
             n = $(n).parent()
             #dont know
@@ -580,11 +635,11 @@ class Editor.MainEditor extends Backbone.View
     ).wrap "<p class='graf grap--p'></p>"
 
   handleCompleteDeletion: (element)->
-    utils.log $(element).text()
-    if _.isEmpty( $(element).text() )
+    #utils.log $(element).text()
+    if _.isEmpty( $(element).text().trim() )
       @render()
       setTimeout =>
-        @setRangeAt($(@el).find(".graf--first")[0])
+        @setRangeAt($(@el).find("p")[0])
       , 20
       false
 
@@ -748,7 +803,7 @@ class Editor.Tooltip extends Backbone.View
     "<figure contenteditable='false' class='graf--figure is-defaultValue' name='' tabindex='0'>
       <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
         <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
-        <img src=' data-height='375' data-width='600' data-image-id=' class='graf-image' data-delayed-src='>
+        <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
         <span class='defaultValue'>Type caption for image (optional)</span>
@@ -758,8 +813,9 @@ class Editor.Tooltip extends Backbone.View
 
   extractTemplate: ()->
     "<div class='graf--mixtapeEmbed is-selected' name=''>
-      <a target='_blank' data-media-id=' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href='></a>
-      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip=' title=' class='markup--anchor markup--mixtapeEmbed-anchor' data-href=' href=' target='_blank'>
+      <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''>
+      </a>
+      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
         <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
         <br>
         <em class='markup--em markup--mixtapeEmbed-em'></em>
@@ -886,8 +942,9 @@ class Editor.Tooltip extends Backbone.View
     false
 
   getEmbedFromNode: (node)=>
-    @node = node
-    $.getJSON("#{current_editor.oembed_url}#{$(@node).text()}").done (data)=>
+    @node_name = $(node).attr("name")
+    $.getJSON("#{current_editor.oembed_url}#{$(@node).text()}").success (data)=>
+      @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@embedTemplate())
       tmpl.attr("name", @node.attr("name"))
@@ -908,8 +965,9 @@ class Editor.Tooltip extends Backbone.View
     false
 
   getExtractFromNode: (node)=>
-    @node = node
-    $.getJSON("#{current_editor.extract_url}#{$(@node).text()}").done (data)=>
+    @node_name = $(node).attr("name")
+    $.getJSON("#{current_editor.extract_url}#{$(@node).text()}").success (data)=>
+      @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@extractTemplate())
       tmpl.attr("name", @node.attr("name"))
@@ -920,7 +978,9 @@ class Editor.Tooltip extends Backbone.View
       replaced_node.append(data.provider_url)
       replaced_node.find(".markup--anchor").attr("href", data.url )
       unless _.isEmpty data.images
-        replaced_node.find(".mixtapeImage").css("background-image", "url(#{data.images[0].url})")
+        image_node = replaced_node.find(".mixtapeImage")
+        image_node.css("background-image", "url(#{data.images[0].url})")
+        image_node.removeClass("mixtapeImage--empty u-ignoreBlock")
       @hide()
 
   getExtract: (url)=>
