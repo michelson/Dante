@@ -309,7 +309,6 @@ class Editor.MainEditor extends Backbone.View
     @resetOffset($(@el));
 
   handleArrow: (ev)=>
-    utils.log("ENTER ARROWS")
     current_node = $(@getNode())
     if current_node
       @markAsSelected( current_node )
@@ -324,8 +323,8 @@ class Editor.MainEditor extends Backbone.View
 
     #handle keys for image figure
     switch ev_type
+
       when "Down"
-        #.isLastChar()
         figure = current_node.next()
         if figure.hasClass("graf--figure")
           console.log "IS FIGURE!"
@@ -800,7 +799,7 @@ class Editor.Tooltip extends Backbone.View
     </div>"
 
   insertTemplate: ()->
-    "<figure contenteditable='false' class='graf--figure is-defaultValue' name='' tabindex='0'>
+    "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='' tabindex='0'>
       <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
         <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
@@ -812,7 +811,7 @@ class Editor.Tooltip extends Backbone.View
     </figure>"
 
   extractTemplate: ()->
-    "<div class='graf--mixtapeEmbed is-selected' name=''>
+    "<div class='graf graf--mixtapeEmbed is-selected' name=''>
       <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''>
       </a>
       <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
