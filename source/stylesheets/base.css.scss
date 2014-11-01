@@ -1,0 +1,53 @@
+@charset "utf-8";
+
+body {
+  //background: #d4d4d4 image-url("background.png");
+  font-family: 'freight-text-pro', serif;
+  color: rgba(0,0,0,0.8);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+#welcome{
+
+}
+
+header{
+  width: 100%;
+  border-top: 3px solid #1abf89;
+  margin-bottom: 40px;
+
+  img{
+    display: block;
+    float: left;
+    margin: -34px 7px 11px 25px;
+    position: absolute;
+    left: 0;
+    top: 28px;
+  }
+  h1 {
+    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-size: 35px;
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+    /* margin-left: -3px; */
+    margin-top: 21px;
+    padding-top: 0;
+    text-align: right;
+    margin-right: 16px;
+  }
+}
+
+
+#editor{
+  margin: 0 auto;
+  //width: 70%;
+  width: 700px;
+}
+
+
+

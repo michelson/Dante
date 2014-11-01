@@ -336,6 +336,9 @@ class Editor.MainEditor extends Backbone.View
           figure.removeClass("is-mediaFocused is-selected")
           false
 
+        #if graf--mixtapeEmbed
+        #if graf--iframe
+
       when "Up"
         figure = current_node.prev()
         if figure.hasClass("graf--figure")
@@ -398,6 +401,7 @@ class Editor.MainEditor extends Backbone.View
         e.preventDefault()
         @handleLineBreakWith("p", parent)
 
+
       setTimeout ()=>
         node = @getNode()
         @markAsSelected( @getNode() ) #if anchor_node
@@ -414,6 +418,7 @@ class Editor.MainEditor extends Backbone.View
         #shows tooltip
         @displayTooltipAt($(@el).find(".is-selected"))
       , 2
+
 
     #delete key
     if (e.which == 8)
@@ -448,7 +453,6 @@ class Editor.MainEditor extends Backbone.View
     if _.contains([37,38,39,40], e.which)
       @handleArrowDown(e)
 
-
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
     new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
@@ -481,20 +485,23 @@ class Editor.MainEditor extends Backbone.View
         @handleInmediateDeletion(anchor_node)
 
       if anchor_node && anchor_node.nodeType is 3
+        console.log "HANDLE UNWRAPPED"
         @handleUnwrappedNode(anchor_node)
+        return false
 
       #if detect all text deleted , re render
       @handleCompleteDeletion($(@el))
 
-      if $(@getNode()).hasClass("graf--first")
+      if $(anchor_node).hasClass("graf--first")
         utils.log "THE FIRST ONE! UP"
-        @markAsSelected(@getNode())
+        @markAsSelected(anchor_node)
         @setupFirstAndLast()
         false
 
-      @markAsSelected(@getNode())
-      @setupFirstAndLast()
-      @displayTooltipAt($(@el).find(".is-selected"))
+      if anchor_node
+        @markAsSelected(anchor_node)
+        @setupFirstAndLast()
+        @displayTooltipAt($(@el).find(".is-selected"))
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
