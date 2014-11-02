@@ -3,5 +3,5 @@
 //= require underscore/underscore.js
 //= require backbone/backbone.js
 
-//= require editor/main
+//= require dante/dante
 
