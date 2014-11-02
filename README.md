@@ -22,6 +22,10 @@ Until now I´ve been able to implement the following features:
 This Library will work on early versions of Chrome/Safari/FF/IE.
 I don't have any intentions to target all browsers versions, really... if you like this library and need backwards support for an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
 
+## Demo:
+
+todo
+
 ## Usage:
 
 ```html
@@ -48,14 +52,9 @@ I don't have any intentions to target all browsers versions, really... if you li
     oembed_url:  default: http://api.embed.ly/1/oembed?url="
     extract_url: default: http://api.embed.ly/1/extract?url="
 
+## TODO
 
-## Testing Demo
-
-  TODO
-
-## Usage
-
-  TODO
+  [read todo](./TODO.md)
 
 ### References
 
@@ -63,7 +62,10 @@ I don't have any intentions to target all browsers versions, really... if you li
 
   https://www.iconfinder.com/icons/281089/highlighter_stationery_writting_tool_icon#size=128
 
-
 + handle paste
 
   http://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser/6804718#6804718
+
+### LICENSE
+
+[Licensed under MIT.](./license.md)
