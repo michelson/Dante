@@ -18,7 +18,11 @@ title: Dante Editor example
 
 <script type="text/javascript">
   editor = new Editor.MainEditor(
-    {el: "#editor", upload_url: "/images.json"}
+    {
+      el: "#editor",
+      upload_url: "/images.json",
+      debug: true
+    }
   );
   editor.start()
 </script>

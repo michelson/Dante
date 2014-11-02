@@ -48,9 +48,9 @@ String.prototype.reduceWhiteSpace = ()->
   this.replace(/\s+/g, ' ')
 
 utils.log = (message, force) ->
-  if (debugMode || force)
+  if (window.debugMode || force)
     #console.log('%cDANTE DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
-    console.log('%cDANTE DEBUGGER: %c', 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
+    #console.log('%cDANTE DEBUGGER: %c', 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
     console.log( message );
 
 class Editor.MainEditor extends Backbone.View
@@ -73,6 +73,7 @@ class Editor.MainEditor extends Backbone.View
     @current_range = null
     @current_node = null
     @el = opts.el || "#editor"
+    window.debugMode = opts.debug || false
     @upload_url  = opts.upload_url  || "/images.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
@@ -140,10 +141,6 @@ class Editor.MainEditor extends Backbone.View
     @template()
     $(@el).html @template()
 
-  handleDeletedContainer: ()->
-    #only forefox ctrl+a or select all delete
-    alert("deleted")
-
   getSelectedText: () ->
     text = ""
     if typeof window.getSelection != "undefined"
@@ -151,7 +148,6 @@ class Editor.MainEditor extends Backbone.View
     else if typeof document.selection != "undefined" && document.selection.type == "Text"
       text = document.selection.createRange().text
     text
-    #text
 
   selection: ()=>
     selection
@@ -200,7 +196,7 @@ class Editor.MainEditor extends Backbone.View
     precedingChar
 
   isLastChar: ()->
-    #console.log "#{$(@getNode()).text().trim().length} | #{@getCharacterPrecedingCaret().trim().length}"
+    #utils.log "#{$(@getNode()).text().trim().length} | #{@getCharacterPrecedingCaret().trim().length}"
     $(@getNode()).text().trim().length is @getCharacterPrecedingCaret().trim().length
 
   isFirstChar: ()->
@@ -288,7 +284,7 @@ class Editor.MainEditor extends Backbone.View
     false
 
   handleMouseUp: (ev)=>
-    console.log "MOUSE UP"
+    utils.log "MOUSE UP"
     anchor_node = @getNode()
     @handleTextSelection(anchor_node)
     utils.log anchor_node
@@ -317,7 +313,7 @@ class Editor.MainEditor extends Backbone.View
     utils.log("ENTER ARROW DOWN #{ev.key}")
 
     current_node = $(@getNode())
-    console.log(ev)
+    utils.log(ev)
     ev_type = ev.originalEvent.key
 
     #handle keys for image figure
@@ -326,7 +322,7 @@ class Editor.MainEditor extends Backbone.View
       when "Down"
         figure = current_node.next()
         if figure.hasClass("graf--figure")
-          console.log "IS FIGURE!"
+          utils.log "IS FIGURE!"
           @setRangeAt current_node.next().find(".imageCaption")[0]
           figure.addClass("is-mediaFocused is-selected")
           false
@@ -341,7 +337,7 @@ class Editor.MainEditor extends Backbone.View
       when "Up"
         figure = current_node.prev()
         if figure.hasClass("graf--figure")
-          console.log "IS FIGURE!"
+          utils.log "IS FIGURE!"
           @setRangeAt current_node.prev().find(".imageCaption")[0]
           figure.addClass("is-mediaFocused is-selected")
           false
@@ -358,7 +354,6 @@ class Editor.MainEditor extends Backbone.View
       #  #debugger
       #  #$(@aa).next('[class^="graf--"]').focus()
     , 20
-
 
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
@@ -377,6 +372,46 @@ class Editor.MainEditor extends Backbone.View
     new_node.addClass("is-selected")
     @setRangeAt(new_node[0])
     return false
+
+  handleNullAnchor: ()->
+    utils.log "ALARM ALARM this is an empty node"
+    sel = window.getSelection();
+    #this is a rare hack only for FF (I hope),
+    #when there is no range create a new element,
+    #and find previous element and focus it
+    #and finnaly remove the newly created.
+    if (sel.isCollapsed && sel.rangeCount > 0)
+      range = sel.getRangeAt(0)
+      span = $( @baseParagraphTmpl())[0]
+
+      range.insertNode(span)
+      range.setStart(span, 0)
+      range.setEnd(span, 0)
+      sel.removeAllRanges()
+      sel.addRange(range)
+
+      node = $(range.commonAncestorContainer)
+      prev = node.prev()
+      num = prev[0].childNodes.length
+      if prev.hasClass("graf")
+        @setRangeAt(prev[0], num)
+        node.remove()
+        @markAsSelected(@getNode())
+      else if prev.hasClass("graf--mixtapeEmbed")
+        @setRangeAt(prev[0], num)
+        node.remove()
+        @markAsSelected(@getNode())
+      else if !prev
+        utils.log "NO PREV"
+
+  handleCompleteDeletion: (element)->
+    if _.isEmpty( $(element).text().trim() )
+      utils.log "HANDLE COMPLETE DELETION"
+      @render()
+      setTimeout =>
+        @setRangeAt($(@el).find(".section-inner p")[0])
+      , 20
+      @completeDeletion = true
 
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
@@ -448,7 +483,7 @@ class Editor.MainEditor extends Backbone.View
       #return false if !anchor_node or anchor_node.nodeType is 3
       utils.log("pass initial validations")
       anchor_node = @getNode()
-      console.log anchor_node
+      utils.log anchor_node
 
       if anchor_node && anchor_node.nodeType is 3
         #@displayEmptyPlaceholder()
@@ -458,15 +493,15 @@ class Editor.MainEditor extends Backbone.View
       #supress del into embed if first char or delete if empty content
       if $(anchor_node).hasClass("graf--mixtapeEmbed") or $(anchor_node).hasClass("graf--iframe")
         if _.isEmpty $(anchor_node).text().trim()
-          console.log "EMPTY CHAR"
+          utils.log "EMPTY CHAR"
           return false
         else
           if @isFirstChar()
-            console.log "FIRST CHAR"
+            utils.log "FIRST CHAR"
             @inmediateDeletion = true if @isSelectingAll(anchor_node)
             return false
           else
-            console.log "NORMAL"
+            utils.log "NORMAL"
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
@@ -481,40 +516,25 @@ class Editor.MainEditor extends Backbone.View
 
 
     if (e.which == 8)
+
+      #if detect all text deleted , re render
+      @handleCompleteDeletion($(@el))
+      if @completeDeletion
+        @completeDeletion = false
+        return false
+
       #when user select all text delete complete node
       if @inmediateDeletion
         @handleInmediateDeletion(anchor_node)
 
       if anchor_node && anchor_node.nodeType is 3
-        console.log "HANDLE UNWRAPPED"
+        utils.log "HANDLE UNWRAPPED"
         @handleUnwrappedNode(anchor_node)
         return false
 
       if _.isNull(anchor_node)
-        console.log "ALARM ALARM this is an empty node"
-        sel = window.getSelection();
-        if (sel.isCollapsed && sel.rangeCount > 0)
-          range = sel.getRangeAt(0)
-          span = $( @baseParagraphTmpl())[0]
-          #debugger
-          range.insertNode(span)
-          range.setStart(span, 0)
-          range.setEnd(span, 0)
-          sel.removeAllRanges()
-          sel.addRange(range)
-
-          node = $(range.commonAncestorContainer)
-          prev = node.prev(".graf")
-
-          @setRangeAt(prev[0], 1)
-          node.remove()
-
-        return false
-
-
-
-      #if detect all text deleted , re render
-      @handleCompleteDeletion($(@el))
+        @handleNullAnchor()
+        #return false
 
       if $(anchor_node).hasClass("graf--first")
         utils.log "THE FIRST ONE! UP"
@@ -660,15 +680,6 @@ class Editor.MainEditor extends Backbone.View
     $(@el).find(".section-inner").contents().filter(->
       @nodeType is 3 and @data.trim().length > 0
     ).wrap "<p class='graf grap--p'></p>"
-
-  handleCompleteDeletion: (element)->
-    #utils.log $(element).text()
-    if _.isEmpty( $(element).text().trim() )
-      @render()
-      setTimeout =>
-        @setRangeAt($(@el).find("p")[0])
-      , 20
-      false
 
   setElementName: (element)->
     $(element).attr("name", @generateUniqueName())
@@ -874,7 +885,7 @@ class Editor.Tooltip extends Backbone.View
 
   handleClick: (ev)->
     name = $(ev.currentTarget).data('action')
-    console.log name
+    utils.log name
     switch name
       when "inline-menu-image"
         @placeholder = "<p>PLACEHOLDER</p>"
@@ -950,11 +961,11 @@ class Editor.Tooltip extends Backbone.View
       complete = complete ? complete : 0
       #$progress.attr('value', complete)
       #$progress.html(complete)
-      console.log "complete"
-      console.log complete
+      utils.log "complete"
+      utils.log complete
 
   uploadCompleted: (jqxhr)=>
-    console.log jqxhr
+    utils.log jqxhr
   ##
 
   ## EMBED
@@ -1011,7 +1022,7 @@ class Editor.Tooltip extends Backbone.View
 
   getExtract: (url)=>
     $.getJSON("#{current_editor.extract_url}#{url}").done (data)->
-      console.log(data)
+      utils.log(data)
 
   cleanOperationClasses: (node)->
     node.removeClass("is-embedable is-extractable")
