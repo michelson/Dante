@@ -53,6 +53,8 @@ set :images_dir, 'images'
 
 page "/tests/*", :layout => "spec"
 
+sprockets.append_path File.join "#{root}", "bower_components"
+
 # Build-specific configuration
 configure :build do
   # For example, change the Compass output style for deployment

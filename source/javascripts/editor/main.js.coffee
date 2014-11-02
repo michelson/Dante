@@ -1,3 +1,4 @@
+
 window.Editor = {
 
 }
@@ -5,33 +6,33 @@ window.Editor = {
 utils = {}
 
 ###
-#TODO:
-+ OK set selected <p> like medium
-+ OK shows the + when selected <p> is empty
-  + check from key 8
-  + check from enter
-+ detect enter key between words to split and duplicate tags
-+ actions over text
-+ OK placeholders for first (empty) node
-+ on paste set caret to the last (or first?) element
-+ parse existing images or objects
-+ handle remove from pre, it set rare span, just remove it
-  + clean node when remove one
-+ remove inner spans and other shits
-+ CLEAN PROCESS:
-  + OK WRAP INTO PARAGRAPHS ORPHANS
-  + OK convert divs into p
-  + OK a,  wrap with p
-  + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
+  #TODO:
+  + OK set selected <p> like medium
+  + OK shows the + when selected <p> is empty
+    + check from key 8
+    + check from enter
+  + detect enter key between words to split and duplicate tags
+  + actions over text
+  + OK placeholders for first (empty) node
+  + on paste set caret to the last (or first?) element
+  + parse existing images or objects
+  + handle remove from pre, it set rare span, just remove it
+    + clean node when remove one
+  + remove inner spans and other shits
+  + CLEAN PROCESS:
+    + OK WRAP INTO PARAGRAPHS ORPHANS
+    + OK convert divs into p
+    + OK a,  wrap with p
+    + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
 
-+ IMAGES:
-  + upload complete, add figure and bla bla
-  + control arrows, detect selected
-    + focus caption
-    + mark selected
-    + when image is uploaded update blob src to image src
-  + handle enter (linebreak) when selected in caption (build new <p>)
-  + embed connect with oembed service
+  + IMAGES:
+    + upload complete, add figure and bla bla
+    + control arrows, detect selected
+      + focus caption
+      + mark selected
+      + when image is uploaded update blob src to image src
+    + handle enter (linebreak) when selected in caption (build new <p>)
+    + embed connect with oembed service
 ###
 
 # make it accessible
@@ -43,7 +44,6 @@ debugMode = true
 String.prototype.killWhiteSpace = ()->
   this.replace(/\s/g, '')
 
-
 String.prototype.reduceWhiteSpace = ()->
   this.replace(/\s+/g, ' ')
 
@@ -52,7 +52,6 @@ utils.log = (message, force) ->
     #console.log('%cDANTE DEBUGGER: %c' + message, 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
     console.log('%cDANTE DEBUGGER: %c', 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
     console.log( message );
-
 
 class Editor.MainEditor extends Backbone.View
   #el: "#editor"
@@ -213,11 +212,11 @@ class Editor.MainEditor extends Backbone.View
     a is b
 
   #set focus and caret position on element
-  setRangeAt: (element)->
+  setRangeAt: (element, int=0)->
     range = document.createRange()
     sel = window.getSelection()
-
-    range.setStart(element, 0);
+    range.setStart(element, int); #DANGER this is supported by IE 9
+    #range.setStartAfter(element)
     range.collapse(true)
     sel.removeAllRanges()
     sel.addRange(range)
@@ -360,6 +359,25 @@ class Editor.MainEditor extends Backbone.View
       #  #$(@aa).next('[class^="graf--"]').focus()
     , 20
 
+
+  handleInmediateDeletion: (element)->
+    @inmediateDeletion = false
+    new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
+    new_node.addClass("is-selected")
+    @setRangeAt($(element).prev()[0])
+    $(element).remove()
+
+  #when found that the current node is text node
+  #create a new <p> and focus
+  handleUnwrappedNode: (element)->
+    tmpl = $(@baseParagraphTmpl())
+    @setElementName(tmpl)
+    $(element).wrap(tmpl)
+    new_node = $("[name='#{tmpl.attr('name')}']")
+    new_node.addClass("is-selected")
+    @setRangeAt(new_node[0])
+    return false
+
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
 
@@ -421,6 +439,7 @@ class Editor.MainEditor extends Backbone.View
 
 
     #delete key
+
     if (e.which == 8)
       @tooltip_view.hide()
       utils.log("removing from down")
@@ -428,8 +447,8 @@ class Editor.MainEditor extends Backbone.View
       return false if @prevented or @reachedTop && @isFirstChar()
       #return false if !anchor_node or anchor_node.nodeType is 3
       utils.log("pass initial validations")
-
       anchor_node = @getNode()
+      console.log anchor_node
 
       if anchor_node && anchor_node.nodeType is 3
         #@displayEmptyPlaceholder()
@@ -453,24 +472,6 @@ class Editor.MainEditor extends Backbone.View
     if _.contains([37,38,39,40], e.which)
       @handleArrowDown(e)
 
-  handleInmediateDeletion: (element)->
-    @inmediateDeletion = false
-    new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
-    new_node.addClass("is-selected")
-    @setRangeAt($(element).prev()[0])
-    $(element).remove()
-
-  #when found that the current node is text node
-  #create a new <p> and focus
-  handleUnwrappedNode: (element)->
-    tmpl = $(@baseParagraphTmpl())
-    @setElementName(tmpl)
-    $(element).wrap(tmpl)
-    new_node = $("[name='#{tmpl.attr('name')}']")
-    new_node.addClass("is-selected")
-    @setRangeAt(new_node[0])
-    return false
-
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
 
@@ -478,8 +479,8 @@ class Editor.MainEditor extends Backbone.View
     @reachedTop = false
     anchor_node = @getNode() #current node on which cursor is positioned
 
-    if (e.which == 8)
 
+    if (e.which == 8)
       #when user select all text delete complete node
       if @inmediateDeletion
         @handleInmediateDeletion(anchor_node)
@@ -488,6 +489,29 @@ class Editor.MainEditor extends Backbone.View
         console.log "HANDLE UNWRAPPED"
         @handleUnwrappedNode(anchor_node)
         return false
+
+      if _.isNull(anchor_node)
+        console.log "ALARM ALARM this is an empty node"
+        sel = window.getSelection();
+        if (sel.isCollapsed && sel.rangeCount > 0)
+          range = sel.getRangeAt(0)
+          span = $( @baseParagraphTmpl())[0]
+          #debugger
+          range.insertNode(span)
+          range.setStart(span, 0)
+          range.setEnd(span, 0)
+          sel.removeAllRanges()
+          sel.addRange(range)
+
+          node = $(range.commonAncestorContainer)
+          prev = node.prev(".graf")
+
+          @setRangeAt(prev[0], 1)
+          node.remove()
+
+        return false
+
+
 
       #if detect all text deleted , re render
       @handleCompleteDeletion($(@el))
@@ -549,10 +573,7 @@ class Editor.MainEditor extends Backbone.View
 
       _.each  $(@el).find(".section-inner").children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
-        console.log name
-
         #n = @preCleanNode n
-
         switch name
           when "p", "h2", "h3", "pre", "div"
             #utils.log n
@@ -772,7 +793,6 @@ class Editor.Menu extends Backbone.View
   hide: ()->
     $(@el).css("opacity", 0)
     $(@el).css('visibility', 'hidden')
-
 
 class Editor.Tooltip extends Backbone.View
   el: ".inlineTooltip2"

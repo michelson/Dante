@@ -1,9 +1,8 @@
-//= require libs/jquery.min
-//= require libs/sanitize
-//= require libs/jquery.event.destroyed
-//= require libs/caret.min
-//= require libs/underscore.min
-//= require libs/backbone.min
+//= require jquery/dist/jquery.js
+//= require sanitize.js/lib/sanitize.js
+//= require Caret.js/src/jquery.caret.js
+//= require underscore/underscore.js
+//= require backbone/backbone.js
 
 //= require editor/main
 
