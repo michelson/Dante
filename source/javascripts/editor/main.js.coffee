@@ -246,22 +246,54 @@ class Editor.MainEditor extends Backbone.View
   displayMenu: (sel)->
     #TODO: find out why this isn't propperly positioned the first time
     setTimeout ()=>
-      @handleCaret()
       @editor_menu.render()
+      pos = @getSelectionDimensions()
+      @resizeBox(pos)
       @editor_menu.show()
     , 10
 
-  resetOffset: ($textField)=>
-    offset = $textField.caret('offset');
-    position = $textField.caret('position');
-    @resizeBox(offset, position)
-    offset
+  #http://stackoverflow.com/questions/12603397/calculate-width-height-of-the-selected-text-javascript
+  getSelectionDimensions: ->
+    sel = document.selection
+    range = undefined
+    width = 0
+    height = 0
+    left = 0
+    top = 0
+    if sel
+      unless sel.type is "Control"
+        range = sel.createRange()
+        width = range.boundingWidth
+        height = range.boundingHeight
+    else if window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount
+        range = sel.getRangeAt(0).cloneRange()
+        if range.getBoundingClientRect
+          rect = range.getBoundingClientRect()
+          width = rect.right - rect.left
+          height = rect.bottom - rect.top
 
-  resizeBox: (offset, position)->
+    width: width
+    height: height
+    top: rect.top
+    left: rect.left
+
+  #get text of selected and displays menu
+  handleTextSelection: (anchor_node)->
+    @editor_menu.hide()
+    text = @getSelectedText()
+    unless _.isEmpty text
+      @current_range = @getRange()
+      @current_node  = anchor_node
+      @.displayMenu()
+
+  resizeBox: (position)->
     padd = @editor_menu.$el.width() / 2
-    padd = padd + (padd * 0.1)
-    top =  offset.top - offset.height - 16
-    @editor_menu.$el.offset({left: offset.left - padd, top: top })
+    top = position.top + $('body').scrollTop() - 43
+    console.log position
+    l = position.left + (position.width / 2) - padd
+    @editor_menu.$el.offset({left: l , top: top  })
 
   hidePlaceholder: (element)->
     $(element).find("span.defaultValue").remove().html("<br>")
@@ -271,7 +303,7 @@ class Editor.MainEditor extends Backbone.View
     $(".graf--last").html(@body_placeholder)
 
   handleFocus: (ev)=>
-    markAsSelected(ev.currentTarget)
+    @markAsSelected(ev.currentTarget)
 
   handleBlur: (ev)=>
     #utils.log(ev)
@@ -290,18 +322,6 @@ class Editor.MainEditor extends Backbone.View
     utils.log anchor_node
     @hidePlaceholder(anchor_node)
     @markAsSelected( anchor_node )
-
-  #get text of selected and displays menu
-  handleTextSelection: (anchor_node)->
-    @editor_menu.hide()
-    text = @getSelectedText()
-    unless _.isEmpty text
-      @current_range = @getRange()
-      @current_node  = anchor_node
-      @.displayMenu()
-
-  handleCaret: ()->
-    @resetOffset($(@el));
 
   handleArrow: (ev)=>
     current_node = $(@getNode())
@@ -514,6 +534,7 @@ class Editor.MainEditor extends Backbone.View
     @reachedTop = false
     anchor_node = @getNode() #current node on which cursor is positioned
 
+    @handleTextSelection(anchor_node)
 
     if (e.which == 8)
 
@@ -712,10 +733,14 @@ class Editor.Menu extends Backbone.View
     @effectNodeReg = /(?:[pubia]|h[1-6]|blockquote|[uo]l|li)/i;
 
   default_config: ()->
+    ###
     buttons: [
         'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
         'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
       ]
+    ###
+
+    buttons: ['blockquote', 'h2', 'h3', 'p', 'code', 'bold', 'italic', 'createlink']
 
   template: ()=>
     html = ""

@@ -7,6 +7,5 @@
     "underscore" : "*",
     "backbone" : "*",
     "sanitize.js" : "*",
-    "Caret.js": "*"
   }
 }
