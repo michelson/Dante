@@ -341,13 +341,17 @@ transition-delay: 30ms;
 }
 
 
-.section-inner {
-  .is-selected{
-    outline-color: rgb(85, 182, 179);
-    outline-width: thin;
-    outline-style: dotted;
-  }
+//DEBUG AWARE CSS
+.debug {
+    .section-inner {
+      .is-selected{
+        outline-color: rgb(85, 182, 179);
+        outline-width: thin;
+        outline-style: dotted;
+      }
+    }
 }
+
 
 
 // elements styles
@@ -394,6 +398,7 @@ transition-delay: 30ms;
     margin-top: -30px;
     padding-top: 30px;
 }
+
 .graf--blockquote {
     border-left: 3px solid rgba(0, 0, 0, 0.8);
     font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
@@ -418,6 +423,7 @@ transition-delay: 30ms;
     background-size: 2px 2px;
     text-decoration: none;
 }
+
 .graf--pre {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
     font-family: Monaco,"Courier New","Courier",monospace;
@@ -450,9 +456,11 @@ transition-delay: 30ms;
     top: 0;
     z-index: 500;
 }
+
 .graf--figure.is-mediaFocused .graf-image {
     box-shadow: 0 0 0 3px #57ad68;
 }
+
 .aspectRatioPlaceholder.is-locked .graf-image, .aspectRatioPlaceholder.is-locked .graf-imageAnchor {
     height: 100%;
     left: 0;
@@ -460,6 +468,7 @@ transition-delay: 30ms;
     top: 0;
     width: 100%;
 }
+
 .graf-image, .graf-imageAnchor, .iframeContainer > iframe, .iframeContainer {
     box-sizing: border-box;
     display: block;
@@ -547,6 +556,7 @@ transition-delay: 30ms;
     margin-left: 75%;
     width: 25%;
 }
+
 .imageCaption {
     color: rgba(0, 0, 0, 0.6);
     font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;

@@ -44,6 +44,7 @@ class Editor.MainEditor extends Backbone.View
     @current_node = null
     @el = opts.el || "#editor"
     window.debugMode = opts.debug || false
+    $(@el).addClass("debug") if window.debugMode
     @upload_url  = opts.upload_url  || "/images.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
@@ -52,7 +53,6 @@ class Editor.MainEditor extends Backbone.View
       $(@el).html  localStorage.getItem('contenteditable')
 
     @store()
-    @setupElementsClasses()
 
     @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
     @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
@@ -103,6 +103,7 @@ class Editor.MainEditor extends Backbone.View
     $(@el).wrap("<div class='notesSource'></div>")
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
+    @setupElementsClasses()
 
   restart: ()=>
     @render()
@@ -261,7 +262,6 @@ class Editor.MainEditor extends Backbone.View
   relocateMenu: (position)->
     padd = @editor_menu.$el.width() / 2
     top = position.top + $('body').scrollTop() - 43
-    console.log position
     l = position.left + (position.width / 2) - padd
     @editor_menu.$el.offset({left: l , top: top  })
 
@@ -340,12 +340,38 @@ class Editor.MainEditor extends Backbone.View
 
   handlePaste: (ev)=>
     utils.log("pasted!")
-    setTimeout ()=>
-      @aa =  @getNode()
-      #@setupElementsClasses ()=>
-      #  #debugger
-      #  #$(@aa).next('[class^="graf--"]').focus()
-    , 20
+    @aa =  @getNode()
+
+    pastedText = undefined
+    if (window.clipboardData && window.clipboardData.getData) #IE
+      pastedText = window.clipboardData.getData('Text')
+    else if (ev.originalEvent.clipboardData && ev.originalEvent.clipboardData.getData)
+      cbd = ev.originalEvent.clipboardData
+      pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
+
+    #alert(pastedText) # Process and handle text...
+    #detect if is html
+    if pastedText.match(/<\/*[a-z][^>]+?>/gi)
+      console.log("HTML DETECTED ON PASTE")
+      $(pastedText)
+
+      document.body.appendChild($("<div id='paste'></div>")[0])
+      $("#paste").html(pastedText)
+      @setupElementsClasses $("#paste"), ()=>
+        nodes = $($("#paste").html()).insertAfter($(@aa))
+        $("#paste").remove()
+        #set caret on newly created node
+        last_node = nodes.last()[0]
+        num = last_node.childNodes.length
+        @setRangeAt(last_node, num)
+        top = $(@getNode()).offset().top
+        $("body").scrollTop(top)
+
+      return false # Prevent the default handler from running.
+
+  handlePastedData: (data)->
+    virtual_element = $("<p></p>")
+    virtual_element.html(data)
 
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
@@ -579,12 +605,17 @@ class Editor.MainEditor extends Backbone.View
       @reachedTop = true
       $(element).append("<br>") if $(element).find("br").length is 0
 
-  setupElementsClasses: (cb)->
-    setTimeout ()=>
-      @cleanContents()
-      @wrapTextNodes()
+  setupElementsClasses: (element, cb)->
+    if _.isUndefined(element)
+      @element = $(@el).find('.section-inner')
+    else
+      @element = element
 
-      _.each  $(@el).find(".section-inner").children(), (n)=>
+    setTimeout ()=>
+      @cleanContents(@element)
+      @wrapTextNodes(@element)
+
+      _.each  @element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
         #n = @preCleanNode n
         switch name
@@ -613,7 +644,7 @@ class Editor.MainEditor extends Backbone.View
 
         @setElementName(n)
 
-      @setupLinks($(@el).find(".section-inner a"))
+      @setupLinks(@element.find("a"))
       @setupFirstAndLast()
       #node = @getNode()
       #@markAsSelected( node ) #set selected
@@ -621,8 +652,13 @@ class Editor.MainEditor extends Backbone.View
       cb() if _.isFunction(cb)
     , 20
 
-  cleanContents: ()->
+  cleanContents: (element)->
     #TODO: should config tags
+    if _.isUndefined(element)
+      @element = $(@el).find('.section-inner')
+    else
+      @element = element
+
     s = new Sanitize
       elements: ['div', 'strong', 'em', 'br', 'a', 'span', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
       attributes:
@@ -641,11 +677,9 @@ class Editor.MainEditor extends Backbone.View
                       return null
                   ]
     ###
-
     utils.log "CLEAN HTML"
-    unless _.isEmpty $(@el).find('.section-inner')
-      $(@el).find('.section-inner').html(s.clean_node( $(@el).find('.section-inner')[0] ))
-    #.contents().unwrap()
+    unless _.isEmpty @element
+      @element.html(s.clean_node( @element[0] ))
 
   setupLinks: (elems)->
     _.each elems, (n)->
@@ -669,8 +703,13 @@ class Editor.MainEditor extends Backbone.View
     childs.first().addClass("graf--first")
     childs.last().addClass("graf--last")
 
-  wrapTextNodes: ()->
-    $(@el).find(".section-inner").contents().filter(->
+  wrapTextNodes: (element)->
+    if _.isUndefined(element)
+      element = $(@el).find('.section-inner')
+    else
+      element = element
+
+    element.contents().filter(->
       @nodeType is 3 and @data.trim().length > 0
     ).wrap "<p class='graf grap--p'></p>"
 
