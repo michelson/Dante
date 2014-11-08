@@ -5,10 +5,7 @@
 .postField--body:after {
     clear: both;
 }
-.postField--body:before, .postField--body:after {
-    content: " ";
-    display: table;
-}
+
 .postField, .postField:focus {
     outline: 0 none;
     word-wrap: break-word;
@@ -21,16 +18,11 @@
     font-style: normal;
     font-weight: 400;
     letter-spacing: 0.01rem;
-
-    //line-height: 1.5;
-    //font-size: 22px;
-
+    //line-height: 1.5; //used for medium fonts
+    //font-size: 22px; // used for medium fonts
     font-size: 19px;
     line-height: 1.79;
-
 }
-
-
 
 /*MENU*/
 .editor-menu {
@@ -166,6 +158,7 @@
     pointer-events: auto;
     width:auto !important;
 }
+
 .notesSource .inlineTooltip2 {
     height: 40px;
     margin-left: -58px;
@@ -191,20 +184,24 @@
 .button--small, .button--small.button--link, .button--small.button--chromeless {
     font-size: 12px;
 }
+
 .button--small {
     height: 32px;
     line-height: 31px;
     padding: 0 14px;
 }
+
 .button--neutral {
     border-color: rgba(0, 0, 0, 0.44);
     color: rgba(0, 0, 0, 0.44);
 }
+
 .button--circle {
     padding: 0;
     text-align: center;
     width: 38px;
 }
+
 .button {
     -moz-osx-font-smoothing: grayscale;
     -moz-user-select: none;
@@ -232,6 +229,7 @@
     vertical-align: bottom;
     white-space: nowrap;
 }
+
 button, html input[type="button"], input[type="reset"], input[type="submit"] {
     cursor: pointer;
 }
@@ -240,12 +238,15 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     font-size: 39px;
     top: 13px;
 }
+
 .button--neutral > .icon:before {
     color: rgba(0, 0, 0, 0.44);
 }
+
 .button .icon.is-pulledRight:before, .button--circle .icon:before, .button--expandable .icon:before {
     margin-right: 0;
 }
+
 .button .icon:before {
     color: rgba(0, 0, 0, 0.3);
     font-size: 20px;
@@ -254,6 +255,7 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     position: relative;
     top: 1px;
 }
+
 .icon--addMediaPlus:before {
     content: "";
 }
@@ -263,6 +265,7 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
 .button .icon {
     line-height: 100%;
 }
+
 .icon {
     -moz-osx-font-smoothing: grayscale;
     font-family: "medium-icons";
@@ -285,6 +288,7 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
     display: inline-block;
     padding-left: 22px;
 }
+
 .inlineTooltip2.is-active {
     pointer-events: auto;
 }
@@ -331,7 +335,6 @@ transition-delay: 30ms;
       }
     }
 }
-
 
 
 // elements styles
@@ -389,6 +392,7 @@ transition-delay: 30ms;
     padding-bottom: 3px;
     padding-left: 20px;
 }
+
 .graf--p, .graf--blockquote, .graf--pullquote {
     margin-bottom: 30px;
 }
@@ -396,12 +400,14 @@ transition-delay: 30ms;
 .markup--anchor, .graf--sectionCaption {
     cursor: text;
 }
-.tier-1 .markup--anchor {
+
+.markup--anchor {
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 50%);
     background-position: 0 24px;
     background-repeat: repeat-x;
     background-size: 2px 2px;
     text-decoration: none;
+    color: rgba(0, 0, 0, 1);
 }
 
 .graf--pre {
@@ -569,6 +575,7 @@ figure.is-defaultValue .imageCaption, .graf--sectionCaption.is-defaultValue {
     content: " ";
     display: table;
 }
+
 .section-inner:before, .section-inner:after{
     //content: " ";
     //display: table;
@@ -591,6 +598,7 @@ section:first-child > .section-divider, section.is-backgrounded + section > .sec
 .postArticle .layoutSingleColumn, .postFooter--loggedOut .layoutSingleColumn {
     width: 700px;
 }
+
 .layoutSingleColumn {
     margin: 0 auto;
     width: 640px;
