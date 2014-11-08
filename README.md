@@ -1,6 +1,6 @@
 #Dante Editor
 
-just another Medium Editor
+####Just another Medium editor clone.
 
 ##Motivation:
 
@@ -10,17 +10,17 @@ Until now I´ve been able to implement the following features:
 
 ## Features:
 
-+ Cleaning Html when pasted and loaded.
++ HTML sanitizer when paste text and load.
 + Add an unique name to elements on page.
 + Implementation of the famous tooltip on each paragraph when selected
-+ Upload of Images with Preview and caption option.
-+ Add page links with extraction of data through OEmbed services
-+ Add embed links with extraction if data through OEmbed services
++ Embeds:
+  + Image Uploader with *preview* and caption option.
+  + Page information extraction of data through OEmbed services.
+  + Media information extraction of data through OEmbed services.
++ CSS tries to use the same fonts used in Medium, if you set up the same commertial fonts through Tipekit, or fallbacks to open fonts (by Google fonts) or system fonts.
+  + serif: freight-text-pro with fallbacks to Merriweather ,Georgia,
+  + sans:  jaf-bernino-sans with fallbacks to Open Sans , Lucida Grande
 
-## Disclaimer:
-
-This Library will work on early versions of Chrome/Safari/FF/IE.
-I don't have any intentions to target all browsers versions, really... if you like this library and need backwards support for an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
 
 ## Demo:
 
@@ -28,10 +28,17 @@ todo
 
 ## Usage:
 
+### HTML:
+
 ```html
   <div id="editor">
+    your content here
   </div>
+```
 
+### Javascript:
+
+```html
   <script type="text/javascript">
     editor = new Editor.MainEditor(
       {
@@ -41,10 +48,9 @@ todo
     );
     editor.start()
   </script>
-
 ```
 
-## config options
+### Configuration options:
 
     el:          default: #editor
     debugMode:   default: false
@@ -52,15 +58,16 @@ todo
     oembed_url:  default: http://api.embed.ly/1/oembed?url="
     extract_url: default: http://api.embed.ly/1/extract?url="
 
+## Disclaimer:
+
+This Library will work on early versions of Chrome/Safari/FF/IE.
+I don't have any intentions to target all browsers versions, really... if you like this library and need backwards support for an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
+
 ## TODO
 
   [read todo](./TODO.md)
 
 ### References
-
-+ icon:
-
-  https://www.iconfinder.com/icons/281089/highlighter_stationery_writting_tool_icon#size=128
 
 + handle paste
 
@@ -68,4 +75,4 @@ todo
 
 ### LICENSE
 
-[Licensed under MIT.](./license.md)
+Miguel Michelson Martinez [Licensed under MIT.](./license.md) 2014

@@ -17,30 +17,22 @@
     margin-bottom: 30px;
 }
 .postContent, .notesSource {
-    font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
-    font-size: 22px;
+    font-family: $serif;
     font-style: normal;
     font-weight: 400;
     letter-spacing: 0.01rem;
-    line-height: 1.5;
+
+    //line-height: 1.5;
+    //font-size: 22px;
+
+    font-size: 19px;
+    line-height: 1.79;
+
 }
 
 
 
 /*MENU*/
-
-@font-face {
-  font-family: 'dante';
-  src: font-url('fontello.eot?370dad08');
-  src: font-url('fontello.eot?370dad08#iefix') format('embedded-opentype'),
-  font-url('fontello.woff?370dad08') format('woff'),
-  font-url('fontello.ttf?370dad08') format('truetype'),
-  font-url('fontello.svg?370dad08#fontello') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-
 .editor-menu {
     background: linear-gradient(to bottom, #222, #333) repeat scroll 0 0 #333;
     border: 1px solid #333;
@@ -168,18 +160,6 @@
     }
 }
 
-
-.notesSource {
-    position: relative;
-
-    //font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
-    font-size: 22px;
-    font-style: normal;
-    font-weight: 400;
-    letter-spacing: 0.01rem;
-    line-height: 1.5;
-}
-
 /*TOOLTIP*/
 .inlineTooltip2.is-active {
     opacity: 1;
@@ -235,7 +215,7 @@
     color: rgba(0, 0, 0, 0.44);
     cursor: pointer;
     display: inline-block;
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
@@ -356,7 +336,7 @@ transition-delay: 30ms;
 
 // elements styles
 .graf--h2 {
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 60px;
     font-style: normal;
     font-weight: 700;
@@ -370,7 +350,7 @@ transition-delay: 30ms;
 
 .graf--h4 {
     color: rgba(0, 0, 0, 0.44);
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 30px;
     font-style: normal;
     font-weight: 300;
@@ -401,7 +381,7 @@ transition-delay: 30ms;
 
 .graf--blockquote {
     border-left: 3px solid rgba(0, 0, 0, 0.8);
-    font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+    font-family: $serif;
     font-style: italic;
     font-weight: 400;
     letter-spacing: 0.01rem;
@@ -487,7 +467,7 @@ transition-delay: 30ms;
     border-width: 1px;
     box-sizing: border-box;
     color: rgba(0, 0, 0, 0.6);
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 12px;
     font-style: normal;
     font-weight: 300;
@@ -518,7 +498,7 @@ transition-delay: 30ms;
 
 .graf--mixtapeEmbed {
     color: rgba(0, 0, 0, 0.6);
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 12px;
     font-style: normal;
     font-weight: 300;
@@ -528,7 +508,7 @@ transition-delay: 30ms;
 .markup--mixtapeEmbed-strong {
     color: #000;
     display: block;
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 30px;
     font-style: normal;
     font-weight: 300;
@@ -559,7 +539,7 @@ transition-delay: 30ms;
 
 .imageCaption {
     color: rgba(0, 0, 0, 0.6);
-    font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+    font-family: $serif;
     font-size: 14px;
     font-style: italic;
     font-weight: 400;
@@ -617,7 +597,7 @@ section:first-child > .section-divider, section.is-backgrounded + section > .sec
 }
 
 .defaultValue--prompt {
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 18px;
     font-style: normal;
     font-weight: 400;

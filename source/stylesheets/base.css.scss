@@ -2,7 +2,7 @@
 
 body {
   //background: #d4d4d4 image-url("background.png");
-  font-family: 'freight-text-pro', serif;
+  font-family: $serif;
   color: rgba(0,0,0,0.8);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -28,7 +28,7 @@ header{
     top: 28px;
   }
   h1 {
-    font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+    font-family: $sans;
     font-size: 30px;
     font-style: normal;
     font-weight: 300;

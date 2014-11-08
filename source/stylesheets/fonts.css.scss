@@ -1,3 +1,29 @@
+
+@font-face {
+  font-family: 'dante';
+  src: font-url('fontello.eot?370dad08');
+  src: font-url('fontello.eot?370dad08#iefix') format('embedded-opentype'),
+  font-url('fontello.woff?370dad08') format('woff'),
+  font-url('fontello.ttf?370dad08') format('truetype'),
+  font-url('fontello.svg?370dad08#fontello') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import url(http://fonts.googleapis.com/css?family=Merriweather:400,700,400italic,700italic|Open+Sans:400,300,800);
+
+$serif: 'freight-text-pro', 'Merriweather',Georgia,Cambria,"Times New Roman",Times,serif;
+$sans: 'jaf-bernino-sans', 'Open Sans' ,"Lucida Grande","Lucida Sans Unicode","Lucida Sans", Geneva, Verdana, sans-serif;
+
+.notesSource {
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.01rem;
+  line-height: 1.79;
+}
+
+
 /*{"c":"2014-10-16T01:10:49Z","s":"prod-origin-d64ccd38","v":"8e9673"}*/
 /*
  * The Typekit service used to deliver this font or fonts for use on websites
@@ -17,6 +43,21 @@
  *
  * (c) 2009-2014 Adobe Systems Incorporated. All Rights Reserved.
  */
+
+
+//THIS SHOULD ONLY BE USED FOR TESTING PURPOSES
+//READ THE TYPEKIT EULAS ABOVE!
+
+/*
+
+.notesSource {
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.01rem;
+  line-height: 1.5;
+}
+
 
 @font-face {
 font-family:"freight-text-pro";
@@ -60,4 +101,5 @@ src:url(data:font/opentype;base64,d09GRgABAAAAAGMAABMAAAAAwlgAAAAAAAAAAAAAAAAAAA
 font-style:normal;font-weight:700;
 }
 
+*/
 

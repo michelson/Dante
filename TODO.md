@@ -4,8 +4,8 @@
   + OK ~~handle paste properly , copy to invisible div , clean and copy to new node~~
   + OK ~~on paste set caret to the last element~~
   + parse existing images or objects
-  + shows the + when selected <p> is empty
-    + check from key 8
+  + shows the + when selected P is empty
+    + OK ~~ check from key 8~~
 
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
@@ -17,7 +17,8 @@
 
   + MENU
     + Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class
-    + actions over text LINKS!!
+    + Actions over text LINKS!!
+    + Fix position top when text selected.
 
   + DELETE
 
@@ -38,6 +39,7 @@
   + EMBEDS:
     + OK ~~fix embed captions, they don't load propperly~~
     + OK ~~embed connect with oembed service~~
+    + OK ~~break deletion of paragraph when is after an embed, just set caret on embed~
     + fix navigation arrows when up or down through them
-    + OK ~~break deletion of paragraph when is after an embed, just set caret on embed~~
+
 
