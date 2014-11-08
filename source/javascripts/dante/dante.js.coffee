@@ -295,14 +295,23 @@ class Editor.MainEditor extends Backbone.View
     @markAsSelected( anchor_node )
     @displayTooltipAt( anchor_node )
 
+  scrollTo: (node)->
+    top = node.offset().top
+    #scroll to element top
+    $('html, body').animate
+      scrollTop: top
+    , 20
+
+  #handle arrow direction from key up.
   handleArrow: (ev)=>
     current_node = $(@getNode())
     if current_node
       @markAsSelected( current_node )
       @displayTooltipAt( current_node )
 
+  #handle arrow direction from key down.
   handleArrowDown: (ev)=>
-    utils.log("ENTER ARROW DOWN #{ev.key}")
+    utils.log("ENTER ARROW DOWN #{ev.which} #{ev.originalEvent.key}")
 
     current_node = $(@getNode())
     utils.log(ev)
@@ -312,31 +321,79 @@ class Editor.MainEditor extends Backbone.View
     switch ev_type
 
       when "Down"
-        figure = current_node.next()
-        if figure.hasClass("graf--figure")
-          utils.log "IS FIGURE!"
-          @setRangeAt current_node.next().find(".imageCaption")[0]
-          figure.addClass("is-mediaFocused is-selected")
+        next_node = current_node.next()
+        utils.log "NEXT NODE IS #{next_node.attr('class')}"
+        utils.log "CURRENT NODE IS #{current_node.attr('class')}"
+        #if next element is embed select & focus it
+        if next_node.hasClass("graf--figure")
+          n = next_node.find(".imageCaption")
+          @setRangeAt n[0]
+          @scrollTo(n)
+          utils.log "1 down"
+          next_node.addClass("is-mediaFocused is-selected")
           false
-        else if current_node.hasClass("graf--figure")
-          @setRangeAt current_node.next(".graf")[0]
-          figure.removeClass("is-mediaFocused is-selected")
+        #if current node is embed
+        else if next_node.hasClass("graf--mixtapeEmbed")
+          n = current_node.next(".graf--mixtapeEmbed")
+          num = n[0].childNodes.length
+          @setRangeAt n[0], num
+          @scrollTo(n)
+          utils.log "2 down"
           false
 
-        #if graf--mixtapeEmbed
-        #if graf--iframe
+        if current_node.hasClass("graf--figure") && next_node.hasClass("graf")
+          #@setRangeAt next_node[0]
+          #@scrollTo(next_node)
+          utils.log "3 down"
+          false
+
+        ###
+        else if next_node.hasClass("graf")
+          n = current_node.next(".graf")
+          @setRangeAt n[0]
+          @scrollTo(n)
+          false
+        ###
 
       when "Up"
-        figure = current_node.prev()
-        if figure.hasClass("graf--figure")
-          utils.log "IS FIGURE!"
-          @setRangeAt current_node.prev().find(".imageCaption")[0]
-          figure.addClass("is-mediaFocused is-selected")
-          false
-        else if current_node.hasClass("graf--figure")
-          @setRangeAt current_node.prev(".graf")[0]
-          figure.removeClass("is-mediaFocused is-selected")
-          false
+        prev_node = current_node.prev()
+        utils.log "PREV NODE IS #{prev_node.attr('class')}"
+        utils.log "CURRENT NODE IS up #{current_node.attr('class')}"
+
+        return unless @isFirstChar()
+
+        if prev_node.hasClass("graf--figure")
+          utils.log "1 up"
+          n = prev_node.find(".imageCaption")
+          @setRangeAt n[0]
+          @scrollTo(n)
+          prev_node.addClass("is-mediaFocused is-selected")
+          return false
+
+        else if prev_node.hasClass("graf--mixtapeEmbed")
+          n = current_node.prev(".graf--mixtapeEmbed")
+          num = n[0].childNodes.length
+          @setRangeAt n[0], num
+          @scrollTo(n)
+          utils.log "2 up"
+          return false
+
+        if current_node.hasClass("graf--figure") && prev_node.hasClass("graf")
+          @setRangeAt prev_node[0]
+          @scrollTo(prev_node)
+          utils.log "3 up"
+          return false
+
+        else if prev_node.hasClass("graf")
+          #n = current_node.prev(".graf")
+          #num = n[0].childNodes.length
+          #@setRangeAt n[0], num
+          #@scrollTo(n)
+          utils.log "4 up"
+          #return false
+
+        utils.log "noting"
+
 
   handlePaste: (ev)=>
     utils.log("pasted!")
@@ -462,9 +519,14 @@ class Editor.MainEditor extends Backbone.View
         return false unless @isLastChar()
 
       #supress linebreak or create new <p> into embed caption unless last char el
-      if parent.hasClass("imageCaption") or parent.hasClass("graf--iframe")
+
+      if parent.hasClass("graf--iframe")
         if @isLastChar()
           @handleLineBreakWith("p", parent)
+          $(".is-selected").focus()
+          #$(".is-selected").text("c")
+          @setRangeAt($(".is-selected")[0], 1)
+          return false
         else
           return false
 
@@ -536,7 +598,10 @@ class Editor.MainEditor extends Backbone.View
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
     #arrows key
-    if _.contains([37,38,39,40], e.which)
+    #if _.contains([37,38,39,40], e.which)
+    #up & down
+    if _.contains([38, 40], e.which)
+      utils.log e.which
       @handleArrowDown(e)
 
   handleKeyUp: (e , node)->
@@ -1038,7 +1103,9 @@ class Editor.Tooltip extends Backbone.View
       $(@node).replaceWith(tmpl)
       replaced_node = $(".graf--iframe[name=#{@node.attr("name")}]")
       replaced_node.find("iframe").attr("src", iframe_src)
-      replaced_node.find(".markup--anchor").attr("href", data.url ).text(data.url)
+      url = data.url || data.author_url
+      utils.log "URL IS #{url}"
+      replaced_node.find(".markup--anchor").attr("href", url ).text(url)
       @hide()
 
   ##EXTRACT
