@@ -531,6 +531,10 @@ class Editor.MainEditor extends Backbone.View
           else
             utils.log "NORMAL"
 
+      #TODO: supress del when the prev el is embed and current_node is at first char
+      if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
+        return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
+
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrowDown(e)

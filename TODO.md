@@ -39,5 +39,8 @@
     + OK ~~fix embed captions, they don't load propperly~~
     + OK ~~embed connect with oembed service~~
     + fix navigation arrows when up or down through them
-
+    + embeds:
+      + break deletion of paragraph when is after an embed, just set caret on embed
+    + pages:
+      + OK ~~break deletion of paragraph when is after an embed~~
 
