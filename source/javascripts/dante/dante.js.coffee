@@ -64,7 +64,7 @@ class Editor.MainEditor extends Backbone.View
     setTimeout ()=>
       #utils.log("storing")
       #@store()
-      1 +1
+      1 + 1
     , 5000
 
   template: ()=>
@@ -364,14 +364,16 @@ class Editor.MainEditor extends Backbone.View
         last_node = nodes.last()[0]
         num = last_node.childNodes.length
         @setRangeAt(last_node, num)
-        top = $(@getNode()).offset().top
-        $("body").scrollTop(top)
+        new_node = $(@getNode())
+        top = new_node.offset().top
+        @markAsSelected(new_node)
+        @displayTooltipAt($(@el).find(".is-selected"))
+        #scroll to element top
+        $('html, body').animate
+          scrollTop: top
+        , 200
 
       return false # Prevent the default handler from running.
-
-  handlePastedData: (data)->
-    virtual_element = $("<p></p>")
-    virtual_element.html(data)
 
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
@@ -422,6 +424,8 @@ class Editor.MainEditor extends Backbone.View
       else if !prev
         utils.log "NO PREV"
 
+      @displayTooltipAt($(@el).find(".is-selected"))
+
   handleCompleteDeletion: (element)->
     if _.isEmpty( $(element).text().trim() )
       utils.log "HANDLE COMPLETE DELETION"
@@ -453,16 +457,23 @@ class Editor.MainEditor extends Backbone.View
       else if parent.hasClass("is-extractable")
         @tooltip_view.getExtractFromNode($(anchor_node))
 
-      #supress linebreak into embed unless last char
+      #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe")
         return false unless @isLastChar()
+
+      #supress linebreak or create new <p> into embed caption unless last char el
+      if parent.hasClass("imageCaption") or parent.hasClass("graf--iframe")
+        if @isLastChar()
+          @handleLineBreakWith("p", parent)
+        else
+          return false
 
       @tooltip_view.cleanOperationClasses($(anchor_node))
 
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
-        #new paragraph is it the last character
+        #new paragraph if it the last character
         if @isLastChar()
-          utils.log "new paragraph is it the last character"
+          utils.log "new paragraph if it the last character"
           e.preventDefault()
           @handleLineBreakWith("p", parent)
         else
@@ -492,7 +503,6 @@ class Editor.MainEditor extends Backbone.View
 
 
     #delete key
-
     if (e.which == 8)
       @tooltip_view.hide()
       utils.log("removing from down")
