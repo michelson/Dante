@@ -11,7 +11,7 @@
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
     + OK ~~a,  wrap with p~~
 
-    + remove inner spans and other shits (except for embeds, placeholders)
+    + OK ~~remove inner spans and other shits (except for embeds, placeholders)~~
     + convert divs into p (except for embeds)
     + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
 
