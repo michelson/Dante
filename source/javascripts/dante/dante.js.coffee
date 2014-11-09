@@ -261,7 +261,7 @@ class Editor.MainEditor extends Backbone.View
 
   relocateMenu: (position)->
     padd = @editor_menu.$el.width() / 2
-    top = position.top + $('body').scrollTop() - 43
+    top = position.top + $(window).scrollTop() - 43
     l = position.left + (position.width / 2) - padd
     @editor_menu.$el.offset({left: l , top: top  })
 
@@ -311,11 +311,11 @@ class Editor.MainEditor extends Backbone.View
 
   #handle arrow direction from key down.
   handleArrowDown: (ev)=>
-    utils.log("ENTER ARROW DOWN #{ev.which} #{ev.originalEvent.key}")
-
     current_node = $(@getNode())
     utils.log(ev)
-    ev_type = ev.originalEvent.key
+    ev_type = ev.originalEvent.key || ev.originalEvent.keyIdentifier
+
+    utils.log("ENTER ARROW DOWN #{ev.which} #{ev_type}")
 
     #handle keys for image figure
     switch ev_type
@@ -342,8 +342,8 @@ class Editor.MainEditor extends Backbone.View
           false
 
         if current_node.hasClass("graf--figure") && next_node.hasClass("graf")
-          #@setRangeAt next_node[0]
-          #@scrollTo(next_node)
+          @setRangeAt next_node[0]
+          @scrollTo(next_node)
           utils.log "3 down"
           false
 
@@ -385,10 +385,10 @@ class Editor.MainEditor extends Backbone.View
           return false
 
         else if prev_node.hasClass("graf")
-          #n = current_node.prev(".graf")
-          #num = n[0].childNodes.length
-          #@setRangeAt n[0], num
-          #@scrollTo(n)
+          n = current_node.prev(".graf")
+          num = n[0].childNodes.length
+          @setRangeAt n[0], num
+          @scrollTo(n)
           utils.log "4 up"
           #return false
 
@@ -515,17 +515,15 @@ class Editor.MainEditor extends Backbone.View
         @tooltip_view.getExtractFromNode($(anchor_node))
 
       #supress linebreak into embed page text unless last char
-      if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe")
+      if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         return false unless @isLastChar()
 
       #supress linebreak or create new <p> into embed caption unless last char el
-
-      if parent.hasClass("graf--iframe")
+      if parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         if @isLastChar()
           @handleLineBreakWith("p", parent)
-          $(".is-selected").focus()
-          #$(".is-selected").text("c")
-          @setRangeAt($(".is-selected")[0], 1)
+          @setRangeAt($(".is-selected")[0])
+          $(".is-selected").trigger("mouseup") #is not making any change
           return false
         else
           return false

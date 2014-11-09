@@ -18,7 +18,7 @@
   + MENU
     + Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class
     + Actions over text LINKS!!
-    + Fix position top when text selected.
+    + OK~~Fix position top when text selected.~~
 
   + DELETE
 
@@ -35,11 +35,13 @@
       + mark selected
       + when image is uploaded update blob src to image src
     + handle enter (linebreak) when selected in caption (build new <p>)
+      + problem FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
   + EMBEDS:
     + OK ~~fix embed captions, they don't load propperly~~
     + OK ~~embed connect with oembed service~~
     + OK ~~break deletion of paragraph when is after an embed, just set caret on embed~
     + fix navigation arrows when up or down through them
+      + problem FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
 
