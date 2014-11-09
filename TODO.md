@@ -5,7 +5,7 @@
   + OK ~~on paste set caret to the last element~~
   + parse existing images or objects
   + shows the + when selected P is empty
-    + OK ~~ check from key 8~~
+    + OK ~~check from key 8~~
 
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
@@ -16,9 +16,10 @@
     + inner images add classes (ie <a target="_blank" href="http://kb2.adobe.com/cps/161/tn_16194.html" data-href="http://kb2.adobe.com/cps/161/tn_16194.html" class="markup--anchor markup--p-anchor" data-tooltip="http://kb2.adobe.com/cps/161/tn_16194.html" data-tooltip-position="bottom" data-tooltip-type="link">Local Shared Objects</a>)
 
   + MENU
-    + Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class
+    + OK ~~Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class~~
+    + filter inner tags (except a, b, i ... ) when convert to blockquote
+    + OK ~~Fix position top when text selected.~~
     + Actions over text LINKS!!
-    + OK~~Fix position top when text selected.~~
 
   + DELETE
 

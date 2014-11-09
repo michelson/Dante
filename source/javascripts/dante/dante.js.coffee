@@ -394,7 +394,6 @@ class Editor.MainEditor extends Backbone.View
 
         utils.log "noting"
 
-
   handlePaste: (ev)=>
     utils.log("pasted!")
     @aa =  @getNode()
@@ -682,6 +681,40 @@ class Editor.MainEditor extends Backbone.View
       @reachedTop = true
       $(element).append("<br>") if $(element).find("br").length is 0
 
+  addClassesToElement: (element)=>
+    n = element
+    name = $(n).prop("tagName").toLowerCase()
+
+    switch name
+      when "p", "h2", "h3", "pre", "div"
+        #utils.log n
+        unless $(n).hasClass("graf--mixtapeEmbed")
+          $(n).removeClass().addClass("graf graf--#{name}")
+      when "code"
+        #utils.log n
+        $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
+        n = $(n).parent()
+      when "ol", "ul"
+        #utils.log "lists"
+        $(n).removeClass().addClass("postList")
+        _.each $(n).find("li"), (li)->
+          $(n).removeClass().addClass("graf graf--li")
+        #postList , and li as graf
+      when "img"
+        utils.log "images"
+        #set figure non editable
+      when "a"
+        #utils.log "links"
+        $(n).wrap("<p class='graf graf--#{name}'></p>")
+        n = $(n).parent()
+        #dont know
+      when "blockquote"
+        #TODO remove inner elements like P
+        #$(n).find("p").unwrap()
+        n = $(n).removeClass().addClass("graf graf--#{name}")
+
+    return n
+
   setupElementsClasses: (element, cb)->
     if _.isUndefined(element)
       @element = $(@el).find('.section-inner')
@@ -695,29 +728,7 @@ class Editor.MainEditor extends Backbone.View
       _.each  @element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
         #n = @preCleanNode n
-        switch name
-          when "p", "h2", "h3", "pre", "div"
-            #utils.log n
-            unless $(n).hasClass("graf--mixtapeEmbed")
-              $(n).removeClass().addClass("graf graf--#{name}")
-          when "code"
-            #utils.log n
-            $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
-            n = $(n).parent()
-          when "ol", "ul"
-            #utils.log "lists"
-            $(n).removeClass().addClass("postList")
-            _.each $(n).find("li"), (li)->
-              $(n).removeClass().addClass("graf graf--li")
-            #postList , and li as graf
-          when "img"
-            utils.log "images"
-            #set figure non editable
-          when "a"
-            #utils.log "links"
-            $(n).wrap("<p class='graf graf--#{name}'></p>")
-            n = $(n).parent()
-            #dont know
+        n = @addClassesToElement(n)
 
         @setElementName(n)
 
@@ -739,10 +750,10 @@ class Editor.MainEditor extends Backbone.View
     s = new Sanitize
       elements: ['div', 'strong', 'em', 'br', 'a', 'span', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
       attributes:
-          '__ALL__': ['class']
-          a: ['href', 'title']
+        '__ALL__': ['class']
+        a: ['href', 'title']
       protocols:
-          a: { href: ['http', 'https', 'mailto'] }
+        a: { href: ['http', 'https', 'mailto'] }
     ###
     transformers: [(input)->
                     if(input.node_name == 'p')
@@ -863,8 +874,12 @@ class Editor.Menu extends Backbone.View
     else
       utils.log "can't find command function for name: " + name
 
-    #@cleanContents()
+    @setupInsertedElement(current_editor.getNode())
     false
+
+  setupInsertedElement: (element)->
+    n = current_editor.addClassesToElement(element)
+    current_editor.setElementName(n)
 
   cleanContents: ()->
     current_editor.cleanContents()

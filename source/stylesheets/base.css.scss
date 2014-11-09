@@ -1,5 +1,9 @@
 @charset "utf-8";
 
+$serif: 'freight-text-pro', 'Merriweather',Georgia,Cambria,"Times New Roman",Times,serif;
+$sans: 'jaf-bernino-sans', 'Open Sans' ,"Lucida Grande","Lucida Sans Unicode","Lucida Sans", Geneva, Verdana, sans-serif;
+
+
 body {
   //background: #d4d4d4 image-url("background.png");
   font-family: $serif;
