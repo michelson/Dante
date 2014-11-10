@@ -1,11 +1,14 @@
 
 #TODO:
 
-  + OK ~~handle paste properly , copy to invisible div , clean and copy to new node~~
-  + OK ~~on paste set caret to the last element~~
-  + OK ~~parse existing images or objects including embeds~~
-  + OK ~~shows the + when selected P is empty~~
-    + OK ~~check from key 8~~
+  + GENERALS
+    + OK ~~handle paste properly , copy to invisible div , clean and copy to new node~~
+    + OK ~~on paste set caret to the last element~~
+    + OK ~~parse existing images or objects including embeds~~
+    + OK ~~shows the + when selected P is empty~~
+      + OK ~~check from key 8~~
+    + Generate image markup when paste or load html with images
+    + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
 
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
@@ -19,9 +22,9 @@
 
   + MENU
     + OK ~~Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class~~
-    + filter inner tags (except a, b, i ... ) when convert to blockquote
     + OK ~~Fix position top when text selected.~~
     + Actions over text LINKS!!
+    + Filter inner tags (except a, b, i ... ) when convert to blockquote
 
   + DELETE
 

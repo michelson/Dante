@@ -23,6 +23,20 @@ utils.log = (message, force) ->
     #console.log('%cDANTE DEBUGGER: %c', 'font-family:arial,sans-serif;color:#1abf89;line-height:2em;', 'font-family:cursor,monospace;color:#333;');
     console.log( message );
 
+utils.getBase64Image = (img) ->
+  canvas = document.createElement("canvas")
+  canvas.width = img.width
+  canvas.height = img.height
+  ctx = canvas.getContext("2d")
+  ctx.drawImage img, 0, 0
+  dataURL = canvas.toDataURL("image/png")
+
+  # escape data:image prefix
+  # dataURL.replace /^data:image\/(png|jpg);base64,/, ""
+
+  # or just return dataURL
+  return dataURL
+
 class Editor.MainEditor extends Backbone.View
   #el: "#editor"
 
@@ -425,11 +439,18 @@ class Editor.MainEditor extends Backbone.View
         @markAsSelected(new_node)
         @displayTooltipAt($(@el).find(".is-selected"))
         #scroll to element top
+        @handleUnwrappedImages(nodes)
         $('html, body').animate
           scrollTop: top
         , 200
 
       return false # Prevent the default handler from running.
+
+  handleUnwrappedImages: (elements)->
+    #http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+    _.each elements.find("img"), (image)=>
+      utils.log ("process image here!")
+      @tooltip_view.uploadExistentImage(image)
 
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
@@ -702,6 +723,8 @@ class Editor.MainEditor extends Backbone.View
         #postList , and li as graf
       when "img"
         utils.log "images"
+        #@handleUnwrappedImages(n)
+        @tooltip_view.uploadExistentImage(n)
         #set figure non editable
       when "a"
         #utils.log "links"
@@ -754,16 +777,19 @@ class Editor.MainEditor extends Backbone.View
         a: ['href', 'title', 'target']
       protocols:
         a: { href: ['http', 'https', 'mailto'] }
-
       transformers: [(input)->
                       if (input.node_name == "span" && $(input.node).hasClass("defaultValue"))
                         return whitelist_nodes: [input.node]
+                      else
+                        return null
                     (input)->
                       #page embeds
                       if(input.node_name == 'div' && $(input.node).hasClass("graf--mixtapeEmbed") )
                         return whitelist_nodes: [input.node]
                       else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed") )
                         return attr_whitelist: ["style"]
+                      else
+                        return null
                     ,
                     (input)->
                       #embeds
@@ -775,6 +801,8 @@ class Editor.MainEditor extends Backbone.View
                         return whitelist_nodes: [input.node]
                       else if(input.node_name == 'figcaption' && $(input.node).parent(".graf--iframe") )
                         return whitelist_nodes: [input.node]
+                      else
+                        return null
                     ,
                     (input)->
                       #image embeds
@@ -792,10 +820,12 @@ class Editor.MainEditor extends Backbone.View
 
                       else if(input.node_name == 'span' && $(input.node).parent(".imageCaption"))
                         return whitelist_nodes: [input.node]
+                      else
+                        return null
                     ]
 
-    utils.log "CLEAN HTML"
     unless _.isEmpty @element
+      utils.log "CLEAN HTML"
       @element.html(s.clean_node( @element[0] ))
 
   setupLinks: (elems)->
@@ -807,11 +837,18 @@ class Editor.MainEditor extends Backbone.View
 
   preCleanNode: (element)->
     s = new Sanitize
-      elements: ['a', 'b', 'u', 'i', 'pre', 'blockquote']
+      elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i']
+
       attributes:
-        a: ['href', 'title']
-    #debugger
-    $(element).html(s.clean_node( $($(element).html())[0] ))
+        a: ['href', 'title', 'target']
+
+      protocols:
+        a: { href: ['http', 'https', 'mailto'] }
+
+    $(element).html s.clean_node( element[0] )
+
+    element = @addClassesToElement( $(element)[0] )
+
     $(element)
 
   setupFirstAndLast: ()=>
@@ -1055,6 +1092,37 @@ class Editor.Tooltip extends Backbone.View
         @splitSection()
 
   #UPLOADER
+
+  #replace existing img tag , and wrap it in insertTamplate
+  #TODO: take the url and upload it
+  uploadExistentImage: (image_element, opts = {})->
+
+    utils.log ("process image here!")
+    tmpl = $(@insertTemplate())
+    tmpl_img = tmpl.find("img").attr('src', image_element.src )
+    tmpl.find(".aspectRatioPlaceholder").css
+      'max-width': image_element.width
+      'max-height': image_element.height
+    #is a child element or a first level element ?
+    if $(image_element).parents(".graf").length > 0
+      #return if its already wrapped in graf--figure
+      return if $(image_element).parents(".graf").hasClass("graf--figure")
+      tmpl.insertBefore( $(image_element).parents(".graf") )
+      node = current_editor.getNode()
+      current_editor.preCleanNode($(node))
+      current_editor.addClassesToElement(node)
+    else
+      $(image_element).replaceWith(tmpl)
+
+    #tmpl.insertBefore( $(image_element).parents(".graf") )
+    #node = current_editor.getNode()
+    #current_editor.preCleanNode(node)
+    #displayAndUploadImages(blob)
+
+  displayAndUploadImages: (file)->
+    @displayCachedImage file
+    @uploadFile file
+
   imageSelect: (ev)->
     $selectFile = $('<input type="file" multiple="multiple">').click()
     self = @
@@ -1065,10 +1133,21 @@ class Editor.Tooltip extends Backbone.View
   displayCachedImage: (file)->
     @node = current_editor.getNode()
     replaced_node = $(@node).replaceWith(@insertTemplate())
+
     current_editor.tooltip_view.hide()
     reader = new FileReader()
     reader.onload = (e)->
-      $('img.graf-image').attr('src', e.target.result)
+      i = new Image
+      i.src = e.target.result
+      #set width / heigth
+      img_tag = $('img.graf-image').attr('src', e.target.result)
+      img_tag.height = i.height
+      img_tag.width  = i.width
+
+      $('img.graf-image').parent(".aspectRatioPlaceholder").css
+        'max-width': i.width
+        'max-height': i.height
+
     reader.readAsDataURL(file)
 
   formatData: (file)->
@@ -1087,8 +1166,7 @@ class Editor.Tooltip extends Backbone.View
       file = files[i]
       if acceptedTypes[file.type] is true
         $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
-        @displayCachedImage(file)
-        @uploadFile file
+        @displayAndUploadImages(file)
       i++
 
   uploadFile: (file)=>
@@ -1123,7 +1201,6 @@ class Editor.Tooltip extends Backbone.View
 
   uploadCompleted: (jqxhr)=>
     utils.log jqxhr
-  ##
 
   ## EMBED
   displayEmbedPlaceHolder: ()->

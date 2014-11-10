@@ -51,6 +51,9 @@ set :js_dir, 'javascripts'
 
 set :images_dir, 'images'
 
+#set :markdown_engine, :redcarpet
+set :markdown_engine, :kramdown
+
 page "/tests/*", :layout => "spec"
 
 sprockets.append_path File.join "#{root}", "bower_components"
@@ -67,7 +70,6 @@ configure :build do
   # activate :asset_hash
 
   activate :relative_assets
-
   set :relative_links, true
 
   # Use relative URLs
