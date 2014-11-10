@@ -37,6 +37,9 @@ utils.getBase64Image = (img) ->
   # or just return dataURL
   return dataURL
 
+utils.generateUniqueName = ()->
+  Math.random().toString(36).slice(8)
+
 class Editor.MainEditor extends Backbone.View
   #el: "#editor"
 
@@ -98,7 +101,7 @@ class Editor.MainEditor extends Backbone.View
     </section>"
 
   baseParagraphTmpl: ()->
-    "<p class='graf--p' name='#{@generateUniqueName()}'><br></p>"
+    "<p class='graf--p' name='#{utils.generateUniqueName()}'><br></p>"
 
   appendMenus: ()=>
     $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
@@ -868,10 +871,7 @@ class Editor.MainEditor extends Backbone.View
     ).wrap "<p class='graf grap--p'></p>"
 
   setElementName: (element)->
-    $(element).attr("name", @generateUniqueName())
-
-  generateUniqueName: (element)->
-     Math.random().toString(36).slice(8)
+    $(element).attr("name", utils.generateUniqueName())
 
 class Editor.Menu extends Backbone.View
   el: "#editor-menu"
@@ -1031,8 +1031,8 @@ class Editor.Tooltip extends Backbone.View
     </div>"
 
   insertTemplate: ()->
-    "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='' tabindex='0'>
-      <div style='' class='aspectRatioPlaceholder is-locked'>
+    "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
+      <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
         <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
@@ -1132,23 +1132,24 @@ class Editor.Tooltip extends Backbone.View
 
   displayCachedImage: (file)->
     @node = current_editor.getNode()
-    #copy previous name before swap nodes
-    new_node = $(@insertTemplate()).attr("name", $(this.node).attr("name") )
-    replaced_node = $(@node).replaceWith( new_node )
-
     current_editor.tooltip_view.hide()
+
     reader = new FileReader()
-    reader.onload = (e)->
+    reader.onload = (e)=>
       i = new Image
       i.src = e.target.result
-      #set width / heigth
-      img_tag = $('img.graf-image').attr('src', e.target.result)
+
+      new_tmpl = $(@insertTemplate())
+
+      replaced_node = $( new_tmpl ).insertBefore($(@node))
+
+      img_tag = new_tmpl.find('img.graf-image').attr('src', e.target.result)
       img_tag.height = i.height
       img_tag.width  = i.width
-
-      $('img.graf-image').parent(".aspectRatioPlaceholder").css
-        'max-width': i.width
-        'max-height': i.height
+      unless i.width is 0 || i.height is 0
+        $('img.graf-image').parent(".aspectRatioPlaceholder").css
+          'max-width': i.width
+          'max-height': i.height
 
     reader.readAsDataURL(file)
 

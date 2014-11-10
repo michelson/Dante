@@ -40,6 +40,7 @@
     + control arrows, detect selected
       + focus caption
       + mark selected
+    + handle focus on image
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
