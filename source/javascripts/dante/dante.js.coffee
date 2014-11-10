@@ -1032,7 +1032,7 @@ class Editor.Tooltip extends Backbone.View
 
   insertTemplate: ()->
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='' tabindex='0'>
-      <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
+      <div style='' class='aspectRatioPlaceholder is-locked'>
         <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
@@ -1071,7 +1071,7 @@ class Editor.Tooltip extends Backbone.View
     $(@el).show()
 
   toggleOptions: ()=>
-    utils.log "OLI!!"
+    utils.log "Toggle Options!!"
     $(@el).toggleClass("is-active is-scaled")
 
   move: (coords)->
@@ -1132,7 +1132,9 @@ class Editor.Tooltip extends Backbone.View
 
   displayCachedImage: (file)->
     @node = current_editor.getNode()
-    replaced_node = $(@node).replaceWith(@insertTemplate())
+    #copy previous name before swap nodes
+    new_node = $(@insertTemplate()).attr("name", $(this.node).attr("name") )
+    replaced_node = $(@node).replaceWith( new_node )
 
     current_editor.tooltip_view.hide()
     reader = new FileReader()
