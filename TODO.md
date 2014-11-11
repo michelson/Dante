@@ -9,10 +9,11 @@
       + OK ~~check from key 8~~
     + Generate image markup when paste or load html with images
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
+    + navigate between paragraphs with TAB
 
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
-    + OK ~~a,  wrap with p~~
+    + OK ~~a, wrap with p~~
 
     + OK ~~remove inner spans and other shits (except for embeds, placeholders)~~
     + OK ~~convert divs into p (except for embeds)~~
@@ -31,16 +32,16 @@
     + OK ~~fix FF delete , somethimes it don't let delete more paragraphs
       this can be due the mix of @handleCompleteDeletion and @handleNullAnchor functions~
 
-    + handle remove from pre, it set rare span, just remove it
+    + handle remove from PRE tag, it set rare span, just remove it
     + clean node when remove one
 
   + IMAGES:
-    + upload complete
-    + when image is uploaded update blob src to image src
+    + OK ~~handle focus on image when click , focus on caption~~
+    + upload, show progress, complete
+    + when image is uploaded update blob src to image src if upload post success
     + control arrows, detect selected
       + focus caption
       + mark selected
-    + handle focus on image
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 

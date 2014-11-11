@@ -568,9 +568,7 @@ transition-delay: 30ms;
 .graf--figure.is-mediaFocused .imageCaption, .graf--figure.is-defaultValue.is-selected .imageCaption, section.is-mediaFocused .graf--sectionCaption, .graf--sectionCaption.is-defaultValue.is-selected {
     display: block;
 }
-.graf--figure.is-mediaFocused .imageCaption, .graf--figure.is-defaultValue.is-selected .imageCaption, section.is-mediaFocused .graf--sectionCaption, .graf--sectionCaption.is-defaultValue.is-selected {
-    display: block;
-}
+
 figure.is-defaultValue .imageCaption, .graf--sectionCaption.is-defaultValue {
     display: none;
 }
@@ -578,11 +576,6 @@ figure.is-defaultValue .imageCaption, .graf--sectionCaption.is-defaultValue {
 .section-content:before, .section-content:after{
     content: " ";
     display: table;
-}
-
-.section-inner:before, .section-inner:after{
-    //content: " ";
-    //display: table;
 }
 
 .editor a {

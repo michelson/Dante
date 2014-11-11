@@ -49,8 +49,7 @@ class Editor.MainEditor extends Backbone.View
     "keydown" : "handleKeyDown"
     "keyup"   : "handleKeyUp"
     "paste"   : "handlePaste"
-    "destroyed .graf--first" : "handleDeletedContainer"
-    "focus .graf" : "handleFocus"
+    "click .graf--figure" : "handleGrafFigureSelect"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -289,9 +288,10 @@ class Editor.MainEditor extends Backbone.View
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
 
-  handleFocus: (ev)=>
-    @markAsSelected(ev.currentTarget)
-    @displayTooltipAt( ev.currentTarget )
+  handleGrafFigureSelect: (ev)->
+    element = ev.currentTarget
+    @markAsSelected( element )
+    @setRangeAt( $(element).find('.imageCaption')[0] )
 
   handleBlur: (ev)=>
     #utils.log(ev)
@@ -306,8 +306,10 @@ class Editor.MainEditor extends Backbone.View
   handleMouseUp: (ev)=>
     utils.log "MOUSE UP"
     anchor_node = @getNode()
-    @handleTextSelection(anchor_node)
     utils.log anchor_node
+    utils.log ev.currentTarget
+    return if _.isNull(anchor_node)
+    @handleTextSelection(anchor_node)
     @hidePlaceholder(anchor_node)
     @markAsSelected( anchor_node )
     @displayTooltipAt( anchor_node )
@@ -425,7 +427,7 @@ class Editor.MainEditor extends Backbone.View
     #alert(pastedText) # Process and handle text...
     #detect if is html
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
-      console.log("HTML DETECTED ON PASTE")
+      utils.log("HTML DETECTED ON PASTE")
       $(pastedText)
 
       document.body.appendChild($("<div id='paste'></div>")[0])
@@ -693,6 +695,7 @@ class Editor.MainEditor extends Backbone.View
 
   #mark the current row as selected
   markAsSelected: (element)->
+
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
 
