@@ -741,6 +741,10 @@ class Editor.MainEditor extends Backbone.View
         #TODO remove inner elements like P
         #$(n).find("p").unwrap()
         n = $(n).removeClass().addClass("graf graf--#{name}")
+      else
+        #wrap all the rest
+        $(n).wrap("<p class='graf graf--#{name}'></p>")
+        n = $(n).parent()
 
     return n
 
