@@ -10,6 +10,7 @@
     + Generate image markup when paste or load html with images
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
     + navigate between paragraphs with TAB
+    + Get rid of global current_editor, inject dependency into menu & tooltip instead
 
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
@@ -24,7 +25,7 @@
   + MENU
     + OK ~~Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class~~
     + OK ~~Fix position top when text selected.~~
-    + Actions over text LINKS!!
+    + OK ~~Actions over text LINKS!!~~
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
 
   + DELETE
