@@ -40,6 +40,39 @@ utils.getBase64Image = (img) ->
 utils.generateUniqueName = ()->
   Math.random().toString(36).slice(8)
 
+#http://stackoverflow.com/questions/5605401/insert-link-in-contenteditable-element
+
+utils.saveSelection = ()->
+  if window.getSelection
+    sel = window.getSelection()
+    if sel.getRangeAt and sel.rangeCount
+      ranges = []
+      i = 0
+      len = sel.rangeCount
+
+      while i < len
+        ranges.push sel.getRangeAt(i)
+        ++i
+      return ranges
+  else return document.selection.createRange()  if document.selection and document.selection.createRange
+  null
+
+utils.restoreSelection = (savedSel) ->
+  if savedSel
+    if window.getSelection
+      sel = window.getSelection()
+      sel.removeAllRanges()
+      i = 0
+      len = savedSel.length
+
+      while i < len
+        sel.addRange savedSel[i]
+        ++i
+    else savedSel.select()  if document.selection and savedSel.select
+  return
+
+
+
 class Editor.MainEditor extends Backbone.View
   #el: "#editor"
 
@@ -103,7 +136,7 @@ class Editor.MainEditor extends Backbone.View
     "<p class='graf--p' name='#{utils.generateUniqueName()}'><br></p>"
 
   appendMenus: ()=>
-    $("<div id='editor-menu' class='editor-menu' style='opacity: 0;'></div>").insertAfter(@el)
+    $("<div id='dante-menu' class='dante-menu' style='opacity: 0;'></div>").insertAfter(@el)
     $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
     @editor_menu = new Editor.Menu()
     @tooltip_view = new Editor.Tooltip()
@@ -147,6 +180,7 @@ class Editor.MainEditor extends Backbone.View
     editor = $(@el)[0]
     range = selection && selection.rangeCount && selection.getRangeAt(0)
     range = document.createRange() if (!range)
+    debugger
     if !editor.contains(range.commonAncestorContainer)
       range.selectNodeContents(editor)
       range.collapse(false)
@@ -271,7 +305,7 @@ class Editor.MainEditor extends Backbone.View
     @editor_menu.hide()
     text = @getSelectedText()
     unless _.isEmpty text.trim()
-      @current_range = @getRange()
+      #@current_range = @getRange()
       @current_node  = anchor_node
       @.displayMenu()
 
@@ -733,7 +767,7 @@ class Editor.MainEditor extends Backbone.View
         @tooltip_view.uploadExistentImage(n)
         #set figure non editable
       when "a"
-        #utils.log "links"
+        utils.log "links"
         $(n).wrap("<p class='graf graf--#{name}'></p>")
         n = $(n).parent()
         #dont know
@@ -839,11 +873,14 @@ class Editor.MainEditor extends Backbone.View
       @element.html(s.clean_node( @element[0] ))
 
   setupLinks: (elems)->
-    _.each elems, (n)->
-      parent_name = $(n).parent().prop("tagName").toLowerCase()
-      $(n).addClass("markup--anchor markup--#{parent_name}-anchor")
-      href = $(n).attr("href")
-      $(n).attr("data-href", href)
+    _.each elems, (n)=>
+      @setupLink(n)
+
+  setupLink: (n)->
+    parent_name = $(n).parent().prop("tagName").toLowerCase()
+    $(n).addClass("markup--anchor markup--#{parent_name}-anchor")
+    href = $(n).attr("href")
+    $(n).attr("data-href", href)
 
   preCleanNode: (element)->
     s = new Sanitize
@@ -881,13 +918,14 @@ class Editor.MainEditor extends Backbone.View
     $(element).attr("name", utils.generateUniqueName())
 
 class Editor.Menu extends Backbone.View
-  el: "#editor-menu"
+  el: "#dante-menu"
 
   events:
     "mousedown i" : "handleClick"
-    #"click .editor-icon" : "handleClick"
+    #"click .dante-icon" : "handleClick"
     "mouseenter" : "handleOver"
     "mouseleave" : "handleOut"
+    "keypress input": "handleInputEnter"
 
   initialize: (opts={})=>
     @config = opts.buttons || @default_config()
@@ -904,6 +942,11 @@ class Editor.Menu extends Backbone.View
 
     @effectNodeReg = /(?:[pubia]|h[1-6]|blockquote|[uo]l|li)/i;
 
+    @strReg =
+      whiteSpace: /(^\s+)|(\s+$)/g,
+      mailTo: /^(?!mailto:|.+\/|.+#|.+\?)(.*@.*\..+)$/,
+      http: /^(?!\w+?:\/\/|mailto:|\/|\.\/|\?|#)(.*)$/
+
   default_config: ()->
     ###
     buttons: [
@@ -915,9 +958,9 @@ class Editor.Menu extends Backbone.View
     buttons: ['blockquote', 'h2', 'h3', 'bold', 'italic', 'createlink']
 
   template: ()=>
-    html = ""
+    html = "<input class='dante-input' placeholder='http://' style='display: none;'>"
     _.each @config.buttons, (item)->
-      html += "<i class=\"editor-icon icon-#{item}\" data-action=\"#{item}\"></i>"
+      html += "<i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i>"
     html
 
   render: ()=>
@@ -927,25 +970,52 @@ class Editor.Menu extends Backbone.View
 
   handleClick: (ev)->
     element = $(ev.currentTarget)
-    name = element.data("action")
-    value = $(@el).find("input").val()
+    action = element.data("action")
+    input = $(@el).find("input.dante-input")
 
-    utils.log("menu #{name} item clicked!")
+    utils.log("menu #{action} item clicked!")
 
-    if @commandsReg.block.test(name)
+    @menuApply action unless /(?:createlink)/.test(action)
+
+    input.show()
+    input.focus()
+
+    return false
+
+  handleInputEnter: (e)=>
+    if (e.which is 13)
+      return @createlink( $(e.target) )
+
+  createlink: (input) =>
+    input.hide()
+    if input.val()
+      inputValue = input.val()
+      .replace(@strReg.whiteSpace, "")
+      .replace(@strReg.mailTo, "mailto:$1")
+      .replace(@strReg.http, "http://$1")
+      return @menuApply("createlink", inputValue)
+    action = "unlink"
+    @menuApply action
+
+  menuApply: (action, value)->
+
+    #current_editor.setRange(current_editor.current_range)
+    utils.restoreSelection(@savedSel)
+
+    if @commandsReg.block.test(action)
       utils.log "block here"
-      @commandBlock name
-    else if @commandsReg.inline.test(name) or @commandsReg.source.test(name)
+      @commandBlock action
+    else if @commandsReg.inline.test(action) or @commandsReg.source.test(action)
       utils.log "overall here"
-      @commandOverall name, value
-    else if @commandsReg.insert.test(name)
+      @commandOverall action, value
+    else if @commandsReg.insert.test(action)
       utils.log "insert here"
-      @commandInsert name
-    else if @commandsReg.wrap.test(name)
+      @commandInsert action
+    else if @commandsReg.wrap.test(action)
       utils.log "wrap here"
-      @commandWrap name
+      @commandWrap action
     else
-      utils.log "can't find command function for name: " + name
+      utils.log "can't find command function for action: " + action
 
     @setupInsertedElement(current_editor.getNode())
     false
@@ -953,6 +1023,7 @@ class Editor.Menu extends Backbone.View
   setupInsertedElement: (element)->
     n = current_editor.addClassesToElement(element)
     current_editor.setElementName(n)
+    current_editor.markAsSelected(n)
 
   cleanContents: ()->
     current_editor.cleanContents()
@@ -961,6 +1032,10 @@ class Editor.Menu extends Backbone.View
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
     if document.execCommand(cmd, false, val)
       utils.log "success" + message
+      if cmd is "createlink"
+        a = utils.saveSelection()
+        n = a[0].commonAncestorContainer.parentElement
+        current_editor.setupLink(n)
     else
       utils.log "fail" + message, true
     return
@@ -1001,6 +1076,9 @@ class Editor.Menu extends Backbone.View
   show: ()->
     $(@el).css("opacity", 1)
     $(@el).css('visibility', 'visible')
+
+    #current_editor.current_range = current_editor.getRange()
+    @savedSel = utils.saveSelection()
 
   hide: ()->
     $(@el).css("opacity", 0)
