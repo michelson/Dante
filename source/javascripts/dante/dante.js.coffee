@@ -1032,10 +1032,8 @@ class Editor.Menu extends Backbone.View
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
     if document.execCommand(cmd, false, val)
       utils.log "success" + message
-      if cmd is "createlink"
-        a = utils.saveSelection()
-        n = a[0].commonAncestorContainer.parentElement
-        current_editor.setupLink(n)
+      n = current_editor.getNode()
+      current_editor.setupLinks($(n).find("a"))
     else
       utils.log "fail" + message, true
     return

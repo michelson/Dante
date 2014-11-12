@@ -25,6 +25,7 @@
     + OK ~~Set classes when execCommand , ie:. when convert an <a> tag to h2 tag add graf--h2 class~~
     + OK ~~Fix position top when text selected.~~
     + OK ~~Actions over text LINKS!!~~
+    + Display btn as selected when selected nodes matches action-link types
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
 
   + DELETE
