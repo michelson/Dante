@@ -7,7 +7,6 @@
     + OK ~~parse existing images or objects including embeds~~
     + OK ~~shows the + when selected P is empty~~
       + OK ~~check from key 8~~
-    + Generate image markup when paste or load html with images
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
     + navigate between paragraphs with TAB
     + Get rid of global current_editor, inject dependency into menu & tooltip instead
@@ -38,6 +37,8 @@
 
   + IMAGES:
     + OK ~~handle focus on image when click , focus on caption~~
+    + OK ~~Generate image markup when paste html with images~~
+    + Generate image markup when load html with images
     + upload, show progress, complete
     + when image is uploaded update blob src to image src if upload post success
     + control arrows, detect selected
@@ -52,5 +53,18 @@
     + OK ~~break deletion of paragraph when is after an embed, just set caret on embed~
     + fix navigation arrows when up or down through them
       + problem FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
+
+
+## ROADMAP
+
++ 0.0.1
+  + TODO LIST COMPLETE!
++ 0.1.0
+  + implement layout changes on embeds & uploads.
++ 0.2.0
+  + implement creation of new sections
++ 1.0.0
+  + remove backbone dependency
+  + use Rangy for better selection & range support.
 
 
