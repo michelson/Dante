@@ -58,14 +58,13 @@
 
 ## ROADMAP
 
-+ 0.0.2
++ 0.0.5
   + TODO LIST COMPLETE!
 + 0.1.0
   + implement layout changes on embeds & uploads.
 + 0.2.0
   + implement creation of new sections
 + 1.0.0
-  + remove backbone dependency
   + use Rangy for better selection & range support.
 
 

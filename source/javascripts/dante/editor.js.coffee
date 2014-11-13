@@ -73,7 +73,7 @@ utils.restoreSelection = (savedSel) ->
 
 
 
-class Editor.MainEditor extends Dante.View
+class Dante.Editor extends Dante.View
   #el: "#editor"
 
   events:
@@ -138,8 +138,8 @@ class Editor.MainEditor extends Dante.View
   appendMenus: ()=>
     $("<div id='dante-menu' class='dante-menu' style='opacity: 0;'></div>").insertAfter(@el)
     $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
-    @editor_menu = new Editor.Menu()
-    @tooltip_view = new Editor.Tooltip()
+    @editor_menu = new Dante.Editor.Menu()
+    @tooltip_view = new Dante.Editor.Tooltip()
     @tooltip_view.render()
 
   appendInitialContent: ()=>
@@ -917,7 +917,7 @@ class Editor.MainEditor extends Dante.View
   setElementName: (element)->
     $(element).attr("name", utils.generateUniqueName())
 
-class Editor.Menu extends Dante.View #Backbone.View
+class Dante.Editor.Menu extends Dante.View
   el: "#dante-menu"
 
   events:
@@ -1083,7 +1083,7 @@ class Editor.Menu extends Dante.View #Backbone.View
     $(@el).css("opacity", 0)
     $(@el).css('visibility', 'hidden')
 
-class Editor.Tooltip extends Dante.View
+class Dante.Editor.Tooltip extends Dante.View
   el: ".inlineTooltip2"
 
   events:

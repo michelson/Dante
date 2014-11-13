@@ -1,4 +1,4 @@
-window.editor = new Editor.MainEditor
+window.editor = new Dante.Editor
   upload_url: "/images.json"
   el: "#editor1"
 

@@ -40,7 +40,7 @@ Until now I´ve been able to implement the following features:
 
 ```html
   <script type="text/javascript">
-    editor = new Editor.MainEditor(
+    editor = new Dante.Editor(
       {
         el: "#editor",
         upload_url: "/images.json"
