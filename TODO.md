@@ -58,7 +58,7 @@
 
 ## ROADMAP
 
-+ 0.0.1
++ 0.0.2
   + TODO LIST COMPLETE!
 + 0.1.0
   + implement layout changes on embeds & uploads.
