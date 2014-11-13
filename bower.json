@@ -5,7 +5,6 @@
   "dependencies" : {
     "jquery": "*",
     "underscore" : "*",
-    "backbone" : "*",
     "sanitize.js" : "*",
   }
 }

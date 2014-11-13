@@ -18,7 +18,7 @@
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
     <script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
-    <%= javascript_include_tag  "spec" %>
+    <%= yield_content :js %>
 
   </body>
 </html>
