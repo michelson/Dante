@@ -103,6 +103,34 @@ utils.getNode = ()->
       # Check if the container is a text node and return its parent if so
       (if container.nodeType is 3 then container.parentNode else container)
 
+#http://stackoverflow.com/questions/12603397/calculate-width-height-of-the-selected-text-javascript
+utils.getSelectionDimensions = ->
+  sel = document.selection
+  range = undefined
+  width = 0
+  height = 0
+  left = 0
+  top = 0
+  if sel
+    unless sel.type is "Control"
+      range = sel.createRange()
+      width = range.boundingWidth
+      height = range.boundingHeight
+  else if window.getSelection
+    sel = window.getSelection()
+    if sel.rangeCount
+      range = sel.getRangeAt(0).cloneRange()
+      if range.getBoundingClientRect
+        rect = range.getBoundingClientRect()
+        width = rect.right - rect.left
+        height = rect.bottom - rect.top
+
+  width: width
+  height: height
+  top: rect.top
+  left: rect.left
+
+
 class Dante.Editor extends Dante.View
   #el: "#editor"
 
@@ -281,7 +309,7 @@ class Dante.Editor extends Dante.View
     range.collapse(false)
     @.setRange(range)
 
-  #get the element that wraps Caret position
+  #get the element that wraps Caret position while is inside section
   getNode: ()->
     node = undefined
     root = $(@el).find(".section-inner")[0]
@@ -294,40 +322,12 @@ class Dante.Editor extends Dante.View
     (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
-    #TODO: find out why this isn't propperly positioned the first time
     setTimeout ()=>
       @editor_menu.render()
-      pos = @getSelectionDimensions()
+      pos = utils.getSelectionDimensions()
       @relocateMenu(pos)
       @editor_menu.show()
     , 10
-
-  #http://stackoverflow.com/questions/12603397/calculate-width-height-of-the-selected-text-javascript
-  getSelectionDimensions: ->
-    sel = document.selection
-    range = undefined
-    width = 0
-    height = 0
-    left = 0
-    top = 0
-    if sel
-      unless sel.type is "Control"
-        range = sel.createRange()
-        width = range.boundingWidth
-        height = range.boundingHeight
-    else if window.getSelection
-      sel = window.getSelection()
-      if sel.rangeCount
-        range = sel.getRangeAt(0).cloneRange()
-        if range.getBoundingClientRect
-          rect = range.getBoundingClientRect()
-          width = rect.right - rect.left
-          height = rect.bottom - rect.top
-
-    width: width
-    height: height
-    top: rect.top
-    left: rect.left
 
   #get text of selected and displays menu
   handleTextSelection: (anchor_node)->
@@ -357,13 +357,10 @@ class Dante.Editor extends Dante.View
     @setRangeAt( $(element).find('.imageCaption')[0] )
 
   handleBlur: (ev)=>
-    #utils.log(ev)
     #hide menu only if is not in use
     setTimeout ()=>
       @editor_menu.hide() unless selected_menu
     , 200
-
-    #@tooltip_view.hide()
     false
 
   handleMouseUp: (ev)=>
@@ -384,14 +381,14 @@ class Dante.Editor extends Dante.View
       scrollTop: top
     , 20
 
-  #handle arrow direction from key up.
+  #handle arrow direction from keyUp.
   handleArrow: (ev)=>
     current_node = $(@getNode())
     if current_node
       @markAsSelected( current_node )
       @displayTooltipAt( current_node )
 
-  #handle arrow direction from key down.
+  #handle arrow direction from keyDown.
   handleArrowDown: (ev)=>
     current_node = $(@getNode())
     utils.log(ev)
@@ -476,6 +473,8 @@ class Dante.Editor extends Dante.View
 
         utils.log "noting"
 
+  #detects html data , creates a hidden node to paste ,
+  #then clean up the content and copies to currentNode, very clever uh?
   handlePaste: (ev)=>
     utils.log("pasted!")
     @aa =  @getNode()
@@ -520,6 +519,7 @@ class Dante.Editor extends Dante.View
       utils.log ("process image here!")
       @tooltip_view.uploadExistentImage(image)
 
+  #TODO: remove this, not used
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
     new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
@@ -527,6 +527,7 @@ class Dante.Editor extends Dante.View
     @setRangeAt($(element).prev()[0])
     $(element).remove()
 
+  #TODO: not used anymore, remove this
   #when found that the current node is text node
   #create a new <p> and focus
   handleUnwrappedNode: (element)->
@@ -538,13 +539,17 @@ class Dante.Editor extends Dante.View
     @setRangeAt(new_node[0])
     return false
 
+  ###
+  This is a rare hack only for FF (I hope),
+  when there is no range it creates a new element as a placeholder,
+  then finds previous element from that placeholder,
+  then it focus the prev and removes the placeholder.
+  a nasty nasty one...
+  ###
   handleNullAnchor: ()->
     utils.log "WARNING! this is an empty node"
     sel = @selection();
-    #this is a rare hack only for FF (I hope),
-    #when there is no range create a new element,
-    #and find previous element and focus it
-    #and finnaly remove the newly created.
+
     if (sel.isCollapsed && sel.rangeCount > 0)
       range = sel.getRangeAt(0)
       span = $( @baseParagraphTmpl())[0]
@@ -571,12 +576,13 @@ class Dante.Editor extends Dante.View
 
       @displayTooltipAt($(@el).find(".is-selected"))
 
+  #used when all the content is removed, then it re render
   handleCompleteDeletion: (element)->
     if _.isEmpty( $(element).text().trim() )
       utils.log "HANDLE COMPLETE DELETION"
       @selection().removeAllRanges()
-
       @render()
+
       setTimeout =>
         @setRangeAt($(@el).find(".section-inner p")[0])
       , 20
@@ -591,6 +597,7 @@ class Dante.Editor extends Dante.View
 
     #enter key
     if (e.which == 13)
+
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
@@ -603,6 +610,7 @@ class Dante.Editor extends Dante.View
         @tooltip_view.getEmbedFromNode($(anchor_node))
       else if parent.hasClass("is-extractable")
         @tooltip_view.getExtractFromNode($(anchor_node))
+
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
@@ -620,19 +628,13 @@ class Dante.Editor extends Dante.View
 
       @tooltip_view.cleanOperationClasses($(anchor_node))
 
+
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph if it the last character
         if @isLastChar()
           utils.log "new paragraph if it the last character"
           e.preventDefault()
           @handleLineBreakWith("p", parent)
-        else
-          #@handleLineBreakWith(parent.prop("tagName").toLowerCase(), parent  )
-      else if !anchor_node
-        utils.log "creating new line break"
-        e.preventDefault()
-        @handleLineBreakWith("p", parent)
-
 
       setTimeout ()=>
         node = @getNode()
@@ -973,7 +975,7 @@ class Dante.Editor.Menu extends Dante.View
       wrap: /^(?:code)$/
     }
 
-    @lineBreakReg = /^(?:blockquote|pre|div)$/i;
+    @lineBreakReg = /^(?:blockquote|pre|div|p)$/i;
 
     @effectNodeReg = /(?:[pubia]|h[1-6]|blockquote|[uo]l|li)/i;
 
