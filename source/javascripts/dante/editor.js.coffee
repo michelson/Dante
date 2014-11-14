@@ -4,6 +4,7 @@ window.Editor = {
 }
 
 utils = {}
+Editor.utils = utils
 
 # make it accessible
 window.selection = 0
@@ -71,7 +72,36 @@ utils.restoreSelection = (savedSel) ->
     else savedSel.select()  if document.selection and savedSel.select
   return
 
+utils.getNode = ()->
+  range = undefined
+  sel = undefined
+  container = undefined
+  if document.selection and document.selection.createRange
 
+    # IE case
+    range = document.selection.createRange()
+    range.parentElement()
+  else if window.getSelection
+    sel = window.getSelection()
+    if sel.getRangeAt
+      range = sel.getRangeAt(0)  if sel.rangeCount > 0
+    else
+
+      # Old WebKit selection object has no getRangeAt, so
+      # create a range from other selection properties
+      range = document.createRange()
+      range.setStart sel.anchorNode, sel.anchorOffset
+      range.setEnd sel.focusNode, sel.focusOffset
+
+      # Handle the case when the selection was selected backwards (from the end to the start in the document)
+      if range.collapsed isnt sel.isCollapsed
+        range.setStart sel.focusNode, sel.focusOffset
+        range.setEnd sel.anchorNode, sel.anchorOffset
+    if range
+      container = range.commonAncestorContainer
+
+      # Check if the container is a text node and return its parent if so
+      (if container.nodeType is 3 then container.parentNode else container)
 
 class Dante.Editor extends Dante.View
   #el: "#editor"
@@ -125,8 +155,8 @@ class Dante.Editor extends Dante.View
 
       <div class='section-content'>
         <div class='section-inner'>
-          <p class='graf--h3'>#{@title_placeholder}</p>
-          <p class='graf--p'>#{@body_placeholder}<p>
+          <p class='graf graf--h3'>#{@title_placeholder}</p>
+          <p class='graf graf--p'>#{@body_placeholder}<p>
         </div>
       </div>
 
@@ -180,7 +210,6 @@ class Dante.Editor extends Dante.View
     editor = $(@el)[0]
     range = selection && selection.rangeCount && selection.getRangeAt(0)
     range = document.createRange() if (!range)
-    debugger
     if !editor.contains(range.commonAncestorContainer)
       range.selectNodeContents(editor)
       range.collapse(false)
@@ -510,8 +539,8 @@ class Dante.Editor extends Dante.View
     return false
 
   handleNullAnchor: ()->
-    utils.log "ALARM ALARM this is an empty node"
-    sel = window.getSelection();
+    utils.log "WARNING! this is an empty node"
+    sel = @selection();
     #this is a rare hack only for FF (I hope),
     #when there is no range create a new element,
     #and find previous element and focus it
@@ -519,7 +548,6 @@ class Dante.Editor extends Dante.View
     if (sel.isCollapsed && sel.rangeCount > 0)
       range = sel.getRangeAt(0)
       span = $( @baseParagraphTmpl())[0]
-
       range.insertNode(span)
       range.setStart(span, 0)
       range.setEnd(span, 0)
@@ -529,6 +557,7 @@ class Dante.Editor extends Dante.View
       node = $(range.commonAncestorContainer)
       prev = node.prev()
       num = prev[0].childNodes.length
+      utils.log prev
       if prev.hasClass("graf")
         @setRangeAt(prev[0], num)
         node.remove()
@@ -538,13 +567,15 @@ class Dante.Editor extends Dante.View
         node.remove()
         @markAsSelected(@getNode())
       else if !prev
-        utils.log "NO PREV"
+        @.setRangeAt(@.$el.find(".section-inner p")[0])
 
       @displayTooltipAt($(@el).find(".is-selected"))
 
   handleCompleteDeletion: (element)->
     if _.isEmpty( $(element).text().trim() )
       utils.log "HANDLE COMPLETE DELETION"
+      @selection().removeAllRanges()
+
       @render()
       setTimeout =>
         @setRangeAt($(@el).find(".section-inner p")[0])
@@ -630,7 +661,15 @@ class Dante.Editor extends Dante.View
       #return false if !anchor_node or anchor_node.nodeType is 3
       utils.log("pass initial validations")
       anchor_node = @getNode()
+      utils.log "anchor_node"
       utils.log anchor_node
+      utils.log "UTILS anchor_node"
+      utils_anchor_node = utils.getNode()
+      utils.log utils_anchor_node
+
+      if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
+        utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
+        return false if _.isEmpty($(utils_anchor_node).text())
 
       if anchor_node && anchor_node.nodeType is 3
         #@displayEmptyPlaceholder()
@@ -647,8 +686,6 @@ class Dante.Editor extends Dante.View
             utils.log "FIRST CHAR"
             @inmediateDeletion = true if @isSelectingAll(anchor_node)
             return false
-          else
-            utils.log "NORMAL"
 
       #TODO: supress del when the prev el is embed and current_node is at first char
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
@@ -667,29 +704,27 @@ class Dante.Editor extends Dante.View
     @editor_menu.hide() #hides menu just in case
     @reachedTop = false
     anchor_node = @getNode() #current node on which cursor is positioned
+    utils_anchor_node = utils.getNode()
 
     @handleTextSelection(anchor_node)
 
     if (e.which == 8)
 
       #if detect all text deleted , re render
-      @handleCompleteDeletion($(@el))
-      if @completeDeletion
-        @completeDeletion = false
-        return false
+      if $(utils_anchor_node).hasClass("postField--body")
+        utils.log "ALL GONE from UP"
+        @handleCompleteDeletion($(@el))
+        if @completeDeletion
+          @completeDeletion = false
+          return false
 
-      #when user select all text delete complete node
-      if @inmediateDeletion
-        @handleInmediateDeletion(anchor_node)
-
-      if anchor_node && anchor_node.nodeType is 3
-        utils.log "HANDLE UNWRAPPED"
-        @handleUnwrappedNode(anchor_node)
-        return false
+      if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
+        utils.log "SECTION DETECTED FROM KEYUP #{_.isEmpty($(utils_anchor_node).text())}"
+        return false if _.isEmpty($(utils_anchor_node).text())
 
       if _.isNull(anchor_node)
         @handleNullAnchor()
-        #return false
+        return false
 
       if $(anchor_node).hasClass("graf--first")
         utils.log "THE FIRST ONE! UP"

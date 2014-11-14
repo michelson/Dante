@@ -1,4 +1,4 @@
-#a very light backbone.view version
+#a very light backbone.view like version
 
 class Dante.View
 
@@ -9,7 +9,6 @@ class Dante.View
     @._ensureEvents()
 
   initialize: (opts={})->
-    #console.log "olo"
 
   events: ->
 
