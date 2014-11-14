@@ -4,7 +4,6 @@ window.Editor = {
 }
 
 utils = {}
-Editor.utils = utils
 
 # make it accessible
 window.selection = 0
@@ -130,6 +129,118 @@ utils.getSelectionDimensions = ->
   top: rect.top
   left: rect.left
 
+#http://stackoverflow.com/questions/3972014/get-caret-position-in-contenteditable-div
+utils.getCaretPosition = (editableDiv) ->
+  caretPos = 0
+  containerEl = null
+  sel = undefined
+  range = undefined
+  if window.getSelection
+    sel = window.getSelection()
+    if sel.rangeCount
+      range = sel.getRangeAt(0)
+      caretPos = range.endOffset  if range.commonAncestorContainer.parentNode is editableDiv
+  else if document.selection and document.selection.createRange
+    range = document.selection.createRange()
+    if range.parentElement() is editableDiv
+      tempEl = document.createElement("span")
+      editableDiv.insertBefore tempEl, editableDiv.firstChild
+      tempRange = range.duplicate()
+      tempRange.moveToElementText tempEl
+      tempRange.setEndPoint "EndToEnd", range
+      caretPos = tempRange.text.length
+  caretPos
+
+
+#http://brianmhunt.github.io/articles/taming-contenteditable/
+
+LINE_HEIGHT = 20
+
+is_caret_at_start_of_node = (node, range) ->
+  # See: http://stackoverflow.com/questions/7451468
+  pre_range = document.createRange()
+  pre_range.selectNodeContents(node)
+  pre_range.setEnd(range.startContainer, range.startOffset)
+  return pre_range.toString().trim().length == 0
+
+is_caret_at_end_of_node = (node, range) ->
+  post_range = document.createRange()
+  post_range.selectNodeContents(node)
+  post_range.setStart(range.endContainer, range.endOffset)
+  return post_range.toString().trim().length == 0
+
+$.fn.editableIsCaret = ->
+  return window.getSelection().type == 'Caret'
+  # alt test:
+  # return sel.rangeCount == 1 and sel.getRangeAt(0).collapsed
+
+$.fn.editableRange = ->
+  # Return the range for the selection
+  sel = window.getSelection()
+  return unless sel.rangeCount > 0
+  return sel.getRangeAt(0)
+
+$.fn.editableCaretRange = ->
+  return unless @editableIsCaret()
+  return @editableRange()
+
+$.fn.editableSetRange = (range) ->
+  sel = window.getSelection()
+  sel.removeAllRanges() if sel.rangeCount > 0
+  sel.addRange(range)
+
+$.fn.editableFocus = (at_start=true) ->
+  return unless @attr('contenteditable')
+  sel = window.getSelection()
+  sel.removeAllRanges() if sel.rangeCount > 0
+  range = document.createRange()
+  range.selectNodeContents(@[0])
+  range.collapse(at_start)
+  sel.addRange(range)
+
+$.fn.editableCaretAtStart = ->
+  range = @editableRange()
+  return false unless range
+  return is_caret_at_start_of_node(@[0], range)
+
+$.fn.editableCaretAtEnd = ->
+  range = @editableRange()
+  return false unless range
+  return is_caret_at_end_of_node(@[0], range)
+
+$.fn.editableCaretOnFirstLine = ->
+  range = @editableRange()
+  return false unless range
+  # At the start of a node, the getClientRects() is [], so we have to
+  # use the getBoundingClientRect (which seems to work).
+  if is_caret_at_start_of_node(@[0], range)
+    return true
+  else if is_caret_at_end_of_node(@[0], range)
+    ctop = @[0].getBoundingClientRect().bottom - LINE_HEIGHT
+  else
+    ctop = range.getClientRects()[0].top
+  etop = @[0].getBoundingClientRect().top
+  return ctop < etop + LINE_HEIGHT
+
+$.fn.editableCaretOnLastLine = ->
+  range = @editableRange()
+  return false unless range
+  if is_caret_at_end_of_node(@[0], range)
+    return true
+  else if is_caret_at_start_of_node(@[0], range)
+    # We are on the first line.
+    cbtm = @[0].getBoundingClientRect().top + LINE_HEIGHT
+  else
+    cbtm = range.getClientRects()[0].bottom
+  ebtm = @[0].getBoundingClientRect().bottom
+  return cbtm > ebtm - LINE_HEIGHT
+
+
+
+
+Editor.utils = utils
+
+window.utils = utils
 
 class Dante.Editor extends Dante.View
   #el: "#editor"
@@ -389,12 +500,12 @@ class Dante.Editor extends Dante.View
       @displayTooltipAt( current_node )
 
   #handle arrow direction from keyDown.
-  handleArrowDown: (ev)=>
+  handleArrowForKeyDown: (ev)=>
     current_node = $(@getNode())
     utils.log(ev)
     ev_type = ev.originalEvent.key || ev.originalEvent.keyIdentifier
 
-    utils.log("ENTER ARROW DOWN #{ev.which} #{ev_type}")
+    utils.log("ENTER ARROW for key #{ev_type}")
 
     #handle keys for image figure
     switch ev_type
@@ -403,14 +514,21 @@ class Dante.Editor extends Dante.View
         next_node = current_node.next()
         utils.log "NEXT NODE IS #{next_node.attr('class')}"
         utils.log "CURRENT NODE IS #{current_node.attr('class')}"
+
+        return unless $(current_node).hasClass("graf")
+        return unless $(current_node).editableCaretOnLastLine()
+
+        utils.log "ENTER ARROW PASSED RETURNS"
+
         #if next element is embed select & focus it
         if next_node.hasClass("graf--figure")
           n = next_node.find(".imageCaption")
           @setRangeAt n[0]
           @scrollTo(n)
           utils.log "1 down"
+          utils.log n[0]
           next_node.addClass("is-mediaFocused is-selected")
-          false
+          return false
         #if current node is embed
         else if next_node.hasClass("graf--mixtapeEmbed")
           n = current_node.next(".graf--mixtapeEmbed")
@@ -418,13 +536,13 @@ class Dante.Editor extends Dante.View
           @setRangeAt n[0], num
           @scrollTo(n)
           utils.log "2 down"
-          false
+          return false
 
         if current_node.hasClass("graf--figure") && next_node.hasClass("graf")
           @setRangeAt next_node[0]
           @scrollTo(next_node)
           utils.log "3 down"
-          false
+          return false
 
         ###
         else if next_node.hasClass("graf")
@@ -439,7 +557,10 @@ class Dante.Editor extends Dante.View
         utils.log "PREV NODE IS #{prev_node.attr('class')}"
         utils.log "CURRENT NODE IS up #{current_node.attr('class')}"
 
-        return unless @isFirstChar()
+        return unless $(current_node).hasClass("graf")
+        return unless $(current_node).editableCaretOnFirstLine()
+
+        utils.log "ENTER ARROW PASSED RETURNS"
 
         if prev_node.hasClass("graf--figure")
           utils.log "1 up"
@@ -698,7 +819,8 @@ class Dante.Editor extends Dante.View
     #up & down
     if _.contains([38, 40], e.which)
       utils.log e.which
-      @handleArrowDown(e)
+      @handleArrowForKeyDown(e)
+      #return false
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -742,6 +864,7 @@ class Dante.Editor extends Dante.View
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
+      #return false
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
@@ -813,9 +936,11 @@ class Dante.Editor extends Dante.View
         #$(n).find("p").unwrap()
         n = $(n).removeClass().addClass("graf graf--#{name}")
       else
+        #TODO: for now leave relaxed, because this is
+        #overwriting embeds
         #wrap all the rest
-        $(n).wrap("<p class='graf graf--#{name}'></p>")
-        n = $(n).parent()
+        #$(n).wrap("<p class='graf graf--#{name}'></p>")
+        #n = $(n).parent()
 
     return n
 
