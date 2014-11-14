@@ -14,10 +14,9 @@
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
     + OK ~~a, wrap with p~~
-
     + OK ~~remove inner spans and other shits (except for embeds, placeholders)~~
     + OK ~~convert divs into p (except for embeds)~~
-    + inner images add classes ie
+    + childs links inside first level elements clean & add classes ie
 
       a target="_blank" href="#" data-href="#" class="markup--anchor markup--p-anchor" data-tooltip="#" data-tooltip-position="bottom" data-tooltip-type="link">example link</a>
 
@@ -27,11 +26,12 @@
     + OK ~~Actions over text LINKS!!~~
     + Display btn as selected when selected nodes matches action-link types
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
+    + mantain Range after click on action button, in order to toggle style
 
   + DELETE
 
     + OK ~~fix FF delete , somethimes it don't let delete more paragraphs
-      this can be due the mix of @handleCompleteDeletion and @handleNullAnchor functions~
+      this can be due the mix of @handleCompleteDeletion and @handleNullAnchor functions~~
 
     + handle remove from PRE tag, it set rare span, just remove it
     + clean node when remove one
@@ -51,9 +51,12 @@
   + EMBEDS:
     + OK ~~fix embed captions, they don't load propperly~~
     + OK ~~embed connect with oembed service~~
-    + OK ~~break deletion of paragraph when is after an embed, just set caret on embed~
+    + OK ~~break deletion of paragraph when is after an embed, just set caret on embed~~
     + fix navigation arrows when up or down through them
       + problem FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
+
+  + SUBMIT:
+    get clean version of content
 
 
 ## ROADMAP
