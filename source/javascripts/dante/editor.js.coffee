@@ -151,6 +151,13 @@ utils.getCaretPosition = (editableDiv) ->
       caretPos = tempRange.text.length
   caretPos
 
+#http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
+utils.isElementInViewport = (el) ->
+  #special bonus for those using jQuery
+  el = el[0]  if typeof jQuery is "function" and el instanceof jQuery
+  rect = el.getBoundingClientRect()
+  #or $(window).height()
+  rect.top >= 0 and rect.left >= 0 and rect.bottom <= (window.innerHeight or document.documentElement.clientHeight) and rect.right <= (window.innerWidth or document.documentElement.clientWidth) #or $(window).width()
 
 #http://brianmhunt.github.io/articles/taming-contenteditable/
 
@@ -234,9 +241,6 @@ $.fn.editableCaretOnLastLine = ->
     cbtm = range.getClientRects()[0].bottom
   ebtm = @[0].getBoundingClientRect().bottom
   return cbtm > ebtm - LINE_HEIGHT
-
-
-
 
 Editor.utils = utils
 
@@ -400,12 +404,26 @@ class Dante.Editor extends Dante.View
   setRangeAt: (element, int=0)->
     range = document.createRange()
     sel = window.getSelection()
+    #node = element.firstChild;
     range.setStart(element, int); #DANGER this is supported by IE 9
     #range.setStartAfter(element)
+    #range.setEnd(element, int);
     range.collapse(true)
     sel.removeAllRanges()
     sel.addRange(range)
     #@el.focus()
+    element.focus()
+
+  #set focus and caret position on element
+  setRangeAtText: (element, int=0)->
+    range = document.createRange()
+    sel = window.getSelection()
+    node = element.firstChild;
+    range.setStart(node, 0); #DANGER this is supported by IE 9
+    range.setEnd(node, 0);
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
     element.focus()
 
   focus: (focusStart) ->
@@ -486,6 +504,8 @@ class Dante.Editor extends Dante.View
     @displayTooltipAt( anchor_node )
 
   scrollTo: (node)->
+    return if utils.isElementInViewport($(node))
+
     top = node.offset().top
     #scroll to element top
     $('html, body').animate
@@ -590,7 +610,7 @@ class Dante.Editor extends Dante.View
           @setRangeAt n[0], num
           @scrollTo(n)
           utils.log "4 up"
-          #return false
+          return false
 
         utils.log "noting"
 
@@ -709,6 +729,22 @@ class Dante.Editor extends Dante.View
       , 20
       @completeDeletion = true
 
+
+  handleTab: (anchor_node)->
+    utils.log "HANDLE TAB"
+    classes = ".graf, .graf--mixtapeEmbed, .graf--figure, .graf--figure"
+    next = $(anchor_node).next(classes)
+
+    if _.isEmpty(next) or _.isUndefined(next[0])
+      next = $(".graf:first")
+
+    @setRangeAt next[0]
+    @markAsSelected next
+    @displayTooltipAt next
+
+    @scrollTo $(next)
+
+
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
 
@@ -716,8 +752,12 @@ class Dante.Editor extends Dante.View
 
     @markAsSelected( anchor_node ) if anchor_node
 
-    #enter key
-    if (e.which == 13)
+    if e.which is 9
+
+      @handleTab(anchor_node)
+      return false
+
+    if e.which == 13
 
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
@@ -735,13 +775,15 @@ class Dante.Editor extends Dante.View
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
+        utils.log("supress linebreak from embed !(last char)")
         return false unless @isLastChar()
 
       #supress linebreak or create new <p> into embed caption unless last char el
       if parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         if @isLastChar()
           @handleLineBreakWith("p", parent)
-          @setRangeAt($(".is-selected")[0])
+          @setRangeAtText($(".is-selected")[0])
+
           $(".is-selected").trigger("mouseup") #is not making any change
           return false
         else
@@ -890,6 +932,8 @@ class Dante.Editor extends Dante.View
   #mark the current row as selected
   markAsSelected: (element)->
 
+    return if _.isUndefined element
+
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
 
@@ -911,6 +955,9 @@ class Dante.Editor extends Dante.View
         #utils.log n
         unless $(n).hasClass("graf--mixtapeEmbed")
           $(n).removeClass().addClass("graf graf--#{name}")
+
+        if name is "p" and $(n).find("br").length is 0
+          $(n).append("<br>")
       when "code"
         #utils.log n
         $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
@@ -1294,7 +1341,6 @@ class Dante.Editor.Tooltip extends Dante.View
       </a>
       <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
         <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
-        <br>
         <em class='markup--em markup--mixtapeEmbed-em'></em>
       </a>
     </div>"
