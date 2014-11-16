@@ -10,17 +10,18 @@ Until now I´ve been able to implement the following features:
 
 ## Features:
 
-+ HTML sanitizer when paste text and load.
++ HTML sanitizer when paste text or initial load.
++ Image formatting/upload for paste events.
 + Add an unique name to elements on page.
 + Implementation of the famous tooltip on each paragraph when selected
++ Tab navigation.
 + Embeds:
   + Image Uploader with *preview* and caption option.
-  + Page information extraction of data through OEmbed services.
-  + Media information extraction of data through OEmbed services.
-+ CSS tries to use the same fonts used in Medium, if you set up the same commertial fonts through Tipekit, or fallbacks to open fonts (by Google fonts) or system fonts.
-  + serif: freight-text-pro with fallbacks to Merriweather ,Georgia,
-  + sans:  jaf-bernino-sans with fallbacks to Open Sans , Lucida Grande
-
+  + Embed data for pasted link through OEmbed services.
+  + Embed media information for pasted links through OEmbed services.
++ CSS tries to use the same fonts used in Medium, if you have setup those fonts, or fallbacks to open fonts (by Google fonts) or system fonts.
+  + serif: freight-text-pro fallbacks to Merriweather or Georgia,
+  + sans:  jaf-bernino-sans fallbacks to Open Sans or Lucida Grande
 
 ## Demo:
 
