@@ -34,8 +34,8 @@ class Dante.Editor.Tooltip extends Dante.View
 
   insertTemplate: ()->
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
-      <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
-        <div style='/*padding-bottom: 100%;*/' class='aspect-ratio-fill'></div>
+      <div style='' class='aspectRatioPlaceholder is-locked'>
+        <div style='padding-bottom: 100%;' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
@@ -142,7 +142,6 @@ class Dante.Editor.Tooltip extends Dante.View
 
   displayAndUploadImages: (file)->
     @displayCachedImage file
-    @uploadFile file
 
   imageSelect: (ev)->
     $selectFile = $('<input type="file" multiple="multiple">').click()
@@ -168,9 +167,13 @@ class Dante.Editor.Tooltip extends Dante.View
       img_tag.height = i.height
       img_tag.width  = i.width
       unless i.width is 0 || i.height is 0
-        $('img.graf-image').parent(".aspectRatioPlaceholder").css
+        utils.log "UPLOADED SHOW FROM CACHE"
+
+        replaced_node.find(".aspectRatioPlaceholder").css
           'max-width': i.width
           'max-height': i.height
+
+        @uploadFile file, replaced_node
 
     reader.readAsDataURL(file)
 
@@ -193,7 +196,10 @@ class Dante.Editor.Tooltip extends Dante.View
         @displayAndUploadImages(file)
       i++
 
-  uploadFile: (file)=>
+  uploadFile: (file, node)=>
+    n = node
+    handleUp = (jqxhr)=>
+      @uploadCompleted jqxhr, n
 
     $.ajax
       type: "post"
@@ -204,9 +210,12 @@ class Dante.Editor.Tooltip extends Dante.View
         xhr
       cache: false
       contentType: false
-      complete: (jqxhr) =>
-        @uploadCompleted jqxhr
+
+      success: (response) =>
+        handleUp(response)
         return
+      error: (jqxhr)=>
+        utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
 
       processData: false
       data: @formatData(file)
@@ -223,8 +232,9 @@ class Dante.Editor.Tooltip extends Dante.View
       utils.log "complete"
       utils.log complete
 
-  uploadCompleted: (jqxhr)=>
-    utils.log jqxhr
+  uploadCompleted: (url, node)=>
+    node.find("img").attr("src", url)
+    #return false
 
   ## EMBED
   displayEmbedPlaceHolder: ()->
