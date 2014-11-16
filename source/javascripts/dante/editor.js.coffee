@@ -678,6 +678,7 @@ class Dante.Editor extends Dante.View
       new_paragraph.insertAfter(from_element)
     #set caret on new <p>
     @setRangeAt(new_paragraph[0])
+    @scrollTo new_paragraph
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
