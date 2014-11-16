@@ -1343,7 +1343,7 @@ class Dante.Editor.Tooltip extends Dante.View
   insertTemplate: ()->
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
       <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
-        <div style='padding-bottom: 100%;' class='aspect-ratio-fill'></div>
+        <div style='/*padding-bottom: 100%;*/' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
@@ -1443,6 +1443,7 @@ class Dante.Editor.Tooltip extends Dante.View
       figure.find(".aspectRatioPlaceholder").css
         'max-width': this.width
         'max-height': this.height
+        'height': this.height
       figure.find("img").attr({'data-height': this.height, 'data-width': this.width})
       figure.find("img").attr('src', image_element.src )
     img.src = image_element.src
