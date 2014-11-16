@@ -299,7 +299,7 @@ class Dante.Editor extends Dante.View
 
       <div class='section-content'>
         <div class='section-inner'>
-          <p class='graf graf--h3'>#{@title_placeholder}</p>
+          <h3 class='graf graf--h3'>#{@title_placeholder}</h3>
           <p class='graf graf--p'>#{@body_placeholder}<p>
         </div>
       </div>
