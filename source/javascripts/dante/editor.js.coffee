@@ -1196,7 +1196,6 @@ class Dante.Editor.Menu extends Dante.View
     element = $(ev.currentTarget)
     action = element.data("action")
     input = $(@el).find("input.dante-input")
-
     utils.log("menu #{action} item clicked!")
     @savedSel = utils.saveSelection()
 
@@ -1258,6 +1257,7 @@ class Dante.Editor.Menu extends Dante.View
       utils.log "success" + message
       n = @current_editor.getNode()
       @current_editor.setupLinks($(n).find("a"))
+      @displayHighlights()
     else
       utils.log "fail" + message, true
     return
@@ -1285,7 +1285,8 @@ class Dante.Editor.Menu extends Dante.View
     nodes = []
     el = el or @current_editor.$el[0]
     while el isnt @current_editor.$el[0]
-      nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)  if el.nodeName.match(@effectNodeReg)
+      if el.nodeName.match(@effectNodeReg)
+        nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)
       el = el.parentNode
     nodes
 
@@ -1295,9 +1296,46 @@ class Dante.Editor.Menu extends Dante.View
   handleOver: ()->
     selected_menu = true
 
+  displayHighlights: ()->
+    #remove all active links
+    $(@el).find(".active").removeClass("active")
+
+    nodes = @effectNode(utils.getNode())
+    utils.log(nodes)
+    _.each nodes, (node)=>
+      tag = node.nodeName.toLowerCase()
+      switch tag
+        when "a"
+          menu.querySelector("input").value = item.getAttribute("href")
+          tag = "createlink"
+        when "img"
+          menu.querySelector("input").value = item.getAttribute("src")
+          tag = "insertimage"
+        when "i"
+          tag = "italic"
+        when "u"
+          tag = "underline"
+        when "b"
+          tag = "bold"
+        when "code"
+          tag = "code"
+        when "ul"
+          tag = "insertunorderedlist"
+        when "ol"
+          tag = "insertorderedlist"
+        when "li"
+          tag = "indent"
+          utils.log "nothing to select"
+
+      @highlight(tag)
+
+  highlight: (tag)->
+    $(".icon-#{tag}").addClass("active")
+
   show: ()->
     $(@el).css("opacity", 1)
     $(@el).css('visibility', 'visible')
+    @displayHighlights()
 
   hide: ()->
     $(@el).css("opacity", 0)

@@ -25,7 +25,7 @@
     + OK ~~Fix position top when text selected.~~
     + OK ~~Actions over text LINKS!!~~
     + OK ~~mantain Range after click on action button, in order to toggle style~~
-    + Display btn as selected when selected nodes matches action-link types
+    + OK ~~Display btn as selected when selected nodes matches action-link types~~
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
 
   + DELETE

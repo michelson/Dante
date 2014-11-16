@@ -109,6 +109,48 @@ $sans: 'jaf-bernino-sans', 'Open Sans' ,"Lucida Grande","Lucida Sans Unicode","L
     border-top-left-radius: 3px;
 }
 
+.dante-icon{
+    font:normal 900 16px/40px Georgia serif;
+    min-width:20px;display:inline-block;
+    padding:0 10px;
+    height:36px;
+    overflow:hidden;color:#fff;
+    text-align:center;
+    cursor:pointer;
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    -ms-user-select:none;user-select:none;
+}
+.dante-icon:first-of-type{
+    border-top-left-radius:3px;
+    border-bottom-left-radius:3px;
+}
+.dante-icon:last-of-type{
+    border-top-right-radius:3px;
+    border-bottom-right-radius:3px;
+}
+.dante-icon:hover{
+    background:#000;
+}
+.dante-icon.active{
+    color:#1abf89;background:#000;
+    box-shadow:inset 2px 2px 4px #000;
+}
+.pen-input{position:absolute;
+    width:100%;left:0;
+    top:0;height:36px;
+    line-height:20px;
+    background:#333;
+    color:#fff;
+    border:none;
+    text-align:center;
+    display:none;
+    font-family:arial, sans-serif;
+}
+.pen-input:focus{
+    outline:none;
+}
+
 .dante-menu [class^="icon-"], .dante-menu [class*=" icon-"] {
     background: none repeat scroll 0 0 transparent;
 }
@@ -305,10 +347,6 @@ button, html input[type="button"], input[type="reset"], input[type="submit"] {
 .inlineTooltip2-menu {
     display: inline-block;
     padding-left: 22px;
-}
-
-.inlineTooltip2.is-active {
-    pointer-events: auto;
 }
 
 .inlineTooltip2-menu .button {
