@@ -53,7 +53,7 @@ class Dante.Editor extends Dante.View
 
       <div class='section-content'>
         <div class='section-inner'>
-          <p class='graf graf--h3'>#{@title_placeholder}</p>
+          <h3 class='graf graf--h3'>#{@title_placeholder}</h3>
           <p class='graf graf--p'>#{@body_placeholder}<p>
         </div>
       </div>
@@ -68,16 +68,25 @@ class Dante.Editor extends Dante.View
     $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
-    @tooltip_view.render()
+    @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
     $(@el).find(".section-inner").html(@initial_html)
 
   start: ()=>
+    wrapper =
+      "<div class='postContent'>
+        <div class='postContent-inner'>
+          <div class='notesSource'>
+            <div class='postField postField--body editable smart-media-plugin' contenteditable='true'>
+            </div>
+          </div>
+        </div>
+      </div>"
+
     @render()
-    $(@el).attr("contenteditable", "true")
-    $(@el).addClass("postField--body")
-    $(@el).wrap("<div class='notesSource'></div>")
+    $(@el).wrapInner(wrapper)
+
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @setupElementsClasses()
