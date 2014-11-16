@@ -40,7 +40,6 @@ utils.generateUniqueName = ()->
   Math.random().toString(36).slice(8)
 
 #http://stackoverflow.com/questions/5605401/insert-link-in-contenteditable-element
-
 utils.saveSelection = ()->
   if window.getSelection
     sel = window.getSelection()
@@ -1199,6 +1198,7 @@ class Dante.Editor.Menu extends Dante.View
     input = $(@el).find("input.dante-input")
 
     utils.log("menu #{action} item clicked!")
+    @savedSel = utils.saveSelection()
 
     if /(?:createlink)/.test(action)
       input.show()
@@ -1210,6 +1210,7 @@ class Dante.Editor.Menu extends Dante.View
 
   handleInputEnter: (e)=>
     if (e.which is 13)
+      utils.restoreSelection(@savedSel)
       return @createlink( $(e.target) )
 
   createlink: (input) =>
@@ -1224,9 +1225,6 @@ class Dante.Editor.Menu extends Dante.View
     @menuApply action
 
   menuApply: (action, value)->
-
-    #@current_editor.setRange(@current_editor.current_range)
-    utils.restoreSelection(@savedSel)
 
     if @commandsReg.block.test(action)
       utils.log "block here"
@@ -1243,7 +1241,6 @@ class Dante.Editor.Menu extends Dante.View
     else
       utils.log "can't find command function for action: " + action
 
-    @setupInsertedElement(@current_editor.getNode())
     return false
 
   setupInsertedElement: (element)->
@@ -1256,6 +1253,7 @@ class Dante.Editor.Menu extends Dante.View
 
   commandOverall: (cmd, val) ->
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
+
     if document.execCommand(cmd, false, val)
       utils.log "success" + message
       n = @current_editor.getNode()
@@ -1266,7 +1264,7 @@ class Dante.Editor.Menu extends Dante.View
 
   commandInsert: (name) ->
     node = @current_editor.current_node
-    return  unless node
+    return unless node
     @current_editor.current_range.selectNode node
     @current_editor.current_range.collapse false
     @commandOverall node, name
@@ -1300,9 +1298,6 @@ class Dante.Editor.Menu extends Dante.View
   show: ()->
     $(@el).css("opacity", 1)
     $(@el).css('visibility', 'visible')
-
-    #@current_editor.current_range = @current_editor.getRange()
-    @savedSel = utils.saveSelection()
 
   hide: ()->
     $(@el).css("opacity", 0)
