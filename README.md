@@ -44,7 +44,7 @@ Until now I´ve been able to implement the following features:
     editor = new Dante.Editor(
       {
         el: "#editor",
-        upload_url: "/images.json"
+        upload_url: "/images.json" //it expect an url string in response like /your/server/image.jpg or http://app.com/images/image.jpb
       }
     );
     editor.start()
@@ -55,7 +55,7 @@ Until now I´ve been able to implement the following features:
 
     el:          default: #editor
     debugMode:   default: false
-    upload_url:  default: /images.json
+    upload_url:  default: /uploads.json
     oembed_url:  default: http://api.embed.ly/1/oembed?url="
     extract_url: default: http://api.embed.ly/1/extract?url="
 
@@ -64,15 +64,38 @@ Until now I´ve been able to implement the following features:
 This Library will work on early versions of Chrome/Safari/FF/IE.
 I don't have any intentions to target all browsers versions, really... if you like this library and need backwards support for an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
 
+
+## Development:
+
+There is a development web app middleman/sinatra to work with the source files and make the proper tests.
+To use application:
+
+### Installation:
+
++ install ruby
++ execute `bundle install`
+
+### Start app:
+
+`bundle exec rackup config.ru` and visit http://localhost:9292
+
+or
+
+`bundle exec middleman ` (this is without upload server)
+and visit localhost:4567
+
+or
+
+`foreman start` and visit http://localhost:9292
+
+### Tests:
+
+tests are located in source/tests and /source/assets/spec folder and accessible by visit host/tests
+
 ## TODO
 
   [read todo](./TODO.md)
 
-### References
-
-+ handle paste
-
-  http://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser/6804718#6804718
 
 ### LICENSE
 
