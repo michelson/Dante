@@ -22,7 +22,7 @@ class Dante.Editor extends Dante.View
     @el = opts.el || "#editor"
     window.debugMode = opts.debug || false
     $(@el).addClass("debug") if window.debugMode
-    @upload_url  = opts.upload_url  || "/images.json"
+    @upload_url  = opts.upload_url  || "/uploads.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
     @default_loading_placeholder = opts.default_loading_placeholder || "/images/media-loading-placeholder.png"
@@ -678,6 +678,7 @@ class Dante.Editor extends Dante.View
       new_paragraph.insertAfter(from_element)
     #set caret on new <p>
     @setRangeAt(new_paragraph[0])
+    @scrollTo new_paragraph
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
