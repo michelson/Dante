@@ -461,7 +461,7 @@ transition-delay: 30ms;
     z-index: 500;
 }
 
-.graf--figure.is-mediaFocused .graf-image {
+.graf--figure.is-mediaFocused .graf-image, .graf--figure.is-mediaFocused iframe {
     box-shadow: 0 0 0 3px #57ad68;
 }
 
@@ -538,7 +538,7 @@ transition-delay: 30ms;
     font-weight: 300;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    margin-bottom: -14px;
+    margin-bottom: 0px;
 }
 
 .markup--mixtapeEmbed-em {

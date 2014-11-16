@@ -4,12 +4,10 @@ window.Editor = {
 }
 
 utils = {}
-Editor.utils = utils
 
 # make it accessible
 window.selection = 0
 selected_menu = false
-window.current_editor = null
 debugMode = true
 
 String.prototype.killWhiteSpace = ()->
@@ -130,6 +128,125 @@ utils.getSelectionDimensions = ->
   top: rect.top
   left: rect.left
 
+#http://stackoverflow.com/questions/3972014/get-caret-position-in-contenteditable-div
+utils.getCaretPosition = (editableDiv) ->
+  caretPos = 0
+  containerEl = null
+  sel = undefined
+  range = undefined
+  if window.getSelection
+    sel = window.getSelection()
+    if sel.rangeCount
+      range = sel.getRangeAt(0)
+      caretPos = range.endOffset  if range.commonAncestorContainer.parentNode is editableDiv
+  else if document.selection and document.selection.createRange
+    range = document.selection.createRange()
+    if range.parentElement() is editableDiv
+      tempEl = document.createElement("span")
+      editableDiv.insertBefore tempEl, editableDiv.firstChild
+      tempRange = range.duplicate()
+      tempRange.moveToElementText tempEl
+      tempRange.setEndPoint "EndToEnd", range
+      caretPos = tempRange.text.length
+  caretPos
+
+#http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
+utils.isElementInViewport = (el) ->
+  #special bonus for those using jQuery
+  el = el[0]  if typeof jQuery is "function" and el instanceof jQuery
+  rect = el.getBoundingClientRect()
+  #or $(window).height()
+  rect.top >= 0 and rect.left >= 0 and rect.bottom <= (window.innerHeight or document.documentElement.clientHeight) and rect.right <= (window.innerWidth or document.documentElement.clientWidth) #or $(window).width()
+
+#http://brianmhunt.github.io/articles/taming-contenteditable/
+
+LINE_HEIGHT = 20
+
+is_caret_at_start_of_node = (node, range) ->
+  # See: http://stackoverflow.com/questions/7451468
+  pre_range = document.createRange()
+  pre_range.selectNodeContents(node)
+  pre_range.setEnd(range.startContainer, range.startOffset)
+  return pre_range.toString().trim().length == 0
+
+is_caret_at_end_of_node = (node, range) ->
+  post_range = document.createRange()
+  post_range.selectNodeContents(node)
+  post_range.setStart(range.endContainer, range.endOffset)
+  return post_range.toString().trim().length == 0
+
+$.fn.editableIsCaret = ->
+  return window.getSelection().type == 'Caret'
+  # alt test:
+  # return sel.rangeCount == 1 and sel.getRangeAt(0).collapsed
+
+$.fn.editableRange = ->
+  # Return the range for the selection
+  sel = window.getSelection()
+  return unless sel.rangeCount > 0
+  return sel.getRangeAt(0)
+
+$.fn.editableCaretRange = ->
+  return unless @editableIsCaret()
+  return @editableRange()
+
+$.fn.editableSetRange = (range) ->
+  sel = window.getSelection()
+  sel.removeAllRanges() if sel.rangeCount > 0
+  sel.addRange(range)
+
+$.fn.editableFocus = (at_start=true) ->
+  return unless @attr('contenteditable')
+  sel = window.getSelection()
+  sel.removeAllRanges() if sel.rangeCount > 0
+  range = document.createRange()
+  range.selectNodeContents(@[0])
+  range.collapse(at_start)
+  sel.addRange(range)
+
+$.fn.editableCaretAtStart = ->
+  range = @editableRange()
+  return false unless range
+  return is_caret_at_start_of_node(@[0], range)
+
+$.fn.editableCaretAtEnd = ->
+  range = @editableRange()
+  return false unless range
+  return is_caret_at_end_of_node(@[0], range)
+
+$.fn.editableCaretOnFirstLine = ->
+  range = @editableRange()
+  return false unless range
+  # At the start of a node, the getClientRects() is [], so we have to
+  # use the getBoundingClientRect (which seems to work).
+  if is_caret_at_start_of_node(@[0], range)
+    return true
+  else if is_caret_at_end_of_node(@[0], range)
+    ctop = @[0].getBoundingClientRect().bottom - LINE_HEIGHT
+  else
+    ctop = range.getClientRects()[0].top
+  etop = @[0].getBoundingClientRect().top
+  return ctop < etop + LINE_HEIGHT
+
+$.fn.editableCaretOnLastLine = ->
+  range = @editableRange()
+  return false unless range
+  if is_caret_at_end_of_node(@[0], range)
+    return true
+  else if is_caret_at_start_of_node(@[0], range)
+    # We are on the first line.
+    cbtm = @[0].getBoundingClientRect().top + LINE_HEIGHT
+  else
+    cbtm = range.getClientRects()[0].bottom
+  ebtm = @[0].getBoundingClientRect().bottom
+  return cbtm > ebtm - LINE_HEIGHT
+
+$.fn.exists = ->
+  @.length > 0
+
+Editor.utils = utils
+
+window.utils = utils
 
 class Dante.Editor extends Dante.View
   #el: "#editor"
@@ -144,7 +261,6 @@ class Dante.Editor extends Dante.View
 
   initialize: (opts = {})=>
     @editor_options = opts
-    window.current_editor = @
     #globals for selected text and node
     @initial_html = $(@el).html()
     @current_range = null
@@ -155,7 +271,7 @@ class Dante.Editor extends Dante.View
     @upload_url  = opts.upload_url  || "/images.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
-
+    @default_loading_placeholder = opts.default_loading_placeholder || "/images/media-loading-placeholder.png"
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -196,8 +312,8 @@ class Dante.Editor extends Dante.View
   appendMenus: ()=>
     $("<div id='dante-menu' class='dante-menu' style='opacity: 0;'></div>").insertAfter(@el)
     $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
-    @editor_menu = new Dante.Editor.Menu()
-    @tooltip_view = new Dante.Editor.Tooltip()
+    @editor_menu = new Dante.Editor.Menu(editor: @)
+    @tooltip_view = new Dante.Editor.Tooltip(editor: @)
     @tooltip_view.render()
 
   appendInitialContent: ()=>
@@ -289,12 +405,26 @@ class Dante.Editor extends Dante.View
   setRangeAt: (element, int=0)->
     range = document.createRange()
     sel = window.getSelection()
+    #node = element.firstChild;
     range.setStart(element, int); #DANGER this is supported by IE 9
     #range.setStartAfter(element)
+    #range.setEnd(element, int);
     range.collapse(true)
     sel.removeAllRanges()
     sel.addRange(range)
     #@el.focus()
+    element.focus()
+
+  #set focus and caret position on element
+  setRangeAtText: (element, int=0)->
+    range = document.createRange()
+    sel = window.getSelection()
+    node = element.firstChild;
+    range.setStart(node, 0); #DANGER this is supported by IE 9
+    range.setEnd(node, 0);
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
     element.focus()
 
   focus: (focusStart) ->
@@ -375,6 +505,8 @@ class Dante.Editor extends Dante.View
     @displayTooltipAt( anchor_node )
 
   scrollTo: (node)->
+    return if utils.isElementInViewport($(node))
+
     top = node.offset().top
     #scroll to element top
     $('html, body').animate
@@ -389,12 +521,12 @@ class Dante.Editor extends Dante.View
       @displayTooltipAt( current_node )
 
   #handle arrow direction from keyDown.
-  handleArrowDown: (ev)=>
+  handleArrowForKeyDown: (ev)=>
     current_node = $(@getNode())
     utils.log(ev)
     ev_type = ev.originalEvent.key || ev.originalEvent.keyIdentifier
 
-    utils.log("ENTER ARROW DOWN #{ev.which} #{ev_type}")
+    utils.log("ENTER ARROW for key #{ev_type}")
 
     #handle keys for image figure
     switch ev_type
@@ -403,14 +535,21 @@ class Dante.Editor extends Dante.View
         next_node = current_node.next()
         utils.log "NEXT NODE IS #{next_node.attr('class')}"
         utils.log "CURRENT NODE IS #{current_node.attr('class')}"
+
+        return unless $(current_node).hasClass("graf")
+        return unless $(current_node).editableCaretOnLastLine()
+
+        utils.log "ENTER ARROW PASSED RETURNS"
+
         #if next element is embed select & focus it
         if next_node.hasClass("graf--figure")
           n = next_node.find(".imageCaption")
           @setRangeAt n[0]
           @scrollTo(n)
           utils.log "1 down"
+          utils.log n[0]
           next_node.addClass("is-mediaFocused is-selected")
-          false
+          return false
         #if current node is embed
         else if next_node.hasClass("graf--mixtapeEmbed")
           n = current_node.next(".graf--mixtapeEmbed")
@@ -418,13 +557,13 @@ class Dante.Editor extends Dante.View
           @setRangeAt n[0], num
           @scrollTo(n)
           utils.log "2 down"
-          false
+          return false
 
         if current_node.hasClass("graf--figure") && next_node.hasClass("graf")
           @setRangeAt next_node[0]
           @scrollTo(next_node)
           utils.log "3 down"
-          false
+          return false
 
         ###
         else if next_node.hasClass("graf")
@@ -439,7 +578,10 @@ class Dante.Editor extends Dante.View
         utils.log "PREV NODE IS #{prev_node.attr('class')}"
         utils.log "CURRENT NODE IS up #{current_node.attr('class')}"
 
-        return unless @isFirstChar()
+        return unless $(current_node).hasClass("graf")
+        return unless $(current_node).editableCaretOnFirstLine()
+
+        utils.log "ENTER ARROW PASSED RETURNS"
 
         if prev_node.hasClass("graf--figure")
           utils.log "1 up"
@@ -469,7 +611,7 @@ class Dante.Editor extends Dante.View
           @setRangeAt n[0], num
           @scrollTo(n)
           utils.log "4 up"
-          #return false
+          return false
 
         utils.log "noting"
 
@@ -588,6 +730,28 @@ class Dante.Editor extends Dante.View
       , 20
       @completeDeletion = true
 
+  #handles tab navigation
+  handleTab: (anchor_node)->
+    utils.log "HANDLE TAB"
+    classes = ".graf, .graf--mixtapeEmbed, .graf--figure, .graf--figure"
+    next = $(anchor_node).next(classes)
+
+    if $(next).hasClass("graf--figure")
+      next = $(next).find("figcaption")
+      @setRangeAt next[0]
+      @markAsSelected $(next).parent(".graf--figure")
+      @displayTooltipAt next
+      @scrollTo $(next)
+      return false
+
+    if _.isEmpty(next) or _.isUndefined(next[0])
+      next = $(".graf:first")
+
+    @setRangeAt next[0]
+    @markAsSelected next
+    @displayTooltipAt next
+    @scrollTo $(next)
+
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
 
@@ -595,8 +759,12 @@ class Dante.Editor extends Dante.View
 
     @markAsSelected( anchor_node ) if anchor_node
 
-    #enter key
-    if (e.which == 13)
+    if e.which is 9
+
+      @handleTab(anchor_node)
+      return false
+
+    if e.which == 13
 
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
@@ -614,13 +782,15 @@ class Dante.Editor extends Dante.View
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
+        utils.log("supress linebreak from embed !(last char)")
         return false unless @isLastChar()
 
       #supress linebreak or create new <p> into embed caption unless last char el
       if parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         if @isLastChar()
           @handleLineBreakWith("p", parent)
-          @setRangeAt($(".is-selected")[0])
+          @setRangeAtText($(".is-selected")[0])
+
           $(".is-selected").trigger("mouseup") #is not making any change
           return false
         else
@@ -698,7 +868,8 @@ class Dante.Editor extends Dante.View
     #up & down
     if _.contains([38, 40], e.which)
       utils.log e.which
-      @handleArrowDown(e)
+      @handleArrowForKeyDown(e)
+      #return false
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -742,6 +913,7 @@ class Dante.Editor extends Dante.View
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
+      #return false
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
@@ -767,6 +939,8 @@ class Dante.Editor extends Dante.View
   #mark the current row as selected
   markAsSelected: (element)->
 
+    return if _.isUndefined element
+
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
 
@@ -782,37 +956,48 @@ class Dante.Editor extends Dante.View
   addClassesToElement: (element)=>
     n = element
     name = $(n).prop("tagName").toLowerCase()
-
     switch name
       when "p", "h2", "h3", "pre", "div"
         #utils.log n
         unless $(n).hasClass("graf--mixtapeEmbed")
           $(n).removeClass().addClass("graf graf--#{name}")
+
+        if name is "p" and $(n).find("br").length is 0
+          $(n).append("<br>")
+
       when "code"
         #utils.log n
         $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
         n = $(n).parent()
+
       when "ol", "ul"
         #utils.log "lists"
         $(n).removeClass().addClass("postList")
         _.each $(n).find("li"), (li)->
           $(n).removeClass().addClass("graf graf--li")
         #postList , and li as graf
+
       when "img"
         utils.log "images"
         #@handleUnwrappedImages(n)
+        #@handleUnwrappedImages(nodes)
         @tooltip_view.uploadExistentImage(n)
         #set figure non editable
-      when "a"
+
+      when "a", 'strong', 'em', 'br', 'b', 'u', 'i'
         utils.log "links"
         $(n).wrap("<p class='graf graf--#{name}'></p>")
         n = $(n).parent()
         #dont know
+
       when "blockquote"
         #TODO remove inner elements like P
         #$(n).find("p").unwrap()
         n = $(n).removeClass().addClass("graf graf--#{name}")
+
       else
+        #TODO: for now leave this relaxed, because this is
+        #overwriting embeds
         #wrap all the rest
         $(n).wrap("<p class='graf graf--#{name}'></p>")
         n = $(n).parent()
@@ -826,21 +1011,19 @@ class Dante.Editor extends Dante.View
       @element = element
 
     setTimeout ()=>
+      #clean context and wrap text nodes
       @cleanContents(@element)
       @wrapTextNodes(@element)
-
+      #setup classes
       _.each  @element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
-        #n = @preCleanNode n
         n = @addClassesToElement(n)
 
         @setElementName(n)
 
       @setupLinks(@element.find("a"))
       @setupFirstAndLast()
-      #node = @getNode()
-      #@markAsSelected( node ) #set selected
-      #@displayTooltipAt( node )
+
       cb() if _.isFunction(cb)
     , 20
 
@@ -852,14 +1035,18 @@ class Dante.Editor extends Dante.View
       @element = element
 
     s = new Sanitize
-      elements: ['strong', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+
       attributes:
         '__ALL__': ['class']
         a: ['href', 'title', 'target']
+        img: ['src']
+
       protocols:
         a: { href: ['http', 'https', 'mailto'] }
+
       transformers: [(input)->
-                      if (input.node_name == "span" && $(input.node).hasClass("defaultValue"))
+                      if (input.node_name == "span" && $(input.node).hasClass("defaultValue") )
                         return whitelist_nodes: [input.node]
                       else
                         return null
@@ -867,7 +1054,7 @@ class Dante.Editor extends Dante.View
                       #page embeds
                       if(input.node_name == 'div' && $(input.node).hasClass("graf--mixtapeEmbed") )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed") )
+                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists() )
                         return attr_whitelist: ["style"]
                       else
                         return null
@@ -876,11 +1063,11 @@ class Dante.Editor extends Dante.View
                       #embeds
                       if( input.node_name == 'figure' && $(input.node).hasClass("graf--iframe") )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'div' && $(input.node).hasClass("iframeContainer") && $(input.node).parent(".graf--iframe") )
+                      else if(input.node_name == 'div' && $(input.node).hasClass("iframeContainer") && $(input.node).parent(".graf--iframe").exists() )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'iframe' && $(input.node).parent(".iframeContainer") )
+                      else if(input.node_name == 'iframe' && $(input.node).parent(".iframeContainer").exists() )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'figcaption' && $(input.node).parent(".graf--iframe") )
+                      else if(input.node_name == 'figcaption' && $(input.node).parent(".graf--iframe").exists() )
                         return whitelist_nodes: [input.node]
                       else
                         return null
@@ -890,22 +1077,22 @@ class Dante.Editor extends Dante.View
                       if(input.node_name == 'figure' && $(input.node).hasClass("graf--figure") )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'div' && ($(input.node).hasClass("aspect-ratio-fill") || $(input.node).hasClass("aspectRatioPlaceholder")) && $(input.node).parent(".graf--figure") )
+                      else if(input.node_name == 'div' && ($(input.node).hasClass("aspect-ratio-fill") || $(input.node).hasClass("aspectRatioPlaceholder")) && $(input.node).parent(".graf--figure").exists() )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'img' && $(input.node).parent(".graf--figure") )
+                      else if(input.node_name == 'img' && $(input.node).parent(".graf--figure").exists() )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed") )
+                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists() )
                         return attr_whitelist: ["style"]
 
-                      else if(input.node_name == 'span' && $(input.node).parent(".imageCaption"))
+                      else if(input.node_name == 'span' && $(input.node).parent(".imageCaption").exists())
                         return whitelist_nodes: [input.node]
                       else
                         return null
                     ]
 
-    unless _.isEmpty @element
+    if @element.exists()
       utils.log "CLEAN HTML"
       @element.html(s.clean_node( @element[0] ))
 
@@ -966,6 +1153,7 @@ class Dante.Editor.Menu extends Dante.View
 
   initialize: (opts={})=>
     @config = opts.buttons || @default_config()
+    @current_editor = opts.editor
 
     @commandsReg = {
       block: /^(?:p|h[1-6]|blockquote|pre)$/
@@ -1037,7 +1225,7 @@ class Dante.Editor.Menu extends Dante.View
 
   menuApply: (action, value)->
 
-    #current_editor.setRange(current_editor.current_range)
+    #@current_editor.setRange(@current_editor.current_range)
     utils.restoreSelection(@savedSel)
 
     if @commandsReg.block.test(action)
@@ -1055,50 +1243,50 @@ class Dante.Editor.Menu extends Dante.View
     else
       utils.log "can't find command function for action: " + action
 
-    @setupInsertedElement(current_editor.getNode())
+    @setupInsertedElement(@current_editor.getNode())
     return false
 
   setupInsertedElement: (element)->
-    n = current_editor.addClassesToElement(element)
-    current_editor.setElementName(n)
-    current_editor.markAsSelected(n)
+    n = @current_editor.addClassesToElement(element)
+    @current_editor.setElementName(n)
+    @current_editor.markAsSelected(n)
 
   cleanContents: ()->
-    current_editor.cleanContents()
+    @current_editor.cleanContents()
 
   commandOverall: (cmd, val) ->
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
     if document.execCommand(cmd, false, val)
       utils.log "success" + message
-      n = current_editor.getNode()
-      current_editor.setupLinks($(n).find("a"))
+      n = @current_editor.getNode()
+      @current_editor.setupLinks($(n).find("a"))
     else
       utils.log "fail" + message, true
     return
 
   commandInsert: (name) ->
-    node = current_editor.current_node
+    node = @current_editor.current_node
     return  unless node
-    current_editor.current_range.selectNode node
-    current_editor.current_range.collapse false
+    @current_editor.current_range.selectNode node
+    @current_editor.current_range.collapse false
     @commandOverall node, name
 
   commandBlock: (name) ->
-    node = current_editor.current_node
-    list = @effectNode(current_editor.getNode(node), true)
+    node = @current_editor.current_node
+    list = @effectNode(@current_editor.getNode(node), true)
     name = "p" if list.indexOf(name) isnt -1
     @commandOverall "formatblock", name
 
   commandWrap: (tag) ->
-    node = current_editor.current_node
+    node = @current_editor.current_node
     val = "<" + tag + ">" + selection + "</" + tag + ">"
     @commandOverall "insertHTML", val
 
   # node effects
   effectNode: (el, returnAsNodeName) ->
     nodes = []
-    el = el or current_editor.$el[0]
-    while el isnt current_editor.$el[0]
+    el = el or @current_editor.$el[0]
+    while el isnt @current_editor.$el[0]
       nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)  if el.nodeName.match(@effectNodeReg)
       el = el.parentNode
     nodes
@@ -1113,7 +1301,7 @@ class Dante.Editor.Menu extends Dante.View
     $(@el).css("opacity", 1)
     $(@el).css('visibility', 'visible')
 
-    #current_editor.current_range = current_editor.getRange()
+    #@current_editor.current_range = @current_editor.getRange()
     @savedSel = utils.saveSelection()
 
   hide: ()->
@@ -1127,7 +1315,8 @@ class Dante.Editor.Tooltip extends Dante.View
     "click .button--inlineTooltipControl" : "toggleOptions"
     "click .inlineTooltip2-menu .button" : "handleClick"
 
-  initialize: ()=>
+  initialize: (opts = {})=>
+    @current_editor = opts.editor
     @buttons = [
       {icon: "fa-camera", title: "Add an image", action: "image"  },
       {icon: "fa-play", title: "Add a video", action: "embed"  },
@@ -1154,7 +1343,7 @@ class Dante.Editor.Tooltip extends Dante.View
   insertTemplate: ()->
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
       <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
-        <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
+        <div style='/*padding-bottom: 100%;*/' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
@@ -1169,7 +1358,6 @@ class Dante.Editor.Tooltip extends Dante.View
       </a>
       <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
         <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
-        <br>
         <em class='markup--em markup--mixtapeEmbed-em'></em>
       </a>
     </div>"
@@ -1220,25 +1408,45 @@ class Dante.Editor.Tooltip extends Dante.View
 
     utils.log ("process image here!")
     tmpl = $(@insertTemplate())
-    tmpl_img = tmpl.find("img").attr('src', image_element.src )
-    tmpl.find(".aspectRatioPlaceholder").css
-      'max-width': image_element.width
-      'max-height': image_element.height
+    tmpl.find("img").attr('src', @current_editor.default_loading_placeholder )
     #is a child element or a first level element ?
     if $(image_element).parents(".graf").length > 0
       #return if its already wrapped in graf--figure
-      return if $(image_element).parents(".graf").hasClass("graf--figure")
+      if $(image_element).parents(".graf").hasClass("graf--figure")
+        return
+
+      utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
-      node = current_editor.getNode()
-      current_editor.preCleanNode($(node))
-      current_editor.addClassesToElement(node)
+      node = @current_editor.getNode()
+      @current_editor.preCleanNode($(node))
+      @current_editor.addClassesToElement(node)
     else
+      utils.log "DOS"
       $(image_element).replaceWith(tmpl)
 
-    #tmpl.insertBefore( $(image_element).parents(".graf") )
-    #node = current_editor.getNode()
-    #current_editor.preCleanNode(node)
-    #displayAndUploadImages(blob)
+    utils.log tmpl.attr('name')
+    @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
+
+  replaceImg: (image_element, figure)->
+    #set image dimensions
+    #TODO: maybe limit with default max-heigth ?
+    utils.log figure.attr("name")
+    utils.log figure
+
+    $(image_element).remove()
+
+    img = new Image()
+    img.onload = ()->
+      console.log "and here comes the water!"
+      console.log(figure)
+      console.log(this.width + 'x' + this.height);
+      figure.find(".aspectRatioPlaceholder").css
+        'max-width': this.width
+        'max-height': this.height
+        'height': this.height
+      figure.find("img").attr({'data-height': this.height, 'data-width': this.width})
+      figure.find("img").attr('src', image_element.src )
+    img.src = image_element.src
 
   displayAndUploadImages: (file)->
     @displayCachedImage file
@@ -1252,8 +1460,8 @@ class Dante.Editor.Tooltip extends Dante.View
       self.uploadFiles(t.files)
 
   displayCachedImage: (file)->
-    @node = current_editor.getNode()
-    current_editor.tooltip_view.hide()
+    @node = @current_editor.getNode()
+    @current_editor.tooltip_view.hide()
 
     reader = new FileReader()
     reader.onload = (e)=>
@@ -1297,7 +1505,7 @@ class Dante.Editor.Tooltip extends Dante.View
 
     $.ajax
       type: "post"
-      url: current_editor.upload_url
+      url: @current_editor.upload_url
       xhr: =>
         xhr = new XMLHttpRequest()
         xhr.upload.onprogress = @updateProgressBar
@@ -1328,17 +1536,17 @@ class Dante.Editor.Tooltip extends Dante.View
 
   ## EMBED
   displayEmbedPlaceHolder: ()->
-    ph = current_editor.embed_placeholder
-    @node = current_editor.getNode()
+    ph = @current_editor.embed_placeholder
+    @node = @current_editor.getNode()
     $(@node).html(ph).addClass("is-embedable")
 
-    current_editor.setRangeAt(@node)
+    @current_editor.setRangeAt(@node)
     @hide()
     false
 
   getEmbedFromNode: (node)=>
     @node_name = $(node).attr("name")
-    $.getJSON("#{current_editor.oembed_url}#{$(@node).text()}").success (data)=>
+    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}").success (data)=>
       @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@embedTemplate())
@@ -1353,17 +1561,17 @@ class Dante.Editor.Tooltip extends Dante.View
 
   ##EXTRACT
   displayExtractPlaceHolder: ()->
-    ph = current_editor.extract_placeholder
-    @node = current_editor.getNode()
+    ph = @current_editor.extract_placeholder
+    @node = @current_editor.getNode()
     $(@node).html(ph).addClass("is-extractable")
 
-    current_editor.setRangeAt(@node)
+    @current_editor.setRangeAt(@node)
     @hide()
     false
 
   getExtractFromNode: (node)=>
     @node_name = $(node).attr("name")
-    $.getJSON("#{current_editor.extract_url}#{$(@node).text()}").success (data)=>
+    $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}").success (data)=>
       @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@extractTemplate())
@@ -1381,7 +1589,7 @@ class Dante.Editor.Tooltip extends Dante.View
       @hide()
 
   getExtract: (url)=>
-    $.getJSON("#{current_editor.extract_url}#{url}").done (data)->
+    $.getJSON("#{@current_editor.extract_url}#{url}").done (data)->
       utils.log(data)
 
   cleanOperationClasses: (node)->
