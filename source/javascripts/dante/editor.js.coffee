@@ -320,10 +320,19 @@ class Dante.Editor extends Dante.View
     $(@el).find(".section-inner").html(@initial_html)
 
   start: ()=>
+    wrapper =
+      "<div class='postContent'>
+        <div class='postContent-inner'>
+          <div class='notesSource'>
+            <div class='postField postField--body editable smart-media-plugin' contenteditable='true'>
+            </div>
+          </div>
+        </div>
+      </div>"
+
     @render()
-    $(@el).attr("contenteditable", "true")
-    $(@el).addClass("postField--body")
-    $(@el).wrap("<div class='notesSource'></div>")
+    $(@el).wrapInner(wrapper)
+
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @setupElementsClasses()
