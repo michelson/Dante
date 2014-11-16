@@ -1,5 +1,8 @@
 window.Dante = {
-  View: {},
-  Editor: {}
+  View: {}
+  Editor: {
+    ToolTip: {}
+    Menu: {}
+  }
   utils: {}
 }

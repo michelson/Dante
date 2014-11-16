@@ -55,6 +55,3 @@ class Dante.View
   _setElement: (el)->
     @.$el = if el instanceof $ then el else $(el)
     @.el = @.$el[0]
-
-
-
