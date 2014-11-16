@@ -8,7 +8,6 @@ utils = {}
 # make it accessible
 window.selection = 0
 selected_menu = false
-window.current_editor = null
 debugMode = true
 
 String.prototype.killWhiteSpace = ()->
@@ -242,6 +241,9 @@ $.fn.editableCaretOnLastLine = ->
   ebtm = @[0].getBoundingClientRect().bottom
   return cbtm > ebtm - LINE_HEIGHT
 
+$.fn.exists = ->
+  @.length > 0
+
 Editor.utils = utils
 
 window.utils = utils
@@ -259,7 +261,6 @@ class Dante.Editor extends Dante.View
 
   initialize: (opts = {})=>
     @editor_options = opts
-    window.current_editor = @
     #globals for selected text and node
     @initial_html = $(@el).html()
     @current_range = null
@@ -270,7 +271,7 @@ class Dante.Editor extends Dante.View
     @upload_url  = opts.upload_url  || "/images.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
-
+    @default_loading_placeholder = opts.default_loading_placeholder || "/images/media-loading-placeholder.png"
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -311,8 +312,8 @@ class Dante.Editor extends Dante.View
   appendMenus: ()=>
     $("<div id='dante-menu' class='dante-menu' style='opacity: 0;'></div>").insertAfter(@el)
     $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
-    @editor_menu = new Dante.Editor.Menu()
-    @tooltip_view = new Dante.Editor.Tooltip()
+    @editor_menu = new Dante.Editor.Menu(editor: @)
+    @tooltip_view = new Dante.Editor.Tooltip(editor: @)
     @tooltip_view.render()
 
   appendInitialContent: ()=>
@@ -729,11 +730,19 @@ class Dante.Editor extends Dante.View
       , 20
       @completeDeletion = true
 
-
+  #handles tab navigation
   handleTab: (anchor_node)->
     utils.log "HANDLE TAB"
     classes = ".graf, .graf--mixtapeEmbed, .graf--figure, .graf--figure"
     next = $(anchor_node).next(classes)
+
+    if $(next).hasClass("graf--figure")
+      next = $(next).find("figcaption")
+      @setRangeAt next[0]
+      @markAsSelected $(next).parent(".graf--figure")
+      @displayTooltipAt next
+      @scrollTo $(next)
+      return false
 
     if _.isEmpty(next) or _.isUndefined(next[0])
       next = $(".graf:first")
@@ -741,9 +750,7 @@ class Dante.Editor extends Dante.View
     @setRangeAt next[0]
     @markAsSelected next
     @displayTooltipAt next
-
     @scrollTo $(next)
-
 
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
@@ -949,7 +956,6 @@ class Dante.Editor extends Dante.View
   addClassesToElement: (element)=>
     n = element
     name = $(n).prop("tagName").toLowerCase()
-
     switch name
       when "p", "h2", "h3", "pre", "div"
         #utils.log n
@@ -958,36 +964,43 @@ class Dante.Editor extends Dante.View
 
         if name is "p" and $(n).find("br").length is 0
           $(n).append("<br>")
+
       when "code"
         #utils.log n
         $(n).unwrap().wrap("<p class='graf graf--pre'></p>")
         n = $(n).parent()
+
       when "ol", "ul"
         #utils.log "lists"
         $(n).removeClass().addClass("postList")
         _.each $(n).find("li"), (li)->
           $(n).removeClass().addClass("graf graf--li")
         #postList , and li as graf
+
       when "img"
         utils.log "images"
         #@handleUnwrappedImages(n)
+        #@handleUnwrappedImages(nodes)
         @tooltip_view.uploadExistentImage(n)
         #set figure non editable
-      when "a"
+
+      when "a", 'strong', 'em', 'br', 'b', 'u', 'i'
         utils.log "links"
         $(n).wrap("<p class='graf graf--#{name}'></p>")
         n = $(n).parent()
         #dont know
+
       when "blockquote"
         #TODO remove inner elements like P
         #$(n).find("p").unwrap()
         n = $(n).removeClass().addClass("graf graf--#{name}")
+
       else
-        #TODO: for now leave relaxed, because this is
+        #TODO: for now leave this relaxed, because this is
         #overwriting embeds
         #wrap all the rest
-        #$(n).wrap("<p class='graf graf--#{name}'></p>")
-        #n = $(n).parent()
+        $(n).wrap("<p class='graf graf--#{name}'></p>")
+        n = $(n).parent()
 
     return n
 
@@ -998,21 +1011,19 @@ class Dante.Editor extends Dante.View
       @element = element
 
     setTimeout ()=>
+      #clean context and wrap text nodes
       @cleanContents(@element)
       @wrapTextNodes(@element)
-
+      #setup classes
       _.each  @element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
-        #n = @preCleanNode n
         n = @addClassesToElement(n)
 
         @setElementName(n)
 
       @setupLinks(@element.find("a"))
       @setupFirstAndLast()
-      #node = @getNode()
-      #@markAsSelected( node ) #set selected
-      #@displayTooltipAt( node )
+
       cb() if _.isFunction(cb)
     , 20
 
@@ -1024,14 +1035,18 @@ class Dante.Editor extends Dante.View
       @element = element
 
     s = new Sanitize
-      elements: ['strong', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+
       attributes:
         '__ALL__': ['class']
         a: ['href', 'title', 'target']
+        img: ['src']
+
       protocols:
         a: { href: ['http', 'https', 'mailto'] }
+
       transformers: [(input)->
-                      if (input.node_name == "span" && $(input.node).hasClass("defaultValue"))
+                      if (input.node_name == "span" && $(input.node).hasClass("defaultValue") )
                         return whitelist_nodes: [input.node]
                       else
                         return null
@@ -1039,7 +1054,7 @@ class Dante.Editor extends Dante.View
                       #page embeds
                       if(input.node_name == 'div' && $(input.node).hasClass("graf--mixtapeEmbed") )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed") )
+                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists() )
                         return attr_whitelist: ["style"]
                       else
                         return null
@@ -1048,11 +1063,11 @@ class Dante.Editor extends Dante.View
                       #embeds
                       if( input.node_name == 'figure' && $(input.node).hasClass("graf--iframe") )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'div' && $(input.node).hasClass("iframeContainer") && $(input.node).parent(".graf--iframe") )
+                      else if(input.node_name == 'div' && $(input.node).hasClass("iframeContainer") && $(input.node).parent(".graf--iframe").exists() )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'iframe' && $(input.node).parent(".iframeContainer") )
+                      else if(input.node_name == 'iframe' && $(input.node).parent(".iframeContainer").exists() )
                         return whitelist_nodes: [input.node]
-                      else if(input.node_name == 'figcaption' && $(input.node).parent(".graf--iframe") )
+                      else if(input.node_name == 'figcaption' && $(input.node).parent(".graf--iframe").exists() )
                         return whitelist_nodes: [input.node]
                       else
                         return null
@@ -1062,22 +1077,22 @@ class Dante.Editor extends Dante.View
                       if(input.node_name == 'figure' && $(input.node).hasClass("graf--figure") )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'div' && ($(input.node).hasClass("aspect-ratio-fill") || $(input.node).hasClass("aspectRatioPlaceholder")) && $(input.node).parent(".graf--figure") )
+                      else if(input.node_name == 'div' && ($(input.node).hasClass("aspect-ratio-fill") || $(input.node).hasClass("aspectRatioPlaceholder")) && $(input.node).parent(".graf--figure").exists() )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'img' && $(input.node).parent(".graf--figure") )
+                      else if(input.node_name == 'img' && $(input.node).parent(".graf--figure").exists() )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed") )
+                      else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists() )
                         return attr_whitelist: ["style"]
 
-                      else if(input.node_name == 'span' && $(input.node).parent(".imageCaption"))
+                      else if(input.node_name == 'span' && $(input.node).parent(".imageCaption").exists())
                         return whitelist_nodes: [input.node]
                       else
                         return null
                     ]
 
-    unless _.isEmpty @element
+    if @element.exists()
       utils.log "CLEAN HTML"
       @element.html(s.clean_node( @element[0] ))
 
@@ -1138,6 +1153,7 @@ class Dante.Editor.Menu extends Dante.View
 
   initialize: (opts={})=>
     @config = opts.buttons || @default_config()
+    @current_editor = opts.editor
 
     @commandsReg = {
       block: /^(?:p|h[1-6]|blockquote|pre)$/
@@ -1209,7 +1225,7 @@ class Dante.Editor.Menu extends Dante.View
 
   menuApply: (action, value)->
 
-    #current_editor.setRange(current_editor.current_range)
+    #@current_editor.setRange(@current_editor.current_range)
     utils.restoreSelection(@savedSel)
 
     if @commandsReg.block.test(action)
@@ -1227,50 +1243,50 @@ class Dante.Editor.Menu extends Dante.View
     else
       utils.log "can't find command function for action: " + action
 
-    @setupInsertedElement(current_editor.getNode())
+    @setupInsertedElement(@current_editor.getNode())
     return false
 
   setupInsertedElement: (element)->
-    n = current_editor.addClassesToElement(element)
-    current_editor.setElementName(n)
-    current_editor.markAsSelected(n)
+    n = @current_editor.addClassesToElement(element)
+    @current_editor.setElementName(n)
+    @current_editor.markAsSelected(n)
 
   cleanContents: ()->
-    current_editor.cleanContents()
+    @current_editor.cleanContents()
 
   commandOverall: (cmd, val) ->
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
     if document.execCommand(cmd, false, val)
       utils.log "success" + message
-      n = current_editor.getNode()
-      current_editor.setupLinks($(n).find("a"))
+      n = @current_editor.getNode()
+      @current_editor.setupLinks($(n).find("a"))
     else
       utils.log "fail" + message, true
     return
 
   commandInsert: (name) ->
-    node = current_editor.current_node
+    node = @current_editor.current_node
     return  unless node
-    current_editor.current_range.selectNode node
-    current_editor.current_range.collapse false
+    @current_editor.current_range.selectNode node
+    @current_editor.current_range.collapse false
     @commandOverall node, name
 
   commandBlock: (name) ->
-    node = current_editor.current_node
-    list = @effectNode(current_editor.getNode(node), true)
+    node = @current_editor.current_node
+    list = @effectNode(@current_editor.getNode(node), true)
     name = "p" if list.indexOf(name) isnt -1
     @commandOverall "formatblock", name
 
   commandWrap: (tag) ->
-    node = current_editor.current_node
+    node = @current_editor.current_node
     val = "<" + tag + ">" + selection + "</" + tag + ">"
     @commandOverall "insertHTML", val
 
   # node effects
   effectNode: (el, returnAsNodeName) ->
     nodes = []
-    el = el or current_editor.$el[0]
-    while el isnt current_editor.$el[0]
+    el = el or @current_editor.$el[0]
+    while el isnt @current_editor.$el[0]
       nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)  if el.nodeName.match(@effectNodeReg)
       el = el.parentNode
     nodes
@@ -1285,7 +1301,7 @@ class Dante.Editor.Menu extends Dante.View
     $(@el).css("opacity", 1)
     $(@el).css('visibility', 'visible')
 
-    #current_editor.current_range = current_editor.getRange()
+    #@current_editor.current_range = @current_editor.getRange()
     @savedSel = utils.saveSelection()
 
   hide: ()->
@@ -1299,7 +1315,8 @@ class Dante.Editor.Tooltip extends Dante.View
     "click .button--inlineTooltipControl" : "toggleOptions"
     "click .inlineTooltip2-menu .button" : "handleClick"
 
-  initialize: ()=>
+  initialize: (opts = {})=>
+    @current_editor = opts.editor
     @buttons = [
       {icon: "fa-camera", title: "Add an image", action: "image"  },
       {icon: "fa-play", title: "Add a video", action: "embed"  },
@@ -1326,7 +1343,7 @@ class Dante.Editor.Tooltip extends Dante.View
   insertTemplate: ()->
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
       <div style='max-width: 600px; max-height: 375px;' class='aspectRatioPlaceholder is-locked'>
-        <div style='padding-bottom: 62.5%;' class='aspect-ratio-fill'></div>
+        <div style='padding-bottom: 100%;' class='aspect-ratio-fill'></div>
         <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
@@ -1391,25 +1408,44 @@ class Dante.Editor.Tooltip extends Dante.View
 
     utils.log ("process image here!")
     tmpl = $(@insertTemplate())
-    tmpl_img = tmpl.find("img").attr('src', image_element.src )
-    tmpl.find(".aspectRatioPlaceholder").css
-      'max-width': image_element.width
-      'max-height': image_element.height
+    tmpl.find("img").attr('src', @current_editor.default_loading_placeholder )
     #is a child element or a first level element ?
     if $(image_element).parents(".graf").length > 0
       #return if its already wrapped in graf--figure
-      return if $(image_element).parents(".graf").hasClass("graf--figure")
+      if $(image_element).parents(".graf").hasClass("graf--figure")
+        return
+
+      utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
-      node = current_editor.getNode()
-      current_editor.preCleanNode($(node))
-      current_editor.addClassesToElement(node)
+      node = @current_editor.getNode()
+      @current_editor.preCleanNode($(node))
+      @current_editor.addClassesToElement(node)
     else
+      utils.log "DOS"
       $(image_element).replaceWith(tmpl)
 
-    #tmpl.insertBefore( $(image_element).parents(".graf") )
-    #node = current_editor.getNode()
-    #current_editor.preCleanNode(node)
-    #displayAndUploadImages(blob)
+    utils.log tmpl.attr('name')
+    @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
+
+  replaceImg: (image_element, figure)->
+    #set image dimensions
+    #TODO: maybe limit with default max-heigth ?
+    utils.log figure.attr("name")
+    utils.log figure
+
+    $(image_element).remove()
+
+    img = new Image()
+    img.onload = ()->
+      console.log "and here comes the water!"
+      console.log(figure)
+      console.log(this.width + 'x' + this.height);
+      figure.find(".aspectRatioPlaceholder").css
+        'max-width': this.width
+        'max-height': this.height
+      figure.find("img").attr({'data-height': this.height, 'data-width': this.width})
+      figure.find("img").attr('src', image_element.src )
+    img.src = image_element.src
 
   displayAndUploadImages: (file)->
     @displayCachedImage file
@@ -1423,8 +1459,8 @@ class Dante.Editor.Tooltip extends Dante.View
       self.uploadFiles(t.files)
 
   displayCachedImage: (file)->
-    @node = current_editor.getNode()
-    current_editor.tooltip_view.hide()
+    @node = @current_editor.getNode()
+    @current_editor.tooltip_view.hide()
 
     reader = new FileReader()
     reader.onload = (e)=>
@@ -1468,7 +1504,7 @@ class Dante.Editor.Tooltip extends Dante.View
 
     $.ajax
       type: "post"
-      url: current_editor.upload_url
+      url: @current_editor.upload_url
       xhr: =>
         xhr = new XMLHttpRequest()
         xhr.upload.onprogress = @updateProgressBar
@@ -1499,17 +1535,17 @@ class Dante.Editor.Tooltip extends Dante.View
 
   ## EMBED
   displayEmbedPlaceHolder: ()->
-    ph = current_editor.embed_placeholder
-    @node = current_editor.getNode()
+    ph = @current_editor.embed_placeholder
+    @node = @current_editor.getNode()
     $(@node).html(ph).addClass("is-embedable")
 
-    current_editor.setRangeAt(@node)
+    @current_editor.setRangeAt(@node)
     @hide()
     false
 
   getEmbedFromNode: (node)=>
     @node_name = $(node).attr("name")
-    $.getJSON("#{current_editor.oembed_url}#{$(@node).text()}").success (data)=>
+    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}").success (data)=>
       @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@embedTemplate())
@@ -1524,17 +1560,17 @@ class Dante.Editor.Tooltip extends Dante.View
 
   ##EXTRACT
   displayExtractPlaceHolder: ()->
-    ph = current_editor.extract_placeholder
-    @node = current_editor.getNode()
+    ph = @current_editor.extract_placeholder
+    @node = @current_editor.getNode()
     $(@node).html(ph).addClass("is-extractable")
 
-    current_editor.setRangeAt(@node)
+    @current_editor.setRangeAt(@node)
     @hide()
     false
 
   getExtractFromNode: (node)=>
     @node_name = $(node).attr("name")
-    $.getJSON("#{current_editor.extract_url}#{$(@node).text()}").success (data)=>
+    $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}").success (data)=>
       @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@extractTemplate())
@@ -1552,7 +1588,7 @@ class Dante.Editor.Tooltip extends Dante.View
       @hide()
 
   getExtract: (url)=>
-    $.getJSON("#{current_editor.extract_url}#{url}").done (data)->
+    $.getJSON("#{@current_editor.extract_url}#{url}").done (data)->
       utils.log(data)
 
   cleanOperationClasses: (node)->

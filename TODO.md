@@ -7,9 +7,9 @@
     + OK ~~parse existing images or objects including embeds~~
     + OK ~~shows the + when selected P is empty~~
       + OK ~~check from key 8~~
+    + OK ~~navigate between paragraphs with TAB~~
+    + OK ~~Get rid of global current_editor, inject dependency into menu & tooltip instead~~
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
-    + navigate between paragraphs with TAB
-    + Get rid of global current_editor, inject dependency into menu & tooltip instead
 
   + SANITIZE PROCESS:
     + OK ~~WRAP INTO PARAGRAPHS ORPHANS~~
