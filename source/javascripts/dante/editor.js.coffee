@@ -40,7 +40,6 @@ utils.generateUniqueName = ()->
   Math.random().toString(36).slice(8)
 
 #http://stackoverflow.com/questions/5605401/insert-link-in-contenteditable-element
-
 utils.saveSelection = ()->
   if window.getSelection
     sel = window.getSelection()
@@ -1197,8 +1196,8 @@ class Dante.Editor.Menu extends Dante.View
     element = $(ev.currentTarget)
     action = element.data("action")
     input = $(@el).find("input.dante-input")
-
     utils.log("menu #{action} item clicked!")
+    @savedSel = utils.saveSelection()
 
     if /(?:createlink)/.test(action)
       input.show()
@@ -1210,6 +1209,7 @@ class Dante.Editor.Menu extends Dante.View
 
   handleInputEnter: (e)=>
     if (e.which is 13)
+      utils.restoreSelection(@savedSel)
       return @createlink( $(e.target) )
 
   createlink: (input) =>
@@ -1224,9 +1224,6 @@ class Dante.Editor.Menu extends Dante.View
     @menuApply action
 
   menuApply: (action, value)->
-
-    #@current_editor.setRange(@current_editor.current_range)
-    utils.restoreSelection(@savedSel)
 
     if @commandsReg.block.test(action)
       utils.log "block here"
@@ -1243,7 +1240,6 @@ class Dante.Editor.Menu extends Dante.View
     else
       utils.log "can't find command function for action: " + action
 
-    @setupInsertedElement(@current_editor.getNode())
     return false
 
   setupInsertedElement: (element)->
@@ -1256,17 +1252,19 @@ class Dante.Editor.Menu extends Dante.View
 
   commandOverall: (cmd, val) ->
     message = " to exec 「" + cmd + "」 command" + ((if val then (" with value: " + val) else ""))
+
     if document.execCommand(cmd, false, val)
       utils.log "success" + message
       n = @current_editor.getNode()
       @current_editor.setupLinks($(n).find("a"))
+      @displayHighlights()
     else
       utils.log "fail" + message, true
     return
 
   commandInsert: (name) ->
     node = @current_editor.current_node
-    return  unless node
+    return unless node
     @current_editor.current_range.selectNode node
     @current_editor.current_range.collapse false
     @commandOverall node, name
@@ -1287,7 +1285,8 @@ class Dante.Editor.Menu extends Dante.View
     nodes = []
     el = el or @current_editor.$el[0]
     while el isnt @current_editor.$el[0]
-      nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)  if el.nodeName.match(@effectNodeReg)
+      if el.nodeName.match(@effectNodeReg)
+        nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)
       el = el.parentNode
     nodes
 
@@ -1297,12 +1296,46 @@ class Dante.Editor.Menu extends Dante.View
   handleOver: ()->
     selected_menu = true
 
+  displayHighlights: ()->
+    #remove all active links
+    $(@el).find(".active").removeClass("active")
+
+    nodes = @effectNode(utils.getNode())
+    utils.log(nodes)
+    _.each nodes, (node)=>
+      tag = node.nodeName.toLowerCase()
+      switch tag
+        when "a"
+          menu.querySelector("input").value = item.getAttribute("href")
+          tag = "createlink"
+        when "img"
+          menu.querySelector("input").value = item.getAttribute("src")
+          tag = "insertimage"
+        when "i"
+          tag = "italic"
+        when "u"
+          tag = "underline"
+        when "b"
+          tag = "bold"
+        when "code"
+          tag = "code"
+        when "ul"
+          tag = "insertunorderedlist"
+        when "ol"
+          tag = "insertorderedlist"
+        when "li"
+          tag = "indent"
+          utils.log "nothing to select"
+
+      @highlight(tag)
+
+  highlight: (tag)->
+    $(".icon-#{tag}").addClass("active")
+
   show: ()->
     $(@el).css("opacity", 1)
     $(@el).css('visibility', 'visible')
-
-    #@current_editor.current_range = @current_editor.getRange()
-    @savedSel = utils.saveSelection()
+    @displayHighlights()
 
   hide: ()->
     $(@el).css("opacity", 0)
