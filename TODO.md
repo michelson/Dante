@@ -39,12 +39,12 @@
   + IMAGES:
     + OK ~~handle focus on image when click , focus on caption~~
     + OK ~~Generate image markup when paste html with images~~
-    + Generate image markup when load html with images
+    + OK ~~Generate image markup when load html with images~~
+    + OK ~~control arrows, detect selected~~
+      + OK ~~focus caption~~
+      + OK ~~mark selected~~
     + upload, show progress, complete
     + when image is uploaded update blob src to image src if upload post success
-    + control arrows, detect selected
-      + focus caption
-      + mark selected
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
