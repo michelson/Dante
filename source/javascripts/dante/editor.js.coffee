@@ -314,7 +314,7 @@ class Dante.Editor extends Dante.View
     $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
-    @tooltip_view.render()
+    @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
     $(@el).find(".section-inner").html(@initial_html)
