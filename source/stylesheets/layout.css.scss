@@ -1,22 +1,4 @@
-@charset "utf-8";
-
-$serif: 'freight-text-pro', 'Merriweather',Georgia,Cambria,"Times New Roman",Times,serif;
-$sans: 'jaf-bernino-sans', 'Open Sans' ,"Lucida Grande","Lucida Sans Unicode","Lucida Sans", Geneva, Verdana, sans-serif;
-
-
-body {
-  //background: #d4d4d4 image-url("background.png");
-  font-family: $serif;
-  color: rgba(0,0,0,0.8);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-
-#welcome{
-
-}
+@import "variables";
 
 header{
   width: 100%;
@@ -46,12 +28,8 @@ header{
   }
 }
 
-
 #editor{
   margin: 0 auto;
   //width: 70%;
   width: 700px;
 }
-
-
-

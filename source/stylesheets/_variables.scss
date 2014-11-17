@@ -1,0 +1,12 @@
+$font-family-sans:        'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+$font-family-serif:       'freight-text-pro', 'Merriweather', Georgia,Cambria, "Times New Roman", Times,serif;
+$font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+
+$font-family-base:        $font-family-sans;
+$font-size-base:          14px;
+$line-height-base:        1.428571429; // 20/14
+//$line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
+
+// Legacy
+$serif: $font-family-serif;
+$sans:  $font-family-sans;

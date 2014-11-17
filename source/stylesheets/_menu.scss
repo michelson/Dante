@@ -1,0 +1,59 @@
+.dante-menu {
+  background: linear-gradient(to bottom, #222, #333) repeat scroll 0 0 #333;
+  border: 1px solid #333;
+  border-radius: 3px;
+  box-shadow: 1px 2px 3px -2px #222;
+  display: none;
+  height: 36px;
+  opacity: 0.9;
+  position: absolute;
+  white-space: nowrap;
+  z-index: 1000;
+  display:block;
+
+  -webkit-transition: opacity 0.2s ease-in-out;
+  -moz-transition: opacity 0.2s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
+
+  &:after {
+    border-left: 6px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 7px solid #333;
+    border-color: #333 rgba(51, 51, 51, 0) rgba(51, 51, 51, 0);
+    content: " ";
+    height: 0;
+    left: 50%;
+    margin-left: -6px;
+    position: absolute;
+    top: 99%;
+    width: 0;
+    pointer-events: none;
+  }
+}
+
+
+.dante-menu, .dante-input {
+    color: #331;
+    font: 400 1.16em/1.45 Palatino,Optima,Georgia,serif;
+}
+
+
+.dante-input{
+    background: none repeat scroll 0 0 #333;
+    border: medium none;
+    color: #fff;
+    display: none;
+    font-family: arial,sans-serif;
+    height: 36px;
+    left: 0;
+    line-height: 20px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+}
+
+.dante-menu, .dante-input {
+    font-size: 14px;
+    line-height: 1;
+}
