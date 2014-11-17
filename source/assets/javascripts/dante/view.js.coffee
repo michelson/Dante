@@ -30,7 +30,6 @@ class Dante.View
     return @
 
   setEvent: (opts)->
-    console.log opts
     if !_.isEmpty(opts)
       _.each opts, (f, key)=>
         key_arr = key.split(" ")

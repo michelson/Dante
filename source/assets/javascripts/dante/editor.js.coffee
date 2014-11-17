@@ -26,6 +26,7 @@ class Dante.Editor extends Dante.View
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
     @default_loading_placeholder = opts.default_loading_placeholder || "/images/media-loading-placeholder.png"
+    @store_url   = opts.store_url
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -37,12 +38,31 @@ class Dante.Editor extends Dante.View
     @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
 
   store: ()->
-    localStorage.setItem("contenteditable", $(@el).html() )
+    #localStorage.setItem("contenteditable", $(@el).html() )
+    return unless @store_url
     setTimeout ()=>
-      #utils.log("storing")
-      #@store()
-      1 + 1
-    , 5000
+      @checkforStore()
+    , 15000
+
+  checkforStore: ()->
+    if @content is @getContent()
+      utils.log "content not changed skip store"
+      @store()
+    else
+      utils.log "content changed! update"
+      @content = @getContent()
+      $.ajax
+        url: @store_url
+        method: "post"
+        data: @getContent()
+        success: (res)->
+          utils.log "store!"
+          utils.log res
+        complete: (jxhr) =>
+          @store()
+
+  getContent: ()->
+    $(@el).find(".section-inner").html()
 
   template: ()=>
     "<section class='section--first section--last'>

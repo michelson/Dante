@@ -44,7 +44,9 @@ Until now I´ve been able to implement the following features:
     editor = new Dante.Editor(
       {
         el: "#editor",
-        upload_url: "/images.json" //it expect an url string in response like /your/server/image.jpg or http://app.com/images/image.jpb
+        upload_url: "/images.json", //it expect an url string in response like /your/server/image.jpg or http://app.com/images/image.jpg
+        store_url: "/save" //post to save
+
       }
     );
     editor.start()
