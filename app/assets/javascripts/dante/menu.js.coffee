@@ -4,7 +4,7 @@ class Dante.Editor.Menu extends Dante.View
   el: "#dante-menu"
 
   events:
-    "mousedown i" : "handleClick"
+    "mousedown li" : "handleClick"
     #"click .dante-icon" : "handleClick"
     "mouseenter" : "handleOver"
     "mouseleave" : "handleOut"
@@ -39,7 +39,7 @@ class Dante.Editor.Menu extends Dante.View
       ]
     ###
 
-    buttons: ['bold', 'italic', 'h1', 'h2', 'h3', 'blockquote', 'createlink']
+    buttons: ['bold', 'italic', 'h2', 'h3', 'h4', 'blockquote', 'createlink']
 
   template: ()=>
     html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='http://'><div class='dante-menu-button'>x</div></div>"
@@ -55,7 +55,7 @@ class Dante.Editor.Menu extends Dante.View
     #@delegateEvents()
 
   handleClick: (ev)->
-    element   = $(ev.currentTarget)
+    element   = $(ev.currentTarget).find('.dante-icon')
     action    = element.data("action")
     input     = $(@el).find("input.dante-menu-input")
     utils.log("menu #{action} item clicked!")

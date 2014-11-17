@@ -1,18 +1,18 @@
 utils = Dante.utils
 
 class Dante.Editor.Tooltip extends Dante.View
-  el: ".inlineTooltip2"
+  el: ".inlineTooltip"
 
   events:
-    "click .button--inlineTooltipControl" : "toggleOptions"
-    "click .inlineTooltip2-menu .button" : "handleClick"
+    "click .inlineTooltip-button.control" : "toggleOptions"
+    "click .inlineTooltip-menu button" : "handleClick"
 
   initialize: (opts = {})=>
     @current_editor = opts.editor
     @buttons = [
       {icon: "fa-camera", title: "Add an image", action: "image"},
-      {icon: "fa-play", title: "Add a video", action: "embed"},
-      {icon: "fa-code", title: "Add an embed", action: "embed-extract"}
+      {icon: "fa-play",   title: "Add a video",  action: "embed"},
+      {icon: "fa-code",   title: "Add an embed", action: "embed-extract"}
     ]
     #TODO: include section splitter
     #icon: "fa-minus", title: "Add a new part", action: "hr"
@@ -21,14 +21,14 @@ class Dante.Editor.Tooltip extends Dante.View
     menu = ""
     _.each @buttons, (b)->
       data_action_value = if b.action_value then "data-action-value='#{b.action_value}'" else  ""
-      menu += "<button class='button button--small button--circle button--neutral button--scale u-transitionSeries' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
+      menu += "<button class='inlineTooltip-button scale' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
         <span class='fa #{b.icon}'></span>
       </button>"
 
-    "<button class='button button--small button--circle button--neutral button--inlineTooltipControl' title='Close Menu' data-action='inline-menu'>
+    "<button class='inlineTooltip-button control' title='Close Menu' data-action='inline-menu'>
         <span class='fa fa-plus'></span>
     </button>
-    <div class='inlineTooltip2-menu'>
+    <div class='inlineTooltip-menu'>
       #{menu}
     </div>"
 

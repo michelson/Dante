@@ -1,162 +1,126 @@
-.inlineTooltip2.is-active {
-    opacity: 1;
-    pointer-events: auto;
-    width:auto !important;
-}
+.inlineTooltip {
 
-.notesSource .inlineTooltip2 {
-    height: 40px;
-    margin-left: -58px;
-    margin-top: 5px;
-    //opacity: 0;
-    overflow: hidden;
-    padding: 0;
-    //pointer-events: none;
+  // BASE
+  & {
     position: absolute;
-    width: 40px;
     z-index: 900;
-}
-
-.button--small.button--circle {
-    height: 32px;
+    overflow: hidden;
+    display: none;
+    width: 33px;
+    height: 33px;
+    -webkit-transition: opacity 100ms, width 0 linear 250ms;
+    transition: opacity 100ms, width 0 linear 250ms;
     padding: 0;
-    width: 32px;
-}
-.button--inlineTooltipControl {
-    transform: rotate(0deg);
-    transition: transform 0.1s ease 0s;
-}
-.button--small, .button--small.button--link, .button--small.button--chromeless {
-    font-size: 12px;
-}
+  }
+  &.is-active {
+    display: block;
+    width: 220px;
+    -webkit-transition-delay: 0;
+    transition-delay: 0;
+  }
 
-.button--small {
-    height: 32px;
-    line-height: 31px;
-    padding: 0 14px;
-}
+  // MENU
+  &-menu {
+    & {
+      display: inline-block;
+      padding-left: 22px;
+    }
+    button {
+      margin-right: 9px;
+    }
+  }
 
-.button--neutral {
-    border-color: rgba(0, 0, 0, 0.44);
-    color: rgba(0, 0, 0, 0.44);
-}
+  // BUTTON
+  &-button {
 
-.button--circle {
-    padding: 0;
-    text-align: center;
-    width: 38px;
-}
+    // BASE
+    & {
+      display: inline-block;
+      position: relative;
+      outline: 0;
+      padding: 0;
+      vertical-align: bottom;
+      box-sizing: border-box;
+      border-radius: 999em;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      font-family: $font-family-sans;
+      letter-spacing: -0.02em;
+      font-weight: 400;
+      font-style: normal;
+      white-space: nowrap;
+      text-rendering: auto;
+      text-align: center;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -moz-font-feature-settings: "liga" on;
+      width: $tooltip-size;
+      height: $tooltip-size;
+      line-height: $tooltip-size - 2;
+      -webkit-transition: 100ms border-color, 100ms color;
+      transition: 100ms border-color, 100ms color;
+      background: rgba(0,0,0,0);
+      border: 1px solid rgba(0,0,0,0.15);
+      color: rgba(0,0,0,0.44);
+    }
 
-.button {
-    -moz-osx-font-smoothing: grayscale;
-    -moz-user-select: none;
-    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 999em;
-    box-sizing: border-box;
-    color: rgba(0, 0, 0, 0.44);
-    cursor: pointer;
-    display: inline-block;
-    font-family: $sans;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    height: 38px;
-    letter-spacing: -0.02em;
-    line-height: 31px;
-    outline: 0 none;
-    padding: 0 16px;
-    position: relative;
-    text-align: center;
-    text-decoration: none;
-    text-rendering: optimizelegibility;
-    transition: background-color 0.1s ease 0s, border-color 0.1s ease 0s, color 0.1s ease 0s;
-    vertical-align: bottom;
-    white-space: nowrap;
-}
+    &:hover {
+      border-color: rgba(0,0,0,0.9);
+      color: rgba(0,0,0,0.9);
+    }
 
-button, html input[type="button"], input[type="reset"], input[type="submit"] {
-    cursor: pointer;
-}
+    // SCALE
+    &.scale {
+      & {
+        -webkit-transform: scale(0);
+        -ms-transform: scale(0);
+        transform: scale(0);
+        -webkit-transition-property: -webkit-transform;
+        transition-property: transform;
+        -webkit-transition-duration: 100ms;
+        transition-duration: 100ms;
+      }
+      .is-scaled & {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+        -webkit-transition-duration: 200ms;
+        transition-duration: 200ms;
+      }
+      &:nth-child(2) {
+        -webkit-transition-delay: 30ms;
+        transition-delay: 30ms;
+      }
+      &:nth-child(3) {
+        -webkit-transition-delay: 60ms;
+        transition-delay: 60ms;
+      }
+      &:nth-child(4) {
+        -webkit-transition-delay: 90ms;
+        transition-delay: 90ms;
+      }
+    }
 
-.button-scalableGroup .icon.icon--addMediaPlus:before, .button-scalableGroup .icon.icon--addMediaImage:before, .button-scalableGroup .icon.icon--addMediaVideo:before, .button-scalableGroup .icon.icon--addMediaEmbed:before, .button-scalableGroup .icon.icon--addMediaPart:before {
-    font-size: 39px;
-    top: 13px;
-}
+    // CONTROL
+    &.control {
+      & {
+        -webkit-transition: -webkit-transform 100ms;
+                transition: transform 100ms;
+         -webkit-transform: rotate(0);
+             -ms-transform: rotate(0);
+                 transform: rotate(0);
+      }
+      .is-active & {
+        -webkit-transition: -webkit-transform 250ms;
+                transition: transform 250ms;
+         -webkit-transform: rotate(45deg);
+             -ms-transform: rotate(45deg);
+                 transform: rotate(45deg);
+      }
+    }
 
-.button--neutral > .icon:before {
-    color: rgba(0, 0, 0, 0.44);
-}
+  }
 
-.button .icon.is-pulledRight:before, .button--circle .icon:before, .button--expandable .icon:before {
-    margin-right: 0;
-}
-
-.button .icon:before {
-    color: rgba(0, 0, 0, 0.3);
-    font-size: 20px;
-    line-height: 0;
-    margin-right: 8px;
-    position: relative;
-    top: 1px;
-}
-
-.icon--addMediaPlus:before {
-    content: "";
-}
-.button--small .icon {
-    font-size: 18px;
-}
-.button .icon {
-    line-height: 100%;
-}
-
-.icon {
-    -moz-osx-font-smoothing: grayscale;
-    font-family: "medium-icons";
-    font-style: normal;
-    font-weight: normal;
-    text-decoration: none;
-    text-rendering: optimizelegibility;
-    text-transform: none;
-}
-
-.inlineTooltip2.is-scaled > .button--inlineTooltipControl {
-  -webkit-transition: -webkit-transform .25s;
-  transition: transform .25s;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
-}
-
-.inlineTooltip2-menu {
-    display: inline-block;
-    padding-left: 22px;
-}
-
-.inlineTooltip2-menu .button {
-margin-right: 9px;
-}
-
-.button-scalableGroup.is-scaled .button--scale {
-  -webkit-transform: scale(1);
-  -ms-transform: scale(1);
-  transform: scale(1);
-  -webkit-transition-duration: 200ms;
-  transition-duration: 200ms;
-}
-
-.button--scale {
-  -webkit-transform: scale(0);
-  -ms-transform: scale(0);
-  transform: scale(0);
-  -webkit-transition-property: -webkit-transform;
-  transition-property: transform;
-  -webkit-transition-duration: 100ms;
-  transition-duration: 100ms;
-}
-
-.u-transitionSeries:nth-child(2) {
-    -webkit-transition-delay: 30ms;
-    transition-delay: 30ms;
 }

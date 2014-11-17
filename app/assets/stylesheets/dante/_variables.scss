@@ -7,11 +7,7 @@ $font-size-base:          14px;
 $line-height-base:        1.428571429; // 20/14
 //$line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
 
-// Legacy
-$serif: $font-family-serif;
-$sans:  $font-family-sans;
-
-
+$debugger:           false;
 
 $menu-height:        45px;
 $menu-tone:          #333;
@@ -24,3 +20,9 @@ $menu-border-radius: 5px;
 $menu-color:         #FFFFFF;
 $menu-color-active:  #1ABF89;
 $menu-caret-size:    8px;
+
+$tooltip-size:       32px;
+
+// Legacy
+$serif: $font-family-serif;
+$sans:  $font-family-sans;

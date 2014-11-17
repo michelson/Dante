@@ -13,9 +13,9 @@
 }
 
 .icon {
-  &-h1:before                   { content: "H1"; }
-  &-h2:before                   { content: "H2"; }
-  &-h3:before                   { content: "H3"; }
+  &-h2:before                   { content: "H1"; }
+  &-h3:before                   { content: "H2"; }
+  &-h4:before                   { content: "H3"; }
   &-p:before                    { content:  "P"; }
   &-code:before                 { content: ""; }
   &-insertorderedlist:before    { content: ""; }
@@ -28,4 +28,11 @@
   &-underline:before            { content: ""; }
   &-createlink:before           { content: ""; }
   &-blockquote:before           { content: ""; }
+}
+.icon {
+  &-h2:before,
+  &-h3:before,
+  &-h4:before {
+    font-weight: bold;
+  }
 }

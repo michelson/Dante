@@ -10,3 +10,12 @@
     *zoom: 1;
   }
 }
+
+
+@mixin box-sizing {
+  *,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+  }
+}
