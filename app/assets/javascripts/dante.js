@@ -1,3 +1,4 @@
+//Editor components
 //= require dante/dante
 //= require dante/utils
 //= require dante/view
