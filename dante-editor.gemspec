@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["miguelmichelson@gmail.com"]
   gem.description   = %q{dante-editor yet another Medium editor clone.}
   gem.summary       = %q{dante-editor yet another Medium editor clone.}
-  gem.homepage      = ""
+  gem.homepage      = "http://michelson.github.io/Dante/"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
