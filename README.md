@@ -66,6 +66,14 @@ Until now I´ve been able to implement the following features:
 This Library will work on early versions of Chrome/Safari/FF/IE.
 I don't have any intentions to target all browsers versions, really... if you like this library and need backwards support for an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
 
+## Dependencies:
+
++ Jquery
++ Sanitize.js
++ Underscore
+
+drop underscore and jquery dependencies is on the roadmap.
+
 
 ## Development:
 
