@@ -26,12 +26,14 @@
     animation: pop-upwards 180ms forwards linear;
   }
 
-  .--linkmode {
+  &--linkmode {
     .dante-menu-buttons {
       visibility: hidden;
     }
-    .dante-menu-input {
+    .dante-menu-linkinput {
       display: block;
+    }
+    .dante-menu-input {
       -webkit-animation: pop-upwards 180ms forwards linear;
               animation: pop-upwards 180ms forwards linear;
     }
@@ -101,18 +103,24 @@
   }
 
   &-linkinput {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    & {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .dante-menu-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
   }
 
   &-input {
     //height: $menu-height - 2;
     //line-height: 20px;
-    display: none;
     position: absolute;
     top: 0;
     left: 0;

@@ -1,0 +1,34 @@
+@charset "utf-8";
+
+header{
+  width: 100%;
+  border-top: 3px solid #1abf89;
+  margin-bottom: 40px;
+
+  img{
+    display: block;
+    float: left;
+    margin: -34px 7px 11px 25px;
+    position: absolute;
+    left: 0;
+    top: 28px;
+  }
+  h1 {
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+    margin-right: 91px;
+    margin-top: 25px;
+    padding-top: 0;
+    text-align: right;
+  }
+}
+
+#editor{
+  margin: 0 auto;
+  //width: 70%;
+  width: 700px;
+}

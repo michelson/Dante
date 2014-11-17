@@ -3,10 +3,9 @@ selected_menu = false
 utils = Dante.utils
 
 class Dante.Editor extends Dante.View
-  #el: "#editor"
 
   events:
-    "blur"    : "handleBlur"
+    #"blur"    : "handleBlur"
     "mouseup" : "handleMouseUp"
     "keydown" : "handleKeyDown"
     "keyup"   : "handleKeyUp"
@@ -22,10 +21,12 @@ class Dante.Editor extends Dante.View
     @el = opts.el || "#editor"
     window.debugMode = opts.debug || false
     $(@el).addClass("debug") if window.debugMode
-    @upload_url  = opts.upload_url  || "/images.json"
+    @upload_url  = opts.upload_url  || "/uploads.json"
     @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
-    @default_loading_placeholder = opts.default_loading_placeholder || "/images/media-loading-placeholder.png"
+    @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
+    @store_url   = opts.store_url
+    @store_interval = opts.store_interval || 15000
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -37,12 +38,31 @@ class Dante.Editor extends Dante.View
     @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
 
   store: ()->
-    localStorage.setItem("contenteditable", $(@el).html() )
+    #localStorage.setItem("contenteditable", $(@el).html() )
+    return unless @store_url
     setTimeout ()=>
-      #utils.log("storing")
-      #@store()
-      1 + 1
-    , 5000
+      @checkforStore()
+    , @store_interval
+
+  checkforStore: ()->
+    if @content is @getContent()
+      utils.log "content not changed skip store"
+      @store()
+    else
+      utils.log "content changed! update"
+      @content = @getContent()
+      $.ajax
+        url: @store_url
+        method: "post"
+        data: @getContent()
+        success: (res)->
+          utils.log "store!"
+          utils.log res
+        complete: (jxhr) =>
+          @store()
+
+  getContent: ()->
+    $(@el).find(".section-inner").html()
 
   template: ()=>
     "<section class='section--first section--last'>
@@ -246,7 +266,8 @@ class Dante.Editor extends Dante.View
   handleBlur: (ev)=>
     #hide menu only if is not in use
     setTimeout ()=>
-      @editor_menu.hide() unless selected_menu
+      utils.log "not in use"
+      #@editor_menu.hide() unless selected_menu
     , 200
     false
 
@@ -681,6 +702,7 @@ class Dante.Editor extends Dante.View
       new_paragraph.insertAfter(from_element)
     #set caret on new <p>
     @setRangeAt(new_paragraph[0])
+    @scrollTo new_paragraph
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
@@ -712,7 +734,7 @@ class Dante.Editor extends Dante.View
 
   addClassesToElement: (element)=>
     n = element
-    name = $(n).prop("tagName").toLowerCase()
+    name = n.nodeName.toLowerCase()
     switch name
       when "p", "h2", "h3", "pre", "div"
         #utils.log n

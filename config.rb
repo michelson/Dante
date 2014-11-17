@@ -45,11 +45,13 @@
 #   end
 # end
 
-set :css_dir, 'stylesheets'
+set :css_dir, 'assets/stylesheets'
 
-set :js_dir, 'javascripts'
+set :js_dir, 'assets/javascripts'
 
-set :images_dir, 'images'
+set :images_dir, 'assets/images'
+
+set :fonts_dir, 'assets/fonts'
 
 #set :markdown_engine, :redcarpet
 set :markdown_engine, :kramdown

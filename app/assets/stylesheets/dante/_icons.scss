@@ -13,6 +13,7 @@
 }
 
 .icon {
+  &-h1:before                   { content: "H1"; }
   &-h2:before                   { content: "H2"; }
   &-h3:before                   { content: "H3"; }
   &-p:before                    { content:  "P"; }

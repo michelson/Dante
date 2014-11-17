@@ -39,10 +39,10 @@ class Dante.Editor.Menu extends Dante.View
       ]
     ###
 
-    buttons: ['blockquote', 'h2', 'h3', 'bold', 'italic', 'createlink']
+    buttons: ['bold', 'italic', 'h1', 'h2', 'h3', 'blockquote', 'createlink']
 
   template: ()=>
-    html = "<input class='dante-menu-input' placeholder='http://'>"
+    html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='http://'><div class='dante-menu-button'>x</div></div>"
     html += "<ul class='dante-menu-buttons'>"
     _.each @config.buttons, (item)->
       html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
@@ -55,14 +55,14 @@ class Dante.Editor.Menu extends Dante.View
     #@delegateEvents()
 
   handleClick: (ev)->
-    element = $(ev.currentTarget)
-    action = element.data("action")
-    input = $(@el).find("input.dante-menu-input")
+    element   = $(ev.currentTarget)
+    action    = element.data("action")
+    input     = $(@el).find("input.dante-menu-input")
     utils.log("menu #{action} item clicked!")
     @savedSel = utils.saveSelection()
 
     if /(?:createlink)/.test(action)
-      input.show()
+      $(@el).addClass("dante-menu--linkmode")
       input.focus()
     else
       @menuApply action
@@ -75,7 +75,7 @@ class Dante.Editor.Menu extends Dante.View
       return @createlink( $(e.target) )
 
   createlink: (input) =>
-    input.hide()
+    $(@el).removeClass("dante-menu--linkmode")
     if input.val()
       inputValue = input.val()
       .replace(@strReg.whiteSpace, "")
@@ -120,6 +120,9 @@ class Dante.Editor.Menu extends Dante.View
       n = @current_editor.getNode()
       @current_editor.setupLinks($(n).find("a"))
       @displayHighlights()
+      if $(n).parent().hasClass("section-inner")
+        n = @current_editor.addClassesToElement(n)
+        @current_editor.setElementName(n)
     else
       utils.log "fail" + message, true
     return
@@ -168,11 +171,8 @@ class Dante.Editor.Menu extends Dante.View
       tag = node.nodeName.toLowerCase()
       switch tag
         when "a"
-          menu.querySelector("input").value = item.getAttribute("href")
+          $(@el).find('input').val $(node).attr("href")
           tag = "createlink"
-        when "img"
-          menu.querySelector("input").value = item.getAttribute("src")
-          tag = "insertimage"
         when "i"
           tag = "italic"
         when "u"
