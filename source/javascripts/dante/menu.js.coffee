@@ -42,9 +42,11 @@ class Dante.Editor.Menu extends Dante.View
     buttons: ['blockquote', 'h2', 'h3', 'bold', 'italic', 'createlink']
 
   template: ()=>
-    html = "<input class='dante-input' placeholder='http://' style='display: none;'>"
+    html = "<input class='dante-menu-input' placeholder='http://'>"
+    html += "<ul class='dante-menu-buttons'>"
     _.each @config.buttons, (item)->
-      html += "<i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i>"
+      html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+    html += "</ul>"
     html
 
   render: ()=>
@@ -55,7 +57,7 @@ class Dante.Editor.Menu extends Dante.View
   handleClick: (ev)->
     element = $(ev.currentTarget)
     action = element.data("action")
-    input = $(@el).find("input.dante-input")
+    input = $(@el).find("input.dante-menu-input")
     utils.log("menu #{action} item clicked!")
     @savedSel = utils.saveSelection()
 
@@ -190,13 +192,11 @@ class Dante.Editor.Menu extends Dante.View
       @highlight(tag)
 
   highlight: (tag)->
-    $(".icon-#{tag}").addClass("active")
+    $(".icon-#{tag}").parent("li").addClass("active")
 
   show: ()->
-    $(@el).css("opacity", 1)
-    $(@el).css('visibility', 'visible')
+    $(@el).addClass("dante-menu--active")
     @displayHighlights()
 
   hide: ()->
-    $(@el).css("opacity", 0)
-    $(@el).css('visibility', 'hidden')
+    $(@el).removeClass("dante-menu--active")
