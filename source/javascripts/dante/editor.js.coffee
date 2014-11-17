@@ -223,10 +223,13 @@ class Dante.Editor extends Dante.View
       @.displayMenu()
 
   relocateMenu: (position)->
+    height = @editor_menu.$el.outerHeight()
+
     padd = @editor_menu.$el.width() / 2
-    top = position.top + $(window).scrollTop() - 43
-    l = position.left + (position.width / 2) - padd
-    @editor_menu.$el.offset({left: l , top: top  })
+
+    top = position.top + $(window).scrollTop() - height
+    left = position.left + (position.width / 2) - padd
+    @editor_menu.$el.offset({ left: left , top: top  })
 
   hidePlaceholder: (element)->
     $(element).find("span.defaultValue").remove().html("<br>")
