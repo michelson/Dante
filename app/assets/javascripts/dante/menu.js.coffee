@@ -117,10 +117,10 @@ class Dante.Editor.Menu extends Dante.View
       utils.log "success" + message
       n = @current_editor.getNode()
       @current_editor.setupLinks($(n).find("a"))
-      #@displayHighlights()
-      #if $(n).parent().hasClass("section-inner")
-      #  n = @current_editor.addClassesToElement(n)
-      #  @current_editor.setElementName(n)
+      @displayHighlights()
+      if $(n).parent().hasClass("section-inner")
+        n = @current_editor.addClassesToElement(n)
+        @current_editor.setElementName(n)
     else
       utils.log "fail" + message, true
     return

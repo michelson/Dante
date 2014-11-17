@@ -60,6 +60,9 @@ Until now I´ve been able to implement the following features:
     upload_url:  default: /uploads.json
     oembed_url:  default: http://api.embed.ly/1/oembed?url="
     extract_url: default: http://api.embed.ly/1/extract?url="
+    store_url:   url to store data with interval , defaults to none
+    store_interval: default: 15000 (15 secs)
+    default_loading_placeholder: image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
 
 ### Rails / AssetPippeline
 

@@ -3,6 +3,7 @@
 
   + GENERALS
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
+    + Check double clicks on first p
 
   + SANITIZE PROCESS:
     + childs links inside first level elements clean & add classes ie
@@ -13,12 +14,10 @@
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
 
   + DELETE
-
     + handle remove from PRE tag, it set rare span, just remove it
     + clean node when remove one
 
   + IMAGES:
-
     + upload, show progress, complete
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
