@@ -27,6 +27,8 @@
     + OK ~~mantain Range after click on action button, in order to toggle style~~
     + OK ~~Display btn as selected when selected nodes matches action-link types~~
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
+    + Reposicionar menu cuando se cambia el tamaño del elemento
+    + Quitar las opciones B/i cuando el elemento seleccionado es un header
 
   + DELETE
 
