@@ -5,10 +5,7 @@
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
     + Check double clicks on first p
 
-  + SANITIZE PROCESS:
-    + childs links inside first level elements clean & add classes ie
-
-      a target="_blank" href="#" data-href="#" class="markup--anchor markup--p-anchor" data-tooltip="#" data-tooltip-position="bottom" data-tooltip-type="link">example link</a>
+  + SANITIZE PROCESS
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
