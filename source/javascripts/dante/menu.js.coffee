@@ -146,7 +146,7 @@ class Dante.Editor.Menu extends Dante.View
     el = el or @current_editor.$el[0]
     while el isnt @current_editor.$el[0]
       if el.nodeName.match(@effectNodeReg)
-        nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)
+        nodes.push (if returnAsNodeName then el.nodeName.toUpperCase() else el)
       el = el.parentNode
     nodes
 
