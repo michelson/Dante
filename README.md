@@ -61,6 +61,20 @@ Until now I´ve been able to implement the following features:
     oembed_url:  default: http://api.embed.ly/1/oembed?url="
     extract_url: default: http://api.embed.ly/1/extract?url="
 
+### Rails / AssetPippeline
+
+in Gemfile
+
+```gem "dante-editor"```
+
+### stylesheets:
+
+```@import "dante";```
+
+### javascripts:
+
+```//= require 'dante'```
+
 ## Disclaimer:
 
 This Library will work on early versions of Chrome/Safari/FF/IE.
@@ -68,9 +82,12 @@ I don't have any intentions to target all browsers versions, really... if you li
 
 ## Dependencies:
 
+Some dependencies are required in order to Dante editor to work propperly:
+
 + Jquery
-+ Sanitize.js
-+ Underscore
++ [Underscore](https://github.com/documentcloud/underscore)
++ [Sanitize.js](https://github.com/gbirke/sanitize.js)
+
 
 drop underscore and jquery dependencies is on the roadmap.
 
