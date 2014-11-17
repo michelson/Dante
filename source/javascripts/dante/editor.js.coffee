@@ -710,7 +710,7 @@ class Dante.Editor extends Dante.View
 
   addClassesToElement: (element)=>
     n = element
-    name = $(n).prop("tagName").toLowerCase()
+    name = n.nodeName.toLowerCase()
     switch name
       when "p", "h2", "h3", "pre", "div"
         #utils.log n
