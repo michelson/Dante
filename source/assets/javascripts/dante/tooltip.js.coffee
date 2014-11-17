@@ -10,12 +10,12 @@ class Dante.Editor.Tooltip extends Dante.View
   initialize: (opts = {})=>
     @current_editor = opts.editor
     @buttons = [
-      {icon: "fa-camera", title: "Add an image", action: "image"  },
-      {icon: "fa-play", title: "Add a video", action: "embed"  },
-      {icon: "fa-code", title: "Add an embed", action: "embed-extract"},
-      {icon: "fa-minus", title: "Add a new part", action: "hr"  }
+      {icon: "fa-camera", title: "Add an image", action: "image"},
+      {icon: "fa-play", title: "Add a video", action: "embed"},
+      {icon: "fa-code", title: "Add an embed", action: "embed-extract"}
     ]
-    #utils.log $(@el).length
+    #TODO: include section splitter
+    #icon: "fa-minus", title: "Add a new part", action: "hr"
 
   template: ()->
     menu = ""
