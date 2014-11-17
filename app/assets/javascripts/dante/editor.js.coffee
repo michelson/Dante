@@ -3,10 +3,9 @@ selected_menu = false
 utils = Dante.utils
 
 class Dante.Editor extends Dante.View
-  #el: "#editor"
 
   events:
-    "blur"    : "handleBlur"
+    #"blur"    : "handleBlur"
     "mouseup" : "handleMouseUp"
     "keydown" : "handleKeyDown"
     "keyup"   : "handleKeyUp"
@@ -263,7 +262,8 @@ class Dante.Editor extends Dante.View
   handleBlur: (ev)=>
     #hide menu only if is not in use
     setTimeout ()=>
-      @editor_menu.hide() unless selected_menu
+      utils.log "not in use"
+      #@editor_menu.hide() unless selected_menu
     , 200
     false
 

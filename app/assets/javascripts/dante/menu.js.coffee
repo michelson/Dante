@@ -117,10 +117,10 @@ class Dante.Editor.Menu extends Dante.View
       utils.log "success" + message
       n = @current_editor.getNode()
       @current_editor.setupLinks($(n).find("a"))
-      @displayHighlights()
-      if $(n).parent().hasClass("section-inner")
-        n = @current_editor.addClassesToElement(n)
-        @current_editor.setElementName(n)
+      #@displayHighlights()
+      #if $(n).parent().hasClass("section-inner")
+      #  n = @current_editor.addClassesToElement(n)
+      #  @current_editor.setElementName(n)
     else
       utils.log "fail" + message, true
     return
@@ -169,11 +169,8 @@ class Dante.Editor.Menu extends Dante.View
       tag = node.nodeName.toLowerCase()
       switch tag
         when "a"
-          menu.querySelector("input").value = item.getAttribute("href")
+          $(@el).find('input').val $(node).attr("href")
           tag = "createlink"
-        when "img"
-          menu.querySelector("input").value = item.getAttribute("src")
-          tag = "insertimage"
         when "i"
           tag = "italic"
         when "u"
