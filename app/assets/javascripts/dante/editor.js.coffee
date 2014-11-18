@@ -599,7 +599,6 @@ class Dante.Editor extends Dante.View
         @displayTooltipAt($(@el).find(".is-selected"))
       , 2
 
-
     #delete key
     if (e.which == 8)
       @tooltip_view.hide()
@@ -609,11 +608,7 @@ class Dante.Editor extends Dante.View
       #return false if !anchor_node or anchor_node.nodeType is 3
       utils.log("pass initial validations")
       anchor_node = @getNode()
-      utils.log "anchor_node"
-      utils.log anchor_node
-      utils.log "UTILS anchor_node"
       utils_anchor_node = utils.getNode()
-      utils.log utils_anchor_node
 
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
@@ -646,6 +641,10 @@ class Dante.Editor extends Dante.View
       utils.log e.which
       @handleArrowForKeyDown(e)
       #return false
+
+    #hides tooltip if anchor_node text is empty
+    if anchor_node
+      @tooltip_view.hide() unless _.isEmpty($(anchor_node).text())
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
