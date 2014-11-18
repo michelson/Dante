@@ -123,6 +123,7 @@ class Dante.Editor.Menu extends Dante.View
       if $(n).parent().hasClass("section-inner")
         n = @current_editor.addClassesToElement(n)
         @current_editor.setElementName(n)
+      @current_editor.handleTextSelection(n)
     else
       utils.log "fail" + message, true
     return

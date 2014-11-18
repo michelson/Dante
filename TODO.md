@@ -9,7 +9,7 @@
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
-    + Reposicionar menu cuando se cambia el tamaño del elemento
+    + OK ~~Relocate menu when exec command~~
     + Quitar las opciones B/i cuando el elemento seleccionado es un header
 
   + DELETE
