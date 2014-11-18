@@ -4,7 +4,7 @@ class Dante.Editor.Menu extends Dante.View
   el: "#dante-menu"
 
   events:
-    "mousedown i" : "handleClick"
+    "mousedown li" : "handleClick"
     #"click .dante-icon" : "handleClick"
     "mouseenter" : "handleOver"
     "mouseleave" : "handleOut"
@@ -39,12 +39,14 @@ class Dante.Editor.Menu extends Dante.View
       ]
     ###
 
-    buttons: ['blockquote', 'h2', 'h3', 'bold', 'italic', 'createlink']
+    buttons: ['bold', 'italic', 'h2', 'h3', 'h4', 'blockquote', 'createlink']
 
   template: ()=>
-    html = "<input class='dante-input' placeholder='http://' style='display: none;'>"
+    html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='http://'><div class='dante-menu-button'>x</div></div>"
+    html += "<ul class='dante-menu-buttons'>"
     _.each @config.buttons, (item)->
-      html += "<i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i>"
+      html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+    html += "</ul>"
     html
 
   render: ()=>
@@ -53,14 +55,14 @@ class Dante.Editor.Menu extends Dante.View
     #@delegateEvents()
 
   handleClick: (ev)->
-    element = $(ev.currentTarget)
-    action = element.data("action")
-    input = $(@el).find("input.dante-input")
+    element   = $(ev.currentTarget).find('.dante-icon')
+    action    = element.data("action")
+    input     = $(@el).find("input.dante-menu-input")
     utils.log("menu #{action} item clicked!")
     @savedSel = utils.saveSelection()
 
     if /(?:createlink)/.test(action)
-      input.show()
+      $(@el).addClass("dante-menu--linkmode")
       input.focus()
     else
       @menuApply action
@@ -73,7 +75,7 @@ class Dante.Editor.Menu extends Dante.View
       return @createlink( $(e.target) )
 
   createlink: (input) =>
-    input.hide()
+    $(@el).removeClass("dante-menu--linkmode")
     if input.val()
       inputValue = input.val()
       .replace(@strReg.whiteSpace, "")
@@ -149,7 +151,7 @@ class Dante.Editor.Menu extends Dante.View
     el = el or @current_editor.$el[0]
     while el isnt @current_editor.$el[0]
       if el.nodeName.match(@effectNodeReg)
-        nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)
+        nodes.push (if returnAsNodeName then el.nodeName.toUpperCase() else el)
       el = el.parentNode
     nodes
 
@@ -190,13 +192,11 @@ class Dante.Editor.Menu extends Dante.View
       @highlight(tag)
 
   highlight: (tag)->
-    $(".icon-#{tag}").addClass("active")
+    $(".icon-#{tag}").parent("li").addClass("active")
 
   show: ()->
-    $(@el).css("opacity", 1)
-    $(@el).css('visibility', 'visible')
+    $(@el).addClass("dante-menu--active")
     @displayHighlights()
 
   hide: ()->
-    $(@el).css("opacity", 0)
-    $(@el).css('visibility', 'hidden')
+    $(@el).removeClass("dante-menu--active")

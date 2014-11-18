@@ -1,1 +1,1 @@
-app: bundle exec rackup config.ru
+app: bundle exec rackup config.ru -p 4567

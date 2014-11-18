@@ -32,7 +32,7 @@ class Dante.Editor extends Dante.View
 
     @store()
 
-    @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title…</span><br>"
+    @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title</span><br>"
     @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
     @embed_placeholder    = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
     @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
@@ -73,7 +73,7 @@ class Dante.Editor extends Dante.View
 
       <div class='section-content'>
         <div class='section-inner'>
-          <p class='graf graf--h3'>#{@title_placeholder}</p>
+          <h3 class='graf graf--h3'>#{@title_placeholder}</h3>
           <p class='graf graf--p'>#{@body_placeholder}<p>
         </div>
       </div>
@@ -84,11 +84,11 @@ class Dante.Editor extends Dante.View
     "<p class='graf--p' name='#{utils.generateUniqueName()}'><br></p>"
 
   appendMenus: ()=>
-    $("<div id='dante-menu' class='dante-menu' style='opacity: 0;'></div>").insertAfter(@el)
-    $("<div class='inlineTooltip2 button-scalableGroup'></div>").insertAfter(@el)
+    $("<div id='dante-menu' class='dante-menu'></div>").insertAfter(@el)
+    $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
-    @tooltip_view.render()
+    @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
     $(@el).find(".section-inner").html(@initial_html)
@@ -243,10 +243,11 @@ class Dante.Editor extends Dante.View
       @.displayMenu()
 
   relocateMenu: (position)->
-    padd = @editor_menu.$el.width() / 2
-    top = position.top + $(window).scrollTop() - 43
-    l = position.left + (position.width / 2) - padd
-    @editor_menu.$el.offset({left: l , top: top  })
+    height = @editor_menu.$el.outerHeight()
+    padd   = @editor_menu.$el.width() / 2
+    top    = position.top + $(window).scrollTop() - height
+    left   = position.left + (position.width / 2) - padd
+    @editor_menu.$el.offset({ left: left , top: top })
 
   hidePlaceholder: (element)->
     $(element).find("span.defaultValue").remove().html("<br>")
@@ -598,7 +599,6 @@ class Dante.Editor extends Dante.View
         @displayTooltipAt($(@el).find(".is-selected"))
       , 2
 
-
     #delete key
     if (e.which == 8)
       @tooltip_view.hide()
@@ -608,11 +608,7 @@ class Dante.Editor extends Dante.View
       #return false if !anchor_node or anchor_node.nodeType is 3
       utils.log("pass initial validations")
       anchor_node = @getNode()
-      utils.log "anchor_node"
-      utils.log anchor_node
-      utils.log "UTILS anchor_node"
       utils_anchor_node = utils.getNode()
-      utils.log utils_anchor_node
 
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
@@ -645,6 +641,10 @@ class Dante.Editor extends Dante.View
       utils.log e.which
       @handleArrowForKeyDown(e)
       #return false
+
+    #hides tooltip if anchor_node text is empty
+    if anchor_node
+      @tooltip_view.hide() unless _.isEmpty($(anchor_node).text())
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -710,7 +710,7 @@ class Dante.Editor extends Dante.View
     return unless _.isEmpty( $(element).text() )
     @position = $(element).offset()
     @tooltip_view.render()
-    @tooltip_view.move(left: @position.left - 60 , top: @position.top - 5 )
+    @tooltip_view.move(left: @position.left - 60, top: @position.top - 1 )
 
   #mark the current row as selected
   markAsSelected: (element)->
@@ -733,7 +733,7 @@ class Dante.Editor extends Dante.View
     n = element
     name = n.nodeName.toLowerCase()
     switch name
-      when "p", "h2", "h3", "pre", "div"
+      when "p", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "div"
         #utils.log n
         unless $(n).hasClass("graf--mixtapeEmbed")
           $(n).removeClass().addClass("graf graf--#{name}")

@@ -32,7 +32,7 @@ QUnit.test "should init editor", ( assert )->
   assert.ok( _.isObject(window.editor.editor_menu), "Passed!" )
 
 QUnit.test "should build tooltip & menu", ( assert )->
-  assert.ok( !_.isEmpty( $(".inlineTooltip2") ), "Passed!" )
+  assert.ok( !_.isEmpty( $(".inlineTooltip") ), "Passed!" )
   assert.ok( !_.isEmpty( $("#editor-menu") ), "Passed!" )
 
 QUnit.test "should display placeholders when empty content", (assert)->

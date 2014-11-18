@@ -1,0 +1,79 @@
+.graf {
+
+  &--p,
+  &--blockquote,
+  &--pullquote {
+    margin-bottom: 30px;
+  }
+
+  &--h2 {
+    font-family: $sans;
+    font-size: 60px;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+    margin-left: -3px;
+    margin-top: 40px;
+    padding-top: 0;
+  }
+  &--h3 {
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 36px;
+    margin-left: -1.8px;
+    line-height: 1.2;
+    margin-top: 40px;
+    margin-bottom: 4px;
+  }
+  &--h4 {
+    color: rgba(0, 0, 0, 0.44);
+    font-family: $sans;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    margin-left: -1.5px;
+    margin-top: 40px;
+  }
+
+  &--pre {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
+    font-family: Monaco,"Courier New","Courier",monospace;
+    font-size: 16px;
+    margin-bottom: 20px;
+    padding: 20px;
+    white-space: pre-wrap;
+  }
+  &--pre + &--pre {
+    margin-top: -20px;
+  }
+
+  &--blockquote {
+    border-left: 3px solid rgba(0, 0, 0, 0.8);
+    font-family: $serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.01rem;
+    margin-left: -23px;
+    padding-bottom: 3px;
+    padding-left: 20px;
+  }
+  &--blockquote + &--blockquote {
+    margin-top: -30px;
+    padding-top: 30px;
+  }
+
+  &--figure {
+    box-sizing: border-box;
+    clear: both;
+    margin-bottom: 30px;
+    outline: medium none;
+    position: relative;
+  }
+
+}

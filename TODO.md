@@ -9,6 +9,8 @@
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
+    + Reposicionar menu cuando se cambia el tamaño del elemento
+    + Quitar las opciones B/i cuando el elemento seleccionado es un header
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it
@@ -16,6 +18,7 @@
 
   + IMAGES:
     + upload, show progress, complete
+    + mantain image ratio
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 

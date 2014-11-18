@@ -1,0 +1,28 @@
+$font-family-sans:        'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+$font-family-serif:       'freight-text-pro', 'Merriweather', Georgia,Cambria, "Times New Roman", Times,serif;
+$font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+
+$font-family-base:        $font-family-sans;
+$font-size-base:          14px;
+$line-height-base:        1.428571429; // 20/14
+//$line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
+
+$debugger:           false;
+
+$menu-height:        45px;
+$menu-tone:          #333;
+$menu-factor:        5%;
+$menu-background:    linear-gradient(to bottom, darken($menu-tone,$menu-factor), $menu-tone) repeat scroll 0 0 $menu-tone;
+$menu-shadow:        1px 2px 3px -2px #222;
+$menu-border-color:  darken($menu-tone,$menu-factor);
+$menu-border:        1px solid $menu-border-color;
+$menu-border-radius: 5px;
+$menu-color:         #FFFFFF;
+$menu-color-active:  #1ABF89;
+$menu-caret-size:    8px;
+
+$tooltip-size:       32px;
+
+// Legacy
+$serif: $font-family-serif;
+$sans:  $font-family-sans;
