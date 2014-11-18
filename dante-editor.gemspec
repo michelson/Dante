@@ -6,8 +6,8 @@ require 'dante-editor/version'
 Gem::Specification.new do |gem|
   gem.name          = "dante-editor"
   gem.version       = DanteEditor::VERSION
-  gem.authors       = ["Miguel Michelson"]
-  gem.email         = ["miguelmichelson@gmail.com"]
+  gem.authors       = ["Miguel Michelson", "Cristian Ferrari"]
+  gem.email         = ["miguelmichelson@gmail.com", "cristianferrarig@gmail.com"]
   gem.description   = %q{dante-editor yet another Medium editor clone.}
   gem.summary       = %q{dante-editor yet another Medium editor clone.}
   gem.homepage      = "http://michelson.github.io/Dante/"
