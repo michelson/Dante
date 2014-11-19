@@ -190,6 +190,11 @@ class Dante.Editor.Menu extends Dante.View
           tag = "indent"
           utils.log "nothing to select"
 
+      if tag.match /(?:h[1-6])/i
+        $(@el).find(".icon-bold, .icon-italic, .icon-blockquote")
+        .parent("li").hide()
+        #.addClass("hidden")
+
       @highlight(tag)
 
   highlight: (tag)->

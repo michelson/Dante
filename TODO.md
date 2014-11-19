@@ -10,7 +10,7 @@
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
     + OK ~~Relocate menu when exec command~~
-    + Quitar las opciones B/i cuando el elemento seleccionado es un header
+    + OK ~~remove B/i insert options when selected element is a Heading~~
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it
@@ -18,7 +18,7 @@
 
   + IMAGES:
     + upload, show progress, complete
-    + mantain image ratio
+    + mantain aspect image ratio
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
