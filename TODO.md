@@ -10,7 +10,7 @@
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
     + OK ~~Relocate menu when exec command~~
-    + OK ~~remove B/i when selected element is a Heading~~
+    + OK ~~remove B/i insert options when selected element is a Heading~~
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it
