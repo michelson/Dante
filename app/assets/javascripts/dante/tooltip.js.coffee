@@ -36,7 +36,7 @@ class Dante.Editor.Tooltip extends Dante.View
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
       <div style='' class='aspectRatioPlaceholder is-locked'>
         <div style='padding-bottom: 100%;' class='aspect-ratio-fill'></div>
-        <img src='' data-height='375' data-width='600' data-image-id='' class='graf-image' data-delayed-src=''>
+        <img src='' data-height='' data-width='' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
         <span class='defaultValue'>Type caption for image (optional)</span>
@@ -132,12 +132,32 @@ class Dante.Editor.Tooltip extends Dante.View
       console.log "and here comes the water!"
       console.log(figure)
       console.log(this.width + 'x' + this.height);
+
+      ###
       figure.find(".aspectRatioPlaceholder").css
         'max-width': this.width
         'max-height': this.height
         'height': this.height
       figure.find("img").attr({'data-height': this.height, 'data-width': this.width})
       figure.find("img").attr('src', image_element.src )
+      ###
+      ar = @getAspectRatio(this.width, this.height)
+
+      figure.find(".aspectRatioPlaceholder").css
+        'max-width': ar.width
+        'max-height': ar.height
+
+      figure.find(".graf-image").attr
+        "data-height": this.height
+        "data-width": this.width
+
+      figure.find(".aspect-ratio-fill").css
+        "padding-bottom": "#{ar.ratio}%"
+
+      #TODO: upload file to server
+      #@uploadFile file, replaced_node
+
+
     img.src = image_element.src
 
   displayAndUploadImages: (file)->
@@ -151,31 +171,69 @@ class Dante.Editor.Tooltip extends Dante.View
       self.uploadFiles(t.files)
 
   displayCachedImage: (file)->
-    @node = @current_editor.getNode()
     @current_editor.tooltip_view.hide()
 
     reader = new FileReader()
     reader.onload = (e)=>
-      i = new Image
-      i.src = e.target.result
+      img = new Image
+      img.src = e.target.result
+      node = @current_editor.getNode()
+      self = this
+      img.onload = ()->
+        new_tmpl = $(self.insertTemplate())
 
-      new_tmpl = $(@insertTemplate())
+        replaced_node = $( new_tmpl ).insertBefore($(node))
 
-      replaced_node = $( new_tmpl ).insertBefore($(@node))
+        img_tag = new_tmpl.find('img.graf-image').attr('src', e.target.result)
+        img_tag.height = this.height
+        img_tag.width  = this.width
 
-      img_tag = new_tmpl.find('img.graf-image').attr('src', e.target.result)
-      img_tag.height = i.height
-      img_tag.width  = i.width
-      unless i.width is 0 || i.height is 0
         utils.log "UPLOADED SHOW FROM CACHE"
 
-        replaced_node.find(".aspectRatioPlaceholder").css
-          'max-width': i.width
-          'max-height': i.height
+        ar = self.getAspectRatio(this.width, this.height)
 
-        @uploadFile file, replaced_node
+        replaced_node.find(".aspectRatioPlaceholder").css
+          'max-width': ar.width
+          'max-height': ar.height
+
+        replaced_node.find(".graf-image").attr
+          "data-height": this.height
+          "data-width": this.width
+
+        replaced_node.find(".aspect-ratio-fill").css
+          "padding-bottom": "#{ar.ratio}%"
+
+        self.uploadFile file, replaced_node
 
     reader.readAsDataURL(file)
+
+  getAspectRatio: (w , h)->
+    maxWidth = 700
+    maxHeight = 700
+    #ratio = 0
+    ratio = 0
+    width = w # Current image width
+    height = h # Current image height
+
+    # Check if the current width is larger than the max
+    if width > maxWidth
+      ratio = maxWidth / width # get ratio for scaling image
+      height = height * ratio # Reset height to match scaled image
+      width = width * ratio # Reset width to match scaled image
+
+    # Check if current height is larger than max
+    if height > maxHeight
+      ratio = maxHeight / height # get ratio for scaling image
+      width = width * ratio # Reset width to match scaled image
+      height = height * ratio # Reset height to match scaled image
+
+    ratio =  height / maxHeight * 100
+
+    result = { width: width, height: height, ratio: ratio }
+
+    utils.log result
+
+    result
 
   formatData: (file)->
     formData = new FormData()
