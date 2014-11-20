@@ -1,18 +1,26 @@
 ---
-title: Dante Editor example
+title: Dante Editor EMBEDS example
 ---
 
 <div class="welcome">
   <header>
-    <img src="images/icon-logo.png" alt="dante logo" width="90" >
+    <img src="assets/images/icon-logo.png" alt="dante logo" width="90" >
     <h1 class="main-title">Dante Wysiwyg</h1>
   </header>
 
+  <article>
+    <div class="postContent">
+      <div class="notesSource">
 
-  <div id="editor" class="postField postField--body editable smart-media-plugin">
-    <%= partial "partials/example_1" %>
-    <%= partial "partials/example_2" %>
-  </div>
+        <div id="editor" class="postField postField--body editable smart-media-plugin">
+          <%= partial "partials/content" %>
+          <%= partial "partials/example_1" %>
+          <%= partial "partials/example_2" %>
+        </div>
+
+      </div>
+    </div>
+  </article>
 
 </div>
 
@@ -21,9 +29,8 @@ title: Dante Editor example
   editor = new Dante.Editor(
     {
       el: "#editor",
-      upload_url: "/images.json",
+      upload_url: "/uploads/new.json",
       debug: true
     }
-  );
-  editor.start()
+  ).start()
 </script>

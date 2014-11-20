@@ -9,6 +9,7 @@
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
+    + Hide input menu when click on (X)
     + OK ~~Relocate menu when exec command~~
     + OK ~~remove B/i insert options when selected element is a Heading~~
 

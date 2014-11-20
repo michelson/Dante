@@ -771,6 +771,9 @@ class Dante.Editor extends Dante.View
         #$(n).find("p").unwrap()
         n = $(n).removeClass().addClass("graf graf--#{name}")
 
+      when "figure"
+        if $(n).hasClass(".graf--figure")
+          n = $(n)
       else
         #TODO: for now leave this relaxed, because this is
         #overwriting embeds
@@ -853,14 +856,19 @@ class Dante.Editor extends Dante.View
                       if(input.node_name == 'figure' && $(input.node).hasClass("graf--figure") )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'div' && ($(input.node).hasClass("aspect-ratio-fill") || $(input.node).hasClass("aspectRatioPlaceholder")) && $(input.node).parent(".graf--figure").exists() )
+                      else if(input.node_name == 'div' && ( $(input.node).hasClass("aspect-ratio-fill") && $(input.node).parent(".graf--figure").exists() ))
                         return whitelist_nodes: [input.node]
+
+                      else if(input.node_name == 'div' && ( $(input.node).hasClass("aspectRatioPlaceholder") && $(input.node).parent(".aspect-ratio-fill").exists() ) )
 
                       else if(input.node_name == 'img' && $(input.node).parent(".graf--figure").exists() )
                         return whitelist_nodes: [input.node]
 
                       else if(input.node_name == 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists() )
                         return attr_whitelist: ["style"]
+
+                      else if(input.node_name == 'figcaption' && $(input.node).parent(".graf--figure").exists())
+                        return whitelist_nodes: [input.node]
 
                       else if(input.node_name == 'span' && $(input.node).parent(".imageCaption").exists())
                         return whitelist_nodes: [input.node]

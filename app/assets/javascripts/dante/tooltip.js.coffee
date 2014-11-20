@@ -102,6 +102,7 @@ class Dante.Editor.Tooltip extends Dante.View
     tmpl = $(@insertTemplate())
     tmpl.find("img").attr('src', @current_editor.default_loading_placeholder )
     #is a child element or a first level element ?
+    debugger
     if $(image_element).parents(".graf").length > 0
       #return if its already wrapped in graf--figure
       if $(image_element).parents(".graf").hasClass("graf--figure")
