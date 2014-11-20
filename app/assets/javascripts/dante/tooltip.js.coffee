@@ -106,7 +106,6 @@ class Dante.Editor.Tooltip extends Dante.View
       #return if its already wrapped in graf--figure
       if $(image_element).parents(".graf").hasClass("graf--figure")
         return
-
       utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
       node = @current_editor.getNode()
@@ -114,34 +113,23 @@ class Dante.Editor.Tooltip extends Dante.View
       @current_editor.addClassesToElement(node)
     else
       utils.log "DOS"
-      $(image_element).replaceWith(tmpl)
-
-    utils.log tmpl.attr('name')
+      node = @current_editor.getNode()
+      $(node).replaceWith(tmpl)
     @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
 
   replaceImg: (image_element, figure)->
-    #set image dimensions
-    #TODO: maybe limit with default max-heigth ?
     utils.log figure.attr("name")
     utils.log figure
-
     $(image_element).remove()
-
     img = new Image()
+    img.src = image_element.src
+    self = this
     img.onload = ()->
-      console.log "and here comes the water!"
-      console.log(figure)
-      console.log(this.width + 'x' + this.height);
+      utils.log "replace image with loaded info"
+      utils.log(figure)
+      utils.log(this.width + 'x' + this.height);
 
-      ###
-      figure.find(".aspectRatioPlaceholder").css
-        'max-width': this.width
-        'max-height': this.height
-        'height': this.height
-      figure.find("img").attr({'data-height': this.height, 'data-width': this.width})
-      figure.find("img").attr('src', image_element.src )
-      ###
-      ar = @getAspectRatio(this.width, this.height)
+      ar = self.getAspectRatio(this.width, this.height)
 
       figure.find(".aspectRatioPlaceholder").css
         'max-width': ar.width
@@ -157,8 +145,7 @@ class Dante.Editor.Tooltip extends Dante.View
       #TODO: upload file to server
       #@uploadFile file, replaced_node
 
-
-    img.src = image_element.src
+    figure.find("img").attr("src", image_element.src)
 
   displayAndUploadImages: (file)->
     @displayCachedImage file

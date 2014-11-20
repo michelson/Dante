@@ -18,7 +18,7 @@
 
   + IMAGES:
     + upload, show progress, complete
-    + mantain aspect image ratio
+    + OK ~~mantain aspect image ratio of default~~
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
