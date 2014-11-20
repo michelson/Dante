@@ -2,7 +2,7 @@
 # the following line to use "https"
 source 'http://rubygems.org'
 
-gem "therubyracer"
+#gem "therubyracer"
 gem "middleman", "~>3.1.4"
 
 # Live-reloading plugin
