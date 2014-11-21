@@ -4,14 +4,12 @@
   + GENERALS
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
 
-    + Cuando se hace una linea nueva se inicia con la clase `.graf--empty` y al escribir no se elimina esa clase.
-    + No funciona el "parseo" de elementos para ponerle las clases iniciales.
-
   + SANITIZE PROCESS
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
     + Allow h1, h2 y h3 unselection y back to graf-p element
+    + blockquote works like crap
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it

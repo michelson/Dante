@@ -709,6 +709,10 @@ class Dante.Editor extends Dante.View
       @handleArrow(e)
       #return false
 
+    #remove graf--empty if anchor_node text is empty
+    if anchor_node
+      $(anchor_node).removeClass("graf--empty") unless _.isEmpty($(anchor_node).text())
+
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
     new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
@@ -752,13 +756,21 @@ class Dante.Editor extends Dante.View
     n = element
     name = n.nodeName.toLowerCase()
     switch name
-      when "p", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "div"
+      when "p", "pre", "div"
         #utils.log n
         unless $(n).hasClass("graf--mixtapeEmbed")
           $(n).removeClass().addClass("graf graf--#{name}")
 
         if name is "p" and $(n).find("br").length is 0
           $(n).append("<br>")
+
+      when "h1", "h2", "h3", "h4", "h5", "h6"
+        if name is "h1"
+          new_el = $("<h2 class='graf graf--h2'>#{$(n).text()}</h2>")
+          $(n).replaceWith(new_el)
+          @setElementName(n)
+        else
+          $(n).removeClass().addClass("graf graf--#{name}")
 
       when "code"
         #utils.log n
@@ -833,7 +845,7 @@ class Dante.Editor extends Dante.View
       @element = element
 
     s = new Sanitize
-      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h2', 'h3']
+      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4']
 
       attributes:
         '__ALL__': ['class']
