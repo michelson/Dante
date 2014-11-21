@@ -3,7 +3,6 @@
 
   + GENERALS
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
-    + Check double clicks on first p
 
   + SANITIZE PROCESS
 
