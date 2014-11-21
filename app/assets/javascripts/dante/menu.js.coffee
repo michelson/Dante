@@ -6,6 +6,7 @@ class Dante.Editor.Menu extends Dante.View
   events:
     "mousedown li" : "handleClick"
     #"click .dante-icon" : "handleClick"
+    "click .dante-menu-linkinput .dante-menu-button": "closeInput"
     "mouseenter" : "handleOver"
     "mouseleave" : "handleOut"
     "keypress input": "handleInputEnter"
@@ -68,6 +69,10 @@ class Dante.Editor.Menu extends Dante.View
       @menuApply action
 
     return false
+
+  closeInput: (e)->
+    $(@el).removeClass("dante-menu--linkmode")
+    false
 
   handleInputEnter: (e)=>
     if (e.which is 13)

@@ -9,7 +9,6 @@
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
-    + Hide input menu when click on (X)
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it
@@ -17,7 +16,6 @@
 
   + IMAGES:
     + upload, show progress, complete
-    + parse existent images in text (useful for images embebed in legacy texts)
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
@@ -27,6 +25,9 @@
 
   + SUBMIT:
     get clean version of content
+
+  + CSS:
+    links with underline
 
 
 ## ROADMAP
