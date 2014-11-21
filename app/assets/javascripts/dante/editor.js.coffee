@@ -26,6 +26,7 @@ class Dante.Editor extends Dante.View
     @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
     @store_url   = opts.store_url
+    @spell_check = opts.spellcheck || false
     @store_interval = opts.store_interval || 15000
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
@@ -92,6 +93,7 @@ class Dante.Editor extends Dante.View
 
   appendInitialContent: ()=>
     $(@el).find(".section-inner").html(@initial_html)
+    $(@el).attr("spellcheck", @spell_check)
 
   start: ()=>
     @render()
@@ -101,6 +103,7 @@ class Dante.Editor extends Dante.View
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @setupElementsClasses()
+    @parseInitialMess()
 
   restart: ()=>
     @render()
@@ -390,6 +393,10 @@ class Dante.Editor extends Dante.View
           return false
 
         utils.log "noting"
+
+  #parse text for initial mess
+  parseInitialMess: ()->
+    @handleUnwrappedImages($(@el).find('.section-inner'))
 
   #detects html data , creates a hidden node to paste ,
   #then clean up the content and copies to currentNode, very clever uh?
