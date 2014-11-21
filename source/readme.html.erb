@@ -2,19 +2,17 @@
 title: Dante Editor example
 ---
 
-<div class="welcome">
-  <header>
-    <img src="images/icon-logo.png" alt="dante logo" width="90" >
-    <h1 class="main-title">Dante Wysiwyg</h1>
-  </header>
+<article>
+  <div class="postContent">
+    <div class="notesSource">
 
+      <div id="editor" class="postField postField--body editable smart-media-plugin">
+        <%= partial "partials/readme" %>
+      </div>
 
-  <div id="editor" class="postField postField--body editable smart-media-plugin">
-    <%= partial "partials/readme" %>
+    </div>
   </div>
-
-</div>
-
+</article>
 
 <script type="text/javascript">
   editor = new Dante.Editor(
