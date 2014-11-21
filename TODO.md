@@ -3,20 +3,15 @@
 
   + GENERALS
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
-    + Check double clicks on first p
+
     + Cuando se hace una linea nueva se inicia con la clase `.graf--empty` y al escribir no se elimina esa clase.
     + No funciona el "parseo" de elementos para ponerle las clases iniciales.
-
-
 
   + SANITIZE PROCESS
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
-    + Hide input menu when click on (X)
-    + OK ~~Relocate menu when exec command~~
-    + OK ~~remove B/i insert options when selected element is a Heading~~
-    + Permitir deseleccionar h1, h2 y h3 y volver a graf-p
+    + Allow h1, h2 y h3 unselection y back to graf-p element
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it
@@ -24,7 +19,6 @@
 
   + IMAGES:
     + upload, show progress, complete
-    + OK ~~mantain aspect image ratio of default~~
     + handle enter (linebreak) when selected in caption (build new P)
       + Fix problem in FF when linebreak or arrow down to new P , is typing backwards!! (could be a range 1 char problem ?)
 
@@ -34,6 +28,9 @@
 
   + SUBMIT:
     get clean version of content
+
+  + CSS:
+    links with underline
 
 
 ## ROADMAP

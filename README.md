@@ -4,28 +4,29 @@
 
 ##Motivation:
 
-I´ve tried all the medium clones out there, they are really great and all have it´s pros & cons, but none of them have all the features that medium wysywig provides, so I wonder, how difficult could be build my own Medium clone?
+I´ve tried all the medium clones out there, they are really great and all have it´s pros & cons, [but none of them have all the features that medium wysywig provides](http://howtox.com/medium-editor-clones-in-js/), so I wonder, how difficult could be build my own Medium clone?
+
+## Demo:
+
+[http://michelson.github.io/Dante/](http://michelson.github.io/Dante/)
 
 Until now I´ve been able to implement the following features:
 
 ## Features:
 
-+ HTML sanitizer when paste text or initial load.
-+ Image formatting/upload for paste events.
-+ Add an unique name to elements on page.
-+ Implementation of the famous tooltip on each paragraph when selected
++ HTML sanitizer for pasted or loaded text.
++ Image upload for paste events.
++ Image upload for legacy images of existing images.
++ The medium (+) Tooltip to embed or upload media.
 + Tab navigation.
 + Embeds:
   + Image Uploader with *preview* and caption option.
   + Embed data for pasted link through OEmbed services.
   + Embed media information for pasted links through OEmbed services.
-+ CSS tries to use the same fonts used in Medium, if you have setup those fonts, or fallbacks to open fonts (by Google fonts) or system fonts.
++ CSS tries to use the same fonts used in Medium, (if you have already setup those fonts) or fallbacks to open fonts (by Google fonts) or system fonts.
   + serif: freight-text-pro fallbacks to Merriweather or Georgia,
   + sans:  jaf-bernino-sans fallbacks to Open Sans or Lucida Grande
 
-## Demo:
-
-[http://michelson.github.io/Dante/](http://michelson.github.io/Dante/)
 
 ## Usage:
 
@@ -62,6 +63,7 @@ Until now I´ve been able to implement the following features:
     extract_url: default: http://api.embed.ly/1/extract?url="
     store_url:   url to store data with interval , defaults to none
     store_interval: default: 15000 (15 secs)
+    spellcheck:  default: false
     default_loading_placeholder: image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
 
 ### Rails / AssetPippeline
@@ -80,25 +82,27 @@ in Gemfile
 
 ## Disclaimer:
 
-This Library will work on early versions of Chrome/Safari/FF/IE.
-I don't have any intentions to target all browsers versions, really... if you like this library and need backwards support for an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
+This Library will work fine on latest versions of Chrome/Safari/FF/IE.
+We don't have any intention to target all browsers versions, really... if you like this library and you need backward compatibility with an specific version you can submit a patch to help with the development or just upgrade your shitty browser :D
+
+**BTW , this library is an official beta release, so there are known bugs that we are currently working on.
+see TODO list below.**
 
 ## Dependencies:
 
-Some dependencies are required in order to Dante editor to work propperly:
+Some dependencies are required in order to Dante editor works properly:
 
 + Jquery
 + [Underscore](https://github.com/documentcloud/underscore)
 + [Sanitize.js](https://github.com/gbirke/sanitize.js)
 
 
-drop underscore and jquery dependencies is on the roadmap.
+**Drop underscore and jquery dependencies are on our roadmap.**
 
 
 ## Development:
 
-There is a development web app middleman/sinatra to work with the source files and make the proper tests.
-To use application:
+There is a web app for development to work with the source files and make the proper tests. To use application:
 
 ### Installation:
 
@@ -126,7 +130,17 @@ tests are located in source/tests and /source/assets/spec folder and accessible 
 
   [read todo](./TODO.md)
 
+## MAINTAINERS:
+
++ [Miguel Michelson](http://github.com/michelson)
++ [Cristian Ferrari](http://github.com/cristianferrarig)
+
+### Alternatives:
+
++ https://github.com/sofish/pen
++ https://github.com/orthes/medium-editor-insert-plugin
+
 
 ### LICENSE
 
-Miguel Michelson Martinez [Licensed under MIT.](./license.md) 2014
+[Licensed under MIT.](./license.md) 2014

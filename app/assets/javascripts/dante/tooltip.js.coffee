@@ -102,7 +102,7 @@ class Dante.Editor.Tooltip extends Dante.View
     tmpl = $(@insertTemplate())
     tmpl.find("img").attr('src', @current_editor.default_loading_placeholder )
     #is a child element or a first level element ?
-    debugger
+
     if $(image_element).parents(".graf").length > 0
       #return if its already wrapped in graf--figure
       if $(image_element).parents(".graf").hasClass("graf--figure")
@@ -114,9 +114,23 @@ class Dante.Editor.Tooltip extends Dante.View
       @current_editor.addClassesToElement(node)
     else
       utils.log "DOS"
-      node = @current_editor.getNode()
-      $(node).replaceWith(tmpl)
+      #if node = @current_editor.getNode()
+      #  $(node).replaceWith(tmpl)
+      #else
+      #it's not inside a graf
+      img = $(image_element).parentsUntil(".section-inner").first()
+      $(img).replaceWith(tmpl)
+
+
     @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
+
+    #in case we found that graf--image is nested element, unwrap * nested times
+    n = $("[name='#{tmpl.attr('name')}']").parentsUntil(".section-inner").length
+    unless n is 0
+      for i in [0..n-1] by 1
+        $("[name='#{tmpl.attr('name')}']").unwrap()
+        console.log i
+
 
   replaceImg: (image_element, figure)->
     utils.log figure.attr("name")
