@@ -11,6 +11,7 @@ class Dante.Editor extends Dante.View
     "keyup"   : "handleKeyUp"
     "paste"   : "handlePaste"
     "click .graf--figure" : "handleGrafFigureSelect"
+    "dblclick": "handleDblclick"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -277,7 +278,11 @@ class Dante.Editor extends Dante.View
     anchor_node = @getNode()
     utils.log anchor_node
     utils.log ev.currentTarget
+
     return if _.isNull(anchor_node)
+
+    @prev_current_node = anchor_node
+
     @handleTextSelection(anchor_node)
     @hidePlaceholder(anchor_node)
     @markAsSelected( anchor_node )
@@ -397,6 +402,13 @@ class Dante.Editor extends Dante.View
   #parse text for initial mess
   parseInitialMess: ()->
     @handleUnwrappedImages($(@el).find('.section-inner'))
+
+  handleDblclick: ()->
+    utils.log "handleDblclick"
+    node =  @getNode()
+    if _.isNull node
+      @setRangeAt(@prev_current_node)
+    return false
 
   #detects html data , creates a hidden node to paste ,
   #then clean up the content and copies to currentNode, very clever uh?
