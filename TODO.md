@@ -27,10 +27,6 @@
   + SUBMIT:
     get clean version of content
 
-  + CSS:
-    links with underline
-
-
 ## ROADMAP
 
 + 0.0.5
