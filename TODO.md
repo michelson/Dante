@@ -4,6 +4,10 @@
   + GENERALS
     + FF in case markup breaks (like linebreak with br or unwraped text when typing) just rewrap from current range.
     + Check double clicks on first p
+    + Cuando se hace una linea nueva se inicia con la clase `.graf--empty` y al escribir no se elimina esa clase.
+    + No funciona el "parseo" de elementos para ponerle las clases iniciales.
+
+
 
   + SANITIZE PROCESS
 
@@ -12,6 +16,7 @@
     + Hide input menu when click on (X)
     + OK ~~Relocate menu when exec command~~
     + OK ~~remove B/i insert options when selected element is a Heading~~
+    + Permitir deseleccionar h1, h2 y h3 y volver a graf-p
 
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it

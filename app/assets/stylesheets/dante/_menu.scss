@@ -90,12 +90,12 @@
       color: $menu-color-active;
     }
 
-    &:first-of-type{
+    &:first-child {
       border-top-left-radius: $menu-border-radius;
       border-bottom-left-radius: $menu-border-radius;
       padding-left: 18px;
     }
-    &:last-of-type{
+    &:last-child {
       border-top-right-radius: $menu-border-radius;
       border-bottom-right-radius: $menu-border-radius;
       padding-right: 18px;
