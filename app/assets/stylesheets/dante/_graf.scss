@@ -110,3 +110,27 @@
     margin-top: -7px;
   }
 }
+
+
+@media (max-width: 500px) {
+  .graf {
+    &--h2 {
+      font-size: 36px;
+      line-height: 1.1;
+      padding-top: 12px;
+      margin-bottom: 6px;
+    }
+    &--h3 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin-top: 18px;
+      margin-bottom: 4px;
+    }
+    &--h4 {
+      font-size: 24px;
+      line-height: 1.2;
+      margin-top: 18px;
+      margin-bottom: 2px;
+    }
+  }
+}
