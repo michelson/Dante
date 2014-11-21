@@ -30,16 +30,39 @@
     margin-bottom: 4px;
   }
   &--h4 {
-    color: rgba(0, 0, 0, 0.44);
     font-family: $sans;
-    font-size: 30px;
-    font-style: normal;
-    font-weight: 300;
     letter-spacing: -0.02em;
-    line-height: 1.2;
-    margin-bottom: 2px;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 30px;
     margin-left: -1.5px;
+    line-height: 1.2;
+    color: rgba(0,0,0,0.44);
     margin-top: 40px;
+    margin-bottom: 2px;
+  }
+
+  &--h2 + &--h3,
+  &--h2 + &--h4 {
+    margin-top: -6px;
+  }
+
+  &--h3 + &--h2,
+  &--h4 + &--h2 {
+    margin-top: 2px;
+  }
+
+  &--h3 + &--h4,
+  &--h4 + &--h3 {
+    margin-top: -2px;
+  }
+
+  .graf--h2 + .graf--p.graf--empty + .graf--h3,
+  .graf--h3 + .graf--p.graf--empty + .graf--h3,
+  .graf--h2 + .graf--p.graf--empty + .graf--h4,
+  .graf--h3 + .graf--p.graf--empty + .graf--h4,
+  .graf--h4 + .graf--p.graf--empty + .graf--h4 {
+    margin-top: -8px;
   }
 
   &--pre {
@@ -77,4 +100,13 @@
     position: relative;
   }
 
+
+  &--first {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  &--empty {
+    margin-bottom: -7px;
+    margin-top: -7px;
+  }
 }
