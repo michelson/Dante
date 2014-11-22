@@ -11,7 +11,9 @@ class Dante.Editor extends Dante.View
     "keyup"   : "handleKeyUp"
     "paste"   : "handlePaste"
     "click .graf--figure" : "handleGrafFigureSelect"
-    "dblclick": "handleDblclick"
+    "dblclick" : "handleDblclick"
+    "dragstart": "handleDrag"
+    "drop"    : "handleDrag"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -236,6 +238,9 @@ class Dante.Editor extends Dante.View
       @relocateMenu(pos)
       @editor_menu.show()
     , 10
+
+  handleDrag: ()->
+    return false
 
   #get text of selected and displays menu
   handleTextSelection: (anchor_node)->
