@@ -7,6 +7,7 @@
   + SANITIZE PROCESS
 
   + MENU
+    + don't show menu on selected text in embeds
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
     + blockquote works like crap
 
