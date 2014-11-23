@@ -233,7 +233,7 @@ class Dante.Editor extends Dante.View
     (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
-    return if _.isUndefined sel
+    #return if _.isUndefined sel
     setTimeout ()=>
       @editor_menu.render()
       pos = utils.getSelectionDimensions()
