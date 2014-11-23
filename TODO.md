@@ -8,7 +8,6 @@
 
   + MENU
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
-    + Allow h1, h2 y h3 unselection and back to graf-p element
     + blockquote works like crap
 
   + DELETE
