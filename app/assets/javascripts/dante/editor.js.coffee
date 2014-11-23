@@ -10,7 +10,8 @@ class Dante.Editor extends Dante.View
     "keydown" : "handleKeyDown"
     "keyup"   : "handleKeyUp"
     "paste"   : "handlePaste"
-    "click .graf--figure" : "handleGrafFigureSelect"
+    "click .graf--figure img" : "handleGrafFigureSelectImg"
+    "click figcaption"   : "handleGrafFigureSelectCaption"
     "dblclick" : "handleDblclick"
     "dragstart": "handleDrag"
     "drop"    : "handleDrag"
@@ -265,10 +266,20 @@ class Dante.Editor extends Dante.View
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
 
-  handleGrafFigureSelect: (ev)->
+  handleGrafFigureSelectImg: (ev)->
+    utils.log "FIGURE SELECT"
     element = ev.currentTarget
     @markAsSelected( element )
-    @setRangeAt( $(element).find('.imageCaption')[0] )
+    $(element).parent().addClass("is-selected is-mediaFocused")
+    @selection().removeAllRanges()
+
+  handleGrafFigureSelectCaption: (ev)->
+    utils.log "FIGCAPTION"
+    element = ev.currentTarget
+    $(element).parent().removeClass("is-mediaFocused")
+    #return false
+    #@setRangeAt( $(element).find('.imageCaption')[0] )
+
 
   handleBlur: (ev)=>
     #hide menu only if is not in use
@@ -281,8 +292,8 @@ class Dante.Editor extends Dante.View
   handleMouseUp: (ev)=>
     utils.log "MOUSE UP"
     anchor_node = @getNode()
-    utils.log anchor_node
-    utils.log ev.currentTarget
+    #utils.log anchor_node
+    #utils.log ev.currentTarget
 
     return if _.isNull(anchor_node)
 
@@ -668,7 +679,9 @@ class Dante.Editor extends Dante.View
 
     #hides tooltip if anchor_node text is empty
     if anchor_node
-      @tooltip_view.hide() unless _.isEmpty($(anchor_node).text())
+      unless _.isEmpty($(anchor_node).text())
+        @tooltip_view.hide()
+        $(anchor_node).removeClass("graf--empty")
 
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
@@ -714,10 +727,6 @@ class Dante.Editor extends Dante.View
       @handleArrow(e)
       #return false
 
-    #remove graf--empty if anchor_node text is empty
-    if anchor_node
-      $(anchor_node).removeClass("graf--empty") unless _.isEmpty($(anchor_node).text())
-
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
     new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
@@ -748,8 +757,19 @@ class Dante.Editor extends Dante.View
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
 
+    ###
     if $(element).prop("tagName").toLowerCase() is "figure"
       $(element).addClass("is-mediaFocused")
+      n = utils.getNode()
+      utils.log n
+
+      n = utils.getNode()
+      utils.log n
+      if _.isUndefined n
+        $(element).addClass("is-mediaFocused")
+      else if $(n).prop("tagName").toLowerCase() is "figcaption"
+        $(element).removeClass("is-mediaFocused")
+    ###
 
     $(element).find(".defaultValue").remove()
     #set reached top if element is first!
