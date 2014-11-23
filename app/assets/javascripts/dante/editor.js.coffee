@@ -233,6 +233,8 @@ class Dante.Editor extends Dante.View
     (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
+    utils.log "sel"
+    utils.log sel
     setTimeout ()=>
       @editor_menu.render()
       pos = utils.getSelectionDimensions()
@@ -316,7 +318,7 @@ class Dante.Editor extends Dante.View
   #handle arrow direction from keyUp.
   handleArrow: (ev)=>
     current_node = $(@getNode())
-    if current_node
+    if current_node.length > 0
       @markAsSelected( current_node )
       @displayTooltipAt( current_node )
 
