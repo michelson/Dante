@@ -685,6 +685,13 @@ class Dante.Editor extends Dante.View
         @tooltip_view.hide()
         $(anchor_node).removeClass("graf--empty")
 
+    #when user types over a selected image (graf--figure)
+    #unselect image , and set range on caption
+    if _.isUndefined(anchor_node) && $(".is-selected").hasClass("is-mediaFocused")
+      @setRangeAt $(".is-selected").find("figcaption")[0]
+      $(".is-selected").removeClass("is-mediaFocused")
+      return false
+
   handleKeyUp: (e , node)->
     utils.log "KEYUP"
 
