@@ -7,9 +7,7 @@ title: Dante Editor example
     <div class="notesSource">
 
       <div id="editor" class="postField postField--body editable smart-media-plugin">
-        <%= partial "partials/content" %>
-        <% partial "partials/example_1" %>
-        <% partial "partials/example_2" %>
+        <%= partial "partials/readme" %>
       </div>
 
     </div>
@@ -20,8 +18,7 @@ title: Dante Editor example
   editor = new Dante.Editor(
     {
       el: "#editor",
-      upload_url: "/uploads/new.json",
-      debug: true
+      upload_url: "/uploads/new.json"
     }
   ).start()
 </script>
