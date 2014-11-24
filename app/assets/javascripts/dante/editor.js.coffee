@@ -10,11 +10,11 @@ class Dante.Editor extends Dante.View
     "keydown" : "handleKeyDown"
     "keyup"   : "handleKeyUp"
     "paste"   : "handlePaste"
-    "click .graf--figure img" : "handleGrafFigureSelectImg"
-    "click figcaption"   : "handleGrafFigureSelectCaption"
     "dblclick" : "handleDblclick"
     "dragstart": "handleDrag"
     "drop"    : "handleDrag"
+    "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
+    "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -271,13 +271,13 @@ class Dante.Editor extends Dante.View
     utils.log "FIGURE SELECT"
     element = ev.currentTarget
     @markAsSelected( element )
-    $(element).parent().addClass("is-selected is-mediaFocused")
+    $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused")
     @selection().removeAllRanges()
 
   handleGrafFigureSelectCaption: (ev)->
     utils.log "FIGCAPTION"
     element = ev.currentTarget
-    $(element).parent().removeClass("is-mediaFocused")
+    $(element).parent(".graf--figure").removeClass("is-mediaFocused")
     #return false
     #@setRangeAt( $(element).find('.imageCaption')[0] )
 
@@ -949,10 +949,11 @@ class Dante.Editor extends Dante.View
                       if(input.node_name == 'figure' && $(input.node).hasClass("graf--figure") )
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'div' && ( $(input.node).hasClass("aspect-ratio-fill") && $(input.node).parent(".graf--figure").exists() ))
+                      else if(input.node_name == 'div' && ( $(input.node).hasClass("aspectRatioPlaceholder") && $(input.node).parent(".graf--figure").exists() ))
                         return whitelist_nodes: [input.node]
 
-                      else if(input.node_name == 'div' && ( $(input.node).hasClass("aspectRatioPlaceholder") && $(input.node).parent(".aspect-ratio-fill").exists() ) )
+                      else if(input.node_name == 'div' && ( $(input.node).hasClass("aspect-ratio-fill") && $(input.node).parent(".aspectRatioPlaceholder").exists() ))
+                        return whitelist_nodes: [input.node]
 
                       else if(input.node_name == 'img' && $(input.node).parent(".graf--figure").exists() )
                         return whitelist_nodes: [input.node]
