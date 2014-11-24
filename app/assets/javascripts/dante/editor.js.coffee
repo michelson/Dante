@@ -281,7 +281,6 @@ class Dante.Editor extends Dante.View
     #return false
     #@setRangeAt( $(element).find('.imageCaption')[0] )
 
-
   handleBlur: (ev)=>
     #hide menu only if is not in use
     setTimeout ()=>
@@ -323,7 +322,8 @@ class Dante.Editor extends Dante.View
 
   #handle arrow direction from keyDown.
   handleArrowForKeyDown: (ev)=>
-    current_node = $(@getNode())
+    caret_node   = @getNode()
+    current_node = $(caret_node)
     utils.log(ev)
     ev_type = ev.originalEvent.key || ev.originalEvent.keyIdentifier
 
@@ -333,22 +333,32 @@ class Dante.Editor extends Dante.View
     switch ev_type
 
       when "Down"
+        #when graff-image selected but none selection is found
+        #debugger
+        if _.isUndefined(current_node) or !current_node.exists()
+          if $(".is-selected").exists()
+            current_node = $(".is-selected")
+
         next_node = current_node.next()
+
         utils.log "NEXT NODE IS #{next_node.attr('class')}"
         utils.log "CURRENT NODE IS #{current_node.attr('class')}"
 
         return unless $(current_node).hasClass("graf")
-        return unless $(current_node).editableCaretOnLastLine()
+        return unless current_node.hasClass("graf--figure") or $(current_node).editableCaretOnLastLine()
 
         utils.log "ENTER ARROW PASSED RETURNS"
 
         #if next element is embed select & focus it
-        if next_node.hasClass("graf--figure")
+        if next_node.hasClass("graf--figure") && caret_node
           n = next_node.find(".imageCaption")
           @setRangeAt n[0]
           @scrollTo(n)
           utils.log "1 down"
           utils.log n[0]
+          @skip_keyup = true
+          @selection().removeAllRanges()
+          #@markAsSelected(next_node)
           next_node.addClass("is-mediaFocused is-selected")
           return false
         #if current node is embed
@@ -361,18 +371,12 @@ class Dante.Editor extends Dante.View
           return false
 
         if current_node.hasClass("graf--figure") && next_node.hasClass("graf")
-          @setRangeAt next_node[0]
           @scrollTo(next_node)
-          utils.log "3 down"
+          utils.log "3 down, from figure to next graf"
+          #@skip_keyup = true
+          @markAsSelected(next_node)
+          @setRangeAt next_node[0]
           return false
-
-        ###
-        else if next_node.hasClass("graf")
-          n = current_node.next(".graf")
-          @setRangeAt n[0]
-          @scrollTo(n)
-          false
-        ###
 
       when "Up"
         prev_node = current_node.prev()
@@ -387,8 +391,10 @@ class Dante.Editor extends Dante.View
         if prev_node.hasClass("graf--figure")
           utils.log "1 up"
           n = prev_node.find(".imageCaption")
-          @setRangeAt n[0]
+          #@setRangeAt n[0]
           @scrollTo(n)
+          @skip_keyup = true
+          @selection().removeAllRanges()
           prev_node.addClass("is-mediaFocused is-selected")
           return false
 
@@ -409,9 +415,11 @@ class Dante.Editor extends Dante.View
         else if prev_node.hasClass("graf")
           n = current_node.prev(".graf")
           num = n[0].childNodes.length
-          @setRangeAt n[0], num
+          #@setRangeAt n[0], num
           @scrollTo(n)
           utils.log "4 up"
+          @skip_keyup = true
+          #debugger
           return false
 
         utils.log "noting"
@@ -692,6 +700,12 @@ class Dante.Editor extends Dante.View
       return false
 
   handleKeyUp: (e , node)->
+
+    if @skip_keyup
+      @skip_keyup = null
+      utils.log "SKIP KEYUP"
+      return
+
     utils.log "KEYUP"
 
     @editor_menu.hide() #hides menu just in case
