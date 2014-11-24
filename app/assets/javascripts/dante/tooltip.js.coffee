@@ -129,8 +129,6 @@ class Dante.Editor.Tooltip extends Dante.View
     unless n is 0
       for i in [0..n-1] by 1
         $("[name='#{tmpl.attr('name')}']").unwrap()
-        console.log i
-
 
   replaceImg: (image_element, figure)->
     utils.log figure.attr("name")

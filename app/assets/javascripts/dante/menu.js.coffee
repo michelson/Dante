@@ -5,7 +5,6 @@ class Dante.Editor.Menu extends Dante.View
 
   events:
     "mousedown li" : "handleClick"
-    #"click .dante-icon" : "handleClick"
     "click .dante-menu-linkinput .dante-menu-button": "closeInput"
     "mouseenter" : "handleOver"
     "mouseleave" : "handleOut"

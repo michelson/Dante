@@ -4,7 +4,8 @@
 
 ##Motivation:
 
-I´ve tried all the medium clones out there, they are really great and all have it´s pros & cons, [but none of them have all the features that medium wysywig provides](http://howtox.com/medium-editor-clones-in-js/), so I wonder, how difficult could be build my own Medium clone?
+So far I have tried all the Medium.com wysiwyg clones out there, these are really great, and each have their pros and cons. [But none of them has all the features that the real medium editor provides.](http://howtox.com/medium-editor-clones-in-js/)
+so I wonder, How complicated could be write my own Medium wysiwyg clone?
 
 ## Demo:
 
@@ -16,7 +17,7 @@ Until now I´ve been able to implement the following features:
 
 + HTML sanitizer for pasted or loaded text.
 + Image upload for paste events.
-+ Image upload for legacy images of existing images.
++ Image upload for legacy images on existent texts.
 + The medium (+) Tooltip to embed or upload media.
 + Tab navigation.
 + Embeds:
@@ -140,6 +141,11 @@ tests are located in source/tests and /source/assets/spec folder and accessible 
 + https://github.com/sofish/pen
 + https://github.com/orthes/medium-editor-insert-plugin
 
+### ACKNOWLEDGMENTS:
+
++ Inline menu features was written taking some ideas and code from [pen.js](https://github.com/sofish/pen)
++ [Sanitize.js](https://github.com/gbirke/sanitize.js) allows us to clean HTML like pros.
++ No animals were harmed in the making of this ~~film~~ wysiwyg
 
 ### LICENSE
 
