@@ -678,6 +678,15 @@ class Dante.Editor extends Dante.View
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
+      utils.log "sss"
+      utils.log anchor_node
+      if $(".is-selected").hasClass("graf--figure")
+        @replaceWith("p", $(".is-selected"))
+        @setRangeAt($(".is-selected")[0])
+        return false
+
+
+
     #arrows key
     #if _.contains([37,38,39,40], e.which)
     #up & down
@@ -757,6 +766,12 @@ class Dante.Editor extends Dante.View
     else
       new_paragraph.insertAfter(from_element)
     #set caret on new <p>
+    @setRangeAt(new_paragraph[0])
+    @scrollTo new_paragraph
+
+  replaceWith: (element_type, from_element)->
+    new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
+    from_element.replaceWith(new_paragraph)
     @setRangeAt(new_paragraph[0])
     @scrollTo new_paragraph
 
