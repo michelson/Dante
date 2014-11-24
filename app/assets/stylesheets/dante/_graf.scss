@@ -65,6 +65,12 @@
     margin-top: -8px;
   }
 
+  .graf--h4 + .graf--figure,
+  .graf--h3 + .graf--figure,
+  .graf--h2 + .graf--figure {
+    margin-top: 15px;
+  }
+
   &--pre {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
     font-family: Monaco,"Courier New","Courier",monospace;
