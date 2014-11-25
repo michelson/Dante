@@ -17,12 +17,12 @@ body:after {
   background-color: $color-brand;
 }
 article {
+  z-index: 1;
   margin-top: 70px;
   padding: $gutter;
 }
 #editor{
   margin: 0 auto;
-  //width: 70%;
   max-width: 700px;
 }
 
@@ -39,6 +39,7 @@ article {
 .top-right {
   position: fixed;
   top: $gutter;
+  z-index: 2;
 }
 
 .top-left {
