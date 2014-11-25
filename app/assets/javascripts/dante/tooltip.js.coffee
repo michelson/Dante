@@ -130,6 +130,9 @@ class Dante.Editor.Tooltip extends Dante.View
       for i in [0..n-1] by 1
         $("[name='#{tmpl.attr('name')}']").unwrap()
 
+    utils.log "FIG"
+    utils.log $("[name='#{tmpl.attr('name')}']")
+
   replaceImg: (image_element, figure)->
     utils.log figure.attr("name")
     utils.log figure
@@ -143,7 +146,7 @@ class Dante.Editor.Tooltip extends Dante.View
       utils.log(this.width + 'x' + this.height);
 
       ar = self.getAspectRatio(this.width, this.height)
-
+      #debugger
       figure.find(".aspectRatioPlaceholder").css
         'max-width': ar.width
         'max-height': ar.height
@@ -154,6 +157,8 @@ class Dante.Editor.Tooltip extends Dante.View
 
       figure.find(".aspect-ratio-fill").css
         "padding-bottom": "#{ar.ratio}%"
+
+      utils.log figure
 
       #TODO: upload file to server
       #@uploadFile file, replaced_node

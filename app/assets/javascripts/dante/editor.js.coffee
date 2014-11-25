@@ -852,14 +852,12 @@ class Dante.Editor extends Dante.View
 
       when "img"
         utils.log "images"
-        #@handleUnwrappedImages(n)
-        #@handleUnwrappedImages(nodes)
         @tooltip_view.uploadExistentImage(n)
         #set figure non editable
 
       when "a", 'strong', 'em', 'br', 'b', 'u', 'i'
         utils.log "links"
-        $(n).wrap("<p class='graf graf--#{name}'></p>")
+        $(n).wrap("<p class='graf graf--p'></p>")
         n = $(n).parent()
         #dont know
 
