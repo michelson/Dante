@@ -6,11 +6,8 @@
   //font-size: 22px;
   font-size: 19px;
   //line-height: 1.4;
-
   letter-spacing: 0.01rem;
   line-height: 1.69;
-
-
 }
 
 .notesSource {
@@ -23,11 +20,11 @@
     word-break: break-word;
     word-wrap: break-word;
   }
+}
 
-  &--body {
-    @include clearfix;
-    margin-bottom: 30px;
-  }
+.postField--body {
+  @include clearfix;
+  margin-bottom: 30px;
 }
 
 .section-content {

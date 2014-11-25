@@ -1,142 +1,142 @@
-.graf {
-
-  &--p,
-  &--blockquote,
-  &--pullquote {
-    margin-bottom: 30px;
-  }
-
-  &--h2 {
-    font-family: $sans;
-    font-size: 60px;
-    font-style: normal;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin-bottom: 8px;
-    margin-left: -3px;
-    margin-top: 40px;
-    padding-top: 0;
-  }
-  &--h3 {
-    font-family: $sans;
-    letter-spacing: -0.02em;
-    font-weight: 700;
-    font-style: normal;
-    font-size: 36px;
-    margin-left: -1.8px;
-    line-height: 1.2;
-    margin-top: 40px;
-    margin-bottom: 4px;
-  }
-  &--h4 {
-    font-family: $sans;
-    letter-spacing: -0.02em;
-    font-weight: 300;
-    font-style: normal;
-    font-size: 30px;
-    margin-left: -1.5px;
-    line-height: 1.2;
-    color: rgba(0,0,0,0.44);
-    margin-top: 40px;
-    margin-bottom: 2px;
-  }
-
-  &--h2 + &--h3,
-  &--h2 + &--h4 {
-    margin-top: -6px;
-  }
-
-  &--h3 + &--h2,
-  &--h4 + &--h2 {
-    margin-top: 2px;
-  }
-
-  &--h3 + &--h4,
-  &--h4 + &--h3 {
-    margin-top: -2px;
-  }
-
-  .graf--h2 + .graf--p.graf--empty + .graf--h3,
-  .graf--h3 + .graf--p.graf--empty + .graf--h3,
-  .graf--h2 + .graf--p.graf--empty + .graf--h4,
-  .graf--h3 + .graf--p.graf--empty + .graf--h4,
-  .graf--h4 + .graf--p.graf--empty + .graf--h4 {
-    margin-top: -8px;
-  }
-
-  .graf--h4 + .graf--figure,
-  .graf--h3 + .graf--figure,
-  .graf--h2 + .graf--figure {
-    margin-top: 15px;
-  }
-
-  &--pre {
-    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
-    font-family: Monaco,"Courier New","Courier",monospace;
-    font-size: 16px;
-    margin-bottom: 20px;
-    padding: 20px;
-    white-space: pre-wrap;
-  }
-  &--pre + &--pre {
-    margin-top: -20px;
-  }
-
-  &--blockquote {
-    border-left: 3px solid rgba(0, 0, 0, 0.8);
-    font-family: $serif;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: 0.01rem;
-    margin-left: -23px;
-    padding-bottom: 3px;
-    padding-left: 20px;
-  }
-  &--blockquote + &--blockquote {
-    margin-top: -30px;
-    padding-top: 30px;
-  }
-
-  &--figure {
-    box-sizing: border-box;
-    clear: both;
-    margin-bottom: 30px;
-    outline: medium none;
-    position: relative;
-  }
 
 
-  &--first {
-    margin-top: 0;
-    padding-top: 0;
-  }
-  &--empty {
-    margin-bottom: -7px;
-    margin-top: -7px;
-  }
+.graf--p,
+.graf--blockquote,
+.graf--pullquote {
+  margin-bottom: 30px;
+}
+
+.graf--h2 {
+  font-family: $sans;
+  font-size: 60px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+  margin-left: -3px;
+  margin-top: 40px;
+  padding-top: 0;
+}
+.graf--h3 {
+  font-family: $sans;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 36px;
+  margin-left: -1.8px;
+  line-height: 1.2;
+  margin-top: 40px;
+  margin-bottom: 4px;
+}
+.graf--h4 {
+  font-family: $sans;
+  letter-spacing: -0.02em;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 30px;
+  margin-left: -1.5px;
+  line-height: 1.2;
+  color: rgba(0,0,0,0.44);
+  margin-top: 40px;
+  margin-bottom: 2px;
+}
+
+.graf--h2 + .graf--h3,
+.graf--h2 + .graf--h4 {
+  margin-top: -6px;
+}
+
+.graf--h3 + .graf--h2,
+.graf--h4 + .graf--h2 {
+  margin-top: 2px;
+}
+
+.graf--h3 + .graf--h4,
+.graf--h4 + .graf--h3 {
+  margin-top: -2px;
+}
+
+.graf--h2 + .graf--p.graf--empty + .graf--h3,
+.graf--h3 + .graf--p.graf--empty + .graf--h3,
+.graf--h2 + .graf--p.graf--empty + .graf--h4,
+.graf--h3 + .graf--p.graf--empty + .graf--h4,
+.graf--h4 + .graf--p.graf--empty + .graf--h4 {
+  margin-top: -8px;
+}
+
+.graf--h4 + .graf--figure,
+.graf--h3 + .graf--figure,
+.graf--h2 + .graf--figure {
+  margin-top: 15px;
+}
+
+.graf--pre {
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
+  font-family: Monaco,"Courier New","Courier",monospace;
+  font-size: 16px;
+  margin-bottom: 20px;
+  padding: 20px;
+  white-space: pre-wrap;
+}
+.graf--pre + .graf--pre {
+  margin-top: -20px;
+}
+
+.graf--blockquote {
+  border-left: 3px solid rgba(0, 0, 0, 0.8);
+  font-family: $serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01rem;
+  margin-left: -23px;
+  padding-bottom: 3px;
+  padding-left: 20px;
+}
+.graf--blockquote + .graf--blockquote {
+  margin-top: -30px;
+  padding-top: 30px;
+}
+
+.graf--figure {
+  box-sizing: border-box;
+  clear: both;
+  margin-bottom: 30px;
+  outline: medium none;
+  position: relative;
 }
 
 
+.graf--first {
+  margin-top: 0;
+  padding-top: 0;
+}
+.graf--empty {
+  margin-bottom: -7px;
+  margin-top: -7px;
+}
+
+
+
 @media (max-width: 500px) {
-  .graf {
-    &--h2 {
-      font-size: 36px;
-      line-height: 1.1;
-      padding-top: 12px;
-      margin-bottom: 6px;
-    }
-    &--h3 {
-      font-size: 26px;
-      line-height: 1.2;
-      margin-top: 18px;
-      margin-bottom: 4px;
-    }
-    &--h4 {
-      font-size: 24px;
-      line-height: 1.2;
-      margin-top: 18px;
-      margin-bottom: 2px;
-    }
+
+  .graf--h2 {
+    font-size: 36px;
+    line-height: 1.1;
+    padding-top: 12px;
+    margin-bottom: 6px;
   }
+  .graf--h3 {
+    font-size: 26px;
+    line-height: 1.2;
+    margin-top: 18px;
+    margin-bottom: 4px;
+  }
+  .graf--h4 {
+    font-size: 24px;
+    line-height: 1.2;
+    margin-top: 18px;
+    margin-bottom: 2px;
+  }
+
 }
