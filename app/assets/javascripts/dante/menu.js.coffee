@@ -196,7 +196,8 @@ class Dante.Editor.Menu extends Dante.View
 
       if tag.match /(?:h[1-6])/i
         $(@el).find(".icon-bold, .icon-italic, .icon-blockquote")
-        .parent("li").hide()
+        .parent("li").remove()
+        #.parent("li").hide()
         #.addClass("hidden")
 
       @highlight(tag)
