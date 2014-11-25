@@ -1,9 +1,16 @@
-
-
-.graf--p,
+.graf--h2,
+.graf--h3,
+.graf--h4,
+.graf--h5,
+.graf--h6,
+.graf--h7,
+.postList,
+.graf--figure,
 .graf--blockquote,
-.graf--pullquote {
-  margin-bottom: 30px;
+.graf--pullquote,
+.graf--p,
+.graf--pre {
+  margin: 0;
 }
 
 .graf--h2 {
@@ -71,6 +78,12 @@
   margin-top: 15px;
 }
 
+.graf--p,
+.graf--blockquote,
+.graf--pullquote {
+  margin-bottom: 30px;
+}
+
 .graf--pre {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
   font-family: Monaco,"Courier New","Courier",monospace;
@@ -106,7 +119,6 @@
   position: relative;
 }
 
-
 .graf--first {
   margin-top: 0;
   padding-top: 0;
@@ -115,8 +127,6 @@
   margin-bottom: -7px;
   margin-top: -7px;
 }
-
-
 
 @media (max-width: 500px) {
 
