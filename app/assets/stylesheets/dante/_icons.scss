@@ -12,27 +12,26 @@
   }
 }
 
-.icon {
-  &-h2:before                   { content: "H1"; }
-  &-h3:before                   { content: "H2"; }
-  &-h4:before                   { content: "H3"; }
-  &-p:before                    { content:  "P"; }
-  &-code:before                 { content: ""; }
-  &-insertorderedlist:before    { content: ""; }
-  &-insertunorderedlist:before  { content: ""; }
-  &-inserthorizontalrule:before { content: ""; }
-  &-indent:before               { content: ""; }
-  &-outdent:before              { content: ""; }
-  &-bold:before                 { content: ""; }
-  &-italic:before               { content: ""; }
-  &-underline:before            { content: ""; }
-  &-createlink:before           { content: ""; }
-  &-blockquote:before           { content: ""; }
-}
-.icon {
-  &-h2:before,
-  &-h3:before,
-  &-h4:before {
-    font-weight: bold;
-  }
+
+.icon-h2:before                   { content: "H1"; }
+.icon-h3:before                   { content: "H2"; }
+.icon-h4:before                   { content: "H3"; }
+.icon-p:before                    { content:  "P"; }
+.icon-code:before                 { content: ""; }
+.icon-insertorderedlist:before    { content: ""; }
+.icon-insertunorderedlist:before  { content: ""; }
+.icon-inserthorizontalrule:before { content: ""; }
+.icon-indent:before               { content: ""; }
+.icon-outdent:before              { content: ""; }
+.icon-bold:before                 { content: ""; }
+.icon-italic:before               { content: ""; }
+.icon-underline:before            { content: ""; }
+.icon-createlink:before           { content: ""; }
+.icon-blockquote:before           { content: ""; }
+
+
+.icon-h2:before,
+.icon-h3:before,
+.icon-h4:before {
+  font-weight: bold;
 }

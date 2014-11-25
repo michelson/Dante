@@ -19,19 +19,20 @@ class Dante.Editor extends Dante.View
   initialize: (opts = {})=>
     @editor_options = opts
     #globals for selected text and node
-    @initial_html = $(@el).html()
-    @current_range = null
-    @current_node = null
+    @initial_html    = $(@el).html()
+    @current_range   = null
+    @current_node    = null
     @el = opts.el || "#editor"
+    @upload_url      = opts.upload_url  || "/uploads.json"
+    @oembed_url      = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
+    @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
+    @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
+    @store_url       = opts.store_url
+    @spell_check     = opts.spellcheck || false
+    @disable_title   = opts.disable_title || false
+    @store_interval  = opts.store_interval || 15000
     window.debugMode = opts.debug || false
     $(@el).addClass("debug") if window.debugMode
-    @upload_url  = opts.upload_url  || "/uploads.json"
-    @oembed_url  = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
-    @extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
-    @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
-    @store_url   = opts.store_url
-    @spell_check = opts.spellcheck || false
-    @store_interval = opts.store_interval || 15000
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -69,6 +70,9 @@ class Dante.Editor extends Dante.View
   getContent: ()->
     $(@el).find(".section-inner").html()
 
+  renderTitle: ()->
+    "<h3 class='graf graf--h3'>#{@title_placeholder} </h3>"
+
   template: ()=>
     "<section class='section--first section--last'>
 
@@ -78,7 +82,7 @@ class Dante.Editor extends Dante.View
 
       <div class='section-content'>
         <div class='section-inner'>
-          <h3 class='graf graf--h3'>#{@title_placeholder}</h3>
+          #{if @disable_title then '' else @renderTitle()}
           <p class='graf graf--p'>#{@body_placeholder}<p>
         </div>
       </div>

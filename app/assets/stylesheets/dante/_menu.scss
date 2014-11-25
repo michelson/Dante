@@ -1,43 +1,23 @@
 .dante-menu {
 
   // MENU
-  & {
-    position: absolute;
-    visibility: hidden;
-    z-index: 1000;
-    -webkit-transition: none;
-    transition: none;
-    display: none;
-    top: 0;
-    left: 0;
-    display:block;
-    white-space: nowrap;
+  position: absolute;
+  visibility: hidden;
+  z-index: 1000;
+  -webkit-transition: none;
+  transition: none;
+  display: none;
+  top: 0;
+  left: 0;
+  display:block;
+  white-space: nowrap;
 
-    height: $menu-height;
-    background: $menu-background;
-    border: $menu-border;
-    border-radius: $menu-border-radius;
-    box-shadow: $menu-shadow;
-  }
-  &--active {
-    display: inline-block;
-    visibility: visible;
-    -webkit-animation: pop-upwards 180ms forwards linear;
-    animation: pop-upwards 180ms forwards linear;
-  }
+  height: $menu-height;
+  background: $menu-background;
+  border: $menu-border;
+  border-radius: $menu-border-radius;
+  box-shadow: $menu-shadow;
 
-  &--linkmode {
-    .dante-menu-buttons {
-      visibility: hidden;
-    }
-    .dante-menu-linkinput {
-      display: block;
-    }
-    .dante-menu-input {
-      -webkit-animation: pop-upwards 180ms forwards linear;
-              animation: pop-upwards 180ms forwards linear;
-    }
-  }
 
   // CARET
   &:after,
@@ -60,90 +40,112 @@
     bottom: -($menu-caret-size*2);
   }
 
-  // BUTONS
-  &-buttons {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    line-height: 0;
-  }
-  &-button {
-    & {
-      min-width: 20px;
-      display: inline-block;
-      padding: 0 10px;
-      overflow: hidden;
-      text-align: center;
-      color: $menu-color;
-      cursor: pointer;
-      font-size: 16px;
-      line-height: $menu-height - 2;
-      -webkit-user-select: none;
-         -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none;
-    }
-    &:hover{
-      // nada
-    }
-    &.active{
-      color: $menu-color-active;
-    }
+}
 
-    &:first-child {
-      border-top-left-radius: $menu-border-radius;
-      border-bottom-left-radius: $menu-border-radius;
-      padding-left: 18px;
-    }
-    &:last-child {
-      border-top-right-radius: $menu-border-radius;
-      border-bottom-right-radius: $menu-border-radius;
-      padding-right: 18px;
-    }
-  }
+.dante-menu--active {
+  display: inline-block;
+  visibility: visible;
+  -webkit-animation: pop-upwards 180ms forwards linear;
+  animation: pop-upwards 180ms forwards linear;
+}
 
-  // LINK
-  &-linkinput {
-    & {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-    .dante-menu-button {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
+.dante-menu--linkmode {
+  .dante-menu-buttons {
+    visibility: hidden;
+  }
+  .dante-menu-linkinput {
+    display: block;
+  }
+  .dante-menu-input {
+    -webkit-animation: pop-upwards 180ms forwards linear;
+            animation: pop-upwards 180ms forwards linear;
+  }
+}
+
+// BUTONS
+.dante-menu-buttons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+}
+.dante-menu-button {
+  & {
+    min-width: 20px;
+    display: inline-block;
+    padding: 0 10px;
+    overflow: hidden;
+    text-align: center;
+    color: $menu-color;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: $menu-height - 2;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+  }
+  &:hover{
+    // nada
+  }
+  &.active{
+    color: $menu-color-active;
   }
 
-  &-input {
-    //height: $menu-height - 2;
-    //line-height: 20px;
+  &:first-child {
+    border-top-left-radius: $menu-border-radius;
+    border-bottom-left-radius: $menu-border-radius;
+    padding-left: 18px;
+  }
+  &:last-child {
+    border-top-right-radius: $menu-border-radius;
+    border-bottom-right-radius: $menu-border-radius;
+    padding-right: 18px;
+  }
+}
+
+// LINK
+.dante-menu-linkinput {
+  & {
+    display: none;
     position: absolute;
     top: 0;
     left: 0;
-    background: rgba(0,0,0,0);
-    width: 100%;
-    padding: 13px 40px 13px 10px;
-    color: $menu-color;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    box-sizing: border-box;
-    border-radius: $menu-border-radius;
-    appearance: none;
-    text-align: left;
-    font-family: $font-family-serif;
-    letter-spacing: 0.01rem;
-    font-weight: 400;
-    font-style: normal;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -moz-font-feature-settings: "liga" on;
+    right: 0;
+    bottom: 0;
   }
-
+  .dante-menu-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 }
+
+.dante-menu-input {
+  //height: $menu-height - 2;
+  //line-height: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0);
+  width: 100%;
+  padding: 13px 40px 13px 10px;
+  color: $menu-color;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  box-sizing: border-box;
+  border-radius: $menu-border-radius;
+  appearance: none;
+  text-align: left;
+  font-family: $font-family-serif;
+  letter-spacing: 0.01rem;
+  font-weight: 400;
+  font-style: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-font-feature-settings: "liga" on;
+}
+
+
