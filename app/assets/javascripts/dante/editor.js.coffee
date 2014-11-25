@@ -106,8 +106,8 @@ class Dante.Editor extends Dante.View
   start: ()=>
     @render()
     $(@el).attr("contenteditable", "true")
-    $(@el).addClass("postField--body")
-    $(@el).wrap("<div class='notesSource'></div>")
+    $(@el).addClass("postField postField--body editable smart-media-plugin")
+    $(@el).wrap("<div class='postContent'><div class='notesSource'></div></div>")
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @setupElementsClasses()
