@@ -74,6 +74,7 @@ class Dante.Editor.Tooltip extends Dante.View
   toggleOptions: ()=>
     utils.log "Toggle Options!!"
     $(@el).toggleClass("is-active is-scaled")
+    return false
 
   move: (coords)->
     $(@el).offset(coords)
@@ -91,7 +92,7 @@ class Dante.Editor.Tooltip extends Dante.View
         @displayExtractPlaceHolder()
       when "inline-menu-hr"
         @splitSection()
-
+    return false
   #UPLOADER
 
   #replace existing img tag , and wrap it in insertTamplate
