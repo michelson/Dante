@@ -110,8 +110,8 @@ class Dante.Editor extends Dante.View
     $(@el).wrap("<div class='postContent'><div class='notesSource'></div></div>")
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
-    @setupElementsClasses()
     @parseInitialMess()
+
 
   restart: ()=>
     @render()
@@ -430,7 +430,8 @@ class Dante.Editor extends Dante.View
 
   #parse text for initial mess
   parseInitialMess: ()->
-    @handleUnwrappedImages($(@el).find('.section-inner'))
+    @setupElementsClasses $(@el).find('.section-inner') , ()=>
+      @handleUnwrappedImages($(@el).find('.section-inner'))
 
   handleDblclick: ()->
     utils.log "handleDblclick"

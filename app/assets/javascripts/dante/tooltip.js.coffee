@@ -111,18 +111,15 @@ class Dante.Editor.Tooltip extends Dante.View
       utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
       node = @current_editor.getNode()
-      @current_editor.preCleanNode($(node))
-      @current_editor.addClassesToElement(node)
+      if node
+        @current_editor.preCleanNode($(node))
+        @current_editor.addClassesToElement(node)
     else
       utils.log "DOS"
-      #if node = @current_editor.getNode()
-      #  $(node).replaceWith(tmpl)
-      #else
-      #it's not inside a graf
       img = $(image_element).parentsUntil(".section-inner").first()
       $(img).replaceWith(tmpl)
 
-
+    utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
     @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
 
     #in case we found that graf--image is nested element, unwrap * nested times
@@ -132,7 +129,7 @@ class Dante.Editor.Tooltip extends Dante.View
         $("[name='#{tmpl.attr('name')}']").unwrap()
 
     utils.log "FIG"
-    utils.log $("[name='#{tmpl.attr('name')}']")
+    #utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
 
   replaceImg: (image_element, figure)->
     utils.log figure.attr("name")
@@ -143,7 +140,7 @@ class Dante.Editor.Tooltip extends Dante.View
     self = this
     img.onload = ()->
       utils.log "replace image with loaded info"
-      utils.log(figure)
+      utils.log figure.attr("name")
       utils.log(this.width + 'x' + this.height);
 
       ar = self.getAspectRatio(this.width, this.height)
@@ -159,12 +156,10 @@ class Dante.Editor.Tooltip extends Dante.View
       figure.find(".aspect-ratio-fill").css
         "padding-bottom": "#{ar.ratio}%"
 
-      utils.log figure
-
       #TODO: upload file to server
       #@uploadFile file, replaced_node
 
-    figure.find("img").attr("src", image_element.src)
+      figure.find("img").attr("src", image_element.src)
 
   displayAndUploadImages: (file)->
     @displayCachedImage file
