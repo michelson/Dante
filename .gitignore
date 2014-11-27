@@ -20,6 +20,7 @@
 /node_modules
 
 /tmp/images/**/*
+/app/assets/stylesheets/temp/**/*
 
 
 /.yardoc
