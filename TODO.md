@@ -7,7 +7,6 @@
   + SANITIZE PROCESS
 
   + MENU
-    + don't show menu on selected text in embeds
     + Filter inner tags (except a, b, i ... ) when convert to blockquote
     + blockquote works like crap
 
@@ -26,16 +25,4 @@
 
   + SUBMIT:
     get clean version of content
-
-## ROADMAP
-
-+ 0.0.5
-  + TODO LIST COMPLETE!
-+ 0.1.0
-  + implement layout changes on embeds & uploads.
-+ 0.2.0
-  + implement creation of new sections
-+ 1.0.0
-  + use Rangy for better selection & range support.
-
 

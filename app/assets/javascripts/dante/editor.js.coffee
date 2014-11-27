@@ -110,8 +110,8 @@ class Dante.Editor extends Dante.View
     $(@el).wrap("<div class='postContent'><div class='notesSource'></div></div>")
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
-    @setupElementsClasses()
     @parseInitialMess()
+
 
   restart: ()=>
     @render()
@@ -252,10 +252,9 @@ class Dante.Editor extends Dante.View
   handleTextSelection: (anchor_node)->
     @editor_menu.hide()
     text = @getSelectedText()
-    unless _.isEmpty text.trim()
-      #@current_range = @getRange()
-      @current_node  = anchor_node
-      @.displayMenu()
+    if !$(anchor_node).is(".graf--mixtapeEmbed, .graf--figure") && !_.isEmpty text.trim()
+        @current_node  = anchor_node
+        @.displayMenu()
 
   relocateMenu: (position)->
     height = @editor_menu.$el.outerHeight()
@@ -430,7 +429,8 @@ class Dante.Editor extends Dante.View
 
   #parse text for initial mess
   parseInitialMess: ()->
-    @handleUnwrappedImages($(@el).find('.section-inner'))
+    @setupElementsClasses $(@el).find('.section-inner') , ()=>
+      @handleUnwrappedImages($(@el).find('.section-inner'))
 
   handleDblclick: ()->
     utils.log "handleDblclick"
