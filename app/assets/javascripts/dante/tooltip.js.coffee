@@ -211,7 +211,6 @@ class Dante.Editor.Tooltip extends Dante.View
   getAspectRatio: (w , h)->
     maxWidth = 700
     maxHeight = 700
-    #ratio = 0
     ratio = 0
     width = w # Current image width
     height = h # Current image height
@@ -223,17 +222,14 @@ class Dante.Editor.Tooltip extends Dante.View
       width = width * ratio # Reset width to match scaled image
 
     # Check if current height is larger than max
-    if height > maxHeight
+    else if height > maxHeight
       ratio = maxHeight / height # get ratio for scaling image
       width = width * ratio # Reset width to match scaled image
       height = height * ratio # Reset height to match scaled image
 
-    ratio =  height / maxHeight * 100
-
-    result = { width: width, height: height, ratio: ratio }
-
+    fill_ratio = height / width * 100
+    result = { width: width, height: height, ratio: fill_ratio }
     utils.log result
-
     result
 
   formatData: (file)->
