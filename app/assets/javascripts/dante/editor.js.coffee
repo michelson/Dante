@@ -252,10 +252,9 @@ class Dante.Editor extends Dante.View
   handleTextSelection: (anchor_node)->
     @editor_menu.hide()
     text = @getSelectedText()
-    unless _.isEmpty text.trim()
-      #@current_range = @getRange()
-      @current_node  = anchor_node
-      @.displayMenu()
+    if !$(anchor_node).is(".graf--mixtapeEmbed, .graf--figure") && !_.isEmpty text.trim()
+        @current_node  = anchor_node
+        @.displayMenu()
 
   relocateMenu: (position)->
     height = @editor_menu.$el.outerHeight()
