@@ -123,6 +123,7 @@
   margin-top: 0;
   padding-top: 0;
 }
+
 .graf--empty {
   margin-bottom: -7px;
   margin-top: -7px;
@@ -149,4 +150,9 @@
     margin-bottom: 2px;
   }
 
+}
+
+.markup--anchor,
+.graf--sectionCaption {
+    cursor: text;
 }
