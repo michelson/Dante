@@ -13,7 +13,9 @@ title: Dante Editor example
   editor = new Dante.Editor(
     {
       el: "#editor",
-      upload_url: "/uploads/new.json"
+      upload_url: "/uploads/new.json",
+      debug: true
     }
-  ).start()
+  )
+  editor.start()
 </script>

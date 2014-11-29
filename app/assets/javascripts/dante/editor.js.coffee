@@ -97,6 +97,7 @@ class Dante.Editor extends Dante.View
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
+    @pop_over = new Dante.Editor.PopOver(editor: @)
     @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
@@ -111,7 +112,6 @@ class Dante.Editor extends Dante.View
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @parseInitialMess()
-
 
   restart: ()=>
     @render()
@@ -452,7 +452,7 @@ class Dante.Editor extends Dante.View
       cbd = ev.originalEvent.clipboardData
       pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
 
-    #alert(pastedText) # Process and handle text...
+    utils.log(pastedText) # Process and handle text...
     #detect if is html
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
