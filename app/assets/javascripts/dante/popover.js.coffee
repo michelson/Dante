@@ -8,7 +8,7 @@ class Dante.Editor.PopOver extends Dante.View
     @editor = opts.editor
 
   template: ()->
-    "<div class='popover popover--dark popover--tooltip popover--Linktooltip popover--bottom is-active'>
+    "<div class='popover popover--tooltip popover--Linktooltip popover--bottom is-active'>
       <div class='popover-inner'>
         <a href='#' target='_blank'> Link </a>
       </div>
