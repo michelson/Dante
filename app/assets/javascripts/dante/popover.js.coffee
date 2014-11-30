@@ -25,10 +25,20 @@ class Dante.Editor.PopOver extends Dante.View
   #display & copy original link
   displayAt: (ev)->
     @cancelHide()
+    #debugger
     target = $(ev.currentTarget)
-    pos    = target.position()
-    $(@el).find(".popover").css("top", pos.top + 20).css("left", pos.left).show()
     $(@el).find(".popover-inner a").text( target.attr('href') ).attr('href', target.attr("href") )
+
+    pos    = target.position()
+    offset = target.offset()
+    rect   = ev.currentTarget.getBoundingClientRect()
+    popover_w = $(@el).find(".popover").width()
+    utils.log pos
+    utils.log rect
+    utils.log popover_w
+    $(@el).find(".popover")
+    .css("top", pos.top + rect.height)
+    .css("left",  pos.left + (rect.width/2) - (popover_w/2) ).show()
     $(@el).find(".popover--tooltip").css("pointer-events", "auto")
     $(@el).show()
 
