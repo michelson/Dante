@@ -4,4 +4,5 @@
 //= require dante/view
 //= require dante/editor
 //= require dante/tooltip
+//= require dante/popover
 //= require dante/menu

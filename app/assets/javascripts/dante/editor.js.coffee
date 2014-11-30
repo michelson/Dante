@@ -13,6 +13,8 @@ class Dante.Editor extends Dante.View
     "drop"    : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
+    "mouseover .markup--anchor" : "displayPopOver"
+    "mouseout  .markup--anchor" : "hidePopOver"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -95,6 +97,8 @@ class Dante.Editor extends Dante.View
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
+    @pop_over = new Dante.Editor.PopOver(editor: @)
+    @pop_over.render().hide()
     @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
@@ -264,6 +268,12 @@ class Dante.Editor extends Dante.View
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
 
+  displayPopOver: (ev)->
+    @pop_over.displayAt(ev)
+
+  hidePopOver: (ev)->
+    @pop_over.hide(ev)
+
   handleGrafFigureSelectImg: (ev)->
     utils.log "FIGURE SELECT"
     element = ev.currentTarget
@@ -429,7 +439,7 @@ class Dante.Editor extends Dante.View
       cbd = ev.originalEvent.clipboardData
       pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
 
-    #alert(pastedText) # Process and handle text...
+    utils.log(pastedText) # Process and handle text...
     #detect if is html
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
