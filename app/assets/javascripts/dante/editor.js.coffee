@@ -13,6 +13,8 @@ class Dante.Editor extends Dante.View
     "drop"    : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
+    "mouseover .markup--anchor" : "displayPopOver"
+    "mouseout  .markup--anchor" : "hidePopOver"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -96,6 +98,7 @@ class Dante.Editor extends Dante.View
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
     @pop_over = new Dante.Editor.PopOver(editor: @)
+    @pop_over.render().hide()
     @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
@@ -264,6 +267,12 @@ class Dante.Editor extends Dante.View
   displayEmptyPlaceholder: (element)->
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
+
+  displayPopOver: (ev)->
+    @pop_over.displayAt(ev)
+
+  hidePopOver: (ev)->
+    @pop_over.hide(ev)
 
   handleGrafFigureSelectImg: (ev)->
     utils.log "FIGURE SELECT"
