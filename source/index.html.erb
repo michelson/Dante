@@ -14,7 +14,7 @@ title: Dante Editor example
     {
       el: "#editor",
       upload_url: "/uploads/new.json",
-      debug: true
+      debug: <%= build? ? false : true %>
     }
   )
   editor.start()
