@@ -622,7 +622,7 @@ class Dante.Editor extends Dante.View
         @setElementName($(node))
 
         if node.nodeName.toLowerCase() is "div"
-          @replaceWith("p", $(node))
+          node = @replaceWith("p", $(node))[0]
         @markAsSelected( $(node) ) #if anchor_node
         @setupFirstAndLast()
 
@@ -633,7 +633,7 @@ class Dante.Editor extends Dante.View
           $(node).append("<br>")
 
         #shows tooltip
-        #@displayTooltipAt($(@el).find(".is-selected"))
+        @displayTooltipAt($(@el).find(".is-selected"))
       , 2
 
     #delete key
@@ -671,7 +671,6 @@ class Dante.Editor extends Dante.View
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
-      utils.log "sss"
       utils.log anchor_node
       if $(".is-selected").hasClass("graf--figure")
         @replaceWith("p", $(".is-selected"))
@@ -765,6 +764,7 @@ class Dante.Editor extends Dante.View
     from_element.replaceWith(new_paragraph)
     @setRangeAt(new_paragraph[0])
     @scrollTo new_paragraph
+    new_paragraph
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
@@ -784,20 +784,6 @@ class Dante.Editor extends Dante.View
 
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
-
-    ###
-    if $(element).prop("tagName").toLowerCase() is "figure"
-      $(element).addClass("is-mediaFocused")
-      n = utils.getNode()
-      utils.log n
-
-      n = utils.getNode()
-      utils.log n
-      if _.isUndefined n
-        $(element).addClass("is-mediaFocused")
-      else if $(n).prop("tagName").toLowerCase() is "figcaption"
-        $(element).removeClass("is-mediaFocused")
-    ###
 
     $(element).find(".defaultValue").remove()
     #set reached top if element is first!
