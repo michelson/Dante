@@ -13,6 +13,12 @@
   margin: 0;
 }
 
+.graf--p,
+.graf--blockquote,
+.graf--pullquote {
+  margin-bottom: 30px;
+}
+
 .graf--h2 {
   font-family: $sans;
   font-size: 60px;
@@ -49,6 +55,17 @@
   margin-bottom: 2px;
 }
 
+.section--first .graf--h2.graf--first,
+.section--first .graf--h3.graf--first,
+.section--first .graf--h4.graf--first {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.graf--h2 + .graf--h2 {
+  margin-top: -8px;
+}
+
 .graf--h2 + .graf--h3,
 .graf--h2 + .graf--h4 {
   margin-top: -6px;
@@ -64,41 +81,39 @@
   margin-top: -2px;
 }
 
+//
+
+.graf--h2 + .postList,
+.graf--h3 + .postList,
+.graf--h4 + .postList {
+  margin-top: 10px;
+}
+
+.graf--h2 + .graf--p.graf--empty,
+.graf--h3 + .graf--p.graf--empty,
+.graf--h4 + .graf--p.graf--empty {
+  margin-bottom: -7px;
+  margin-top: -7px;
+}
+
+.graf--h2 + .graf--p.graf--empty + .graf--h2,
+.graf--h3 + .graf--p.graf--empty + .graf--h2,
+.graf--h4 + .graf--p.graf--empty + .graf--h2 {
+  margin-top: -5px;
+}
+
 .graf--h2 + .graf--p.graf--empty + .graf--h3,
 .graf--h3 + .graf--p.graf--empty + .graf--h3,
+.graf--h4 + .graf--p.graf--empty + .graf--h3,
 .graf--h2 + .graf--p.graf--empty + .graf--h4,
 .graf--h3 + .graf--p.graf--empty + .graf--h4,
 .graf--h4 + .graf--p.graf--empty + .graf--h4 {
   margin-top: -8px;
 }
 
-.graf--h4 + .graf--figure,
-.graf--h3 + .graf--figure,
-.graf--h2 + .graf--figure {
-  margin-top: 15px;
-}
-
-.graf--p,
-.graf--blockquote,
-.graf--pullquote {
-  margin-bottom: 30px;
-}
-
-.graf--pre {
-  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
-  font-family: Monaco,"Courier New","Courier",monospace;
-  font-size: 16px;
-  margin-bottom: 20px;
-  padding: 20px;
-  white-space: pre-wrap;
-}
-.graf--pre + .graf--pre {
-  margin-top: -20px;
-}
-
 .graf--blockquote {
+  font-family: $font-family-serif;
   border-left: 3px solid rgba(0, 0, 0, 0.8);
-  font-family: $serif;
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0.01rem;
@@ -111,12 +126,72 @@
   padding-top: 30px;
 }
 
+.graf--pullquote {
+  line-height: 1.4;
+  text-align: center;
+  font-size: 32px;
+  margin: 48px -160px;
+  border: none;
+  padding: 0;
+  font-family: $font-family-serif;
+  letter-spacing: 0.01rem;
+  font-weight: 400;
+  font-style: italic;
+  -webkit-transition: margin 100ms;
+  transition: margin 100ms;
+}
+
+.graf--pre {
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
+  font-family: $font-family-mono;
+  font-size: 16px;
+  margin-bottom: 20px;
+  padding: 20px;
+  white-space: pre-wrap;
+}
+.graf--pre + .graf--pre {
+  margin-top: -20px;
+}
+
 .graf--figure {
-  box-sizing: border-box;
-  clear: both;
-  margin-bottom: 30px;
-  outline: medium none;
   position: relative;
+  margin-bottom: 30px;
+  clear: both;
+  outline: medium none;
+  box-sizing: border-box;
+}
+
+.graf--h4 + .graf--figure,
+.graf--h3 + .graf--figure,
+.graf--h2 + .graf--figure {
+  margin-top: 15px;
+}
+
+.imageCaption {
+  position: absolute;
+  left: -172px;
+  width: 150px;
+  top: 0;
+  text-align: right;
+  margin-top: 0;
+  font-family: "freight-text-pro", Georgia, Cambria, "Times New Roman", Times, serif;
+  letter-spacing: 0.01rem;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+  outline: 0;
+  z-index: 300;
+}
+
+.imageCaption:before {
+  width: 25%;
+  margin-left: 75%;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  display: block;
+  content: "";
+  margin-bottom: 10px;
 }
 
 .graf--first {
@@ -128,6 +203,20 @@
   margin-bottom: -7px;
   margin-top: -7px;
 }
+
+p[data-align="center"],
+.graf--h2[data-align="center"],
+.graf--h3[data-align="center"],
+.graf--h4[data-align="center"],
+.graf--blockquote[data-align="center"] {
+  text-align: center;
+}
+
+.markup--anchor,
+.graf--sectionCaption {
+    cursor: text;
+}
+
 
 @media (max-width: 500px) {
 
@@ -150,9 +239,4 @@
     margin-bottom: 2px;
   }
 
-}
-
-.markup--anchor,
-.graf--sectionCaption {
-    cursor: text;
 }
