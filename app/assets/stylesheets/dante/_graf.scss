@@ -112,11 +112,17 @@
 }
 
 .graf--figure {
-  box-sizing: border-box;
-  clear: both;
-  margin-bottom: 30px;
-  outline: medium none;
-  position: relative;
+  & {
+    box-sizing: border-box;
+    clear: both;
+    margin-bottom: 30px;
+    outline: medium none;
+    position: relative;
+  }
+  &.is-mediaFocused .graf-image,
+  &.is-mediaFocused iframe {
+    box-shadow: 0 0 0 3px #57ad68;
+  }
 }
 
 .graf--first {
