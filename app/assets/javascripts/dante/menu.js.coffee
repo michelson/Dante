@@ -6,8 +6,6 @@ class Dante.Editor.Menu extends Dante.View
   events:
     "mousedown li" : "handleClick"
     "click .dante-menu-linkinput .dante-menu-button": "closeInput"
-    "mouseenter" : "handleOver"
-    "mouseleave" : "handleOut"
     "keypress input": "handleInputEnter"
 
   initialize: (opts={})=>
@@ -159,12 +157,6 @@ class Dante.Editor.Menu extends Dante.View
         nodes.push (if returnAsNodeName then el.nodeName.toLowerCase() else el)
       el = el.parentNode
     nodes
-
-  handleOut: ()->
-    selected_menu = false
-
-  handleOver: ()->
-    selected_menu = true
 
   displayHighlights: ()->
     #remove all active links

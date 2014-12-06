@@ -1,11 +1,9 @@
 
-selected_menu = false
 utils = Dante.utils
 
 class Dante.Editor extends Dante.View
 
   events:
-    #"blur"    : "handleBlur"
     "mouseup" : "handleMouseUp"
     "keydown" : "handleKeyDown"
     "keyup"   : "handleKeyUp"
@@ -15,6 +13,8 @@ class Dante.Editor extends Dante.View
     "drop"    : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
+    "mouseover .markup--anchor" : "displayPopOver"
+    "mouseout  .markup--anchor" : "hidePopOver"
 
   initialize: (opts = {})=>
     @editor_options = opts
@@ -97,6 +97,8 @@ class Dante.Editor extends Dante.View
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
+    @pop_over = new Dante.Editor.PopOver(editor: @)
+    @pop_over.render().hide()
     @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
@@ -107,11 +109,10 @@ class Dante.Editor extends Dante.View
     @render()
     $(@el).attr("contenteditable", "true")
     $(@el).addClass("postField postField--body editable smart-media-plugin")
-    $(@el).wrap("<div class='postContent'><div class='notesSource'></div></div>")
+    $(@el).wrap("<article class='postArticle'><div class='postContent'><div class='notesSource'></div></div></article>")
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @parseInitialMess()
-
 
   restart: ()=>
     @render()
@@ -175,7 +176,6 @@ class Dante.Editor extends Dante.View
     precedingChar
 
   isLastChar: ()->
-    #utils.log "#{$(@getNode()).text().trim().length} | #{@getCharacterPrecedingCaret().trim().length}"
     $(@getNode()).text().trim().length is @getCharacterPrecedingCaret().trim().length
 
   isFirstChar: ()->
@@ -197,7 +197,6 @@ class Dante.Editor extends Dante.View
     range.collapse(true)
     sel.removeAllRanges()
     sel.addRange(range)
-    #@el.focus()
     element.focus()
 
   #set focus and caret position on element
@@ -237,7 +236,6 @@ class Dante.Editor extends Dante.View
     (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
-    #return if _.isUndefined sel
     setTimeout ()=>
       @editor_menu.render()
       pos = utils.getSelectionDimensions()
@@ -270,6 +268,12 @@ class Dante.Editor extends Dante.View
     $(".graf--first").html(@title_placeholder)
     $(".graf--last").html(@body_placeholder)
 
+  displayPopOver: (ev)->
+    @pop_over.displayAt(ev)
+
+  hidePopOver: (ev)->
+    @pop_over.hide(ev)
+
   handleGrafFigureSelectImg: (ev)->
     utils.log "FIGURE SELECT"
     element = ev.currentTarget
@@ -281,22 +285,10 @@ class Dante.Editor extends Dante.View
     utils.log "FIGCAPTION"
     element = ev.currentTarget
     $(element).parent(".graf--figure").removeClass("is-mediaFocused")
-    #return false
-    #@setRangeAt( $(element).find('.imageCaption')[0] )
-
-  handleBlur: (ev)=>
-    #hide menu only if is not in use
-    setTimeout ()=>
-      utils.log "not in use"
-      #@editor_menu.hide() unless selected_menu
-    , 200
-    false
 
   handleMouseUp: (ev)=>
     utils.log "MOUSE UP"
     anchor_node = @getNode()
-    #utils.log anchor_node
-    #utils.log ev.currentTarget
 
     return if _.isNull(anchor_node)
 
@@ -394,7 +386,6 @@ class Dante.Editor extends Dante.View
         if prev_node.hasClass("graf--figure")
           utils.log "1 up"
           n = prev_node.find(".imageCaption")
-          #@setRangeAt n[0]
           @scrollTo(n)
           @skip_keyup = true
           @selection().removeAllRanges()
@@ -418,14 +409,10 @@ class Dante.Editor extends Dante.View
         else if prev_node.hasClass("graf")
           n = current_node.prev(".graf")
           num = n[0].childNodes.length
-          #@setRangeAt n[0], num
           @scrollTo(n)
           utils.log "4 up"
           @skip_keyup = true
-          #debugger
           return false
-
-        utils.log "noting"
 
   #parse text for initial mess
   parseInitialMess: ()->
@@ -452,7 +439,7 @@ class Dante.Editor extends Dante.View
       cbd = ev.originalEvent.clipboardData
       pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
 
-    #alert(pastedText) # Process and handle text...
+    utils.log(pastedText) # Process and handle text...
     #detect if is html
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
@@ -603,7 +590,6 @@ class Dante.Editor extends Dante.View
       else if parent.hasClass("is-extractable")
         @tooltip_view.getExtractFromNode($(anchor_node))
 
-
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         utils.log("supress linebreak from embed !(last char)")
@@ -626,16 +612,19 @@ class Dante.Editor extends Dante.View
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph if it the last character
         if @isLastChar()
-          utils.log "new paragraph if it the last character"
+          utils.log "new paragraph if it's the last character"
           e.preventDefault()
           @handleLineBreakWith("p", parent)
 
       setTimeout ()=>
         node = @getNode()
-        @markAsSelected( @getNode() ) #if anchor_node
-        @setupFirstAndLast()
         #set name on new element
         @setElementName($(node))
+
+        if node.nodeName.toLowerCase() is "div"
+          node = @replaceWith("p", $(node))[0]
+        @markAsSelected( $(node) ) #if anchor_node
+        @setupFirstAndLast()
 
         #empty childs if text is empty
         if _.isEmpty $(node).text().trim()
@@ -682,14 +671,11 @@ class Dante.Editor extends Dante.View
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
-      utils.log "sss"
       utils.log anchor_node
       if $(".is-selected").hasClass("graf--figure")
         @replaceWith("p", $(".is-selected"))
         @setRangeAt($(".is-selected")[0])
         return false
-
-
 
     #arrows key
     #if _.contains([37,38,39,40], e.which)
@@ -778,6 +764,7 @@ class Dante.Editor extends Dante.View
     from_element.replaceWith(new_paragraph)
     @setRangeAt(new_paragraph[0])
     @scrollTo new_paragraph
+    new_paragraph
 
   #shows the (+) tooltip at current element
   displayTooltipAt: (element)->
@@ -797,20 +784,6 @@ class Dante.Editor extends Dante.View
 
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
     $(element).addClass("is-selected")
-
-    ###
-    if $(element).prop("tagName").toLowerCase() is "figure"
-      $(element).addClass("is-mediaFocused")
-      n = utils.getNode()
-      utils.log n
-
-      n = utils.getNode()
-      utils.log n
-      if _.isUndefined n
-        $(element).addClass("is-mediaFocused")
-      else if $(n).prop("tagName").toLowerCase() is "figcaption"
-        $(element).removeClass("is-mediaFocused")
-    ###
 
     $(element).find(".defaultValue").remove()
     #set reached top if element is first!
