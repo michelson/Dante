@@ -1,6 +1,6 @@
 .popover {
   overflow: hidden;
-  position: absolute;
+  position: fixed;
   z-index: 900;
   visibility: visible;
   font-size: 12px;
@@ -23,7 +23,6 @@
   position: relative;
   max-width: 280px;
   border-radius: 4px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.25),0 0 1px rgba(0,0,0,0.35);
   padding: 8px;
   a {
     color: inherit;
@@ -57,20 +56,14 @@
 */
 
 .popover-inner {
+  background-color: rgba(0,0,0,0.8);
   color: #fff;
-  background: #262625;
-  border: 1px solid;
-  box-shadow: 0 1px 3px -1px rgba(0,0,0,0.8);
-  background-image: linear-gradient(tobottom,rgba(49,49,47,0.97), #262625);
-  background-repeat: repeat-x;
-  border-color: #262625 #1c1c1b #121211;
 }
 .popover-arrow {
   position: absolute;
 }
 .popover-arrow:after {
-  background: #262625;
-  border: 1px solid #121211;
+  background-color: rgba(0,0,0,0.8);
 }
 
 .popover--top .popover-arrow,
