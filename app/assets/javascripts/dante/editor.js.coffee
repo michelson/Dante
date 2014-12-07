@@ -329,7 +329,6 @@ class Dante.Editor extends Dante.View
 
       when "Down"
         #when graff-image selected but none selection is found
-        #debugger
         if _.isUndefined(current_node) or !current_node.exists()
           if $(".is-selected").exists()
             current_node = $(".is-selected")
@@ -347,13 +346,12 @@ class Dante.Editor extends Dante.View
         #if next element is embed select & focus it
         if next_node.hasClass("graf--figure") && caret_node
           n = next_node.find(".imageCaption")
-          @setRangeAt n[0]
           @scrollTo(n)
           utils.log "1 down"
           utils.log n[0]
           @skip_keyup = true
           @selection().removeAllRanges()
-          #@markAsSelected(next_node)
+          @markAsSelected(next_node)
           next_node.addClass("is-mediaFocused is-selected")
           return false
         #if current node is embed
@@ -389,7 +387,8 @@ class Dante.Editor extends Dante.View
           @scrollTo(n)
           @skip_keyup = true
           @selection().removeAllRanges()
-          prev_node.addClass("is-mediaFocused is-selected")
+          @markAsSelected(prev_node)
+          prev_node.addClass("is-mediaFocused")
           return false
 
         else if prev_node.hasClass("graf--mixtapeEmbed")
@@ -412,6 +411,7 @@ class Dante.Editor extends Dante.View
           @scrollTo(n)
           utils.log "4 up"
           @skip_keyup = true
+          @markAsSelected(prev_node)
           return false
 
   #parse text for initial mess
@@ -703,7 +703,7 @@ class Dante.Editor extends Dante.View
     if @skip_keyup
       @skip_keyup = null
       utils.log "SKIP KEYUP"
-      return
+      return false
 
     utils.log "KEYUP"
 
