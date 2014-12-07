@@ -189,15 +189,15 @@ section:first-child > .section-divider,
 section.is-backgrounded + section > .section-divider {
     display: none;
 }
-.postArticle .layoutSingleColumn,
-.postFooter--loggedOut .layoutSingleColumn {
-    width: 700px;
-}
+// .postArticle .layoutSingleColumn,
+// .postFooter--loggedOut .layoutSingleColumn {
+//     width: 700px;
+// }
 
-.layoutSingleColumn {
-    margin: 0 auto;
-    width: 640px;
-}
+// .layoutSingleColumn {
+//     margin: 0 auto;
+//     width: 640px;
+// }
 
 .defaultValue--prompt {
     font-family: $sans;

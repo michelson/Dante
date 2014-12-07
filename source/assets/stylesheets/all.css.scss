@@ -6,53 +6,55 @@
 $color-brand: #1abf89;
 $gutter: 30px;
 
-body:after {
-  content: "";
-  position: fixed;
+#header {
+  display: block;
+  z-index: 500;
   width: 100%;
-  height: 3px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.3);
+  font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  font-style: normal;
+  box-sizing: border-box;
+  -webkit-transition: 200ms background-color,200ms color;
+  transition: 200ms background-color,200ms color;
+  position: fixed;
   top: 0;
-  right: 0;
-  left: 0;
-  background-color: $color-brand;
+  height: 65px;
+  background: rgba(255,255,255,0.97);
+  box-shadow: 0 0 1px rgba(0,0,0,0.15);
 }
+
 article {
-  z-index: 1;
-  margin-top: 70px;
-  padding: $gutter;
-}
-#editor{
-  margin: 0 auto;
-  max-width: 700px;
+  margin-top: 140px;
 }
 
 .logo {
-  display: block;
-  float: left;
-  margin: -34px 7px 11px 25px;
-  position: absolute;
-  left: 0;
-  top: 28px;
-}
-
-.top-left,
-.top-right {
-  position: fixed;
-  top: $gutter;
-  z-index: 2;
-}
-
-.top-left {
-  left: $gutter;
-}
-.top-right {
-  right: $gutter;
+  & {
+    display: inline-block;
+  }
+  img {
+    margin: 22px 14px 22px 20px;
+  }
+  span {
+    vertical-align: top;
+    border-left: 1px solid rgba(0,0,0,0.15);
+    padding: 5px 14px;
+    margin: 20px 0;
+    display: inline-block;
+  }
 }
 
 .github {
-  font-size: 40px;
-  color: $color-brand;
-  line-height: 0;
+  & {
+    float: right;
+    font-size: 32px;
+    color: $color-brand;
+    line-height: 0;
+    margin-top: 19px;
+    margin-right: 24px;
+  }
   i {
     position: relative;
     top: -2px;
