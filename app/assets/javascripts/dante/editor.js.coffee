@@ -13,6 +13,8 @@ class Dante.Editor extends Dante.View
     "drop"    : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
+    "keyup .graf--figure figcaption"   : "handleGrafCaptionTyping"
+
     "mouseover .markup--anchor" : "displayPopOver"
     "mouseout  .markup--anchor" : "hidePopOver"
 
@@ -245,6 +247,13 @@ class Dante.Editor extends Dante.View
 
   handleDrag: ()->
     return false
+
+  handleGrafCaptionTyping: (ev)->
+    if _.isEmpty(utils.getNode().textContent.trim())
+      $(@getNode()).addClass("is-defaultValue")
+    else
+      $(@getNode()).removeClass("is-defaultValue")
+
 
   #get text of selected and displays menu
   handleTextSelection: (anchor_node)->
