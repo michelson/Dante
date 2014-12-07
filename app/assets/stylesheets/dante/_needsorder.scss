@@ -1,9 +1,10 @@
 
-.markup--anchor,
-.graf--sectionCaption {
+.editable .markup--anchor,
+.editable .graf--sectionCaption {
     cursor: text;
 }
 
+/*
 .markup--anchor {
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 50%);
     //background-position: 0 24px;
@@ -18,7 +19,7 @@
 h4 .markup--anchor {
     background-position: 0 34px;
 }
-
+*/
 
 
 // .aspectRatioPlaceholder {
