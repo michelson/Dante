@@ -154,11 +154,17 @@
 }
 
 .graf--figure {
-  position: relative;
-  margin-bottom: 30px;
-  clear: both;
-  outline: medium none;
-  box-sizing: border-box;
+  & {
+    box-sizing: border-box;
+    clear: both;
+    margin-bottom: 30px;
+    outline: medium none;
+    position: relative;
+  }
+  &.is-mediaFocused .graf-image,
+  &.is-mediaFocused iframe {
+    box-shadow: 0 0 0 3px #57ad68;
+  }
 }
 
 .graf--h4 + .graf--figure,
@@ -167,32 +173,6 @@
   margin-top: 15px;
 }
 
-.imageCaption {
-  position: absolute;
-  left: -172px;
-  width: 150px;
-  top: 0;
-  text-align: right;
-  margin-top: 0;
-  font-family: "freight-text-pro", Georgia, Cambria, "Times New Roman", Times, serif;
-  letter-spacing: 0.01rem;
-  font-weight: 400;
-  font-style: italic;
-  font-size: 14px;
-  line-height: 1.4;
-  color: rgba(0, 0, 0, 0.6);
-  outline: 0;
-  z-index: 300;
-}
-
-.imageCaption:before {
-  width: 25%;
-  margin-left: 75%;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
-  display: block;
-  content: "";
-  margin-bottom: 10px;
-}
 
 .graf--first {
   margin-top: 0;
