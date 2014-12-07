@@ -196,7 +196,10 @@ p[data-align="center"],
 .graf--sectionCaption {
     cursor: text;
 }
-
+.markup--anchor {
+  text-decoration: underline;
+  color: inherit;
+}
 
 @media (max-width: 500px) {
 
