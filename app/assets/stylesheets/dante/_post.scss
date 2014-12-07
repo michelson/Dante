@@ -1,3 +1,21 @@
+.postArticle {
+  .layoutSingleColumn {
+    & {
+      width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (max-width: 800px) {
+      width: 640px;
+    }
+    @media (max-width: 680px) {
+      width: auto;
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+  }
+}
+
 .postContent {
   font-family: $font-family-serif;
   letter-spacing: 0.01rem;

@@ -11,11 +11,12 @@
 
   <body class="<%= page_classes %>">
 
-    <div class="top-left">
-      <img src="assets/images/dante-logo.png" alt="dante logo" width="41" >
-    </div>
-    <div class="top-right">
-      <a class="github tooltip-left" data-tooltip="Fork me on github" href="https://github.com/michelson/dante"><i class="fa fa-github"></i></a>
+    <div id="header">
+      <div class="logo">
+        <img src="assets/images/dante-editor-logo@2x.png" alt="dante editor" height="21" >
+        <span>Dante Editor</span>
+      </div>
+      <a class="github tooltip-left" data-tooltip="Fork me on github" target="_blank" href="https://github.com/michelson/dante"><i class="fa fa-github"></i></a>
     </div>
 
     <%= yield %>

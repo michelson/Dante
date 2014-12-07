@@ -69,12 +69,12 @@ $tooltip-arrow-height: $tooltip-arrow-size * 2;
 [data-tooltip]:after {
   white-space: nowrap;
   z-index: 1000;
-  padding: 8px;
+  padding: 7px 8px;
   background-color: #000;
   background-color: hsla(0, 0%, 20%, 0.9);
   color: #fff;
   content: attr(data-tooltip);
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.2;
   border-radius: 3px;
 }
