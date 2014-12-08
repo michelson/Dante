@@ -50,7 +50,6 @@ class Dante.Editor.Menu extends Dante.View
   render: ()=>
     $(@el).html(@template())
     @show()
-    #@delegateEvents()
 
   handleClick: (ev)->
     element   = $(ev.currentTarget).find('.dante-icon')
@@ -60,8 +59,11 @@ class Dante.Editor.Menu extends Dante.View
     @savedSel = utils.saveSelection()
 
     if /(?:createlink)/.test(action)
-      $(@el).addClass("dante-menu--linkmode")
-      input.focus()
+      if $(ev.currentTarget).hasClass("active")
+        @removeLink()
+      else
+        $(@el).addClass("dante-menu--linkmode")
+        input.focus()
     else
       @menuApply action
 
@@ -75,6 +77,11 @@ class Dante.Editor.Menu extends Dante.View
     if (e.which is 13)
       utils.restoreSelection(@savedSel)
       return @createlink( $(e.target) )
+
+  removeLink: ()->
+    @menuApply "unlink"
+    elem = @current_editor.getNode()
+    @current_editor.cleanContents($(elem))
 
   createlink: (input) =>
     $(@el).removeClass("dante-menu--linkmode")
@@ -199,6 +206,7 @@ class Dante.Editor.Menu extends Dante.View
 
   show: ()->
     $(@el).addClass("dante-menu--active")
+    @closeInput()
     @displayHighlights()
 
   hide: ()->

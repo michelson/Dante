@@ -13,6 +13,7 @@
   + DELETE
     + handle remove from PRE tag, it set rare span, just remove it
     + clean node when remove one
+    + don't remove entire graf-image when delete text from caption
 
   + IMAGES:
     + upload, show progress, complete
