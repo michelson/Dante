@@ -1,6 +1,6 @@
 ## ROADMAP
 
-+ 0.0.5
++ 0.0.6
   + TODO LIST COMPLETE!
 + 0.0.7
   + implement Keyboard Shortcuts / word count / typing tricks
