@@ -25,7 +25,7 @@ class Dante.Editor.PopOver extends Dante.View
   #display & copy original link
   positionAt: (ev)->
     target           = $(ev.currentTarget)
-    target_positions = target.position()
+    target_positions = @resolveTargetPosition(target)
     target_offset    = target.offset()
     target_width     = target.outerWidth()
     target_height    = target.outerHeight()
@@ -37,6 +37,8 @@ class Dante.Editor.PopOver extends Dante.View
       .css("top", top_value)
       .css("left",  left_value )
       .show()
+
+    @handleDirection(target)
 
   displayAt: (ev)->
     @cancelHide()
@@ -56,6 +58,19 @@ class Dante.Editor.PopOver extends Dante.View
     @hideTimeout = setTimeout ()=>
       $(@el).find(".popover").hide()
     , @settings.timeout
+
+  resolveTargetPosition: (target)->
+    if target.parents(".graf--mixtapeEmbed").exists()
+      target.parents(".graf--mixtapeEmbed").position()
+    else
+      target.position()
+
+
+  handleDirection: (target)->
+    if target.parents(".graf--mixtapeEmbed").exists()
+      $(@el).find(".popover").removeClass("popover--bottom").addClass("popover--top")
+    else
+      $(@el).find(".popover").removeClass("popover--top").addClass("popover--bottom")
 
   render: ()->
     $(@template()).insertAfter(@editor.$el)
