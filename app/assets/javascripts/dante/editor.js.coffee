@@ -735,7 +735,13 @@ class Dante.Editor extends Dante.View
 
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYUP #{_.isEmpty($(utils_anchor_node).text())}"
-        return false if _.isEmpty($(utils_anchor_node).text())
+        if _.isEmpty($(utils_anchor_node).text())
+          next_graf =  $(utils_anchor_node).next(".graf")[0]
+          if next_graf
+            @setRangeAt next_graf
+            $(utils_anchor_node).remove()
+            @setupFirstAndLast()
+          return false
 
       if _.isNull(anchor_node)
         @handleNullAnchor()
@@ -743,14 +749,19 @@ class Dante.Editor extends Dante.View
 
       if $(anchor_node).hasClass("graf--first")
         utils.log "THE FIRST ONE! UP"
+
+        if @.getSelectedText() is @.getNode().textContent
+          utils.log "remove selection dectected"
+          @.getNode().innerHTML = "<br>"
+
         @markAsSelected(anchor_node)
         @setupFirstAndLast()
         false
 
-      if anchor_node
-        @markAsSelected(anchor_node)
-        @setupFirstAndLast()
-        @displayTooltipAt($(@el).find(".is-selected"))
+      #if anchor_node
+      #  @markAsSelected(anchor_node)
+      #  @setupFirstAndLast()
+      #  @displayTooltipAt($(@el).find(".is-selected"))
 
     #arrows key
     if _.contains([37,38,39,40], e.which)
