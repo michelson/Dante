@@ -81,8 +81,6 @@
   margin-top: -2px;
 }
 
-//
-
 .graf--h2 + .postList,
 .graf--h3 + .postList,
 .graf--h4 + .postList {
@@ -110,6 +108,7 @@
 .graf--h4 + .graf--p.graf--empty + .graf--h4 {
   margin-top: -8px;
 }
+
 
 .graf--blockquote {
   font-family: $font-family-serif;
@@ -173,15 +172,9 @@
   margin-top: 15px;
 }
 
-
 .graf--first {
   margin-top: 0;
   padding-top: 0;
-}
-
-.graf--empty {
-  margin-bottom: -7px;
-  margin-top: -7px;
 }
 
 p[data-align="center"],
