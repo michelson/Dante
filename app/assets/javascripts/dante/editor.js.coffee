@@ -101,7 +101,7 @@ class Dante.Editor extends Dante.View
     @tooltip_view = new Dante.Editor.Tooltip(editor: @)
     @pop_over = new Dante.Editor.PopOver(editor: @)
     @pop_over.render().hide()
-    @tooltip_view.render().hide()
+    @tooltip_view.render()
 
   appendInitialContent: ()=>
     $(@el).find(".section-inner").html(@initial_html)

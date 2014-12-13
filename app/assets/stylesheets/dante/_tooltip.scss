@@ -3,17 +3,18 @@
   // BASE
   position: absolute;
   z-index: 900;
-  overflow: hidden;
-  display: none;
   width: $tooltip-size;
   height: $tooltip-size;
   -webkit-transition: opacity 100ms, width 0 linear 250ms;
   transition: opacity 100ms, width 0 linear 250ms;
   padding: 0;
+  opacity: 0;
+  pointer-events: none;
 
   &.is-active {
-    display: block;
-    width: 220px;
+    opacity: 1;
+    pointer-events: auto;
+  }
   &.is-scaled {
     width: $tooltip-size-expanded;
     -webkit-transition-delay: 0;

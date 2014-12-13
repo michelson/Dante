@@ -69,11 +69,11 @@ class Dante.Editor.Tooltip extends Dante.View
 
   render: ()=>
     $(@el).html(@template())
-    $(@el).show()
+    $(@el).addClass("is-active")
 
   toggleOptions: ()=>
     utils.log "Toggle Options!!"
-    $(@el).toggleClass("is-active is-scaled")
+    $(@el).toggleClass("is-scaled")
     return false
 
   move: (coords)->
@@ -353,5 +353,4 @@ class Dante.Editor.Tooltip extends Dante.View
     node.removeClass("is-embedable is-extractable")
 
   hide: ()=>
-    $(@el).hide()
     $(@el).removeClass("is-active is-scaled")
