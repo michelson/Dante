@@ -12,7 +12,6 @@
   }
 }
 
-
 .icon-h2:before                   { content: "H1"; }
 .icon-h3:before                   { content: "H2"; }
 .icon-h4:before                   { content: "H3"; }
@@ -29,9 +28,30 @@
 .icon-createlink:before           { content: ""; }
 .icon-blockquote:before           { content: ""; }
 
-
 .icon-h2:before,
 .icon-h3:before,
 .icon-h4:before {
   font-weight: bold;
 }
+
+
+.tooltip-icon {
+  &:before {
+    font-family: 'dante-tooltip';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    // Better Font Rendering
+     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.icon-video:before { content: "\e600"; }
+.icon-image:before { content: "\e601"; }
+.icon-plus:before  { content: "\e602"; }
+.icon-embed:before { content: "\e603"; }
