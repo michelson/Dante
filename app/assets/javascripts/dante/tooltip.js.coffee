@@ -77,7 +77,14 @@ class Dante.Editor.Tooltip extends Dante.View
     return false
 
   move: (coords)->
-    $(@el).offset(coords)
+    tooltip         = $(@el)
+    control_width   = tooltip.find(".control").css("width")
+    control_spacing = tooltip.find(".inlineTooltip-menu").css("padding-left")
+    pull_size       = parseInt(control_width.replace(/px/,"")) + parseInt(control_spacing.replace(/px/,""))
+    coord_left      = coords.left - pull_size
+    coord_top       = coords.top
+
+    $(@el).offset(left: coord_left, top: coord_top)
 
   handleClick: (ev)->
     name = $(ev.currentTarget).data('action')
