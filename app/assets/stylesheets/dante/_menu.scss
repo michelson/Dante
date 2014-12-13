@@ -79,7 +79,8 @@
     color: $menu-color;
     cursor: pointer;
     font-size: 16px;
-    line-height: $menu-height - 2;
+    line-height: $menu-button-height;
+    height: $menu-button-height;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;
