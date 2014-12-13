@@ -782,9 +782,9 @@ class Dante.Editor extends Dante.View
     return if !element
     @tooltip_view.hide()
     return unless _.isEmpty( $(element).text() )
-    @position = $(element).offset()
+    @positions = $(element).offset()
     @tooltip_view.render()
-    @tooltip_view.move(left: @position.left, top: @position.top )
+    @tooltip_view.move(@positions)
 
   #mark the current row as selected
   markAsSelected: (element)->

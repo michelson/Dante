@@ -84,7 +84,7 @@ class Dante.Editor.Tooltip extends Dante.View
     coord_left      = coords.left - pull_size
     coord_top       = coords.top
 
-    $(@el).offset(left: coord_left, top: coord_top)
+    $(@el).offset(top: coord_top, left: coord_left)
 
   handleClick: (ev)->
     name = $(ev.currentTarget).data('action')
