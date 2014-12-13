@@ -70,6 +70,7 @@ class Dante.Editor.Tooltip extends Dante.View
   render: ()=>
     $(@el).html(@template())
     $(@el).addClass("is-active")
+    @
 
   toggleOptions: ()=>
     utils.log "Toggle Options!!"
