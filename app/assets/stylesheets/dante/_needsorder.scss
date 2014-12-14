@@ -74,7 +74,7 @@ h4 .markup--anchor {
     border-width: 1px;
     box-sizing: border-box;
     color: rgba(0, 0, 0, 0.6);
-    font-family: $sans;
+    font-family: $font-family-sans;
     font-size: 12px;
     font-style: normal;
     font-weight: 300;
@@ -105,7 +105,7 @@ h4 .markup--anchor {
 
 .graf--mixtapeEmbed {
     color: rgba(0, 0, 0, 0.6);
-    font-family: $sans;
+    font-family: $font-family-sans;
     font-size: 12px;
     font-style: normal;
     font-weight: 300;
@@ -115,7 +115,7 @@ h4 .markup--anchor {
 .markup--mixtapeEmbed-strong {
     color: #000;
     display: block;
-    font-family: $sans;
+    font-family: $font-family-sans;
     font-size: 30px;
     font-style: normal;
     font-weight: 300;
@@ -147,7 +147,7 @@ h4 .markup--anchor {
 
 // .imageCaption {
 //     color: rgba(0, 0, 0, 0.6);
-//     font-family: $serif;
+//     font-family: $font-family-serif;
 //     font-size: 14px;
 //     font-style: italic;
 //     font-weight: 400;
@@ -201,7 +201,7 @@ section.is-backgrounded + section > .section-divider {
 // }
 
 .defaultValue--prompt {
-    font-family: $sans;
+    font-family: $font-family-sans;
     font-size: 18px;
     font-style: normal;
     font-weight: 400;

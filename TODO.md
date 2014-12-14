@@ -14,6 +14,7 @@
     + handle remove from PRE tag, it set rare span, just remove it
     + clean node when remove one
     + don't remove entire graf-image when delete text from caption
+    + handle delete from link embeds . when text is empty , remove embed on next del key press.
 
   + IMAGES:
     + upload, show progress, complete

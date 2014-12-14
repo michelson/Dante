@@ -10,9 +10,9 @@ class Dante.Editor.Tooltip extends Dante.View
   initialize: (opts = {})=>
     @current_editor = opts.editor
     @buttons = [
-      {icon: "fa-camera", title: "Add an image", action: "image"},
-      {icon: "fa-play",   title: "Add a video",  action: "embed"},
-      {icon: "fa-code",   title: "Add an embed", action: "embed-extract"}
+      {icon: "icon-image", title: "Add an image", action: "image"},
+      {icon: "icon-video", title: "Add a video",  action: "embed"},
+      {icon: "icon-embed", title: "Add an embed", action: "embed-extract"}
     ]
     #TODO: include section splitter
     #icon: "fa-minus", title: "Add a new part", action: "hr"
@@ -22,11 +22,11 @@ class Dante.Editor.Tooltip extends Dante.View
     _.each @buttons, (b)->
       data_action_value = if b.action_value then "data-action-value='#{b.action_value}'" else  ""
       menu += "<button class='inlineTooltip-button scale' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
-        <span class='fa #{b.icon}'></span>
+        <span class='tooltip-icon #{b.icon}'></span>
       </button>"
 
     "<button class='inlineTooltip-button control' title='Close Menu' data-action='inline-menu'>
-        <span class='fa fa-plus'></span>
+        <span class='tooltip-icon icon-plus'></span>
     </button>
     <div class='inlineTooltip-menu'>
       #{menu}
@@ -69,15 +69,23 @@ class Dante.Editor.Tooltip extends Dante.View
 
   render: ()=>
     $(@el).html(@template())
-    $(@el).show()
+    $(@el).addClass("is-active")
+    @
 
   toggleOptions: ()=>
     utils.log "Toggle Options!!"
-    $(@el).toggleClass("is-active is-scaled")
+    $(@el).toggleClass("is-scaled")
     return false
 
   move: (coords)->
-    $(@el).offset(coords)
+    tooltip         = $(@el)
+    control_width   = tooltip.find(".control").css("width")
+    control_spacing = tooltip.find(".inlineTooltip-menu").css("padding-left")
+    pull_size       = parseInt(control_width.replace(/px/,"")) + parseInt(control_spacing.replace(/px/,""))
+    coord_left      = coords.left - pull_size
+    coord_top       = coords.top
+
+    $(@el).offset(top: coord_top, left: coord_left)
 
   handleClick: (ev)->
     name = $(ev.currentTarget).data('action')
@@ -353,5 +361,4 @@ class Dante.Editor.Tooltip extends Dante.View
     node.removeClass("is-embedable is-extractable")
 
   hide: ()=>
-    $(@el).hide()
     $(@el).removeClass("is-active is-scaled")

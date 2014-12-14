@@ -42,7 +42,6 @@ class Dante.Editor.PopOver extends Dante.View
 
   displayAt: (ev)->
     @cancelHide()
-    #debugger
     target = $(ev.currentTarget)
     $(@el).find(".popover-inner a").text( target.attr('href') ).attr('href', target.attr("href") )
     @positionAt(ev)

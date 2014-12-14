@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <title><%= current_page.data.title || "The Middleman" %></title>
-    <%= stylesheet_link_tag "http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" %>
     <%= stylesheet_link_tag "normalize", "all", "editor" %>
     <%= javascript_include_tag  "deps", "editor" %>
   </head>
@@ -16,7 +15,9 @@
         <img src="assets/images/dante-editor-logo.png" alt="dante editor" height="21" >
         <span>Dante Editor</span>
       </div>
-      <a class="github tooltip-left" data-tooltip="Fork me on github" target="_blank" href="https://github.com/michelson/dante"><i class="fa fa-github"></i></a>
+      <a class="github tooltip-left" data-tooltip="Fork me on github" target="_blank" href="https://github.com/michelson/dante">
+        <img src="assets/images/github-logo.png" alt="Fork me on github" height="28" >
+      </a>
     </div>
 
     <%= yield %>

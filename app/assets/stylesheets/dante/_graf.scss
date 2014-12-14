@@ -20,7 +20,7 @@
 }
 
 .graf--h2 {
-  font-family: $sans;
+  font-family: $font-family-sans;
   font-size: 60px;
   font-style: normal;
   font-weight: 700;
@@ -32,7 +32,7 @@
   padding-top: 0;
 }
 .graf--h3 {
-  font-family: $sans;
+  font-family: $font-family-sans;
   letter-spacing: -0.02em;
   font-weight: 700;
   font-style: normal;
@@ -43,7 +43,7 @@
   margin-bottom: 4px;
 }
 .graf--h4 {
-  font-family: $sans;
+  font-family: $font-family-sans;
   letter-spacing: -0.02em;
   font-weight: 300;
   font-style: normal;
@@ -182,6 +182,11 @@
   margin-top: 0;
   padding-top: 0;
 }
+
+/*.graf--empty {
+  margin-bottom: -7px;
+  margin-top: -7px;
+}*/
 
 p[data-align="center"],
 .graf--h2[data-align="center"],

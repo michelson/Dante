@@ -1,30 +1,45 @@
-$font-family-sans:        'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-$font-family-serif:       'freight-text-pro', 'Merriweather', Georgia,Cambria, "Times New Roman", Times,serif;
-$font-family-mono:        Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;
+$font-family-sans:              'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+$font-family-serif:             'freight-text-pro', 'Merriweather', Georgia,Cambria, "Times New Roman", Times,serif;
+$font-family-mono:              Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;
 
-$font-family-base:        $font-family-sans;
-$font-size-base:          14px;
-$line-height-base:        1.428571429; // 20/14
-//$line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
+$font-family-base:              $font-family-sans;
+$font-size-base:                14px;
+$line-height-base:              1.428571429; // 20/14
 
-$active-color:       #57AD68;
+$active-color:                  #5BD974;
 
-$debugger:           false;
+$menu-tone:                     #333;
+$menu-factor:                   5%;
+$menu-background:               linear-gradient(to bottom, darken($menu-tone,$menu-factor), $menu-tone) repeat scroll 0 0 $menu-tone;
+$menu-shadow:                   1px 2px 3px -2px #222;
+$menu-border-width:             1px;
+$menu-border-color:             darken($menu-tone,$menu-factor);
+$menu-border-radius:            5px;
+$menu-border:                   $menu-border-width solid $menu-border-color;
+$menu-color:                    #FFFFFF;
+$menu-color-active:             $active-color;
+$menu-caret-size:               8px;
 
-$menu-height:        45px;
-$menu-tone:          #333;
-$menu-factor:        5%;
-$menu-background:    linear-gradient(to bottom, darken($menu-tone,$menu-factor), $menu-tone) repeat scroll 0 0 $menu-tone;
-$menu-shadow:        1px 2px 3px -2px #222;
-$menu-border-color:  darken($menu-tone,$menu-factor);
-$menu-border:        1px solid $menu-border-color;
-$menu-border-radius: 5px;
-$menu-color:         #FFFFFF;
-$menu-color-active:  #1ABF89;
-$menu-caret-size:    8px;
+$menu-height:                   45px;
+$menu-button-height:            $menu-height - ($menu-border-width * 2);
 
-$tooltip-size:       32px;
+$tooltip-color:                 black;
+$tooltip-color-opacity:         0.44;
+$tooltip-color-opacity-hover:   0.9;
+$tooltip-background-opacity:    0;
+$tooltip-border-width:          1px;
+$tooltip-border-radius:         999em;
 
-// Legacy
-$serif: $font-family-serif;
-$sans:  $font-family-sans;
+$tooltip-button-spacing:        9px;
+$tooltip-menu-spacing:          22px;
+
+$tooltip-items:                 3;
+$tooltip-size:                  32px;
+$tooltip-line-height:           $tooltip-size;
+
+$tooltip-size-expanded:         ($tooltip-size + $tooltip-menu-spacing + 1 ) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items);
+$tooltip-default-transition:    100ms border-color, 100ms color;
+$tooltip-forward-transition:    transform 100ms;
+$tooltip-backward-transition:   transform 250ms;
+
+$debugger:                      true;

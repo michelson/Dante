@@ -73,13 +73,15 @@
   & {
     min-width: 20px;
     display: inline-block;
-    padding: 0 10px;
+    padding-left: 10px;
+    padding-right: 10px;
     overflow: hidden;
     text-align: center;
     color: $menu-color;
     cursor: pointer;
     font-size: 16px;
-    line-height: $menu-height - 2;
+    line-height: $menu-button-height;
+    height: $menu-button-height;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;

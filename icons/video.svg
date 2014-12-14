@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.2 (9961) - http://www.bohemiancoding.com/sketch -->
+    <title>media</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Group" sketch:type="MSLayerGroup" transform="translate(-103.000000, -8.000000)">
+            <rect id="Rectangle-23" stroke="#979797" sketch:type="MSShapeGroup" x="95" y="0" width="32" height="32" rx="40"></rect>
+            <path d="M107,11.1318944 C107,10.0292777 107.735324,9.64023121 108.651297,10.2690478 L115.348703,14.8668273 C116.260689,15.492907 116.264676,16.5052457 115.348703,17.1340624 L108.651297,21.7318418 C107.739311,22.3579215 107,21.9645938 107,20.8689953 L107,11.1318944 Z M108,11.020874 L114.659302,15.6066284 C115.136292,15.9230347 115.125427,16.0910034 114.659302,16.404602 L108,21.0145874 L108,11.020874 Z" id="Rectangle-20" fill="#000000" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>
