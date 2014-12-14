@@ -37,7 +37,7 @@ $tooltip-items:                 3;
 $tooltip-size:                  32px;
 $tooltip-line-height:           $tooltip-size;
 
-$tooltip-size-expanded:         ($tooltip-size + $tooltip-menu-spacing) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items);
+$tooltip-size-expanded:         ($tooltip-size + $tooltip-menu-spacing + 1 ) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items);
 $tooltip-default-transition:    100ms border-color, 100ms color;
 $tooltip-forward-transition:    transform 100ms;
 $tooltip-backward-transition:   transform 250ms;
