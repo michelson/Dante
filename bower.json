@@ -2,7 +2,7 @@
   "name" : "dante",
   "description": "Just another Medium editor clone.",
   "homepage": "michelson.github.io/Dante/",
-  "version" : "0.0.6",
+  "version" : "0.0.7",
   "keywords": [
     "css",
     "sass",
@@ -18,7 +18,9 @@
     { "name": "Cristian Ferrari", "homepage": "https://github.com/cristianferrarig" }
   ],
   "main": [
-    "app/**/*",
+    "app/fonts/**/*",
+    "app/images/dante/**/*",
+    "app/stylesheets/**/*",
     "build/assets/images/dante/media-loading-placeholder.png",
     "build/assets/fonts/*",
     "build/assets/stylesheets/editor.css",
