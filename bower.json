@@ -2,11 +2,12 @@
   "name" : "dante",
   "description": "Just another Medium editor clone.",
   "homepage": "michelson.github.io/Dante/",
-  "version" : "0.0.1",
+  "version" : "0.0.5",
   "keywords": [
     "css",
-    "js",
     "sass",
+    "js",
+    "coffeescript",
     "medium",
     "editor",
     "web"
@@ -34,11 +35,11 @@
     "ROADMAP.md",
     "TODO.md",
     "lib",
-    "source",
+    "source"
   ],
-  "dependencies" : {
+  "dependencies": {
     "jquery": "*",
     "underscore" : "*",
-    "sanitize.js" : "*",
+    "sanitize.js" : "*"
   }
 }
