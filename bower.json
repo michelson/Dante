@@ -19,11 +19,10 @@
   ],
   "main": [
     "app/**/*",
-    "source/assets/**/*",
-    "build/assets/images/dante/**/*",
-    "build/assets/fonts/dante/**/*",
-    "build/assets/stylesheets/dante/**/*",
-    "build/assets/javascripts/dante/editor.js"
+    "build/assets/images/dante/media-loading-placeholder.png",
+    "build/assets/fonts/*",
+    "build/assets/stylesheets/editor.css",
+    "build/assets/javascripts/editor.js"
   ],
   "ignore": [
     ".gitignore",
