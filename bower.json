@@ -1,10 +1,46 @@
 {
   "name" : "dante",
-  "version" : "0.0.1",
-  "main" : "dante.js",
-  "dependencies" : {
+  "description": "Just another Medium editor clone.",
+  "homepage": "michelson.github.io/Dante/",
+  "version" : "0.0.5",
+  "keywords": [
+    "css",
+    "sass",
+    "js",
+    "coffeescript",
+    "medium",
+    "editor",
+    "web",
+    "wysiwyg"
+  ],
+  "authors": [
+    { "name": "Miguel Michelson", "homepage": "https://github.com/michelson" },
+    { "name": "Cristian Ferrari", "homepage": "https://github.com/cristianferrarig" }
+  ],
+  "main": [
+    "app/**/*",
+    "source/assets/**/*",
+    "build/assets/images/dante/**/*",
+    "build/assets/fonts/dante/**/*",
+    "build/assets/stylesheets/dante/**/*",
+    "build/assets/javascripts/dante/editor.js"
+  ],
+  "ignore": [
+    "/.*",
+    "config.*",
+    "dante-editor.gemspec",
+    "Gemfile",
+    "Gemfile.lock",
+    "Procfile",
+    "rakefile",
+    "ROADMAP.md",
+    "TODO.md",
+    "lib",
+    "source"
+  ],
+  "dependencies": {
     "jquery": "*",
     "underscore" : "*",
-    "sanitize.js" : "*",
+    "sanitize.js" : "*"
   }
 }
