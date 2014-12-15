@@ -10,19 +10,20 @@
     "coffeescript",
     "medium",
     "editor",
-    "web"
+    "web",
+    "wysiwyg"
   ],
   "authors": [
-    { "name": "Miguel Michelson", "homepage": "https://github.com/michelson/" },
-    { "name": "Cristian Ferrari", "homepage": "https://github.com/cristianferrarig/" }
+    { "name": "Miguel Michelson", "homepage": "https://github.com/michelson" },
+    { "name": "Cristian Ferrari", "homepage": "https://github.com/cristianferrarig" }
   ],
   "main": [
-    "app/assets/stylesheets/dante.css.scss",
-    "app/assets/javascripts/dante.js",
-    "app/assets/fonts/fontello.eot",
-    "app/assets/fonts/fontello.svg",
-    "app/assets/fonts/fontello.ttf",
-    "app/assets/fonts/fontello.woff"
+    "app/**/*",
+    "source/assets/**/*",
+    "build/assets/images/dante/**/*",
+    "build/assets/fonts/dante/**/*",
+    "build/assets/stylesheets/dante/**/*",
+    "build/assets/javascripts/dante/editor.js"
   ],
   "ignore": [
     "/.*",
