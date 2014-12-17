@@ -18,9 +18,7 @@
     { "name": "Cristian Ferrari", "homepage": "https://github.com/cristianferrarig" }
   ],
   "main": [
-    "app/fonts/**/*",
-    "app/images/dante/**/*",
-    "app/stylesheets/**/*",
+    "app/assets/**/*",
     "dist/**/*"
   ],
   "ignore": [
