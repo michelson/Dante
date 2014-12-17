@@ -10,7 +10,7 @@ class DistBuilder < Middleman::Extension
 
       base_dist_path   = File.join(app.config[:dist_dir], DanteEditor::VERSION)
       dist_fonts_path  = File.join(base_dist_path, "fonts", "dante")
-      dist_images_path = File.join(base_dist_path, "images")
+      dist_images_path = File.join(base_dist_path, "images", "dante")
       dist_js_path     = File.join(base_dist_path, "js")
       dist_css_path    = File.join(base_dist_path, "css")
 
