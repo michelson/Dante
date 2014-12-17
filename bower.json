@@ -44,6 +44,7 @@
   "dependencies": {
     "jquery": "*",
     "underscore" : "*",
-    "sanitize.js" : "*"
+    "sanitize.js" : "*",
+    "dante": "/Users/michelsonmartinez/Documents/rubyonrails/medium-editor/.git"
   }
 }
