@@ -21,10 +21,7 @@
     "app/fonts/**/*",
     "app/images/dante/**/*",
     "app/stylesheets/**/*",
-    "build/assets/images/dante/media-loading-placeholder.png",
-    "build/assets/fonts/*",
-    "build/assets/stylesheets/editor.css",
-    "build/assets/javascripts/editor.js"
+    "dist/**/*"
   ],
   "ignore": [
     ".gitignore",
