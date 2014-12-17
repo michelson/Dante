@@ -1,49 +1,51 @@
-###
-# Compass
-###
 
-# Change Compass configuration
-# compass_config do |config|
-#   config.output_style = :compact
-# end
 
-###
-# Page options, layouts, aliases and proxies
-###
+class DistBuilder < Middleman::Extension
 
-# Per-page layout changes:
-#
-# With no layout
-# page "/path/to/file.html", :layout => false
-#
-# With alternative layout
-# page "/path/to/file.html", :layout => :otherlayout
-#
-# A path which all have the same layout
-# with_layout :admin do
-#   page "/admin/*"
-# end
+  def initialize(app, options_hash={}, &block)
+    super
 
-# Proxy pages (http://middlemanapp.com/dynamic-pages/)
-# proxy "/this-page-has-no-template.html", "/template-file.html", :locals => {
-#  :which_fake_page => "Rendering a fake page with a local variable" }
+    app.after_build do |builder|
+      app.config[:dist_dir] = "dist"
 
-###
-# Helpers
-###
+      base_dist_path   = File.join(app.config[:dist_dir], DanteEditor::VERSION)
+      dist_fonts_path  = File.join(base_dist_path, "fonts", "dante")
+      dist_images_path = File.join(base_dist_path, "images", "dante")
+      dist_js_path     = File.join(base_dist_path, "js")
+      dist_css_path    = File.join(base_dist_path, "css")
 
-# Automatic image dimensions on image_tag helper
-# activate :automatic_image_sizes
+      #FileUtils.rm_rf base_dist_path
 
-# Reload the browser automatically whenever files change
-# activate :livereload
+      builder.say_status :dist_builder, "generating dist files"
 
-# Methods defined in the helpers block are available in templates
-# helpers do
-#   def some_helper
-#     "Helping"
-#   end
-# end
+      fonts_dir = File.join(app.config[:build_dir], app.config[:fonts_dir])
+      FileUtils.mkdir_p dist_fonts_path
+      FileUtils.cp_r "#{fonts_dir}/dante/.", dist_fonts_path, :verbose => true
+
+      images_dir = File.join(app.config[:build_dir], app.config[:images_dir])
+      FileUtils.mkdir_p dist_images_path
+      FileUtils.cp_r "#{images_dir}/dante/.", dist_images_path, :verbose => true
+
+
+      js_dir = File.join(app.config[:build_dir], app.config[:js_dir])
+      FileUtils.mkdir_p dist_js_path
+      FileUtils.cp "#{js_dir}/dante-editor.js", dist_js_path, :verbose => true
+
+
+      css_dir = File.join(app.config[:build_dir], app.config[:css_dir])
+      FileUtils.mkdir_p dist_css_path
+      FileUtils.cp "#{css_dir}/dante-editor.css", dist_css_path, :verbose => true
+
+      builder.say_status :dist_builder, "dist complete"
+
+    end
+  end
+
+end
+
+::Middleman::Extensions.register(:dist_builder, DistBuilder)
+
+
 
 set :css_dir, 'assets/stylesheets'
 
@@ -60,6 +62,7 @@ page "/tests/*", :layout => "spec"
 
 sprockets.append_path File.join "#{root}", "bower_components"
 
+
 # Build-specific configuration
 configure :build do
   # For example, change the Compass output style for deployment
@@ -73,6 +76,7 @@ configure :build do
 
   activate :relative_assets
   set :relative_links, true
+  activate :dist_builder
 
   # Use relative URLs
   # activate :relative_assets
