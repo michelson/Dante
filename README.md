@@ -60,7 +60,7 @@ Until now I´ve been able to implement the following features:
 ### Configuration options:
 
 + **el:**          default: #editor
-+ **debugMode:**   default: false
++ **debug:**   default: false
 + **upload_url:**  default: /uploads.json
 + **oembed_url:**  default: http://api.embed.ly/1/oembed?url="
 + **extract_url:** default: http://api.embed.ly/1/extract?url="
