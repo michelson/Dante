@@ -112,6 +112,7 @@ There is a web app for development to work with the source files and make the pr
 
 + install ruby
 + execute `bundle install`
++ execute `bower install`
 
 ### Start app:
 
