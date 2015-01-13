@@ -1,4 +1,3 @@
-// !test
 (function() {
   window.Dante = {
     Editor: {
@@ -706,12 +705,15 @@
       if (!node || node === root) {
         return null;
       }
-      while (node && (node.nodeType !== 1) && (node.parentNode !== root)) {
+      while (node && (node.nodeType !== 1 || !$(node).hasClass("graf")) && (node.parentNode !== root)) {
         node = node.parentNode;
       }
+
+/*    lists are not graf elements, and thus must be skipped over
       while (node && (node.parentNode !== root)) {
         node = node.parentNode;
       }
+*/
       if (root && root.contains(node)) {
         return node;
       } else {
@@ -1090,9 +1092,10 @@
     };
 
     Editor.prototype.handleKeyDown = function(e) {
-      var anchor_node, parent, utils_anchor_node;
+      var anchor_node, parent, utils_anchor_node, $node;
       utils.log("KEYDOWN");
       anchor_node = this.getNode();
+      $node = $(anchor_node);
       if (anchor_node) {
         this.markAsSelected(anchor_node);
       }
@@ -1101,9 +1104,18 @@
         return false;
       }
       if (e.which === 13) {
+      
+        if($node.hasClass("graf--p")){
+          this.handleSmartList($node, e);
+        }
+      
+        else if($node.hasClass("graf--li") && $node.text() === ""){
+          this.handleListLineBreak($node, e);
+        }
         $(this.el).find(".is-selected").removeClass("is-selected");
         parent = $(anchor_node);
         utils.log(this.isLastChar());
+        utils.log(parent);
         if (parent.hasClass("is-embedable")) {
           this.tooltip_view.getEmbedFromNode($(anchor_node));
         } else if (parent.hasClass("is-extractable")) {
@@ -1198,6 +1210,14 @@
           this.replaceWith("p", $(".is-selected"));
           this.setRangeAt($(".is-selected")[0]);
           return false;
+        }
+      }
+      
+      //spacebar key handler
+      if(e.which === 32){
+        utils.log("SPACEBAR");
+        if($(anchor_node).hasClass("graf--p")){
+          this.handleSmartList($node, e);
         }
       }
       if (_.contains([38, 40], e.which)) {
@@ -1552,11 +1572,21 @@
     };
 
     Editor.prototype.setupFirstAndLast = function() {
-      var childs;
+      var childs, $firstTarget, $lastTarget;
       childs = $(this.el).find(".section-inner").children();
       childs.removeClass("graf--last , graf--first");
-      childs.first().addClass("graf--first");
-      return childs.last().addClass("graf--last");
+      $firstTarget = $(childs.first());
+      $lastTarget = $(childs.last());
+      if($firstTarget.hasClass("postList")){
+        $firstTarget = $firstTarget.children().first();
+      }
+      
+      if($lastTarget.hasClass("postList")){
+        $lastTarget = $lastTarget.children().last();
+      }
+      
+      $firstTarget.addClass("graf--first");
+      return $lastTarget.addClass("graf--last");
     };
 
     Editor.prototype.wrapTextNodes = function(element) {
@@ -1573,8 +1603,118 @@
     Editor.prototype.setElementName = function(element) {
       return $(element).attr("name", utils.generateUniqueName());
     };
+    
+  /**
+  * Takes a paragraph and makes a list out of it
+  *
+  * PAGAN CODE: This function assumes Dante does not natively support adding lists.
+  *             It may interfere with updates that add native list features
+  *
+  * @param {jQuery} paragraph The paragraph to listify
+  * @param {string} list_type The type of list (ol or ul)
+  * @param {int}    tagLength The Length of the 
+  *
+  * @return false if list_type is not ol or ul. Otherwise, the new list is returned
+  */
+  Editor.prototype.listify = function($paragraph, listType, tagLength){
+    var content, $list, $li;
 
-    return Editor;
+    //get the content of the old container
+    content = $paragraph.html().replace(/&nbsp;/g, " ");
+    utils.log(tagLength);
+    
+    //remove the smartlist shortcut formatting
+    content = content.slice(tagLength, content.length);
+
+    //validation of second parameter
+    switch(listType){
+      case "ul":
+        $list = $("<ul></ul>");
+        break;
+
+      case "ol":
+        $list = $("<ol></ol>");
+        break;
+
+      default:
+        return false;
+    }
+
+    //add the proper classes to the list
+    this.addClassesToElement($list[0]);
+
+    //replace the paragraph with the list item, then select it
+    this.replaceWith("li", $paragraph);
+    $li = $(".is-selected");
+    this.setElementName($li[0]);
+    
+    //wrap the list item in the proper list, then focus on it
+    $li.html(content).wrap($list);
+    this.setRangeAt($li[0], 0);
+    this.scrollTo($li[0]);
+  }
+  
+  /**
+  * Handles the analysis and creation of smart lists
+  * 
+  * @param {jQuery} $node - the paragraph to analyze
+  * @param {event}  e     - The event object that generated a smart list check
+  */
+  Editor.prototype.handleSmartList = function($node, e){
+  //check if an unordered list should be entered
+  utils.log("CHECK SMART LIST");
+  utils.log($node);
+
+
+    var match = $node.text().match(/^\s*(\-|\*)\s*/);
+    if(match){
+    
+      //replace default action with creating an unordered list
+      utils.log("CREATING LIST ITEM");
+      e.preventDefault();
+      this.listify($node, "ul", match[0].length);
+      return;
+    }
+  
+    //check if an ordered list should be entered
+    else{
+      match = $node.text().match(/^\s*1(\.|\))\s+/);
+      if(match){
+      
+        //replace default action with ordered list insertion
+        utils.log("CREATING LIST ITEM");
+        e.preventDefault();
+        this.listify($node, "ol", match[0].length);
+      }
+    }
+    
+  }
+  
+
+  Editor.prototype.handleListLineBreak = function($node, e){
+    utils.log("LIST LINE BREAK HANDLE");
+    e.preventDefault();
+    this.tooltip_view.hide();
+    var $list = $($node.parent("ol, ul")[0]);
+    var $paragraph = $("<p></p>"); 
+    
+    if($list.children().length === 1){
+      this.replaceWith("p", $list);
+      
+    }
+    
+    else if($node.next().length == 0 && $node.text() === ""){
+      $list.after($paragraph);
+      $node.remove();
+      this.addClassesToElement($paragraph[0]);
+      this.setRangeAt($paragraph[0]);
+      this.markAsSelected($paragraph[0]);
+      return this.scrollTo($paragraph); 
+    }
+  }
+
+
+  return Editor;
 
   })(Dante.View);
 
