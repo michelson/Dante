@@ -1,3 +1,4 @@
+// !test
 (function() {
   window.Dante = {
     Editor: {
