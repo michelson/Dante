@@ -1177,6 +1177,10 @@
         utils.log("pass initial validations");
         anchor_node = this.getNode();
         utils_anchor_node = utils.getNode();
+
+        if($node.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0){
+          return this.handleListBackspace($node, e);
+        }
         if ($(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")) {
           utils.log("SECTION DETECTED FROM KEYDOWN " + (_.isEmpty($(utils_anchor_node).text())));
           if (_.isEmpty($(utils_anchor_node).text())) {
@@ -1306,6 +1310,7 @@
     Editor.prototype.replaceWith = function(element_type, from_element) {
       var new_paragraph;
       new_paragraph = $("<" + element_type + " class='graf graf--" + element_type + " graf--empty is-selected'><br/></" + element_type + ">");
+      this.setElementName(new_paragraph);
       from_element.replaceWith(new_paragraph);
       this.setRangeAt(new_paragraph[0]);
       this.scrollTo(new_paragraph);
@@ -1710,6 +1715,31 @@
       this.setRangeAt($paragraph[0]);
       this.markAsSelected($paragraph[0]);
       return this.scrollTo($paragraph); 
+    }
+  }
+
+  Editor.prototype.handleListBackspace = function($li, e){
+    
+    var content, $list, $paragraph;
+
+    $list = $li.parent("ol, ul");
+    utils.log("LIST BACKSPACE");
+
+    if($li.prev().length === 0){
+      e.preventDefault();
+      $list.before($li);
+      content = $li.html();
+      this.replaceWith("p", $li);
+      $paragraph = $(".is-selected");
+      $paragraph.removeClass("graf--empty").html(content);
+
+      if($list.children().length === 0){
+        $list.remove();
+      }
+
+      this.setupFirstAndLast();
+
+      return;
     }
   }
 
