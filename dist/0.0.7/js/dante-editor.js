@@ -2572,6 +2572,9 @@
           if (tag.match(/(?:h[1-6])/i)) {
             $(_this.el).find(".icon-bold, .icon-italic, .icon-blockquote").parent("li").remove();
           }
+          else if(tag === "indent"){
+            $(_this.el).find(".icon-h2, .icon-h3, .icon-h4, .icon-blockquote").parent("li").remove();
+          }
           return _this.highlight(tag);
         };
       })(this));
