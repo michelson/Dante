@@ -1383,7 +1383,7 @@
         case "ul":
           $(n).removeClass().addClass("postList");
           _.each($(n).find("li"), function(li) {
-            return $(n).removeClass().addClass("graf graf--li");
+            return li.removeClass().addClass("graf graf--li");
           });
           break;
         case "img":
@@ -1612,12 +1612,9 @@
   /**
   * Takes a paragraph and makes a list out of it
   *
-  * PAGAN CODE: This function assumes Dante does not natively support adding lists.
-  *             It may interfere with updates that add native list features
-  *
   * @param {jQuery} paragraph The paragraph to listify
   * @param {string} list_type The type of list (ol or ul)
-  * @param {int}    tagLength The Length of the 
+  * @param {int}    tagLength The Length of the smartlist trigger string
   *
   * @return false if list_type is not ol or ul. Otherwise, the new list is returned
   */
@@ -1696,21 +1693,41 @@
   }
   
 
-  Editor.prototype.handleListLineBreak = function($node, e){
+  /**
+  * Handles the processing of line breaks when in a list
+  *
+  * @param {jQuery} $li - The list item where a line break was entered
+  * @param {event}  e   - The event that generates the line break
+  *
+  */
+  Editor.prototype.handleListLineBreak = function($li, e){
+    var $list, $parahraph;
+
     utils.log("LIST LINE BREAK HANDLE");
     e.preventDefault();
     this.tooltip_view.hide();
-    var $list = $($node.parent("ol, ul")[0]);
-    var $paragraph = $("<p></p>"); 
+
+    //get the list containing the selected list item
+    $list = $($li.parent("ol, ul")[0]);
+
+    //generate replacement paragraph
+    $paragraph = $("<p></p>"); 
     
+
+    //if the list has only one child, replace it with a paragraph
     if($list.children().length === 1){
       this.replaceWith("p", $list);
       
     }
     
-    else if($node.next().length == 0 && $node.text() === ""){
+    //if the list item is the last child and is empty
+    else if($li.next().length == 0 && $li.text() === ""){
+
+      //put the replacement paragraph after the list and remove the empty list item
       $list.after($paragraph);
-      $node.remove();
+      $li.remove();
+
+      //select and focu on the new paragraph
       this.addClassesToElement($paragraph[0]);
       this.setRangeAt($paragraph[0]);
       this.markAsSelected($paragraph[0]);
@@ -1718,28 +1735,39 @@
     }
   }
 
+  /**
+  * Handles backspace keydowns in lists
+  *
+  * @param {jQuery} $li - The list item where backspace was pressed
+  * @param {event}  e   - The backspace event object
+  *
+  */
   Editor.prototype.handleListBackspace = function($li, e){
     
     var content, $list, $paragraph;
 
+    //get the list item's parent list
     $list = $li.parent("ol, ul");
     utils.log("LIST BACKSPACE");
 
+    //if on the first list item of a list
     if($li.prev().length === 0){
       e.preventDefault();
+
+      //move the item outside of the list, and replace it with a paragraph
       $list.before($li);
       content = $li.html();
       this.replaceWith("p", $li);
       $paragraph = $(".is-selected");
       $paragraph.removeClass("graf--empty").html(content);
 
+      //then, if the list is empty, remove it
       if($list.children().length === 0){
         $list.remove();
       }
 
+      //set up first and last attributes
       this.setupFirstAndLast();
-
-      return;
     }
   }
 
