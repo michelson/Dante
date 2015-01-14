@@ -709,11 +709,12 @@
         node = node.parentNode;
       }
 
-/*    lists are not graf elements, and thus must be skipped over
-      while (node && (node.parentNode !== root)) {
-        node = node.parentNode;
+      //With the modification to the line above, Im not sure this loop is even necessary
+      if(!$(node).hasClass("graf--li")){
+        while (node && (node.parentNode !== root)) {
+          node = node.parentNode;
+        }
       }
-*/
       if (root && root.contains(node)) {
         return node;
       } else {
@@ -1652,6 +1653,10 @@
     
     //wrap the list item in the proper list, then focus on it
     $li.html(content).wrap($list);
+
+    if($li.find("br").length === 0){
+      $li.append("<br/>");
+    }
     this.setRangeAt($li[0], 0);
     this.scrollTo($li[0]);
   }
@@ -1680,7 +1685,7 @@
   
     //check if an ordered list should be entered
     else{
-      match = $node.text().match(/^\s*1(\.|\))\s+/);
+      match = $node.text().match(/^\s*1(\.|\))\s*/);
       if(match){
       
         //replace default action with ordered list insertion
