@@ -151,7 +151,7 @@ class Dante.Editor extends Dante.View
     range = range || this.current_range
     if !range
       range = this.getRange()
-      range.collapse(false); # set to end
+      range.collapse(false) # set to end
 
     @selection().removeAllRanges()
     @selection().addRange(range)
@@ -588,6 +588,12 @@ class Dante.Editor extends Dante.View
 
     if e.which == 13
 
+      
+      if $node.hasClass("graf--p")
+        @handleSmartList($node, e)
+      else if $node.hasClass("graf--li") and ($node.text() is "")
+        @handleListLineBreak($node, e)
+    
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
@@ -1059,41 +1065,42 @@ class Dante.Editor extends Dante.View
       match = $item.text().match(/^\s*1(\.|\))\s*/)
       if(match)
         utils.log("CREATING LIST ITEM");
-        e.preventDefault();
-        this.listify($item, "ol", match[0].length);
+        e.preventDefault()
+        this.listify($item, "ol", match[0].length)
 
   handleListLineBreak: ($li, e)->
     utils.log("LIST LINE BREAK")
     e.preventDefault()
-    @tooptip_view.hide()
+    @tooltip_view.hide()
     $list = $li.parent("ol, ul")
     $paragraph = $("<p></p>")
     if($list.children().length == 1)
       @replaceWith("p", $list)
     else if ($li.next().length == 0 and $li.text() == "")
-      $list.after($paragraph);
-      $li.remove();
+      $list.after($paragraph)
+      $li.remove()
 
-      @addClassesToElement($paragraph[0]);
-      @setRangeAt($paragraph[0]);
-      @markAsSelected($paragraph[0]);
-      @scrollTo($paragraph); 
+      @addClassesToElement($paragraph[0])
+      @setRangeAt($paragraph[0])
+      @markAsSelected($paragraph[0])
+      @scrollTo($paragraph) 
 
   handleListBackspace: ($li, e)->
     
-    $list = $li.parent("ol, ul");
-    utils.log("LIST BACKSPACE");
+    $list = $li.parent("ol, ul")
+    utils.log("LIST BACKSPACE")
 
     if($li.prev().length is 0)
-      e.preventDefault();
+      e.preventDefault()
 
-      $list.before($li);
-      content = $li.html();
-      @replaceWith("p", $li);
-      $paragraph = $(".is-selected");
-      $paragraph.removeClass("graf--empty").html(content);
+      $list.before($li)
+      content = $li.html()
+      @replaceWith("p", $li)
+      $paragraph = $(".is-selected")
+      $paragraph.removeClass("graf--empty").html(content)
 
       if($list.children().length is 0)
-        $list.remove();
+        $list.remove()
       
-      @setupFirstAndLast();
+      @setupFirstAndLast()
+      
