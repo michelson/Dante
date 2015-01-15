@@ -658,9 +658,6 @@
 .graf--pre {
   margin: 0; }
 
-.postList {
-  margin-bottom: 30px; 
-  }
 /* line 16, /Users/michelsonmartinez/Documents/rubyonrails/medium-editor/app/assets/stylesheets/dante/_graf.scss */
 .graf--p,
 .graf--blockquote,

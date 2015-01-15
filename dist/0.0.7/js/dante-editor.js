@@ -1732,7 +1732,7 @@
       $list.after($paragraph);
       $li.remove();
 
-      //select and focu on the new paragraph
+      //select and focus on the new paragraph
       this.addClassesToElement($paragraph[0]);
       this.setRangeAt($paragraph[0]);
       this.markAsSelected($paragraph[0]);
