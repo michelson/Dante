@@ -481,7 +481,6 @@ class Dante.Editor extends Dante.View
       utils.log ("process image here!")
       @tooltip_view.uploadExistentImage(image)
 
-  #TODO: remove this, not used
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
     new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
@@ -665,23 +664,21 @@ class Dante.Editor extends Dante.View
         utils.log("TextNode detected from Down!")
         #return false
 
-      #supress del into embed if first char or delete if empty content
+      #supress del into & delete embed if empty content found on delete key
       if $(anchor_node).hasClass("graf--mixtapeEmbed") or $(anchor_node).hasClass("graf--iframe")
-        if _.isEmpty $(anchor_node).text().trim()
-          utils.log "EMPTY CHAR"
+        if _.isEmpty $(anchor_node).text().trim() or @isFirstChar()
+          utils.log("Check for inmediate deletion on empty embed text")
+          @inmediateDeletion = @isSelectingAll(anchor_node)
+          @handleInmediateDeletion($(anchor_node)) if @inmediateDeletion
           return false
-        else
-          if @isFirstChar()
-            utils.log "FIRST CHAR"
-            @inmediateDeletion = true if @isSelectingAll(anchor_node)
-            return false
 
       #TODO: supress del when the prev el is embed and current_node is at first char
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
-      utils.log anchor_node
-      if $(".is-selected").hasClass("graf--figure")
+      #remove graf figure is is selected but not in range (not focus on caption)
+      debugger
+      if $(".is-selected").hasClass("graf--figure") && !anchor_node?
         @replaceWith("p", $(".is-selected"))
         @setRangeAt($(".is-selected")[0])
         return false
