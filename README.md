@@ -26,6 +26,7 @@ Until now I´ve been able to implement the following features:
   + Image Uploader with *preview* and caption option.
   + Embed data for pasted link through OEmbed services.
   + Embed media information for pasted links through OEmbed services.
++ List creation with shorcuts ie:. 1. , - , 1) with spacebar or return key
 + CSS tries to use the same fonts used in Medium, (if you have already setup those fonts) or fallbacks to open fonts (by Google fonts) or system fonts.
   + serif: freight-text-pro fallbacks to Merriweather or Georgia,
   + sans:  jaf-bernino-sans fallbacks to Open Sans or Lucida Grande
@@ -140,7 +141,13 @@ tests are located in source/tests and /source/assets/spec folder and accessible 
 + [Miguel Michelson](http://github.com/michelson)
 + [Cristian Ferrari](http://github.com/cristianferrarig)
 
-### Alternatives:
+### CONTRIBUTORS
+
+Big kudos to our valued contributors. Check them all at:
+
+https://github.com/michelson/dante/graphs/contributors
+
+### ALTERNATIVES
 
 + https://github.com/sofish/pen
 + https://github.com/orthes/medium-editor-insert-plugin
