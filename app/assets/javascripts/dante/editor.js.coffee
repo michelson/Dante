@@ -593,17 +593,18 @@ class Dante.Editor extends Dante.View
 
     if e.which == 13
 
-      if $node.hasClass("graf--p")
-        @handleSmartList($node, e)
-      else if $node.hasClass("graf--li") and ($node.text() is "")
-        @handleListLineBreak($node, e)
-
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
       parent = $(anchor_node)
 
       utils.log @isLastChar()
+
+      #smart list support
+      if $node.hasClass("graf--p")
+        anchor_node = @handleSmartList($node, e)
+      else if $node.hasClass("graf--li") and ($node.text() is "")
+        @handleListLineBreak($node, e)
 
       #embeds or extracts
       if parent.hasClass("is-embedable")
@@ -628,7 +629,6 @@ class Dante.Editor extends Dante.View
           return false
 
       @tooltip_view.cleanOperationClasses($(anchor_node))
-
 
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph if it the last character
@@ -1040,40 +1040,44 @@ class Dante.Editor extends Dante.View
 
   listify: ($paragraph, listType, tagLength)->
     utils.log "LISTIFY PARAGRAPH"
-    content = $paragraph.html().replace(/&nbsp;/g, " ");
-    utils.log(tagLength);
+    content = $paragraph.html().replace(/&nbsp;/g, " ")
+    utils.log(tagLength)
 
-    content = content.slice(tagLength, content.length);
+    content = content.slice(tagLength, content.length)
 
     switch(listType)
-      when "ul" then $list = $("<ul></ul>");
-      when "ol" then $list = $("<ol></ol>");
-      else return false;
+      when "ul" then $list = $("<ul></ul>")
+      when "ol" then $list = $("<ol></ol>")
+      else return false
 
-    @addClassesToElement($list[0]);
-    @replaceWith("li", $paragraph);
-    $li = $(".is-selected");
+    @addClassesToElement($list[0])
+    @replaceWith("li", $paragraph)
+    $li = $(".is-selected")
 
-    @setElementName($li[0]);
+    @setElementName($li[0])
 
-    $li.html(content).wrap($list);
+    $li.html(content).wrap($list)
 
     if($li.find("br").length == 0)
-      $li.append("<br/>");
-    @setRangeAt($li[0]);
+      $li.append("<br/>")
+    @setRangeAt($li[0])
+
+    $li[0]
 
   handleSmartList: ($item, e)->
     utils.log("HANDLE A SMART LIST")
     match = $item.text().match(/^\s*(\-|\*)\s*/)
-    li = ""
+
     if match
-      utils.log("CREATING UL LIST ITEM");
-      e.preventDefault();
-      @listify($item, "ul", match[0].length);
-    else if match = $item.text().match(/^\s*1(\.|\))\s*/)
-      utils.log("CREATING OL LIST ITEM");
+      utils.log("CREATING UL LIST ITEM")
       e.preventDefault()
-      @listify($item, "ol", match[0].length)
+      $li = @listify($item, "ul", match[0].length)
+    else if match = $item.text().match(/^\s*1(\.|\))\s*/)
+      utils.log("CREATING OL LIST ITEM")
+      e.preventDefault()
+      $li = @listify($item, "ol", match[0].length)
+
+    $li
 
   handleListLineBreak: ($li, e)->
     utils.log("LIST LINE BREAK")
