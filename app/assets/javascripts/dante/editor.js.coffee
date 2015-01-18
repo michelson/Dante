@@ -13,6 +13,9 @@ class Dante.Editor extends Dante.View
     "drop"    : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
+
+    "mouseover .graf--figure.graf--iframe" : "handleGrafFigureSelectIframe"
+    "mouseleave .graf--figure.graf--iframe" : "handleGrafFigureUnSelectIframe"
     "keyup .graf--figure figcaption"   : "handleGrafCaptionTyping"
 
     "mouseover .markup--anchor" : "displayPopOver"
@@ -289,6 +292,20 @@ class Dante.Editor extends Dante.View
     @markAsSelected( element )
     $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused")
     @selection().removeAllRanges()
+
+  handleGrafFigureSelectIframe: (ev)->
+    utils.log "FIGURE IFRAME SELECT"
+    element = ev.currentTarget
+    @iframeSelected = element
+    @markAsSelected( element )
+    $(element).addClass("is-selected is-mediaFocused")
+    @selection().removeAllRanges()
+
+  handleGrafFigureUnSelectIframe: (ev)->
+    utils.log "FIGURE IFRAME UNSELECT"
+    element = ev.currentTarget
+    @iframeSelected = null
+    $(element).removeClass("is-selected is-mediaFocused")
 
   handleGrafFigureSelectCaption: (ev)->
     utils.log "FIGCAPTION"
@@ -677,7 +694,6 @@ class Dante.Editor extends Dante.View
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
       #remove graf figure is is selected but not in range (not focus on caption)
-      debugger
       if $(".is-selected").hasClass("graf--figure") && !anchor_node?
         @replaceWith("p", $(".is-selected"))
         @setRangeAt($(".is-selected")[0])
