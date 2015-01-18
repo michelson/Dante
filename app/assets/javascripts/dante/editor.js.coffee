@@ -233,9 +233,14 @@ class Dante.Editor extends Dante.View
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
     return null  if not node or node is root
+
+    #node = node.parentNode while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
+    #node = node.parentNode while node and (node.parentNode isnt root)
+
     node = node.parentNode  while node and (node.nodeType isnt 1 or not $(node).hasClass("graf")) and (node.parentNode isnt root)
     if not $(node).hasClass("graf--li")
       node = node.parentNode  while node and (node.parentNode isnt root)
+
     (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
@@ -588,12 +593,11 @@ class Dante.Editor extends Dante.View
 
     if e.which == 13
 
-      
       if $node.hasClass("graf--p")
         @handleSmartList($node, e)
       else if $node.hasClass("graf--li") and ($node.text() is "")
         @handleListLineBreak($node, e)
-    
+
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
@@ -635,6 +639,7 @@ class Dante.Editor extends Dante.View
 
       setTimeout ()=>
         node = @getNode()
+        return if _.isUndefined(node)
         #set name on new element
         @setElementName($(node))
 
@@ -666,7 +671,7 @@ class Dante.Editor extends Dante.View
 
       if($node.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
           return this.handleListBackspace($node, e);
-        
+
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
         return false if _.isEmpty($(utils_anchor_node).text())
@@ -697,7 +702,7 @@ class Dante.Editor extends Dante.View
         @setRangeAt($(".is-selected")[0])
         return false
 
-
+    #spacebar
     if (e.which == 32)
       utils.log("SPACEBAR")
       if ($node.hasClass("graf--p"))
@@ -806,10 +811,11 @@ class Dante.Editor extends Dante.View
   displayTooltipAt: (element)->
     utils.log ("POSITION FOR TOOLTIP")
     #utils.log $(element)
-    return if !element
+    element = $(element)
+    return if !element || element[0].tagName is "LI"
     @tooltip_view.hide()
-    return unless _.isEmpty( $(element).text() )
-    @positions = $(element).offset()
+    return unless _.isEmpty( element.text() )
+    @positions = element.offset()
     @tooltip_view.render()
     @tooltip_view.move(@positions)
 
@@ -1030,43 +1036,44 @@ class Dante.Editor extends Dante.View
   setElementName: (element)->
     $(element).attr("name", utils.generateUniqueName())
 
+  #LIST METHODS
+
   listify: ($paragraph, listType, tagLength)->
+    utils.log "LISTIFY PARAGRAPH"
     content = $paragraph.html().replace(/&nbsp;/g, " ");
     utils.log(tagLength);
-      
+
     content = content.slice(tagLength, content.length);
-    
+
     switch(listType)
       when "ul" then $list = $("<ul></ul>");
       when "ol" then $list = $("<ol></ol>");
       else return false;
-    
-
 
     @addClassesToElement($list[0]);
     @replaceWith("li", $paragraph);
     $li = $(".is-selected");
+
     @setElementName($li[0]);
-    
+
     $li.html(content).wrap($list);
 
     if($li.find("br").length == 0)
       $li.append("<br/>");
-    @setRangeAt($li[0], 0);
+    @setRangeAt($li[0]);
 
   handleSmartList: ($item, e)->
     utils.log("HANDLE A SMART LIST")
     match = $item.text().match(/^\s*(\-|\*)\s*/)
-    if(match)
-        utils.log("CREATING LIST ITEM");
-        e.preventDefault();
-        @listify($item, "ul", match[0].length);
-    else
-      match = $item.text().match(/^\s*1(\.|\))\s*/)
-      if(match)
-        utils.log("CREATING LIST ITEM");
-        e.preventDefault()
-        this.listify($item, "ol", match[0].length)
+    li = ""
+    if match
+      utils.log("CREATING UL LIST ITEM");
+      e.preventDefault();
+      @listify($item, "ul", match[0].length);
+    else if match = $item.text().match(/^\s*1(\.|\))\s*/)
+      utils.log("CREATING OL LIST ITEM");
+      e.preventDefault()
+      @listify($item, "ol", match[0].length)
 
   handleListLineBreak: ($li, e)->
     utils.log("LIST LINE BREAK")
@@ -1083,10 +1090,10 @@ class Dante.Editor extends Dante.View
       @addClassesToElement($paragraph[0])
       @setRangeAt($paragraph[0])
       @markAsSelected($paragraph[0])
-      @scrollTo($paragraph) 
+      @scrollTo($paragraph)
 
   handleListBackspace: ($li, e)->
-    
+
     $list = $li.parent("ol, ul")
     utils.log("LIST BACKSPACE")
 
@@ -1101,6 +1108,5 @@ class Dante.Editor extends Dante.View
 
       if($list.children().length is 0)
         $list.remove()
-      
+
       @setupFirstAndLast()
-      
