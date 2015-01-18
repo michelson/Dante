@@ -859,10 +859,10 @@ class Dante.Editor extends Dante.View
         n = $(n).parent()
 
       when "ol", "ul"
-        #utils.log "lists"
+        utils.log "lists"
         $(n).removeClass().addClass("postList")
         _.each $(n).find("li"), (li)->
-          $(n).removeClass().addClass("graf graf--li")
+          $(li).removeClass().addClass("graf graf--li")
         #postList , and li as graf
 
       when "img"
@@ -924,7 +924,7 @@ class Dante.Editor extends Dante.View
       @element = element
 
     s = new Sanitize
-      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4']
+      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li']
 
       attributes:
         '__ALL__': ['class']
@@ -987,8 +987,9 @@ class Dante.Editor extends Dante.View
                         return null
                     ]
 
+    utils.log(@element)
     if @element.exists()
-      utils.log "CLEAN HTML"
+      utils.log "CLEAN HTML #{@element[0].tagName}"
       @element.html(s.clean_node( @element[0] ))
 
   setupLinks: (elems)->
@@ -1003,7 +1004,7 @@ class Dante.Editor extends Dante.View
 
   preCleanNode: (element)->
     s = new Sanitize
-      elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i']
+      elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i', 'ul', 'ol', 'li']
 
       attributes:
         a: ['href', 'title', 'target']
