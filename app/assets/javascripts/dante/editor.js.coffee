@@ -618,7 +618,8 @@ class Dante.Editor extends Dante.View
 
       #smart list support
       if $node.hasClass("graf--p")
-        anchor_node = @handleSmartList($node, e)
+        li = @handleSmartList($node, e)
+        anchor_node = li if li
       else if $node.hasClass("graf--li") and ($node.text() is "")
         @handleListLineBreak($node, e)
 
