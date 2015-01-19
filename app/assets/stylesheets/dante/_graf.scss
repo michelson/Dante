@@ -11,7 +11,7 @@
 .graf--p,
 .graf--pre {
   margin: 0;
-  position:relative;
+  //position:relative;
 }
 
 .postList {
@@ -22,6 +22,10 @@
 .graf--blockquote,
 .graf--pullquote {
   margin-bottom: 30px;
+}
+
+.graf--p.spinner{
+  position:relative;
 }
 
 .graf--h2 {
