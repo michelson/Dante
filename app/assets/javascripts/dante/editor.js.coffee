@@ -36,6 +36,7 @@ class Dante.Editor extends Dante.View
     @spell_check     = opts.spellcheck || false
     @disable_title   = opts.disable_title || false
     @store_interval  = opts.store_interval || 15000
+    @paste_element_id = "#dante-paste-div"
     window.debugMode = opts.debug || false
     $(@el).addClass("debug") if window.debugMode
     if (localStorage.getItem('contenteditable'))
@@ -471,17 +472,20 @@ class Dante.Editor extends Dante.View
       cbd = ev.originalEvent.clipboardData
       pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
 
-    utils.log(pastedText) # Process and handle text...
+    utils.log("Process and handle text...")
     #detect if is html
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
-      $(pastedText)
+      pastedText = pastedText.replace(/&.*;/g, "")
+      #convert pasted divs in p before copy contents into div
+      pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
 
-      document.body.appendChild($("<div id='paste'></div>")[0])
-      $("#paste").html(pastedText)
-      @setupElementsClasses $("#paste"), ()=>
-        nodes = $($("#paste").html()).insertAfter($(@aa))
-        $("#paste").remove()
+      document.body.appendChild($("<div id='#{@paste_element_id.replace('#', '')}'></div>")[0])
+      $(@paste_element_id).html("<span>#{pastedText}</span>")
+
+      @setupElementsClasses $(@paste_element_id), ()=>
+        nodes = $($(@paste_element_id).html()).insertAfter($(@aa))
+        $(@paste_element_id).remove()
         #set caret on newly created node
         last_node = nodes.last()[0]
         num = last_node.childNodes.length
@@ -826,7 +830,7 @@ class Dante.Editor extends Dante.View
     utils.log ("POSITION FOR TOOLTIP")
     #utils.log $(element)
     element = $(element)
-    return if !element || element[0].tagName is "LI"
+    return if !element || _.isEmpty(element) || element[0].tagName is "LI"
     @tooltip_view.hide()
     return unless _.isEmpty( element.text() )
     @positions = element.offset()
@@ -852,7 +856,6 @@ class Dante.Editor extends Dante.View
     name = n.nodeName.toLowerCase()
     switch name
       when "p", "pre", "div"
-        #utils.log n
         unless $(n).hasClass("graf--mixtapeEmbed")
           $(n).removeClass().addClass("graf graf--#{name}")
 
@@ -917,11 +920,11 @@ class Dante.Editor extends Dante.View
       #clean context and wrap text nodes
       @cleanContents(@element)
       @wrapTextNodes(@element)
+
       #setup classes
       _.each  @element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
         n = @addClassesToElement(n)
-
         @setElementName(n)
 
       @setupLinks(@element.find("a"))
@@ -1001,7 +1004,6 @@ class Dante.Editor extends Dante.View
                         return null
                     ]
 
-    utils.log(@element)
     if @element.exists()
       utils.log "CLEAN HTML #{@element[0].tagName}"
       @element.html(s.clean_node( @element[0] ))
