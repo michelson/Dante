@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dante-editor (0.0.7)
+    dante-editor (0.0.8)
 
 GEM
   remote: http://rubygems.org/
