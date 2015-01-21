@@ -2,7 +2,7 @@
   "name" : "dante",
   "description": "Just another Medium editor clone.",
   "homepage": "michelson.github.io/Dante/",
-  "version" : "0.0.7",
+  "version" : "0.0.8",
   "keywords": [
     "css",
     "sass",

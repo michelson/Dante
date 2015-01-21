@@ -1,0 +1,18 @@
+---
+title: Dante Editor example
+---
+
+<div id="editor">
+  <%= partial "partials/lists" %>
+</div>
+
+<script type="text/javascript">
+  editor = new Dante.Editor(
+    {
+      el: "#editor",
+      upload_url: "/uploads/new.json",
+      debug: <%= build? ? false : true %>
+    }
+  )
+  editor.start()
+</script>

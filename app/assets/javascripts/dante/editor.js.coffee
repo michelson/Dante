@@ -13,6 +13,9 @@ class Dante.Editor extends Dante.View
     "drop"    : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
+
+    "mouseover .graf--figure.graf--iframe" : "handleGrafFigureSelectIframe"
+    "mouseleave .graf--figure.graf--iframe" : "handleGrafFigureUnSelectIframe"
     "keyup .graf--figure figcaption"   : "handleGrafCaptionTyping"
 
     "mouseover .markup--anchor" : "displayPopOver"
@@ -33,6 +36,7 @@ class Dante.Editor extends Dante.View
     @spell_check     = opts.spellcheck || false
     @disable_title   = opts.disable_title || false
     @store_interval  = opts.store_interval || 15000
+    @paste_element_id = "#dante-paste-div"
     window.debugMode = opts.debug || false
     $(@el).addClass("debug") if window.debugMode
     if (localStorage.getItem('contenteditable'))
@@ -233,9 +237,14 @@ class Dante.Editor extends Dante.View
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
     return null  if not node or node is root
+
+    #node = node.parentNode while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
+    #node = node.parentNode while node and (node.parentNode isnt root)
+
     node = node.parentNode  while node and (node.nodeType isnt 1 or not $(node).hasClass("graf")) and (node.parentNode isnt root)
     if not $(node).hasClass("graf--li")
       node = node.parentNode  while node and (node.parentNode isnt root)
+
     (if root && root.contains(node) then node else null)
 
   displayMenu: (sel)->
@@ -290,6 +299,20 @@ class Dante.Editor extends Dante.View
     @markAsSelected( element )
     $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused")
     @selection().removeAllRanges()
+
+  handleGrafFigureSelectIframe: (ev)->
+    utils.log "FIGURE IFRAME SELECT"
+    element = ev.currentTarget
+    @iframeSelected = element
+    @markAsSelected( element )
+    $(element).addClass("is-selected is-mediaFocused")
+    @selection().removeAllRanges()
+
+  handleGrafFigureUnSelectIframe: (ev)->
+    utils.log "FIGURE IFRAME UNSELECT"
+    element = ev.currentTarget
+    @iframeSelected = null
+    $(element).removeClass("is-selected is-mediaFocused")
 
   handleGrafFigureSelectCaption: (ev)->
     utils.log "FIGCAPTION"
@@ -449,17 +472,20 @@ class Dante.Editor extends Dante.View
       cbd = ev.originalEvent.clipboardData
       pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
 
-    utils.log(pastedText) # Process and handle text...
+    utils.log("Process and handle text...")
     #detect if is html
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
-      $(pastedText)
+      pastedText = pastedText.replace(/&.*;/g, "")
+      #convert pasted divs in p before copy contents into div
+      pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
 
-      document.body.appendChild($("<div id='paste'></div>")[0])
-      $("#paste").html(pastedText)
-      @setupElementsClasses $("#paste"), ()=>
-        nodes = $($("#paste").html()).insertAfter($(@aa))
-        $("#paste").remove()
+      document.body.appendChild($("<div id='#{@paste_element_id.replace('#', '')}'></div>")[0])
+      $(@paste_element_id).html("<span>#{pastedText}</span>")
+
+      @setupElementsClasses $(@paste_element_id), ()=>
+        nodes = $($(@paste_element_id).html()).insertAfter($(@aa))
+        $(@paste_element_id).remove()
         #set caret on newly created node
         last_node = nodes.last()[0]
         num = last_node.childNodes.length
@@ -482,7 +508,6 @@ class Dante.Editor extends Dante.View
       utils.log ("process image here!")
       @tooltip_view.uploadExistentImage(image)
 
-  #TODO: remove this, not used
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
     new_node = $( @baseParagraphTmpl() ).insertBefore( $(element) )
@@ -588,18 +613,19 @@ class Dante.Editor extends Dante.View
 
     if e.which == 13
 
-      
-      if $node.hasClass("graf--p")
-        @handleSmartList($node, e)
-      else if $node.hasClass("graf--li") and ($node.text() is "")
-        @handleListLineBreak($node, e)
-    
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
       parent = $(anchor_node)
 
       utils.log @isLastChar()
+
+      #smart list support
+      if $node.hasClass("graf--p")
+        li = @handleSmartList($node, e)
+        anchor_node = li if li
+      else if $node.hasClass("graf--li") and ($node.text() is "")
+        @handleListLineBreak($node, e)
 
       #embeds or extracts
       if parent.hasClass("is-embedable")
@@ -625,7 +651,6 @@ class Dante.Editor extends Dante.View
 
       @tooltip_view.cleanOperationClasses($(anchor_node))
 
-
       if (anchor_node && @editor_menu.lineBreakReg.test(anchor_node.nodeName))
         #new paragraph if it the last character
         if @isLastChar()
@@ -635,6 +660,7 @@ class Dante.Editor extends Dante.View
 
       setTimeout ()=>
         node = @getNode()
+        return if _.isUndefined(node)
         #set name on new element
         @setElementName($(node))
 
@@ -666,7 +692,7 @@ class Dante.Editor extends Dante.View
 
       if($node.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
           return this.handleListBackspace($node, e);
-        
+
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
         return false if _.isEmpty($(utils_anchor_node).text())
@@ -676,28 +702,25 @@ class Dante.Editor extends Dante.View
         utils.log("TextNode detected from Down!")
         #return false
 
-      #supress del into embed if first char or delete if empty content
+      #supress del into & delete embed if empty content found on delete key
       if $(anchor_node).hasClass("graf--mixtapeEmbed") or $(anchor_node).hasClass("graf--iframe")
-        if _.isEmpty $(anchor_node).text().trim()
-          utils.log "EMPTY CHAR"
+        if _.isEmpty $(anchor_node).text().trim() or @isFirstChar()
+          utils.log("Check for inmediate deletion on empty embed text")
+          @inmediateDeletion = @isSelectingAll(anchor_node)
+          @handleInmediateDeletion($(anchor_node)) if @inmediateDeletion
           return false
-        else
-          if @isFirstChar()
-            utils.log "FIRST CHAR"
-            @inmediateDeletion = true if @isSelectingAll(anchor_node)
-            return false
 
       #TODO: supress del when the prev el is embed and current_node is at first char
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
-      utils.log anchor_node
-      if $(".is-selected").hasClass("graf--figure")
+      #remove graf figure is is selected but not in range (not focus on caption)
+      if $(".is-selected").hasClass("graf--figure") && !anchor_node?
         @replaceWith("p", $(".is-selected"))
         @setRangeAt($(".is-selected")[0])
         return false
 
-
+    #spacebar
     if (e.which == 32)
       utils.log("SPACEBAR")
       if ($node.hasClass("graf--p"))
@@ -806,10 +829,11 @@ class Dante.Editor extends Dante.View
   displayTooltipAt: (element)->
     utils.log ("POSITION FOR TOOLTIP")
     #utils.log $(element)
-    return if !element
+    element = $(element)
+    return if !element || _.isEmpty(element) || element[0].tagName is "LI"
     @tooltip_view.hide()
-    return unless _.isEmpty( $(element).text() )
-    @positions = $(element).offset()
+    return unless _.isEmpty( element.text() )
+    @positions = element.offset()
     @tooltip_view.render()
     @tooltip_view.move(@positions)
 
@@ -832,7 +856,6 @@ class Dante.Editor extends Dante.View
     name = n.nodeName.toLowerCase()
     switch name
       when "p", "pre", "div"
-        #utils.log n
         unless $(n).hasClass("graf--mixtapeEmbed")
           $(n).removeClass().addClass("graf graf--#{name}")
 
@@ -853,10 +876,10 @@ class Dante.Editor extends Dante.View
         n = $(n).parent()
 
       when "ol", "ul"
-        #utils.log "lists"
+        utils.log "lists"
         $(n).removeClass().addClass("postList")
         _.each $(n).find("li"), (li)->
-          $(n).removeClass().addClass("graf graf--li")
+          $(li).removeClass().addClass("graf graf--li")
         #postList , and li as graf
 
       when "img"
@@ -897,11 +920,11 @@ class Dante.Editor extends Dante.View
       #clean context and wrap text nodes
       @cleanContents(@element)
       @wrapTextNodes(@element)
+
       #setup classes
       _.each  @element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
         n = @addClassesToElement(n)
-
         @setElementName(n)
 
       @setupLinks(@element.find("a"))
@@ -918,7 +941,7 @@ class Dante.Editor extends Dante.View
       @element = element
 
     s = new Sanitize
-      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4']
+      elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li']
 
       attributes:
         '__ALL__': ['class']
@@ -982,7 +1005,7 @@ class Dante.Editor extends Dante.View
                     ]
 
     if @element.exists()
-      utils.log "CLEAN HTML"
+      utils.log "CLEAN HTML #{@element[0].tagName}"
       @element.html(s.clean_node( @element[0] ))
 
   setupLinks: (elems)->
@@ -997,7 +1020,7 @@ class Dante.Editor extends Dante.View
 
   preCleanNode: (element)->
     s = new Sanitize
-      elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i']
+      elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i', 'ul', 'ol', 'li']
 
       attributes:
         a: ['href', 'title', 'target']
@@ -1030,43 +1053,48 @@ class Dante.Editor extends Dante.View
   setElementName: (element)->
     $(element).attr("name", utils.generateUniqueName())
 
+  #LIST METHODS
+
   listify: ($paragraph, listType, tagLength)->
-    content = $paragraph.html().replace(/&nbsp;/g, " ");
-    utils.log(tagLength);
-      
-    content = content.slice(tagLength, content.length);
-    
+    utils.log "LISTIFY PARAGRAPH"
+    content = $paragraph.html().replace(/&nbsp;/g, " ")
+    utils.log(tagLength)
+
+    content = content.slice(tagLength, content.length)
+
     switch(listType)
-      when "ul" then $list = $("<ul></ul>");
-      when "ol" then $list = $("<ol></ol>");
-      else return false;
-    
+      when "ul" then $list = $("<ul></ul>")
+      when "ol" then $list = $("<ol></ol>")
+      else return false
 
+    @addClassesToElement($list[0])
+    @replaceWith("li", $paragraph)
+    $li = $(".is-selected")
 
-    @addClassesToElement($list[0]);
-    @replaceWith("li", $paragraph);
-    $li = $(".is-selected");
-    @setElementName($li[0]);
-    
-    $li.html(content).wrap($list);
+    @setElementName($li[0])
+
+    $li.html(content).wrap($list)
 
     if($li.find("br").length == 0)
-      $li.append("<br/>");
-    @setRangeAt($li[0], 0);
+      $li.append("<br/>")
+    @setRangeAt($li[0])
+
+    $li[0]
 
   handleSmartList: ($item, e)->
     utils.log("HANDLE A SMART LIST")
     match = $item.text().match(/^\s*(\-|\*)\s*/)
-    if(match)
-        utils.log("CREATING LIST ITEM");
-        e.preventDefault();
-        @listify($item, "ul", match[0].length);
-    else
-      match = $item.text().match(/^\s*1(\.|\))\s*/)
-      if(match)
-        utils.log("CREATING LIST ITEM");
-        e.preventDefault()
-        this.listify($item, "ol", match[0].length)
+
+    if match
+      utils.log("CREATING UL LIST ITEM")
+      e.preventDefault()
+      $li = @listify($item, "ul", match[0].length)
+    else if match = $item.text().match(/^\s*1(\.|\))\s*/)
+      utils.log("CREATING OL LIST ITEM")
+      e.preventDefault()
+      $li = @listify($item, "ol", match[0].length)
+
+    $li
 
   handleListLineBreak: ($li, e)->
     utils.log("LIST LINE BREAK")
@@ -1083,10 +1111,10 @@ class Dante.Editor extends Dante.View
       @addClassesToElement($paragraph[0])
       @setRangeAt($paragraph[0])
       @markAsSelected($paragraph[0])
-      @scrollTo($paragraph) 
+      @scrollTo($paragraph)
 
   handleListBackspace: ($li, e)->
-    
+
     $list = $li.parent("ol, ul")
     utils.log("LIST BACKSPACE")
 
@@ -1101,6 +1129,5 @@ class Dante.Editor extends Dante.View
 
       if($list.children().length is 0)
         $list.remove()
-      
+
       @setupFirstAndLast()
-      
