@@ -1,17 +1,17 @@
-@mixin font-face($font-family, $file-name, $font-weight: normal, $font-style: normal) {
+@mixin dante-font-face($font-family, $file-name, $font-weight: normal, $font-style: normal) {
   @font-face {
     font-family: '#{$font-family}';
-    src: font-url('dante/#{$file-name}.eot?370dad08');
-    src: font-url('dante/#{$file-name}.eot?370dad08#iefix') format('embedded-opentype'),
-    font-url('dante/#{$file-name}.woff?370dad08') format('woff'),
-    font-url('dante/#{$file-name}.ttf?370dad08') format('truetype'),
-    font-url('dante/#{$file-name}.svg?370dad08##{$file-name}') format('svg');
+    src: font-url('dante/#{$file-name}.eot');
+    src: font-url('dante/#{$file-name}.eot?#iefix') format('embedded-opentype'),
+    font-url('dante/#{$file-name}.woff') format('woff'),
+    font-url('dante/#{$file-name}.ttf') format('truetype'),
+    font-url('dante/#{$file-name}.svg#{$file-name}') format('svg');
     font-weight: $font-weight;
     font-style: $font-style;
   }
 }
 
-@include font-face(dante, fontello);
-@include font-face(dante-tooltip, dante);
+@include dante-font-face(dante, fontello);
+@include dante-font-face(dante-tooltip, dante);
 
 @import url(http://fonts.googleapis.com/css?family=Merriweather:400,700,400italic,700italic|Open+Sans:400,300,800);

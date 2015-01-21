@@ -310,19 +310,23 @@ class Dante.Editor.Tooltip extends Dante.View
     false
 
   getEmbedFromNode: (node)=>
-    @node_name = $(node).attr("name")
-    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}").success (data)=>
-      @node = $("[name=#{@node_name}]")
-      iframe_src = $(data.html).prop("src")
-      tmpl = $(@embedTemplate())
-      tmpl.attr("name", @node.attr("name"))
-      $(@node).replaceWith(tmpl)
-      replaced_node = $(".graf--iframe[name=#{@node.attr("name")}]")
-      replaced_node.find("iframe").attr("src", iframe_src)
-      url = data.url || data.author_url
-      utils.log "URL IS #{url}"
-      replaced_node.find(".markup--anchor").attr("href", url ).text(url)
-      @hide()
+    @node = $(node)
+    @node_name = @node.attr("name")
+    @node.addClass("spinner")
+
+    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}")
+      .success (data)=>
+        @node = $("[name=#{@node_name}]")
+        iframe_src = $(data.html).prop("src")
+        tmpl = $(@embedTemplate())
+        tmpl.attr("name", @node.attr("name"))
+        $(@node).replaceWith(tmpl)
+        replaced_node = $(".graf--iframe[name=#{@node.attr("name")}]")
+        replaced_node.find("iframe").attr("src", iframe_src)
+        url = data.url || data.author_url
+        utils.log "URL IS #{url}"
+        replaced_node.find(".markup--anchor").attr("href", url ).text(url)
+        @hide()
 
   ##EXTRACT
   displayExtractPlaceHolder: ()->
@@ -335,7 +339,10 @@ class Dante.Editor.Tooltip extends Dante.View
     false
 
   getExtractFromNode: (node)=>
-    @node_name = $(node).attr("name")
+    @node = $(node)
+    @node_name = @node.attr("name")
+    @node.addClass("spinner")
+
     $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}").success (data)=>
       @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
