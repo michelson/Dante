@@ -784,7 +784,10 @@ class Dante.Editor extends Dante.View
       #  @markAsSelected(anchor_node)
       #  @setupFirstAndLast()
       #  @displayTooltipAt($(@el).find(".is-selected"))
-
+      
+      if $(anchor_node).hasClass("graf--li")
+        @handleListSpanTag($(anchor_node), e);
+        
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
@@ -1038,47 +1041,52 @@ class Dante.Editor extends Dante.View
   setElementName: (element)->
     $(element).attr("name", utils.generateUniqueName())
 
-  #LIST METHODS
+  # LIST METHODS
 
-  listify: ($paragraph, listType, tagLength)->
+  listify: ($paragraph, listType, regex)->
+  
     utils.log "LISTIFY PARAGRAPH"
-    content = $paragraph.html().replace(/&nbsp;/g, " ")
-    utils.log(tagLength)
-
-    content = content.slice(tagLength, content.length)
-
+    
+    content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "")
+    
     switch(listType)
       when "ul" then $list = $("<ul></ul>")
       when "ol" then $list = $("<ol></ol>")
       else return false
-
+   
     @addClassesToElement($list[0])
     @replaceWith("li", $paragraph)
     $li = $(".is-selected")
-
+    
     @setElementName($li[0])
 
     $li.html(content).wrap($list)
 
     if($li.find("br").length == 0)
       $li.append("<br/>")
+
     @setRangeAt($li[0])
 
     $li[0]
 
   handleSmartList: ($item, e)->
     utils.log("HANDLE A SMART LIST")
-    match = $item.text().match(/^\s*(\-|\*)\s*/)
 
-    if match
-      utils.log("CREATING UL LIST ITEM")
-      e.preventDefault()
-      $li = @listify($item, "ul", match[0].length)
-    else if match = $item.text().match(/^\s*1(\.|\))\s*/)
-      utils.log("CREATING OL LIST ITEM")
-      e.preventDefault()
-      $li = @listify($item, "ol", match[0].length)
-
+    chars = @getCharacterPrecedingCaret()
+    match = chars.match(/^\s*(\-|\*)\s*$/)
+    if(match)
+        utils.log("CREATING LIST ITEM")
+        e.preventDefault()
+        regex = new RegExp(/\s*(\-|\*)\s*/)
+        $li = @listify($item, "ul", regex)
+    else
+      match = chars.match(/^\s*1(\.|\))\s*$/)
+      if(match)
+        utils.log("CREATING LIST ITEM")
+        e.preventDefault()
+        
+        regex = new RegExp(/\s*1(\.|\))\s*/)
+        $li = @listify($item, "ol", regex)
     $li
 
   handleListLineBreak: ($li, e)->
@@ -1100,7 +1108,7 @@ class Dante.Editor extends Dante.View
         $list.after($paragraph)
         $li.addClass("graf--removed").remove()
 
-      else if ($li.prev().length isnt 0 and $li.prev().text() is "")
+      else if ($li.prev().length isnt 0 and $li.prev().text() is "" and @getCharacterPrecedingCaret() is "")
         e.preventDefault()
         utils.log("PREV IS EMPTY")
         content = $li.html()
@@ -1137,3 +1145,11 @@ class Dante.Editor extends Dante.View
         $list.remove()
 
       @setupFirstAndLast()
+    
+  handleListSpanTag: ($li, e)->
+    
+    $list = $li.parent("ol, ul")
+    $spans = $list.find("span")
+    $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
+    $li
+    
