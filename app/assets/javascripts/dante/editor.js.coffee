@@ -762,6 +762,10 @@ class Dante.Editor extends Dante.View
 
     @handleTextSelection(anchor_node)
 
+    if (_.contains([8, 32, 13], e.which))
+      if $(anchor_node).hasClass("graf--li")
+        @removeSpanTag($(anchor_node));
+    
     if (e.which == 8)
 
       #if detect all text deleted , re render
@@ -802,8 +806,6 @@ class Dante.Editor extends Dante.View
       #  @setupFirstAndLast()
       #  @displayTooltipAt($(@el).find(".is-selected"))
       
-      if $(anchor_node).hasClass("graf--li")
-        @handleListSpanTag($(anchor_node), e);
         
     #arrows key
     if _.contains([37,38,39,40], e.which)
@@ -1062,6 +1064,8 @@ class Dante.Editor extends Dante.View
   
     utils.log "LISTIFY PARAGRAPH"
     
+    @removeSpanTag($paragraph);
+    
     content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "")
     
     switch(listType)
@@ -1161,10 +1165,9 @@ class Dante.Editor extends Dante.View
 
       @setupFirstAndLast()
     
-  handleListSpanTag: ($li, e)->
+  removeSpanTag: ($item)->
     
-    $list = $li.parent("ol, ul")
-    $spans = $list.find("span")
+    $spans = $item.find("span")
     $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
-    $li
+    $item
     
