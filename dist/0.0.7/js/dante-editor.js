@@ -465,7 +465,7 @@
       }
       this.store();
       this.title_placeholder = "<span class='defaultValue defaultValue--root'>Title</span><br>";
-      this.body_placeholder = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>";
+      this.body_placeholder = "<span class='defaultValue defaultValue--root'>Tell your story&hellip;</span><br>";
       this.embed_placeholder = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>";
       return this.extract_placeholder = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>";
     };
