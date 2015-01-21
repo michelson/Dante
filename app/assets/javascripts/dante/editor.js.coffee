@@ -604,7 +604,7 @@ class Dante.Editor extends Dante.View
       if $node.hasClass("graf--p")
         li = @handleSmartList($node, e)
         anchor_node = li if li
-      else if $node.hasClass("graf--li") and ($node.text() is "")
+      else if $node.hasClass("graf--li")
         @handleListLineBreak($node, e)
 
       #embeds or extracts
@@ -1083,16 +1083,37 @@ class Dante.Editor extends Dante.View
 
   handleListLineBreak: ($li, e)->
     utils.log("LIST LINE BREAK")
-    e.preventDefault()
     @tooltip_view.hide()
     $list = $li.parent("ol, ul")
     $paragraph = $("<p></p>")
-    if($list.children().length == 1)
+    utils.log($li.prev());
+    if($list.children().length is 1 and $li.text() is "")
       @replaceWith("p", $list)
-    else if ($li.next().length == 0 and $li.text() == "")
-      $list.after($paragraph)
-      $li.remove()
 
+    else if $li.text() is "" and ($li.next().length isnt 0)
+      e.preventDefault()
+      
+    else if ($li.next().length is 0) 
+      if($li.text() is "")
+        e.preventDefault()
+        utils.log("BREAK FROM LIST")
+        $list.after($paragraph)
+        $li.addClass("graf--removed").remove()
+
+      else if ($li.prev().length isnt 0 and $li.prev().text() is "")
+        e.preventDefault()
+        utils.log("PREV IS EMPTY")
+        content = $li.html()
+        $list.after($paragraph)
+        $li.prev().remove()
+        $li.addClass("graf--removed").remove()
+        $paragraph.html(content)
+
+    if $list and $list.children().length is 0 then $list.remove()
+
+    utils.log($li);
+    if ($li.hasClass("graf--removed"))
+      utils.log("ELEMENT REMOVED")
       @addClassesToElement($paragraph[0])
       @setRangeAt($paragraph[0])
       @markAsSelected($paragraph[0])
