@@ -1165,6 +1165,7 @@ class Dante.Editor extends Dante.View
 
       @setupFirstAndLast()
     
+  #Remove Non-default Spans From Elements
   removeSpanTag: ($item)->
     
     $spans = $item.find("span")
