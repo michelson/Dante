@@ -705,11 +705,15 @@
       if (!node || node === root) {
         return null;
       }
-      while (node && (node.nodeType !== 1) && (node.parentNode !== root)) {
+      while (node && (node.nodeType !== 1 || !$(node).hasClass("graf")) && (node.parentNode !== root)) {
         node = node.parentNode;
       }
-      while (node && (node.parentNode !== root)) {
-        node = node.parentNode;
+
+      //With the modification to the line above, Im not sure this loop is even necessary
+      if(!$(node).hasClass("graf--li")){
+        while (node && (node.parentNode !== root)) {
+          node = node.parentNode;
+        }
       }
       if (root && root.contains(node)) {
         return node;
@@ -1089,9 +1093,10 @@
     };
 
     Editor.prototype.handleKeyDown = function(e) {
-      var anchor_node, parent, utils_anchor_node;
+      var anchor_node, parent, utils_anchor_node, $node;
       utils.log("KEYDOWN");
       anchor_node = this.getNode();
+      $node = $(anchor_node);
       if (anchor_node) {
         this.markAsSelected(anchor_node);
       }
@@ -1100,9 +1105,18 @@
         return false;
       }
       if (e.which === 13) {
+      
+        if($node.hasClass("graf--p")){
+          this.handleSmartList($node, e);
+        }
+      
+        else if($node.hasClass("graf--li") && $node.text() === ""){
+          this.handleListLineBreak($node, e);
+        }
         $(this.el).find(".is-selected").removeClass("is-selected");
         parent = $(anchor_node);
         utils.log(this.isLastChar());
+        utils.log(parent);
         if (parent.hasClass("is-embedable")) {
           this.tooltip_view.getEmbedFromNode($(anchor_node));
         } else if (parent.hasClass("is-extractable")) {
@@ -1164,6 +1178,10 @@
         utils.log("pass initial validations");
         anchor_node = this.getNode();
         utils_anchor_node = utils.getNode();
+
+        if($node.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0){
+          return this.handleListBackspace($node, e);
+        }
         if ($(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")) {
           utils.log("SECTION DETECTED FROM KEYDOWN " + (_.isEmpty($(utils_anchor_node).text())));
           if (_.isEmpty($(utils_anchor_node).text())) {
@@ -1197,6 +1215,14 @@
           this.replaceWith("p", $(".is-selected"));
           this.setRangeAt($(".is-selected")[0]);
           return false;
+        }
+      }
+      
+      //spacebar key handler
+      if(e.which === 32){
+        utils.log("SPACEBAR");
+        if($(anchor_node).hasClass("graf--p")){
+          this.handleSmartList($node, e);
         }
       }
       if (_.contains([38, 40], e.which)) {
@@ -1285,6 +1311,7 @@
     Editor.prototype.replaceWith = function(element_type, from_element) {
       var new_paragraph;
       new_paragraph = $("<" + element_type + " class='graf graf--" + element_type + " graf--empty is-selected'><br/></" + element_type + ">");
+      this.setElementName(new_paragraph);
       from_element.replaceWith(new_paragraph);
       this.setRangeAt(new_paragraph[0]);
       this.scrollTo(new_paragraph);
@@ -1357,7 +1384,7 @@
         case "ul":
           $(n).removeClass().addClass("postList");
           _.each($(n).find("li"), function(li) {
-            return $(n).removeClass().addClass("graf graf--li");
+            return li.removeClass().addClass("graf graf--li");
           });
           break;
         case "img":
@@ -1551,11 +1578,21 @@
     };
 
     Editor.prototype.setupFirstAndLast = function() {
-      var childs;
+      var childs, $firstTarget, $lastTarget;
       childs = $(this.el).find(".section-inner").children();
       childs.removeClass("graf--last , graf--first");
-      childs.first().addClass("graf--first");
-      return childs.last().addClass("graf--last");
+      $firstTarget = $(childs.first());
+      $lastTarget = $(childs.last());
+      if($firstTarget.hasClass("postList")){
+        $firstTarget = $firstTarget.children().first();
+      }
+      
+      if($lastTarget.hasClass("postList")){
+        $lastTarget = $lastTarget.children().last();
+      }
+      
+      $firstTarget.addClass("graf--first");
+      return $lastTarget.addClass("graf--last");
     };
 
     Editor.prototype.wrapTextNodes = function(element) {
@@ -1572,8 +1609,175 @@
     Editor.prototype.setElementName = function(element) {
       return $(element).attr("name", utils.generateUniqueName());
     };
+    
+  /**
+  * Takes a paragraph and makes a list out of it
+  *
+  * @param {jQuery} paragraph The paragraph to listify
+  * @param {string} list_type The type of list (ol or ul)
+  * @param {int}    tagLength The Length of the smartlist trigger string
+  *
+  * @return false if list_type is not ol or ul. Otherwise, the new list is returned
+  */
+  Editor.prototype.listify = function($paragraph, listType, tagLength){
+    var content, $list, $li;
 
-    return Editor;
+    //get the content of the old container
+    content = $paragraph.html().replace(/&nbsp;/g, " ");
+    utils.log(tagLength);
+    
+    //remove the smartlist shortcut formatting
+    content = content.slice(tagLength, content.length);
+
+    //validation of second parameter
+    switch(listType){
+      case "ul":
+        $list = $("<ul></ul>");
+        break;
+
+      case "ol":
+        $list = $("<ol></ol>");
+        break;
+
+      default:
+        return false;
+    }
+
+    //add the proper classes to the list
+    this.addClassesToElement($list[0]);
+
+    //replace the paragraph with the list item, then select it
+    this.replaceWith("li", $paragraph);
+    $li = $(".is-selected");
+    this.setElementName($li[0]);
+    
+    //wrap the list item in the proper list, then focus on it
+    $li.html(content).wrap($list);
+
+    if($li.find("br").length === 0){
+      $li.append("<br/>");
+    }
+    this.setRangeAt($li[0], 0);
+    this.scrollTo($li[0]);
+  }
+  
+  /**
+  * Handles the analysis and creation of smart lists
+  * 
+  * @param {jQuery} $node - the paragraph to analyze
+  * @param {event}  e     - The event object that generated a smart list check
+  */
+  Editor.prototype.handleSmartList = function($node, e){
+  //check if an unordered list should be entered
+  utils.log("CHECK SMART LIST");
+  utils.log($node);
+
+
+    var match = $node.text().match(/^\s*(\-|\*)\s*/);
+    if(match){
+    
+      //replace default action with creating an unordered list
+      utils.log("CREATING LIST ITEM");
+      e.preventDefault();
+      this.listify($node, "ul", match[0].length);
+      return;
+    }
+  
+    //check if an ordered list should be entered
+    else{
+      match = $node.text().match(/^\s*1(\.|\))\s*/);
+      if(match){
+      
+        //replace default action with ordered list insertion
+        utils.log("CREATING LIST ITEM");
+        e.preventDefault();
+        this.listify($node, "ol", match[0].length);
+      }
+    }
+    
+  }
+  
+
+  /**
+  * Handles the processing of line breaks when in a list
+  *
+  * @param {jQuery} $li - The list item where a line break was entered
+  * @param {event}  e   - The event that generates the line break
+  *
+  */
+  Editor.prototype.handleListLineBreak = function($li, e){
+    var $list, $parahraph;
+
+    utils.log("LIST LINE BREAK HANDLE");
+    e.preventDefault();
+    this.tooltip_view.hide();
+
+    //get the list containing the selected list item
+    $list = $($li.parent("ol, ul")[0]);
+
+    //generate replacement paragraph
+    $paragraph = $("<p></p>"); 
+    
+
+    //if the list has only one child, replace it with a paragraph
+    if($list.children().length === 1){
+      this.replaceWith("p", $list);
+      
+    }
+    
+    //if the list item is the last child and is empty
+    else if($li.next().length == 0 && $li.text() === ""){
+
+      //put the replacement paragraph after the list and remove the empty list item
+      $list.after($paragraph);
+      $li.remove();
+
+      //select and focus on the new paragraph
+      this.addClassesToElement($paragraph[0]);
+      this.setRangeAt($paragraph[0]);
+      this.markAsSelected($paragraph[0]);
+      return this.scrollTo($paragraph); 
+    }
+  }
+
+  /**
+  * Handles backspace keydowns in lists
+  *
+  * @param {jQuery} $li - The list item where backspace was pressed
+  * @param {event}  e   - The backspace event object
+  *
+  */
+  Editor.prototype.handleListBackspace = function($li, e){
+    
+    var content, $list, $paragraph;
+
+    //get the list item's parent list
+    $list = $li.parent("ol, ul");
+    utils.log("LIST BACKSPACE");
+
+    //if on the first list item of a list
+    if($li.prev().length === 0){
+      e.preventDefault();
+
+      //move the item outside of the list, and replace it with a paragraph
+      $list.before($li);
+      content = $li.html();
+      this.replaceWith("p", $li);
+      $paragraph = $(".is-selected");
+      $paragraph.removeClass("graf--empty").html(content);
+
+      //then, if the list is empty, remove it
+      if($list.children().length === 0){
+        $list.remove();
+      }
+
+      //set up first and last attributes
+      this.setupFirstAndLast();
+    }
+  }
+
+
+  return Editor;
 
   })(Dante.View);
 
@@ -2367,6 +2571,9 @@
           }
           if (tag.match(/(?:h[1-6])/i)) {
             $(_this.el).find(".icon-bold, .icon-italic, .icon-blockquote").parent("li").remove();
+          }
+          else if(tag === "indent"){
+            $(_this.el).find(".icon-h2, .icon-h3, .icon-h4, .icon-blockquote").parent("li").remove();
           }
           return _this.highlight(tag);
         };
