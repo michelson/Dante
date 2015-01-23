@@ -37,6 +37,7 @@ class Dante.Editor extends Dante.View
     @disable_title   = opts.disable_title || false
     @store_interval  = opts.store_interval || 15000
     @paste_element_id = "#dante-paste-div"
+    @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
     window.debugMode = opts.debug || false
     $(@el).addClass("debug") if window.debugMode
     if (localStorage.getItem('contenteditable'))
@@ -102,7 +103,7 @@ class Dante.Editor extends Dante.View
     $("<div id='dante-menu' class='dante-menu'></div>").insertAfter(@el)
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
-    @tooltip_view = new Dante.Editor.Tooltip(editor: @)
+    @tooltip_view = new @tooltip_class(editor: @)
     @pop_over = new Dante.Editor.PopOver(editor: @)
     @pop_over.render().hide()
     @tooltip_view.render().hide()
