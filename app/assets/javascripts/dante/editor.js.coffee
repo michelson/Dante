@@ -765,7 +765,7 @@ class Dante.Editor extends Dante.View
     if (_.contains([8, 32, 13], e.which))
       if $(anchor_node).hasClass("graf--li")
         @removeSpanTag($(anchor_node));
-    
+
     if (e.which == 8)
 
       #if detect all text deleted , re render
@@ -805,8 +805,8 @@ class Dante.Editor extends Dante.View
       #  @markAsSelected(anchor_node)
       #  @setupFirstAndLast()
       #  @displayTooltipAt($(@el).find(".is-selected"))
-      
-        
+
+
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
@@ -835,7 +835,7 @@ class Dante.Editor extends Dante.View
     utils.log ("POSITION FOR TOOLTIP")
     #utils.log $(element)
     element = $(element)
-    return if !element || _.isEmpty(element) || element[0].tagName is "LI"
+    return if !element || _.isUndefined(element) || _.isEmpty(element) || element[0].tagName is "LI"
     @tooltip_view.hide()
     return unless _.isEmpty( element.text() )
     @positions = element.offset()
@@ -1061,22 +1061,22 @@ class Dante.Editor extends Dante.View
   # LIST METHODS
 
   listify: ($paragraph, listType, regex)->
-  
+
     utils.log "LISTIFY PARAGRAPH"
-    
+
     @removeSpanTag($paragraph);
-    
+
     content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "")
-    
+
     switch(listType)
       when "ul" then $list = $("<ul></ul>")
       when "ol" then $list = $("<ol></ol>")
       else return false
-   
+
     @addClassesToElement($list[0])
     @replaceWith("li", $paragraph)
     $li = $(".is-selected")
-    
+
     @setElementName($li[0])
 
     $li.html(content).wrap($list)
@@ -1103,7 +1103,7 @@ class Dante.Editor extends Dante.View
       if(match)
         utils.log("CREATING LIST ITEM")
         e.preventDefault()
-        
+
         regex = new RegExp(/\s*1(\.|\))\s*/)
         $li = @listify($item, "ol", regex)
     $li
@@ -1119,8 +1119,8 @@ class Dante.Editor extends Dante.View
 
     else if $li.text() is "" and ($li.next().length isnt 0)
       e.preventDefault()
-      
-    else if ($li.next().length is 0) 
+
+    else if ($li.next().length is 0)
       if($li.text() is "")
         e.preventDefault()
         utils.log("BREAK FROM LIST")
@@ -1164,11 +1164,11 @@ class Dante.Editor extends Dante.View
         $list.remove()
 
       @setupFirstAndLast()
-    
+
   #Remove Non-default Spans From Elements
   removeSpanTag: ($item)->
-    
+
     $spans = $item.find("span")
     $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
     $item
-    
+
