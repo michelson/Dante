@@ -457,6 +457,7 @@
       this.store_url = opts.store_url;
       this.spell_check = opts.spellcheck || false;
       this.disable_title = opts.disable_title || false;
+      this.allow_tables = opts.allow_tables || false;
       this.store_interval = opts.store_interval || 15000;
       this.paste_element_id = "#dante-paste-div";
       window.debugMode = opts.debug || false;
@@ -1420,6 +1421,9 @@
         case "blockquote":
           n = $(n).removeClass().addClass("graf graf--" + name);
           break;
+        case "table":
+          n = $(n).removeClass().addClass("graf graf--" + name);
+          break;
         case "figure":
           if ($(n).hasClass(".graf--figure")) {
             n = $(n);
@@ -1440,7 +1444,9 @@
       }
       return setTimeout((function(_this) {
         return function() {
-          _this.cleanContents(_this.element);
+          _this.cleanContents(_this.element, {
+            allow_tables: _this.allow_tables
+          });
           _this.wrapTextNodes(_this.element);
           _.each(_this.element.children(), function(n) {
             var name;
@@ -1457,15 +1463,107 @@
       })(this), 20);
     };
 
-    Editor.prototype.cleanContents = function(element) {
-      var s;
+    Editor.prototype.cleanContents = function(element, opts) {
+      var s, sanitize_elements, sanitize_table_transformer, sanitize_transformers;
+      if (opts == null) {
+        opts = {};
+      }
       if (_.isUndefined(element)) {
         this.element = $(this.el).find('.section-inner');
       } else {
         this.element = element;
       }
+      sanitize_elements = ['strong', 'img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li'];
+      sanitize_transformers = [
+        function(input) {
+          if (input.node_name === "span" && $(input.node).hasClass("defaultValue")) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else {
+            return null;
+          }
+        }, function(input) {
+          if (input.node_name === 'div' && $(input.node).hasClass("graf--mixtapeEmbed")) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists()) {
+            return {
+              attr_whitelist: ["style"]
+            };
+          } else {
+            return null;
+          }
+        }, function(input) {
+          if (input.node_name === 'figure' && $(input.node).hasClass("graf--iframe")) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'div' && $(input.node).hasClass("iframeContainer") && $(input.node).parent(".graf--iframe").exists()) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'iframe' && $(input.node).parent(".iframeContainer").exists()) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'figcaption' && $(input.node).parent(".graf--iframe").exists()) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else {
+            return null;
+          }
+        }, function(input) {
+          if (input.node_name === 'figure' && $(input.node).hasClass("graf--figure")) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'div' && ($(input.node).hasClass("aspectRatioPlaceholder") && $(input.node).parent(".graf--figure").exists())) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'div' && ($(input.node).hasClass("aspect-ratio-fill") && $(input.node).parent(".aspectRatioPlaceholder").exists())) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'img' && $(input.node).parent(".graf--figure").exists()) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists()) {
+            return {
+              attr_whitelist: ["style"]
+            };
+          } else if (input.node_name === 'figcaption' && $(input.node).parent(".graf--figure").exists()) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else if (input.node_name === 'span' && $(input.node).parent(".imageCaption").exists()) {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else {
+            return null;
+          }
+        }
+      ];
+      if (opts.allow_tables === true) {
+        sanitize_table_transformer = function(input) {
+          if (input.node_name === 'table' || input.node_name === 'tbody' || input.node_name === 'thead' || input.node_name === 'tr' || input.node_name === 'th' || input.node_name === 'td') {
+            return {
+              whitelist_nodes: [input.node]
+            };
+          } else {
+            return null;
+          }
+        };
+        sanitize_transformers.push(sanitize_table_transformer);
+        sanitize_elements.push.apply(sanitize_elements, ['table', 'thead', 'tbody', 'tr', 'th', 'td']);
+      }
       s = new Sanitize({
-        elements: ['strong', 'img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li'],
+        elements: sanitize_elements,
         attributes: {
           '__ALL__': ['class'],
           a: ['href', 'title', 'target'],
@@ -1476,81 +1574,7 @@
             href: ['http', 'https', 'mailto']
           }
         },
-        transformers: [
-          function(input) {
-            if (input.node_name === "span" && $(input.node).hasClass("defaultValue")) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else {
-              return null;
-            }
-          }, function(input) {
-            if (input.node_name === 'div' && $(input.node).hasClass("graf--mixtapeEmbed")) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists()) {
-              return {
-                attr_whitelist: ["style"]
-              };
-            } else {
-              return null;
-            }
-          }, function(input) {
-            if (input.node_name === 'figure' && $(input.node).hasClass("graf--iframe")) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'div' && $(input.node).hasClass("iframeContainer") && $(input.node).parent(".graf--iframe").exists()) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'iframe' && $(input.node).parent(".iframeContainer").exists()) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'figcaption' && $(input.node).parent(".graf--iframe").exists()) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else {
-              return null;
-            }
-          }, function(input) {
-            if (input.node_name === 'figure' && $(input.node).hasClass("graf--figure")) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'div' && ($(input.node).hasClass("aspectRatioPlaceholder") && $(input.node).parent(".graf--figure").exists())) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'div' && ($(input.node).hasClass("aspect-ratio-fill") && $(input.node).parent(".aspectRatioPlaceholder").exists())) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'img' && $(input.node).parent(".graf--figure").exists()) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'a' && $(input.node).parent(".graf--mixtapeEmbed").exists()) {
-              return {
-                attr_whitelist: ["style"]
-              };
-            } else if (input.node_name === 'figcaption' && $(input.node).parent(".graf--figure").exists()) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else if (input.node_name === 'span' && $(input.node).parent(".imageCaption").exists()) {
-              return {
-                whitelist_nodes: [input.node]
-              };
-            } else {
-              return null;
-            }
-          }
-        ]
+        transformers: sanitize_transformers
       });
       if (this.element.exists()) {
         utils.log("CLEAN HTML " + this.element[0].tagName);
