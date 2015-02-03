@@ -70,6 +70,7 @@ Until now I´ve been able to implement the following features:
 + **spellcheck:**  default: false
 + **default_loading_placeholder:** image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
 + **disable_title** default: false , will hide the initial heading placeholder for initial text
++ **allow_tables** default: false , if true allows to paste tables html
 
 ### Rails / AssetPippeline
 
