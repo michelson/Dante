@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.7"
+    version: "0.0.9"
   };
 
 }).call(this);
@@ -434,6 +434,8 @@
       "drop": "handleDrag",
       "click .graf--figure .aspectRatioPlaceholder": "handleGrafFigureSelectImg",
       "click .graf--figure figcaption": "handleGrafFigureSelectCaption",
+      "mouseover .graf--figure.graf--iframe": "handleGrafFigureSelectIframe",
+      "mouseleave .graf--figure.graf--iframe": "handleGrafFigureUnSelectIframe",
       "keyup .graf--figure figcaption": "handleGrafCaptionTyping",
       "mouseover .markup--anchor": "displayPopOver",
       "mouseout  .markup--anchor": "hidePopOver"
@@ -456,6 +458,7 @@
       this.spell_check = opts.spellcheck || false;
       this.disable_title = opts.disable_title || false;
       this.store_interval = opts.store_interval || 15000;
+      this.paste_element_id = "#dante-paste-div";
       window.debugMode = opts.debug || false;
       if (window.debugMode) {
         $(this.el).addClass("debug");
@@ -465,7 +468,7 @@
       }
       this.store();
       this.title_placeholder = "<span class='defaultValue defaultValue--root'>Title</span><br>";
-      this.body_placeholder = "<span class='defaultValue defaultValue--root'>Tell your story&hellip;</span><br>";
+      this.body_placeholder = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>";
       this.embed_placeholder = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>";
       return this.extract_placeholder = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>";
     };
@@ -708,9 +711,7 @@
       while (node && (node.nodeType !== 1 || !$(node).hasClass("graf")) && (node.parentNode !== root)) {
         node = node.parentNode;
       }
-
-      //With the modification to the line above, Im not sure this loop is even necessary
-      if(!$(node).hasClass("graf--li")){
+      if (!$(node).hasClass("graf--li")) {
         while (node && (node.parentNode !== root)) {
           node = node.parentNode;
         }
@@ -792,6 +793,24 @@
       this.markAsSelected(element);
       $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused");
       return this.selection().removeAllRanges();
+    };
+
+    Editor.prototype.handleGrafFigureSelectIframe = function(ev) {
+      var element;
+      utils.log("FIGURE IFRAME SELECT");
+      element = ev.currentTarget;
+      this.iframeSelected = element;
+      this.markAsSelected(element);
+      $(element).addClass("is-selected is-mediaFocused");
+      return this.selection().removeAllRanges();
+    };
+
+    Editor.prototype.handleGrafFigureUnSelectIframe = function(ev) {
+      var element;
+      utils.log("FIGURE IFRAME UNSELECT");
+      element = ev.currentTarget;
+      this.iframeSelected = null;
+      return $(element).removeClass("is-selected is-mediaFocused");
     };
 
     Editor.prototype.handleGrafFigureSelectCaption = function(ev) {
@@ -959,17 +978,18 @@
         cbd = ev.originalEvent.clipboardData;
         pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
       }
-      utils.log(pastedText);
+      utils.log("Process and handle text...");
       if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
         utils.log("HTML DETECTED ON PASTE");
-        $(pastedText);
-        document.body.appendChild($("<div id='paste'></div>")[0]);
-        $("#paste").html(pastedText);
-        this.setupElementsClasses($("#paste"), (function(_this) {
+        pastedText = pastedText.replace(/&.*;/g, "");
+        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
+        document.body.appendChild($("<div id='" + (this.paste_element_id.replace('#', '')) + "'></div>")[0]);
+        $(this.paste_element_id).html("<span>" + pastedText + "</span>");
+        this.setupElementsClasses($(this.paste_element_id), (function(_this) {
           return function() {
             var last_node, new_node, nodes, num, top;
-            nodes = $($("#paste").html()).insertAfter($(_this.aa));
-            $("#paste").remove();
+            nodes = $($(_this.paste_element_id).html()).insertAfter($(_this.aa));
+            $(_this.paste_element_id).remove();
             last_node = nodes.last()[0];
             num = last_node.childNodes.length;
             _this.setRangeAt(last_node, num);
@@ -1093,7 +1113,7 @@
     };
 
     Editor.prototype.handleKeyDown = function(e) {
-      var anchor_node, parent, utils_anchor_node, $node;
+      var $node, anchor_node, li, parent, utils_anchor_node;
       utils.log("KEYDOWN");
       anchor_node = this.getNode();
       $node = $(anchor_node);
@@ -1105,18 +1125,17 @@
         return false;
       }
       if (e.which === 13) {
-      
-        if($node.hasClass("graf--p")){
-          this.handleSmartList($node, e);
-        }
-      
-        else if($node.hasClass("graf--li") && $node.text() === ""){
-          this.handleListLineBreak($node, e);
-        }
         $(this.el).find(".is-selected").removeClass("is-selected");
         parent = $(anchor_node);
         utils.log(this.isLastChar());
-        utils.log(parent);
+        if ($node.hasClass("graf--p")) {
+          li = this.handleSmartList($node, e);
+          if (li) {
+            anchor_node = li;
+          }
+        } else if ($node.hasClass("graf--li")) {
+          this.handleListLineBreak($node, e);
+        }
         if (parent.hasClass("is-embedable")) {
           this.tooltip_view.getEmbedFromNode($(anchor_node));
         } else if (parent.hasClass("is-extractable")) {
@@ -1150,6 +1169,9 @@
           return function() {
             var node;
             node = _this.getNode();
+            if (_.isUndefined(node)) {
+              return;
+            }
             _this.setElementName($(node));
             if (node.nodeName.toLowerCase() === "div") {
               node = _this.replaceWith("p", $(node))[0];
@@ -1178,8 +1200,7 @@
         utils.log("pass initial validations");
         anchor_node = this.getNode();
         utils_anchor_node = utils.getNode();
-
-        if($node.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0){
+        if ($node.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
           return this.handleListBackspace($node, e);
         }
         if ($(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")) {
@@ -1192,17 +1213,13 @@
           utils.log("TextNode detected from Down!");
         }
         if ($(anchor_node).hasClass("graf--mixtapeEmbed") || $(anchor_node).hasClass("graf--iframe")) {
-          if (_.isEmpty($(anchor_node).text().trim())) {
-            utils.log("EMPTY CHAR");
-            return false;
-          } else {
-            if (this.isFirstChar()) {
-              utils.log("FIRST CHAR");
-              if (this.isSelectingAll(anchor_node)) {
-                this.inmediateDeletion = true;
-              }
-              return false;
+          if (_.isEmpty($(anchor_node).text().trim() || this.isFirstChar())) {
+            utils.log("Check for inmediate deletion on empty embed text");
+            this.inmediateDeletion = this.isSelectingAll(anchor_node);
+            if (this.inmediateDeletion) {
+              this.handleInmediateDeletion($(anchor_node));
             }
+            return false;
           }
         }
         if ($(anchor_node).prev().hasClass("graf--mixtapeEmbed")) {
@@ -1210,18 +1227,15 @@
             return false;
           }
         }
-        utils.log(anchor_node);
-        if ($(".is-selected").hasClass("graf--figure")) {
+        if ($(".is-selected").hasClass("graf--figure") && (anchor_node == null)) {
           this.replaceWith("p", $(".is-selected"));
           this.setRangeAt($(".is-selected")[0]);
           return false;
         }
       }
-      
-      //spacebar key handler
-      if(e.which === 32){
+      if (e.which === 32) {
         utils.log("SPACEBAR");
-        if($(anchor_node).hasClass("graf--p")){
+        if ($node.hasClass("graf--p")) {
           this.handleSmartList($node, e);
         }
       }
@@ -1255,6 +1269,11 @@
       anchor_node = this.getNode();
       utils_anchor_node = utils.getNode();
       this.handleTextSelection(anchor_node);
+      if (_.contains([8, 32, 13], e.which)) {
+        if ($(anchor_node).hasClass("graf--li")) {
+          this.removeSpanTag($(anchor_node));
+        }
+      }
       if (e.which === 8) {
         if ($(utils_anchor_node).hasClass("postField--body")) {
           utils.log("ALL GONE from UP");
@@ -1311,7 +1330,6 @@
     Editor.prototype.replaceWith = function(element_type, from_element) {
       var new_paragraph;
       new_paragraph = $("<" + element_type + " class='graf graf--" + element_type + " graf--empty is-selected'><br/></" + element_type + ">");
-      this.setElementName(new_paragraph);
       from_element.replaceWith(new_paragraph);
       this.setRangeAt(new_paragraph[0]);
       this.scrollTo(new_paragraph);
@@ -1320,14 +1338,15 @@
 
     Editor.prototype.displayTooltipAt = function(element) {
       utils.log("POSITION FOR TOOLTIP");
-      if (!element) {
+      element = $(element);
+      if (!element || _.isEmpty(element) || element[0].tagName === "LI") {
         return;
       }
       this.tooltip_view.hide();
-      if (!_.isEmpty($(element).text())) {
+      if (!_.isEmpty(element.text())) {
         return;
       }
-      this.positions = $(element).offset();
+      this.positions = element.offset();
       this.tooltip_view.render();
       return this.tooltip_view.move(this.positions);
     };
@@ -1382,9 +1401,10 @@
           break;
         case "ol":
         case "ul":
+          utils.log("lists");
           $(n).removeClass().addClass("postList");
           _.each($(n).find("li"), function(li) {
-            return li.removeClass().addClass("graf graf--li");
+            return $(li).removeClass().addClass("graf graf--li");
           });
           break;
         case "img":
@@ -1450,7 +1470,7 @@
         this.element = element;
       }
       s = new Sanitize({
-        elements: ['strong', 'img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4'],
+        elements: ['strong', 'img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li'],
         attributes: {
           '__ALL__': ['class'],
           a: ['href', 'title', 'target'],
@@ -1538,7 +1558,7 @@
         ]
       });
       if (this.element.exists()) {
-        utils.log("CLEAN HTML");
+        utils.log("CLEAN HTML " + this.element[0].tagName);
         return this.element.html(s.clean_node(this.element[0]));
       }
     };
@@ -1562,7 +1582,7 @@
     Editor.prototype.preCleanNode = function(element) {
       var s;
       s = new Sanitize({
-        elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i'],
+        elements: ['strong', 'em', 'br', 'a', 'b', 'u', 'i', 'ul', 'ol', 'li'],
         attributes: {
           a: ['href', 'title', 'target']
         },
@@ -1578,21 +1598,11 @@
     };
 
     Editor.prototype.setupFirstAndLast = function() {
-      var childs, $firstTarget, $lastTarget;
+      var childs;
       childs = $(this.el).find(".section-inner").children();
       childs.removeClass("graf--last , graf--first");
-      $firstTarget = $(childs.first());
-      $lastTarget = $(childs.last());
-      if($firstTarget.hasClass("postList")){
-        $firstTarget = $firstTarget.children().first();
-      }
-      
-      if($lastTarget.hasClass("postList")){
-        $lastTarget = $lastTarget.children().last();
-      }
-      
-      $firstTarget.addClass("graf--first");
-      return $lastTarget.addClass("graf--last");
+      childs.first().addClass("graf--first");
+      return childs.last().addClass("graf--last");
     };
 
     Editor.prototype.wrapTextNodes = function(element) {
@@ -1609,175 +1619,127 @@
     Editor.prototype.setElementName = function(element) {
       return $(element).attr("name", utils.generateUniqueName());
     };
-    
-  /**
-  * Takes a paragraph and makes a list out of it
-  *
-  * @param {jQuery} paragraph The paragraph to listify
-  * @param {string} list_type The type of list (ol or ul)
-  * @param {int}    tagLength The Length of the smartlist trigger string
-  *
-  * @return false if list_type is not ol or ul. Otherwise, the new list is returned
-  */
-  Editor.prototype.listify = function($paragraph, listType, tagLength){
-    var content, $list, $li;
 
-    //get the content of the old container
-    content = $paragraph.html().replace(/&nbsp;/g, " ");
-    utils.log(tagLength);
-    
-    //remove the smartlist shortcut formatting
-    content = content.slice(tagLength, content.length);
+    Editor.prototype.listify = function($paragraph, listType, regex) {
+      var $li, $list, content;
+      utils.log("LISTIFY PARAGRAPH");
+      this.removeSpanTag($paragraph);
+      content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "");
+      switch (listType) {
+        case "ul":
+          $list = $("<ul></ul>");
+          break;
+        case "ol":
+          $list = $("<ol></ol>");
+          break;
+        default:
+          return false;
+      }
+      this.addClassesToElement($list[0]);
+      this.replaceWith("li", $paragraph);
+      $li = $(".is-selected");
+      this.setElementName($li[0]);
+      $li.html(content).wrap($list);
+      if ($li.find("br").length === 0) {
+        $li.append("<br/>");
+      }
+      this.setRangeAt($li[0]);
+      return $li[0];
+    };
 
-    //validation of second parameter
-    switch(listType){
-      case "ul":
-        $list = $("<ul></ul>");
-        break;
-
-      case "ol":
-        $list = $("<ol></ol>");
-        break;
-
-      default:
-        return false;
-    }
-
-    //add the proper classes to the list
-    this.addClassesToElement($list[0]);
-
-    //replace the paragraph with the list item, then select it
-    this.replaceWith("li", $paragraph);
-    $li = $(".is-selected");
-    this.setElementName($li[0]);
-    
-    //wrap the list item in the proper list, then focus on it
-    $li.html(content).wrap($list);
-
-    if($li.find("br").length === 0){
-      $li.append("<br/>");
-    }
-    this.setRangeAt($li[0], 0);
-    this.scrollTo($li[0]);
-  }
-  
-  /**
-  * Handles the analysis and creation of smart lists
-  * 
-  * @param {jQuery} $node - the paragraph to analyze
-  * @param {event}  e     - The event object that generated a smart list check
-  */
-  Editor.prototype.handleSmartList = function($node, e){
-  //check if an unordered list should be entered
-  utils.log("CHECK SMART LIST");
-  utils.log($node);
-
-
-    var match = $node.text().match(/^\s*(\-|\*)\s*/);
-    if(match){
-    
-      //replace default action with creating an unordered list
-      utils.log("CREATING LIST ITEM");
-      e.preventDefault();
-      this.listify($node, "ul", match[0].length);
-      return;
-    }
-  
-    //check if an ordered list should be entered
-    else{
-      match = $node.text().match(/^\s*1(\.|\))\s*/);
-      if(match){
-      
-        //replace default action with ordered list insertion
+    Editor.prototype.handleSmartList = function($item, e) {
+      var $li, chars, match, regex;
+      utils.log("HANDLE A SMART LIST");
+      chars = this.getCharacterPrecedingCaret();
+      match = chars.match(/^\s*(\-|\*)\s*$/);
+      if (match) {
         utils.log("CREATING LIST ITEM");
         e.preventDefault();
-        this.listify($node, "ol", match[0].length);
+        regex = new RegExp(/\s*(\-|\*)\s*/);
+        $li = this.listify($item, "ul", regex);
+      } else {
+        match = chars.match(/^\s*1(\.|\))\s*$/);
+        if (match) {
+          utils.log("CREATING LIST ITEM");
+          e.preventDefault();
+          regex = new RegExp(/\s*1(\.|\))\s*/);
+          $li = this.listify($item, "ol", regex);
+        }
       }
-    }
-    
-  }
-  
+      return $li;
+    };
 
-  /**
-  * Handles the processing of line breaks when in a list
-  *
-  * @param {jQuery} $li - The list item where a line break was entered
-  * @param {event}  e   - The event that generates the line break
-  *
-  */
-  Editor.prototype.handleListLineBreak = function($li, e){
-    var $list, $parahraph;
-
-    utils.log("LIST LINE BREAK HANDLE");
-    e.preventDefault();
-    this.tooltip_view.hide();
-
-    //get the list containing the selected list item
-    $list = $($li.parent("ol, ul")[0]);
-
-    //generate replacement paragraph
-    $paragraph = $("<p></p>"); 
-    
-
-    //if the list has only one child, replace it with a paragraph
-    if($list.children().length === 1){
-      this.replaceWith("p", $list);
-      
-    }
-    
-    //if the list item is the last child and is empty
-    else if($li.next().length == 0 && $li.text() === ""){
-
-      //put the replacement paragraph after the list and remove the empty list item
-      $list.after($paragraph);
-      $li.remove();
-
-      //select and focus on the new paragraph
-      this.addClassesToElement($paragraph[0]);
-      this.setRangeAt($paragraph[0]);
-      this.markAsSelected($paragraph[0]);
-      return this.scrollTo($paragraph); 
-    }
-  }
-
-  /**
-  * Handles backspace keydowns in lists
-  *
-  * @param {jQuery} $li - The list item where backspace was pressed
-  * @param {event}  e   - The backspace event object
-  *
-  */
-  Editor.prototype.handleListBackspace = function($li, e){
-    
-    var content, $list, $paragraph;
-
-    //get the list item's parent list
-    $list = $li.parent("ol, ul");
-    utils.log("LIST BACKSPACE");
-
-    //if on the first list item of a list
-    if($li.prev().length === 0){
-      e.preventDefault();
-
-      //move the item outside of the list, and replace it with a paragraph
-      $list.before($li);
-      content = $li.html();
-      this.replaceWith("p", $li);
-      $paragraph = $(".is-selected");
-      $paragraph.removeClass("graf--empty").html(content);
-
-      //then, if the list is empty, remove it
-      if($list.children().length === 0){
+    Editor.prototype.handleListLineBreak = function($li, e) {
+      var $list, $paragraph, content;
+      utils.log("LIST LINE BREAK");
+      this.tooltip_view.hide();
+      $list = $li.parent("ol, ul");
+      $paragraph = $("<p></p>");
+      utils.log($li.prev());
+      if ($list.children().length === 1 && $li.text() === "") {
+        this.replaceWith("p", $list);
+      } else if ($li.text() === "" && ($li.next().length !== 0)) {
+        e.preventDefault();
+      } else if ($li.next().length === 0) {
+        if ($li.text() === "") {
+          e.preventDefault();
+          utils.log("BREAK FROM LIST");
+          $list.after($paragraph);
+          $li.addClass("graf--removed").remove();
+        } else if ($li.prev().length !== 0 && $li.prev().text() === "" && this.getCharacterPrecedingCaret() === "") {
+          e.preventDefault();
+          utils.log("PREV IS EMPTY");
+          content = $li.html();
+          $list.after($paragraph);
+          $li.prev().remove();
+          $li.addClass("graf--removed").remove();
+          $paragraph.html(content);
+        }
+      }
+      if ($list && $list.children().length === 0) {
         $list.remove();
       }
+      utils.log($li);
+      if ($li.hasClass("graf--removed")) {
+        utils.log("ELEMENT REMOVED");
+        this.addClassesToElement($paragraph[0]);
+        this.setRangeAt($paragraph[0]);
+        this.markAsSelected($paragraph[0]);
+        return this.scrollTo($paragraph);
+      }
+    };
 
-      //set up first and last attributes
-      this.setupFirstAndLast();
-    }
-  }
+    Editor.prototype.handleListBackspace = function($li, e) {
+      var $list, $paragraph, content;
+      $list = $li.parent("ol, ul");
+      utils.log("LIST BACKSPACE");
+      if ($li.prev().length === 0) {
+        e.preventDefault();
+        $list.before($li);
+        content = $li.html();
+        this.replaceWith("p", $li);
+        $paragraph = $(".is-selected");
+        $paragraph.removeClass("graf--empty").html(content);
+        if ($list.children().length === 0) {
+          $list.remove();
+        }
+        return this.setupFirstAndLast();
+      }
+    };
 
+    Editor.prototype.removeSpanTag = function($item) {
+      var $spans, span, _i, _len;
+      $spans = $item.find("span");
+      for (_i = 0, _len = $spans.length; _i < _len; _i++) {
+        span = $spans[_i];
+        if (!$(span).hasClass("defaultValue")) {
+          $(span).replaceWith($(span).html());
+        }
+      }
+      return $item;
+    };
 
-  return Editor;
+    return Editor;
 
   })(Dante.View);
 
@@ -2142,7 +2104,9 @@
     };
 
     Tooltip.prototype.getEmbedFromNode = function(node) {
-      this.node_name = $(node).attr("name");
+      this.node = $(node);
+      this.node_name = this.node.attr("name");
+      this.node.addClass("spinner");
       return $.getJSON("" + this.current_editor.oembed_url + ($(this.node).text())).success((function(_this) {
         return function(data) {
           var iframe_src, replaced_node, tmpl, url;
@@ -2172,7 +2136,9 @@
     };
 
     Tooltip.prototype.getExtractFromNode = function(node) {
-      this.node_name = $(node).attr("name");
+      this.node = $(node);
+      this.node_name = this.node.attr("name");
+      this.node.addClass("spinner");
       return $.getJSON("" + this.current_editor.extract_url + ($(this.node).text())).success((function(_this) {
         return function(data) {
           var iframe_src, image_node, replaced_node, tmpl;
@@ -2571,8 +2537,7 @@
           }
           if (tag.match(/(?:h[1-6])/i)) {
             $(_this.el).find(".icon-bold, .icon-italic, .icon-blockquote").parent("li").remove();
-          }
-          else if(tag === "indent"){
+          } else if (tag === "indent") {
             $(_this.el).find(".icon-h2, .icon-h3, .icon-h4, .icon-blockquote").parent("li").remove();
           }
           return _this.highlight(tag);
