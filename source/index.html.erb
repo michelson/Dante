@@ -11,6 +11,10 @@ title: Dante Editor example
     {
       el: "#editor",
       upload_url: "/uploads/new.json",
+      upload_callback: function(data){
+        console.log("Hey!");
+        return data;
+      },
       debug: <%= build? ? false : true %>
     }
   )
