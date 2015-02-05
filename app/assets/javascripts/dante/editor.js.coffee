@@ -44,10 +44,10 @@ class Dante.Editor extends Dante.View
 
     @store()
 
-    @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title</span><br>"
-    @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
-    @embed_placeholder    = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
-    @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
+    @title_placeholder    = opts.title_placeholder   || "<span class='defaultValue defaultValue--root'>Title</span><br>"
+    @body_placeholder     = opts.body_placeholder    || "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
+    @embed_placeholder    = opts.embed_placeholder   || "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
+    @extract_placeholder  = opts.extract_placeholder || "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
 
   store: ()->
     #localStorage.setItem("contenteditable", $(@el).html() )
