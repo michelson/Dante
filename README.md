@@ -63,7 +63,7 @@ Until now I´ve been able to implement the following features:
 + **el:**          default: #editor
 + **debug:**   default: false
 + **upload_url:**  default: /uploads.json
-+ **upload_callback** default: empty, allows to set a callback function to handle server response to return the image path string. This is useful when you don't have control on the backend response.
++ **upload_callback** default: empty, allows optional way to handle the server response when image is uploaded This is useful when you don't have control on the backend response.
 + **oembed_url:**  default: http://api.embed.ly/1/oembed?url="
 + **extract_url:** default: http://api.embed.ly/1/extract?url="
 + **store_url:**   default: to none , url to store data with interval
