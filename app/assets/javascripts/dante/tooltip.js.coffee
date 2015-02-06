@@ -275,6 +275,7 @@ class Dante.Editor.Tooltip extends Dante.View
       contentType: false
 
       success: (response) =>
+        response = @current_editor.upload_callback(response) if @current_editor.upload_callback
         handleUp(response)
         return
       error: (jqxhr)=>
