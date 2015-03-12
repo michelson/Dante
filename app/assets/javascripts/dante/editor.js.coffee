@@ -29,6 +29,7 @@ class Dante.Editor extends Dante.View
     @current_node    = null
     @el = opts.el || "#editor"
     @upload_url      = opts.upload_url  || "/uploads.json"
+    @upload_callback = opts.upload_callback
     @oembed_url      = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
@@ -45,10 +46,14 @@ class Dante.Editor extends Dante.View
 
     @store()
 
-    @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title</span><br>"
-    @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
-    @embed_placeholder    = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
-    @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
+    titleplaceholder    = opts.title_placeholder  || 'Title'
+    @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
+    bodyplaceholder     = opts.body_placeholder   || 'Tell your story…'
+    @body_placeholder   = "<span class='defaultValue defaultValue--root'>#{bodyplaceholder}</span><br>"
+    embedplaceholder    = opts.embed_placeholder  || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
+    @embed_placeholder  = "<span class='defaultValue defaultValue--root'>#{embedplaceholder}</span><br>"
+    extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
+    @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
 
   store: ()->
     #localStorage.setItem("contenteditable", $(@el).html() )
@@ -625,7 +630,7 @@ class Dante.Editor extends Dante.View
       if $node.hasClass("graf--p")
         li = @handleSmartList($node, e)
         anchor_node = li if li
-      else if $node.hasClass("graf--li") and ($node.text() is "")
+      else if $node.hasClass("graf--li")
         @handleListLineBreak($node, e)
 
       #embeds or extracts
@@ -763,6 +768,10 @@ class Dante.Editor extends Dante.View
 
     @handleTextSelection(anchor_node)
 
+    if (_.contains([8, 32, 13], e.which))
+      if $(anchor_node).hasClass("graf--li")
+        @removeSpanTag($(anchor_node));
+
     if (e.which == 8)
 
       #if detect all text deleted , re render
@@ -803,6 +812,7 @@ class Dante.Editor extends Dante.View
       #  @setupFirstAndLast()
       #  @displayTooltipAt($(@el).find(".is-selected"))
 
+
     #arrows key
     if _.contains([37,38,39,40], e.which)
       @handleArrow(e)
@@ -831,7 +841,7 @@ class Dante.Editor extends Dante.View
     utils.log ("POSITION FOR TOOLTIP")
     #utils.log $(element)
     element = $(element)
-    return if !element || _.isEmpty(element) || element[0].tagName is "LI"
+    return if !element || _.isUndefined(element) || _.isEmpty(element) || element[0].tagName is "LI"
     @tooltip_view.hide()
     return unless _.isEmpty( element.text() )
     @positions = element.offset()
@@ -1054,14 +1064,15 @@ class Dante.Editor extends Dante.View
   setElementName: (element)->
     $(element).attr("name", utils.generateUniqueName())
 
-  #LIST METHODS
+  # LIST METHODS
 
-  listify: ($paragraph, listType, tagLength)->
+  listify: ($paragraph, listType, regex)->
+
     utils.log "LISTIFY PARAGRAPH"
-    content = $paragraph.html().replace(/&nbsp;/g, " ")
-    utils.log(tagLength)
 
-    content = content.slice(tagLength, content.length)
+    @removeSpanTag($paragraph);
+
+    content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "")
 
     switch(listType)
       when "ul" then $list = $("<ul></ul>")
@@ -1078,37 +1089,64 @@ class Dante.Editor extends Dante.View
 
     if($li.find("br").length == 0)
       $li.append("<br/>")
+
     @setRangeAt($li[0])
 
     $li[0]
 
   handleSmartList: ($item, e)->
     utils.log("HANDLE A SMART LIST")
-    match = $item.text().match(/^\s*(\-|\*)\s*/)
 
-    if match
-      utils.log("CREATING UL LIST ITEM")
-      e.preventDefault()
-      $li = @listify($item, "ul", match[0].length)
-    else if match = $item.text().match(/^\s*1(\.|\))\s*/)
-      utils.log("CREATING OL LIST ITEM")
-      e.preventDefault()
-      $li = @listify($item, "ol", match[0].length)
+    chars = @getCharacterPrecedingCaret()
+    match = chars.match(/^\s*(\-|\*)\s*$/)
+    if(match)
+        utils.log("CREATING LIST ITEM")
+        e.preventDefault()
+        regex = new RegExp(/\s*(\-|\*)\s*/)
+        $li = @listify($item, "ul", regex)
+    else
+      match = chars.match(/^\s*1(\.|\))\s*$/)
+      if(match)
+        utils.log("CREATING LIST ITEM")
+        e.preventDefault()
 
+        regex = new RegExp(/\s*1(\.|\))\s*/)
+        $li = @listify($item, "ol", regex)
     $li
 
   handleListLineBreak: ($li, e)->
     utils.log("LIST LINE BREAK")
-    e.preventDefault()
     @tooltip_view.hide()
     $list = $li.parent("ol, ul")
     $paragraph = $("<p></p>")
-    if($list.children().length == 1)
+    utils.log($li.prev());
+    if($list.children().length is 1 and $li.text() is "")
       @replaceWith("p", $list)
-    else if ($li.next().length == 0 and $li.text() == "")
-      $list.after($paragraph)
-      $li.remove()
 
+    else if $li.text() is "" and ($li.next().length isnt 0)
+      e.preventDefault()
+
+    else if ($li.next().length is 0)
+      if($li.text() is "")
+        e.preventDefault()
+        utils.log("BREAK FROM LIST")
+        $list.after($paragraph)
+        $li.addClass("graf--removed").remove()
+
+      else if ($li.prev().length isnt 0 and $li.prev().text() is "" and @getCharacterPrecedingCaret() is "")
+        e.preventDefault()
+        utils.log("PREV IS EMPTY")
+        content = $li.html()
+        $list.after($paragraph)
+        $li.prev().remove()
+        $li.addClass("graf--removed").remove()
+        $paragraph.html(content)
+
+    if $list and $list.children().length is 0 then $list.remove()
+
+    utils.log($li);
+    if ($li.hasClass("graf--removed"))
+      utils.log("ELEMENT REMOVED")
       @addClassesToElement($paragraph[0])
       @setRangeAt($paragraph[0])
       @markAsSelected($paragraph[0])
@@ -1132,3 +1170,11 @@ class Dante.Editor extends Dante.View
         $list.remove()
 
       @setupFirstAndLast()
+
+  #Remove Non-default Spans From Elements
+  removeSpanTag: ($item)->
+
+    $spans = $item.find("span")
+    $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
+    $item
+
