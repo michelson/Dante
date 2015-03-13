@@ -63,13 +63,18 @@ Until now I´ve been able to implement the following features:
 + **el:**          default: #editor
 + **debug:**   default: false
 + **upload_url:**  default: /uploads.json
++ **upload_callback** default: empty, allows optional way to handle the server response when image is uploaded This is useful when you don't have control on the backend response.
 + **oembed_url:**  default: http://api.embed.ly/1/oembed?url="
 + **extract_url:** default: http://api.embed.ly/1/extract?url="
 + **store_url:**   default: to none , url to store data with interval
 + **store_interval:** default: 15000 (15 secs)
 + **spellcheck:**  default: false
 + **default_loading_placeholder:** image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
-+ **disable_title** default: false , will hide the initial heading placeholder for initial text
++ **disable_title** default: false, will hide the initial heading placeholder for initial text
++ **title_placeholder** default: 'Title'
++ **body_placeholder** default: 'Tell your story…'
++ **embed_placeholder** default: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
++ **extract_placeholder** default: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 
 ### Rails / AssetPippeline
 

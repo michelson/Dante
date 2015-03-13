@@ -29,6 +29,7 @@ class Dante.Editor extends Dante.View
     @current_node    = null
     @el = opts.el || "#editor"
     @upload_url      = opts.upload_url  || "/uploads.json"
+    @upload_callback = opts.upload_callback
     @oembed_url      = opts.oembed_url  || "http://api.embed.ly/1/oembed?url="
     @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
@@ -44,10 +45,14 @@ class Dante.Editor extends Dante.View
 
     @store()
 
-    @title_placeholder    = "<span class='defaultValue defaultValue--root'>Title</span><br>"
-    @body_placeholder     = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>"
-    @embed_placeholder    = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>"
-    @extract_placeholder  = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>"
+    titleplaceholder    = opts.title_placeholder  || 'Title'
+    @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
+    bodyplaceholder     = opts.body_placeholder   || 'Tell your story…'
+    @body_placeholder   = "<span class='defaultValue defaultValue--root'>#{bodyplaceholder}</span><br>"
+    embedplaceholder    = opts.embed_placeholder  || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
+    @embed_placeholder  = "<span class='defaultValue defaultValue--root'>#{embedplaceholder}</span><br>"
+    extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
+    @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
 
   store: ()->
     #localStorage.setItem("contenteditable", $(@el).html() )
