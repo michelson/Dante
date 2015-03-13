@@ -55,6 +55,12 @@ class Dante.Editor extends Dante.View
     extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
     @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
 
+    #widgets
+    @uploader_widget    = new Dante.View.TooltipWidget.Uploader(current_editor: @)
+
+    @widgets = []
+    @widgets.push @uploader_widget
+
   store: ()->
     #localStorage.setItem("contenteditable", $(@el).html() )
     return unless @store_url
@@ -108,7 +114,7 @@ class Dante.Editor extends Dante.View
     $("<div id='dante-menu' class='dante-menu'></div>").insertAfter(@el)
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
-    @tooltip_view = new @tooltip_class(editor: @)
+    @tooltip_view = new @tooltip_class(editor: @ , widgets: @widgets)
     @pop_over = new Dante.Editor.PopOver(editor: @)
     @pop_over.render().hide()
     @tooltip_view.render().hide()
@@ -269,7 +275,6 @@ class Dante.Editor extends Dante.View
       $(@getNode()).addClass("is-defaultValue")
     else
       $(@getNode()).removeClass("is-defaultValue")
-
 
   #get text of selected and displays menu
   handleTextSelection: (anchor_node)->

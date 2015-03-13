@@ -1,47 +1,17 @@
 utils = Dante.utils
 
-class Dante.Editor.Tooltip extends Dante.View
-  el: ".inlineTooltip"
+class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
 
-  events:
-    "click .inlineTooltip-button.control" : "toggleOptions"
-    "click .inlineTooltip-menu button" : "handleClick"
+  initialize: (opts={})->
+    #super
+    @widget_name = "uploader"
+    @icon        = opts.icon  || "icon-image"
+    @title       = opts.title || "Add an image"
+    @actionEvent = opts.action || "image"
+    @current_editor = opts.current_editor
 
-  initialize: (opts = {})=>
-    @current_editor = opts.editor
-    @widgets        = opts.widgets
-
-    #@buttons = [
-    #  {icon: "icon-image", title: "Add an image", action: "image"},
-    #  {icon: "icon-video", title: "Add a video",  action: "embed"},
-    #  {icon: "icon-embed", title: "Add an embed", action: "embed-extract"}
-    #]
-    @buttons = _.map(@widgets, (n)->
-     return {icon: n.icon, title: n.title, action: n.action}
-    );
-    #TODO: include section splitter
-    #icon: "fa-minus", title: "Add a new part", action: "hr"
-
-  template: ()->
-    menu = ""
-    _.each @buttons, (b)->
-      data_action_value = if b.action_value then "data-action-value='#{b.action_value}'" else  ""
-      menu += "<button class='inlineTooltip-button scale' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
-        <span class='tooltip-icon #{b.icon}'></span>
-      </button>"
-
-    "<button class='inlineTooltip-button control' title='Close Menu' data-action='inline-menu'>
-        <span class='tooltip-icon icon-plus'></span>
-    </button>
-    <div class='inlineTooltip-menu'>
-      #{menu}
-    </div>"
-
-
-  findWidgetByAction: (name)->
-    _.find @widgets , (w)->
-      w.name = name
-
+  handleClick: (ev)->
+    @imageSelect(ev)
 
   insertTemplate: ()->
     "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='#{utils.generateUniqueName()}' tabindex='0'>
@@ -55,71 +25,6 @@ class Dante.Editor.Tooltip extends Dante.View
       </figcaption>
     </figure>"
 
-  extractTemplate: ()->
-    "<div class='graf graf--mixtapeEmbed is-selected' name=''>
-      <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''>
-      </a>
-      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
-        <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
-        <em class='markup--em markup--mixtapeEmbed-em'></em>
-      </a>
-    </div>"
-
-  embedTemplate: ()->
-    "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'>
-      <div class='iframeContainer'>
-        <iframe frameborder='0' width='700' height='393' data-media-id='' src='' data-height='480' data-width='854'>
-        </iframe>
-      </div>
-      <figcaption contenteditable='true' data-default-value='Type caption for embed (optional)' class='imageCaption'>
-        <a rel='nofollow' class='markup--anchor markup--figure-anchor' data-href='' href='' target='_blank'>
-
-        </a>
-      </figcaption>
-    </figure>"
-
-  render: ()=>
-    $(@el).html(@template())
-    $(@el).addClass("is-active")
-    @
-
-  toggleOptions: ()=>
-    utils.log "Toggle Options!!"
-    $(@el).toggleClass("is-scaled")
-    return false
-
-  move: (coords)->
-    tooltip         = $(@el)
-    control_width   = tooltip.find(".control").css("width")
-    control_spacing = tooltip.find(".inlineTooltip-menu").css("padding-left")
-    pull_size       = parseInt(control_width.replace(/px/,"")) + parseInt(control_spacing.replace(/px/,""))
-    coord_left      = coords.left - pull_size
-    coord_top       = coords.top
-
-    $(@el).offset(top: coord_top, left: coord_left)
-
-  handleClick: (ev)->
-    name = $(ev.currentTarget).data('action')
-    utils.log name
-    ###
-    switch name
-      when "inline-menu-image"
-        @placeholder = "<p>PLACEHOLDER</p>"
-        @imageSelect(ev)
-      when "inline-menu-embed"
-        @displayEmbedPlaceHolder()
-      when "inline-menu-embed-extract"
-        @displayExtractPlaceHolder()
-      when "inline-menu-hr"
-        @splitSection()
-    ###
-
-    if detected_widget = @findWidgetByAction(name)
-      detected_widget.handleClick(ev)
-
-    return false
-
-  ###
   #UPLOADER
   #replace existing img tag , and wrap it in insertTamplate
   #TODO: take the url and upload it
@@ -317,75 +222,3 @@ class Dante.Editor.Tooltip extends Dante.View
   uploadCompleted: (url, node)=>
     node.find("img").attr("src", url)
     #return false
-  ###
-
-  ## EMBED
-  displayEmbedPlaceHolder: ()->
-    ph = @current_editor.embed_placeholder
-    @node = @current_editor.getNode()
-    $(@node).html(ph).addClass("is-embedable")
-
-    @current_editor.setRangeAt(@node)
-    @hide()
-    false
-
-  getEmbedFromNode: (node)=>
-    @node = $(node)
-    @node_name = @node.attr("name")
-    @node.addClass("spinner")
-
-    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}")
-      .success (data)=>
-        @node = $("[name=#{@node_name}]")
-        iframe_src = $(data.html).prop("src")
-        tmpl = $(@embedTemplate())
-        tmpl.attr("name", @node.attr("name"))
-        $(@node).replaceWith(tmpl)
-        replaced_node = $(".graf--iframe[name=#{@node.attr("name")}]")
-        replaced_node.find("iframe").attr("src", iframe_src)
-        url = data.url || data.author_url
-        utils.log "URL IS #{url}"
-        replaced_node.find(".markup--anchor").attr("href", url ).text(url)
-        @hide()
-
-  ##EXTRACT
-  displayExtractPlaceHolder: ()->
-    ph = @current_editor.extract_placeholder
-    @node = @current_editor.getNode()
-    $(@node).html(ph).addClass("is-extractable")
-
-    @current_editor.setRangeAt(@node)
-    @hide()
-    false
-
-  getExtractFromNode: (node)=>
-    @node = $(node)
-    @node_name = @node.attr("name")
-    @node.addClass("spinner")
-
-    $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}").success (data)=>
-      @node = $("[name=#{@node_name}]")
-      iframe_src = $(data.html).prop("src")
-      tmpl = $(@extractTemplate())
-      tmpl.attr("name", @node.attr("name"))
-      $(@node).replaceWith(tmpl)
-      replaced_node = $(".graf--mixtapeEmbed[name=#{@node.attr("name")}]")
-      replaced_node.find("strong").text(data.title)
-      replaced_node.find("em").text(data.description)
-      replaced_node.append(data.provider_url)
-      replaced_node.find(".markup--anchor").attr("href", data.url )
-      unless _.isEmpty data.images
-        image_node = replaced_node.find(".mixtapeImage")
-        image_node.css("background-image", "url(#{data.images[0].url})")
-        image_node.removeClass("mixtapeImage--empty u-ignoreBlock")
-      @hide()
-
-  getExtract: (url)=>
-    $.getJSON("#{@current_editor.extract_url}#{url}").done (data)->
-      utils.log(data)
-
-  cleanOperationClasses: (node)->
-    node.removeClass("is-embedable is-extractable")
-
-  hide: ()=>
-    $(@el).removeClass("is-active is-scaled")
