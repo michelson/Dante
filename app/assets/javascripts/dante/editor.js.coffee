@@ -39,8 +39,11 @@ class Dante.Editor extends Dante.View
     @store_interval  = opts.store_interval || 15000
     @paste_element_id = "#dante-paste-div"
     @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
+
     window.debugMode = opts.debug || false
+
     $(@el).addClass("debug") if window.debugMode
+
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -55,11 +58,20 @@ class Dante.Editor extends Dante.View
     extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
     @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
 
-    #widgets
-    @uploader_widget    = new Dante.View.TooltipWidget.Uploader(current_editor: @)
+    #Base widgets
+    @uploader_widget      = new Dante.View.TooltipWidget.Uploader(current_editor: @)
+    @embed_widget         = new Dante.View.TooltipWidget.Embed(current_editor: @)
+    @embed_extract_widget = new Dante.View.TooltipWidget.EmbedExtract(current_editor: @)
 
     @widgets = []
     @widgets.push @uploader_widget
+    @widgets.push @embed_widget
+    @widgets.push @embed_extract_widget
+
+    #add extra widgets
+    if opts.extra_tooltip_widgets
+      _.each opts.extra_tooltip_widgets, (w)=>
+        @widgets.push w
 
   store: ()->
     #localStorage.setItem("contenteditable", $(@el).html() )
@@ -517,7 +529,7 @@ class Dante.Editor extends Dante.View
     #http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
     _.each elements.find("img"), (image)=>
       utils.log ("process image here!")
-      @tooltip_view.uploadExistentImage(image)
+      @uploader_widget.uploadExistentImage(image)
 
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
@@ -640,9 +652,9 @@ class Dante.Editor extends Dante.View
 
       #embeds or extracts
       if parent.hasClass("is-embedable")
-        @tooltip_view.getEmbedFromNode($(anchor_node))
+        @embed_widget.getEmbedFromNode($(anchor_node))
       else if parent.hasClass("is-extractable")
-        @tooltip_view.getExtractFromNode($(anchor_node))
+        @embed_extract_widget.getExtractFromNode($(anchor_node))
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
@@ -900,7 +912,7 @@ class Dante.Editor extends Dante.View
 
       when "img"
         utils.log "images"
-        @tooltip_view.uploadExistentImage(n)
+        @uploader_widget.uploadExistentImage(n)
         #set figure non editable
 
       when "a", 'strong', 'em', 'br', 'b', 'u', 'i'

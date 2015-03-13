@@ -4,10 +4,10 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
 
   initialize: (opts={})->
     #super
-    @widget_name = "uploader"
+    #@name        = "menu-image"
     @icon        = opts.icon  || "icon-image"
     @title       = opts.title || "Add an image"
-    @actionEvent = opts.action || "image"
+    @action      = opts.action || "menu-image"
     @current_editor = opts.current_editor
 
   handleClick: (ev)->

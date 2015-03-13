@@ -5,5 +5,6 @@ class Dante.View.TooltipWidget extends Dante.View
     @title       = opts.title
     @actionEvent = opts.title
 
-
+  hide: ()=>
+    @.current_editor.tooltip_view.hide()
 
