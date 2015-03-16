@@ -77,7 +77,7 @@ Until now I´ve been able to implement the following features:
 + **embed_placeholder** default: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
 + **extract_placeholder** default: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 + **base_widgets:** default: ["uploader", "embed", "embed-extract"],
-+ **extra_tooltip_widgets:** and array new Dante.TooltipWidget instances
++ **extra_tooltip_widgets:** and array of new Dante.TooltipWidget instances
 
 ### Rails / AssetPippeline
 
