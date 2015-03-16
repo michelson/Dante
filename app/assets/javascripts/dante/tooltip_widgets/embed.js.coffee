@@ -3,7 +3,6 @@ utils = Dante.utils
 class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
 
   initialize: (opts={})->
-    #super
     @icon        = opts.icon  || "icon-video"
     @title       = opts.title || "Add a video"
     @action      = opts.action || "embed"
@@ -11,7 +10,6 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
 
   handleClick: (ev)->
     @displayEmbedPlaceHolder(ev)
-
 
   embedTemplate: ()->
     "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'>
@@ -53,3 +51,6 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
         utils.log "URL IS #{url}"
         replaced_node.find(".markup--anchor").attr("href", url ).text(url)
         @hide()
+      .error (res)=>
+        @node.removeClass("spinner")
+
