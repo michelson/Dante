@@ -654,8 +654,6 @@ class Dante.Editor extends Dante.View
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
-      
-
       utils.log @isLastChar()
 
       #smart list support
@@ -670,13 +668,6 @@ class Dante.Editor extends Dante.View
       _.each @widgets, (w)=>
         if w.handleEnterKey
           w.handleEnterKey(e, parent);
-
-
-      # #embeds or extracts
-      # if parent.hasClass("is-embedable")
-      #   @embed_widget.getEmbedFromNode($(anchor_node))
-      # else if parent.hasClass("is-extractable")
-      #   @embed_extract_widget.getExtractFromNode($(anchor_node))
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
