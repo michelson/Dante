@@ -4,13 +4,13 @@ utils = Dante.utils
 class Dante.Editor extends Dante.View
 
   events:
-    "mouseup" : "handleMouseUp"
-    "keydown" : "handleKeyDown"
-    "keyup"   : "handleKeyUp"
-    "paste"   : "handlePaste"
+    "mouseup"  : "handleMouseUp"
+    "keydown"  : "handleKeyDown"
+    "keyup"    : "handleKeyUp"
+    "paste"    : "handlePaste"
     "dblclick" : "handleDblclick"
     "dragstart": "handleDrag"
-    "drop"    : "handleDrag"
+    "drop"     : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
 
@@ -40,6 +40,10 @@ class Dante.Editor extends Dante.View
     @paste_element_id = "#dante-paste-div"
     @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
 
+    opts.base_widgets ||= ["uploader", "embed", "embed_extract"]
+
+    @widgets = []
+
     window.debugMode = opts.debug || false
 
     $(@el).addClass("debug") if window.debugMode
@@ -58,15 +62,25 @@ class Dante.Editor extends Dante.View
     extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
     @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
 
-    #Base widgets
-    @uploader_widget      = new Dante.View.TooltipWidget.Uploader(current_editor: @)
-    @embed_widget         = new Dante.View.TooltipWidget.Embed(current_editor: @)
-    @embed_extract_widget = new Dante.View.TooltipWidget.EmbedExtract(current_editor: @)
+    @initializeWidgets(opts)
 
-    @widgets = []
-    @widgets.push @uploader_widget
-    @widgets.push @embed_widget
-    @widgets.push @embed_extract_widget
+
+  initializeWidgets: (opts)->
+    #TODO: this could be a hash to access widgets without var
+    #Base widgets
+    base_widgets = opts.base_widgets
+
+    if base_widgets.indexOf("uploader") >= 0
+      @uploader_widget      = new Dante.View.TooltipWidget.Uploader(current_editor: @)
+      @widgets.push @uploader_widget
+
+    if base_widgets.indexOf("embed") >= 0
+      @embed_widget         = new Dante.View.TooltipWidget.Embed(current_editor: @)
+      @widgets.push @embed_widget
+
+    if base_widgets.indexOf("embed_extract") >= 0
+      @embed_extract_widget = new Dante.View.TooltipWidget.EmbedExtract(current_editor: @)
+      @widgets.push @embed_extract_widget
 
     #add extra widgets
     if opts.extra_tooltip_widgets

@@ -3,7 +3,6 @@ utils = Dante.utils
 class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
 
   initialize: (opts={})->
-    #super
     @icon        = opts.icon  || "icon-embed"
     @title       = opts.title || "Add an embed"
     @action      = opts.action || "embed-extract"
@@ -36,7 +35,8 @@ class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
     @node_name = @node.attr("name")
     @node.addClass("spinner")
 
-    $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}").success (data)=>
+    $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}")
+    .success (data)=>
       @node = $("[name=#{@node_name}]")
       iframe_src = $(data.html).prop("src")
       tmpl = $(@extractTemplate())
@@ -52,6 +52,8 @@ class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
         image_node.css("background-image", "url(#{data.images[0].url})")
         image_node.removeClass("mixtapeImage--empty u-ignoreBlock")
       @hide()
+    .error (data)=>
+      @node.removeClass("spinner")
 
   getExtract: (url)=>
     $.getJSON("#{@current_editor.extract_url}#{url}").done (data)->

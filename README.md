@@ -27,6 +27,7 @@ Until now I´ve been able to implement the following features:
   + Embed data for pasted link through OEmbed services.
   + Embed media information for pasted links through OEmbed services.
 + List creation with shorcuts ie:. 1. , - , 1) with spacebar or return key
++ Custom tooltip bottons support
 + CSS tries to use the same fonts used in Medium, (if you have already setup those fonts) or fallbacks to open fonts (by Google fonts) or system fonts.
   + serif: freight-text-pro fallbacks to Merriweather or Georgia,
   + sans:  jaf-bernino-sans fallbacks to Open Sans or Lucida Grande
@@ -75,6 +76,8 @@ Until now I´ve been able to implement the following features:
 + **body_placeholder** default: 'Tell your story…'
 + **embed_placeholder** default: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
 + **extract_placeholder** default: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
++ **base_widgets:** default: ["uploader", "embed", "embed-extract"],
++ **extra_tooltip_widgets:** and array new Dante.TooltipWidget instances
 
 ### Rails / AssetPippeline
 
