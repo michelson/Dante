@@ -11,6 +11,10 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
   handleClick: (ev)->
     @displayEmbedPlaceHolder(ev)
 
+  handleEnterKey: (ev, $node)->
+    if $node.hasClass("is-embedable")
+      @getEmbedFromNode($node);
+
   embedTemplate: ()->
     "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'>
       <div class='iframeContainer'>

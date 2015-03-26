@@ -11,6 +11,10 @@ class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
   handleClick: (ev)->
     @displayExtractPlaceHolder(ev)
 
+  handleEnterKey: (ev, $node)->
+    if $node.hasClass("is-extractable")
+      @getExtractFromNode($node)
+
   extractTemplate: ()->
     "<div class='graf graf--mixtapeEmbed is-selected' name=''>
       <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''>
