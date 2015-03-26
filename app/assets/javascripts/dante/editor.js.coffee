@@ -4,13 +4,13 @@ utils = Dante.utils
 class Dante.Editor extends Dante.View
 
   events:
-    "mouseup" : "handleMouseUp"
-    "keydown" : "handleKeyDown"
-    "keyup"   : "handleKeyUp"
-    "paste"   : "handlePaste"
+    "mouseup"  : "handleMouseUp"
+    "keydown"  : "handleKeyDown"
+    "keyup"    : "handleKeyUp"
+    "paste"    : "handlePaste"
     "dblclick" : "handleDblclick"
     "dragstart": "handleDrag"
-    "drop"    : "handleDrag"
+    "drop"     : "handleDrag"
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
     "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
 
@@ -38,8 +38,16 @@ class Dante.Editor extends Dante.View
     @disable_title   = opts.disable_title || false
     @store_interval  = opts.store_interval || 15000
     @paste_element_id = "#dante-paste-div"
+    @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
+
+    opts.base_widgets ||= ["uploader", "embed", "embed_extract"]
+
+    @widgets = []
+
     window.debugMode = opts.debug || false
+
     $(@el).addClass("debug") if window.debugMode
+
     if (localStorage.getItem('contenteditable'))
       $(@el).html  localStorage.getItem('contenteditable')
 
@@ -53,6 +61,31 @@ class Dante.Editor extends Dante.View
     @embed_placeholder  = "<span class='defaultValue defaultValue--root'>#{embedplaceholder}</span><br>"
     extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
     @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
+
+    @initializeWidgets(opts)
+
+
+  initializeWidgets: (opts)->
+    #TODO: this could be a hash to access widgets without var
+    #Base widgets
+    base_widgets = opts.base_widgets
+
+    if base_widgets.indexOf("uploader") >= 0
+      @uploader_widget      = new Dante.View.TooltipWidget.Uploader(current_editor: @)
+      @widgets.push @uploader_widget
+
+    if base_widgets.indexOf("embed") >= 0
+      @embed_widget         = new Dante.View.TooltipWidget.Embed(current_editor: @)
+      @widgets.push @embed_widget
+
+    if base_widgets.indexOf("embed_extract") >= 0
+      @embed_extract_widget = new Dante.View.TooltipWidget.EmbedExtract(current_editor: @)
+      @widgets.push @embed_extract_widget
+
+    #add extra widgets
+    if opts.extra_tooltip_widgets
+      _.each opts.extra_tooltip_widgets, (w)=>
+        @widgets.push w
 
   store: ()->
     #localStorage.setItem("contenteditable", $(@el).html() )
@@ -107,7 +140,7 @@ class Dante.Editor extends Dante.View
     $("<div id='dante-menu' class='dante-menu'></div>").insertAfter(@el)
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
-    @tooltip_view = new Dante.Editor.Tooltip(editor: @)
+    @tooltip_view = new @tooltip_class(editor: @ , widgets: @widgets)
     @pop_over = new Dante.Editor.PopOver(editor: @)
     @pop_over.render().hide()
     @tooltip_view.render().hide()
@@ -268,7 +301,6 @@ class Dante.Editor extends Dante.View
       $(@getNode()).addClass("is-defaultValue")
     else
       $(@getNode()).removeClass("is-defaultValue")
-
 
   #get text of selected and displays menu
   handleTextSelection: (anchor_node)->
@@ -511,7 +543,7 @@ class Dante.Editor extends Dante.View
     #http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
     _.each elements.find("img"), (image)=>
       utils.log ("process image here!")
-      @tooltip_view.uploadExistentImage(image)
+      @uploader_widget.uploadExistentImage(image)
 
   handleInmediateDeletion: (element)->
     @inmediateDeletion = false
@@ -607,7 +639,8 @@ class Dante.Editor extends Dante.View
     utils.log "KEYDOWN"
 
     anchor_node = @getNode() #current node on which cursor is positioned
-    $node = $(anchor_node);
+    parent = $(anchor_node)
+
 
     @markAsSelected( anchor_node ) if anchor_node
 
@@ -621,22 +654,20 @@ class Dante.Editor extends Dante.View
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
-      parent = $(anchor_node)
-
       utils.log @isLastChar()
 
       #smart list support
-      if $node.hasClass("graf--p")
-        li = @handleSmartList($node, e)
+      if parent.hasClass("graf--p")
+        li = @handleSmartList(parent, e)
         anchor_node = li if li
-      else if $node.hasClass("graf--li")
-        @handleListLineBreak($node, e)
+      else if parent.hasClass("graf--li")
+        @handleListLineBreak(parent, e)
 
-      #embeds or extracts
-      if parent.hasClass("is-embedable")
-        @tooltip_view.getEmbedFromNode($(anchor_node))
-      else if parent.hasClass("is-extractable")
-        @tooltip_view.getExtractFromNode($(anchor_node))
+      #handle keydowns for each widget
+      utils.log("HANDLING WIDGET KEYDOWNS");
+      _.each @widgets, (w)=>
+        if w.handleEnterKey
+          w.handleEnterKey(e, parent);
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
@@ -695,8 +726,8 @@ class Dante.Editor extends Dante.View
       anchor_node = @getNode()
       utils_anchor_node = utils.getNode()
 
-      if($node.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
-          return this.handleListBackspace($node, e);
+      if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
+          return this.handleListBackspace(parent, e);
 
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
@@ -728,8 +759,8 @@ class Dante.Editor extends Dante.View
     #spacebar
     if (e.which == 32)
       utils.log("SPACEBAR")
-      if ($node.hasClass("graf--p"))
-        @handleSmartList($node, e)
+      if (parent.hasClass("graf--p"))
+        @handleSmartList(parent, e)
     #arrows key
     #if _.contains([37,38,39,40], e.which)
     #up & down
@@ -894,7 +925,7 @@ class Dante.Editor extends Dante.View
 
       when "img"
         utils.log "images"
-        @tooltip_view.uploadExistentImage(n)
+        @uploader_widget.uploadExistentImage(n)
         #set figure non editable
 
       when "a", 'strong', 'em', 'br', 'b', 'u', 'i'
