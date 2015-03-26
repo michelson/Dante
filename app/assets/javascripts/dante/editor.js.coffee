@@ -639,7 +639,8 @@ class Dante.Editor extends Dante.View
     utils.log "KEYDOWN"
 
     anchor_node = @getNode() #current node on which cursor is positioned
-    $node = $(anchor_node);
+    parent = $(anchor_node)
+
 
     @markAsSelected( anchor_node ) if anchor_node
 
@@ -653,22 +654,29 @@ class Dante.Editor extends Dante.View
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
 
-      parent = $(anchor_node)
+      
 
       utils.log @isLastChar()
 
       #smart list support
-      if $node.hasClass("graf--p")
-        li = @handleSmartList($node, e)
+      if parent.hasClass("graf--p")
+        li = @handleSmartList(parent, e)
         anchor_node = li if li
-      else if $node.hasClass("graf--li")
-        @handleListLineBreak($node, e)
+      else if parent.hasClass("graf--li")
+        @handleListLineBreak(parent, e)
 
-      #embeds or extracts
-      if parent.hasClass("is-embedable")
-        @embed_widget.getEmbedFromNode($(anchor_node))
-      else if parent.hasClass("is-extractable")
-        @embed_extract_widget.getExtractFromNode($(anchor_node))
+      #handle keydowns for each widget
+      utils.log("HANDLING WIDGET KEYDOWNS");
+      _.each @widgets, (w)=>
+        if w.handleEnterKey
+          w.handleEnterKey(e, parent);
+
+
+      # #embeds or extracts
+      # if parent.hasClass("is-embedable")
+      #   @embed_widget.getEmbedFromNode($(anchor_node))
+      # else if parent.hasClass("is-extractable")
+      #   @embed_extract_widget.getExtractFromNode($(anchor_node))
 
       #supress linebreak into embed page text unless last char
       if parent.hasClass("graf--mixtapeEmbed") or parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
@@ -727,8 +735,8 @@ class Dante.Editor extends Dante.View
       anchor_node = @getNode()
       utils_anchor_node = utils.getNode()
 
-      if($node.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
-          return this.handleListBackspace($node, e);
+      if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
+          return this.handleListBackspace(parent, e);
 
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
@@ -760,8 +768,8 @@ class Dante.Editor extends Dante.View
     #spacebar
     if (e.which == 32)
       utils.log("SPACEBAR")
-      if ($node.hasClass("graf--p"))
-        @handleSmartList($node, e)
+      if (parent.hasClass("graf--p"))
+        @handleSmartList(parent, e)
     #arrows key
     #if _.contains([37,38,39,40], e.which)
     #up & down
