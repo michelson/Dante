@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.10"
+    version: "0.0.11"
   };
 
 }).call(this);
@@ -1182,10 +1182,10 @@
     };
 
     Editor.prototype.handleKeyDown = function(e) {
-      var $node, anchor_node, li, parent, utils_anchor_node;
+      var anchor_node, li, parent, utils_anchor_node;
       utils.log("KEYDOWN");
       anchor_node = this.getNode();
-      $node = $(anchor_node);
+      parent = $(anchor_node);
       if (anchor_node) {
         this.markAsSelected(anchor_node);
       }
@@ -1195,21 +1195,23 @@
       }
       if (e.which === 13) {
         $(this.el).find(".is-selected").removeClass("is-selected");
-        parent = $(anchor_node);
         utils.log(this.isLastChar());
-        if ($node.hasClass("graf--p")) {
-          li = this.handleSmartList($node, e);
+        if (parent.hasClass("graf--p")) {
+          li = this.handleSmartList(parent, e);
           if (li) {
             anchor_node = li;
           }
-        } else if ($node.hasClass("graf--li")) {
-          this.handleListLineBreak($node, e);
+        } else if (parent.hasClass("graf--li")) {
+          this.handleListLineBreak(parent, e);
         }
-        if (parent.hasClass("is-embedable")) {
-          this.embed_widget.getEmbedFromNode($(anchor_node));
-        } else if (parent.hasClass("is-extractable")) {
-          this.embed_extract_widget.getExtractFromNode($(anchor_node));
-        }
+        utils.log("HANDLING WIDGET KEYDOWNS");
+        _.each(this.widgets, (function(_this) {
+          return function(w) {
+            if (w.handleEnterKey) {
+              return w.handleEnterKey(e, parent);
+            }
+          };
+        })(this));
         if (parent.hasClass("graf--mixtapeEmbed") || parent.hasClass("graf--iframe") || parent.hasClass("graf--figure")) {
           utils.log("supress linebreak from embed !(last char)");
           if (!this.isLastChar()) {
@@ -1269,8 +1271,8 @@
         utils.log("pass initial validations");
         anchor_node = this.getNode();
         utils_anchor_node = utils.getNode();
-        if ($node.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
-          return this.handleListBackspace($node, e);
+        if (parent.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
+          return this.handleListBackspace(parent, e);
         }
         if ($(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")) {
           utils.log("SECTION DETECTED FROM KEYDOWN " + (_.isEmpty($(utils_anchor_node).text())));
@@ -1304,8 +1306,8 @@
       }
       if (e.which === 32) {
         utils.log("SPACEBAR");
-        if ($node.hasClass("graf--p")) {
-          this.handleSmartList($node, e);
+        if (parent.hasClass("graf--p")) {
+          this.handleSmartList(parent, e);
         }
       }
       if (_.contains([38, 40], e.which)) {
@@ -2143,6 +2145,12 @@
       return this.displayEmbedPlaceHolder(ev);
     };
 
+    Embed.prototype.handleEnterKey = function(ev, $node) {
+      if ($node.hasClass("is-embedable")) {
+        return this.getEmbedFromNode($node);
+      }
+    };
+
     Embed.prototype.embedTemplate = function() {
       return "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'> <div class='iframeContainer'> <iframe frameborder='0' width='700' height='393' data-media-id='' src='' data-height='480' data-width='854'> </iframe> </div> <figcaption contenteditable='true' data-default-value='Type caption for embed (optional)' class='imageCaption'> <a rel='nofollow' class='markup--anchor markup--figure-anchor' data-href='' href='' target='_blank'> </a> </figcaption> </figure>";
     };
@@ -2217,6 +2225,12 @@
 
     EmbedExtract.prototype.handleClick = function(ev) {
       return this.displayExtractPlaceHolder(ev);
+    };
+
+    EmbedExtract.prototype.handleEnterKey = function(ev, $node) {
+      if ($node.hasClass("is-extractable")) {
+        return this.getExtractFromNode($node);
+      }
     };
 
     EmbedExtract.prototype.extractTemplate = function() {
@@ -2321,11 +2335,8 @@
     };
 
     Tooltip.prototype.findWidgetByAction = function(name) {
-      return this.widgets.find(function(e) {
-        var _ref;
-        return (_ref = e.action === name) != null ? _ref : {
-          e: ""
-        };
+      return _.find(this.widgets, function(e) {
+        return e.action === name;
       });
     };
 
