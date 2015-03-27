@@ -1,0 +1,29 @@
+---
+title: Dante Editor example
+---
+
+<div id="editor">
+  This is a custom toolbar example
+</div>
+
+<%= javascript_include_tag  "examples/custom_toolbar" %>
+
+<script>
+
+</script>
+
+<script type="text/javascript">
+  var btn1 = new window.MyCustomCoffeeTooltip
+  var btn2 = new window.MyCustomTooltip
+
+  editor = new Dante.Editor(
+    {
+      el: "#editor",
+      upload_url: "/uploads/new.json",
+      debug: <%= build? ? false : true %>,
+      base_widgets: ["uploader"],
+      extra_tooltip_widgets: [btn1, btn2]
+    }
+  )
+  editor.start()
+</script>
