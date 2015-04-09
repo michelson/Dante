@@ -34,6 +34,7 @@ class Dante.Editor extends Dante.View
     @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
     @store_url       = opts.store_url
+    @query_method    = opts.query_method || "POST"
     @spell_check     = opts.spellcheck || false
     @disable_title   = opts.disable_title || false
     @store_interval  = opts.store_interval || 15000
@@ -103,8 +104,9 @@ class Dante.Editor extends Dante.View
       @content = @getContent()
       $.ajax
         url: @store_url
-        method: "post"
-        data: @getContent()
+        method: @query_method
+        data:
+          body: @getContent()
         success: (res)->
           utils.log "store!"
           utils.log res
