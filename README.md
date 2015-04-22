@@ -69,7 +69,8 @@ Until now I´ve been able to implement the following features:
 + **oembed_url:**  default: http://api.embed.ly/1/oembed?url="
 + **extract_url:** default: http://api.embed.ly/1/extract?url="
 + **store_url:**   default: to none , url to store data with interval
-+ **store_interval:** default: 15000 (15 secs)
++ **store_method** default: to POST , http verb to use when store_url is present.
++ **store_interval:** default: 15000 (15 secs), used when store_url is present.
 + **spellcheck:**  default: false
 + **default_loading_placeholder:** image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
 + **disable_title** default: false, will hide the initial heading placeholder for initial text
