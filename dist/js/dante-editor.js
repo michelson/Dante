@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.11"
+    version: "0.0.12"
   };
 
 }).call(this);
@@ -485,6 +485,7 @@
       this.extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url=";
       this.default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder;
       this.store_url = opts.store_url;
+      this.store_method = opts.store_method || "POST";
       this.spell_check = opts.spellcheck || false;
       this.disable_title = opts.disable_title || false;
       this.store_interval = opts.store_interval || 15000;
@@ -561,8 +562,10 @@
         this.content = this.getContent();
         return $.ajax({
           url: this.store_url,
-          method: "post",
-          data: this.getContent(),
+          method: this.store_method,
+          data: {
+            body: this.getContent()
+          },
           success: function(res) {
             utils.log("store!");
             return utils.log(res);
