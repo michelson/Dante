@@ -56,8 +56,12 @@ class Dante.Editor extends Dante.View
 
     titleplaceholder    = opts.title_placeholder  || 'Title'
     @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
+    title               = opts.title              || ''
+    @title              = title
     bodyplaceholder     = opts.body_placeholder   || 'Tell your story…'
     @body_placeholder   = "<span class='defaultValue defaultValue--root'>#{bodyplaceholder}</span><br>"
+    body                = opts.body               || ''
+    @body               = body
     embedplaceholder    = opts.embed_placeholder  || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
     @embed_placeholder  = "<span class='defaultValue defaultValue--root'>#{embedplaceholder}</span><br>"
     extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
@@ -117,7 +121,7 @@ class Dante.Editor extends Dante.View
     $(@el).find(".section-inner").html()
 
   renderTitle: ()->
-    "<h3 class='graf graf--h3'>#{@title_placeholder} </h3>"
+    #{if @title.length > 0 then <h3 class='graf graf--h3'>#{@title}</h3>" else "<h3 class='graf graf--h3'>#{@title_placeholder} </h3>"}
 
   template: ()=>
     "<section class='section--first section--last'>
@@ -129,7 +133,7 @@ class Dante.Editor extends Dante.View
       <div class='section-content'>
         <div class='section-inner layoutSingleColumn'>
           #{if @disable_title then '' else @renderTitle()}
-          <p class='graf graf--p'>#{@body_placeholder}<p>
+          <p class='graf graf--p'>#{if @body.length > 0 then @body else @body_placeholder}<p>
         </div>
       </div>
 
