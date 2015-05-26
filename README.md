@@ -75,7 +75,9 @@ Until now I´ve been able to implement the following features:
 + **default_loading_placeholder:** image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
 + **disable_title** default: false, will hide the initial heading placeholder for initial text
 + **title_placeholder** default: 'Title'
++ **title** default: none
 + **body_placeholder** default: 'Tell your story…'
++ **body** default: none
 + **embed_placeholder** default: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
 + **extract_placeholder** default: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 + **base_widgets:** default: ["uploader", "embed", "embed-extract"],
