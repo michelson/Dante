@@ -121,7 +121,7 @@ class Dante.Editor extends Dante.View
     $(@el).find(".section-inner").html()
 
   renderTitle: ()->
-    #{if @title.length > 0 then <h3 class='graf graf--h3'>#{@title}</h3>" else "<h3 class='graf graf--h3'>#{@title_placeholder} </h3>"}
+    "<h3 class='graf graf--h3'>#{if @title.length > 0 then @title else @title_placeholder}</h3>"
 
   template: ()=>
     "<section class='section--first section--last'>
