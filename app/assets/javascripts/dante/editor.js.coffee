@@ -56,6 +56,8 @@ class Dante.Editor extends Dante.View
 
     titleplaceholder    = opts.title_placeholder  || 'Title'
     @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
+    title               = opts.title              || ''
+    @title              = title
     bodyplaceholder     = opts.body_placeholder   || 'Tell your story…'
     @body_placeholder   = "<span class='defaultValue defaultValue--root'>#{bodyplaceholder}</span><br>"
     embedplaceholder    = opts.embed_placeholder  || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
@@ -117,7 +119,7 @@ class Dante.Editor extends Dante.View
     $(@el).find(".section-inner").html()
 
   renderTitle: ()->
-    "<h3 class='graf graf--h3'>#{@title_placeholder} </h3>"
+    "<h3 class='graf graf--h3'>#{if @title.length > 0 then @title else @title_placeholder}</h3>"
 
   template: ()=>
     "<section class='section--first section--last'>
