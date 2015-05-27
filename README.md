@@ -83,6 +83,19 @@ Until now I´ve been able to implement the following features:
 + **base_widgets:** default: ["uploader", "embed", "embed-extract"],
 + **extra_tooltip_widgets:** and array of new Dante.TooltipWidget instances.
 
+### Initialization
+
+#### title
+ Use the title option in the initializer to pass a title to Dante.
+   
+#### body
+  Use the following code to get your text into the Dante editor's body:
+```html
+
+  <div id="editor editable" > <%= clean_dante_post( @post.excerpt ).try(:html_safe) %> </div>
+
+```
+
 ### Rails / AssetPippeline
 
 in Gemfile
