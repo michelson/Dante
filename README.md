@@ -75,11 +75,25 @@ Until now I´ve been able to implement the following features:
 + **default_loading_placeholder:** image placeholder to show when uploaded/pasted images are loading , defaults to a grey background
 + **disable_title** default: false, will hide the initial heading placeholder for initial text
 + **title_placeholder** default: 'Title'
++ **title** default: none, pass a pre-existing title to the editor here
 + **body_placeholder** default: 'Tell your story…'
 + **embed_placeholder** default: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
 + **extract_placeholder** default: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 + **base_widgets:** default: ["uploader", "embed", "embed-extract"],
 + **extra_tooltip_widgets:** and array of new Dante.TooltipWidget instances.
+
+### Initialization
+
+#### title
+ Use the title option in the initializer to pass a title to Dante.
+   
+#### body
+  Use the following code to get your text into the Dante editor's body:
+```html
+
+  <div id="editor editable" > <%= clean_dante_post( @post.excerpt ).try(:html_safe) %> </div>
+
+```
 
 ### Rails / AssetPippeline
 
