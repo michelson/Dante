@@ -3,6 +3,16 @@ utils = Dante.utils
 
 class Dante.Editor extends Dante.View
 
+  #Named constants for javascript key codes
+  BACKSPACE  = 8
+  TAB        = 9
+  ENTER      = 13
+  SPACEBAR   = 32
+  LEFTARROW  = 37
+  UPARROW    = 38
+  RIGHTARROW = 39
+  DOWNARROW  = 40
+
   events:
     "mouseup"  : "handleMouseUp"
     "keydown"  : "handleKeyDown"
@@ -648,12 +658,12 @@ class Dante.Editor extends Dante.View
 
     @markAsSelected( anchor_node ) if anchor_node
 
-    if e.which is 9
+    if e.which is TAB
 
       @handleTab(anchor_node)
       return false
 
-    if e.which == 13
+    if e.which == ENTER
 
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
@@ -720,7 +730,8 @@ class Dante.Editor extends Dante.View
       , 2
 
     #delete key
-    if (e.which == 8)
+    if (e.which == BACKSPACE)
+      eventHandled = false;
       @tooltip_view.hide()
       utils.log("removing from down")
       utils.log "REACHED TOP" if @reachedTop
@@ -729,6 +740,19 @@ class Dante.Editor extends Dante.View
       utils.log("pass initial validations")
       anchor_node = @getNode()
       utils_anchor_node = utils.getNode()
+
+      utils.log(anchor_node);
+      utils.log(utils_anchor_node);
+
+      #check if any of the widgets can handle a backspace keydown
+      utils.log("HANDLING WIDGET BACKSPACES");
+      _.each @widgets, (w)=>
+        if w.handleBackspaceKey && !handled
+          handled = w.handleBackspaceKey(e, anchor_node);
+
+      if (eventHandled)
+        e.preventDefault();
+        return false;
 
       if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
           return this.handleListBackspace(parent, e);
@@ -754,21 +778,15 @@ class Dante.Editor extends Dante.View
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
-      #remove graf figure is is selected but not in range (not focus on caption)
-      if $(".is-selected").hasClass("graf--figure") && !anchor_node?
-        @replaceWith("p", $(".is-selected"))
-        @setRangeAt($(".is-selected")[0])
-        return false
-
     #spacebar
-    if (e.which == 32)
+    if (e.which == SPACEBAR)
       utils.log("SPACEBAR")
       if (parent.hasClass("graf--p"))
         @handleSmartList(parent, e)
     #arrows key
     #if _.contains([37,38,39,40], e.which)
     #up & down
-    if _.contains([38, 40], e.which)
+    if _.contains([UPARROW, DOWNARROW], e.which)
       utils.log e.which
       @handleArrowForKeyDown(e)
       #return false
@@ -802,11 +820,11 @@ class Dante.Editor extends Dante.View
 
     @handleTextSelection(anchor_node)
 
-    if (_.contains([8, 32, 13], e.which))
+    if (_.contains([BACKSPACE, SPACEBAR, ENTER], e.which))
       if $(anchor_node).hasClass("graf--li")
         @removeSpanTag($(anchor_node));
 
-    if (e.which == 8)
+    if (e.which == BACKSPACE)
 
       #if detect all text deleted , re render
       if $(utils_anchor_node).hasClass("postField--body")
@@ -848,7 +866,7 @@ class Dante.Editor extends Dante.View
 
 
     #arrows key
-    if _.contains([37,38,39,40], e.which)
+    if _.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)
       @handleArrow(e)
       #return false
 

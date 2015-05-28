@@ -222,3 +222,26 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   uploadCompleted: (url, node)=>
     node.find("img").attr("src", url)
     #return false
+
+  ###
+  # Handles the behavior of deleting images when using the backspace key
+  #
+  # @param {Event} e    - The backspace event that is being handled
+  # @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
+  #
+  # @return {Boolean} true if this function handled the backspace event, otherwise false
+  ###
+  handleBackspaceKey: (e, node) =>
+
+    #remove graf figure is is selected but not in range (not focus on caption)
+    if $(".is-selected").hasClass("graf--figure") && !anchor_node?
+      utils.log("Replacing selected node")
+      @current_editor.replaceWith("p", $(".is-selected"))
+
+      e.preventDefault() #without this line, the browser may interpret the backspace as a "go pack a page" command
+      
+      @current_editor.setRangeAt($(".is-selected")[0])
+      return true
+
+    return false
+  
