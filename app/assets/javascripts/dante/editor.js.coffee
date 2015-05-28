@@ -82,6 +82,7 @@ class Dante.Editor extends Dante.View
     #TODO: this could be a hash to access widgets without var
     #Base widgets
     base_widgets = opts.base_widgets
+    self = @
 
     if base_widgets.indexOf("uploader") >= 0
       @uploader_widget      = new Dante.View.TooltipWidget.Uploader(current_editor: @)
@@ -98,6 +99,8 @@ class Dante.Editor extends Dante.View
     #add extra widgets
     if opts.extra_tooltip_widgets
       _.each opts.extra_tooltip_widgets, (w)=>
+        if !w.current_editor
+          w.current_editor = self
         @widgets.push w
 
   store: ()->
