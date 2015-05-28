@@ -513,7 +513,8 @@
     };
 
     Editor.prototype.initializeWidgets = function(opts) {
-      var base_widgets;
+      var base_widgets, self;
+      self = this;
       base_widgets = opts.base_widgets;
       if (base_widgets.indexOf("uploader") >= 0) {
         this.uploader_widget = new Dante.View.TooltipWidget.Uploader({
@@ -536,6 +537,9 @@
       if (opts.extra_tooltip_widgets) {
         return _.each(opts.extra_tooltip_widgets, (function(_this) {
           return function(w) {
+            if(!w.current_editor){
+              w.current_editor = self;
+            }
             return _this.widgets.push(w);
           };
         })(this));
