@@ -760,6 +760,13 @@ class Dante.Editor extends Dante.View
       if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
           return this.handleListBackspace(parent, e);
 
+      #select an image if backspacing into it from a paragraph
+      if($(anchor_node).hasClass("graf--p") && @isFirstChar)
+          if($(anchor_node).prev().hasClass("graf--figure"))
+            e.preventDefault();
+            $(anchor_node).prev().find("img").click();
+            utils.log("Focus on the previous image")
+
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
         return false if _.isEmpty($(utils_anchor_node).text())
