@@ -513,7 +513,8 @@
     };
 
     Editor.prototype.initializeWidgets = function(opts) {
-      var base_widgets;
+      var base_widgets, self;
+      self = this;
       base_widgets = opts.base_widgets;
       if (base_widgets.indexOf("uploader") >= 0) {
         this.uploader_widget = new Dante.View.TooltipWidget.Uploader({
@@ -536,6 +537,9 @@
       if (opts.extra_tooltip_widgets) {
         return _.each(opts.extra_tooltip_widgets, (function(_this) {
           return function(w) {
+            if(!w.current_editor){
+              w.current_editor = self;
+            }
             return _this.widgets.push(w);
           };
         })(this));
@@ -1263,6 +1267,8 @@
         })(this), 2);
       }
       if (e.which === 8) {
+
+        var eventHandled = false;
         this.tooltip_view.hide();
         utils.log("removing from down");
         if (this.reachedTop) {
@@ -1274,6 +1280,20 @@
         utils.log("pass initial validations");
         anchor_node = this.getNode();
         utils_anchor_node = utils.getNode();
+
+        _.each(this.widgets, (function(_this) {
+          return function(w) {
+            var handled;
+            if (w.handleBackspaceKey && !handled) {
+              return handled = w.handleBackspaceKey(e, anchor_node);
+            }
+          };
+        })(this));
+        if (eventHandled) {
+          e.preventDefault();
+          return false;
+        }
+
         if (parent.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
           return this.handleListBackspace(parent, e);
         }
