@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.12"
+    version: "0.0.13"
   };
 
 }).call(this);
@@ -432,6 +432,8 @@
   utils = Dante.utils;
 
   Dante.Editor = (function(_super) {
+    var BACKSPACE, DOWNARROW, ENTER, LEFTARROW, RIGHTARROW, SPACEBAR, TAB, UPARROW;
+
     __extends(Editor, _super);
 
     function Editor() {
@@ -452,6 +454,22 @@
       return Editor.__super__.constructor.apply(this, arguments);
     }
 
+    BACKSPACE = 8;
+
+    TAB = 9;
+
+    ENTER = 13;
+
+    SPACEBAR = 32;
+
+    LEFTARROW = 37;
+
+    UPARROW = 38;
+
+    RIGHTARROW = 39;
+
+    DOWNARROW = 40;
+
     Editor.prototype.events = {
       "mouseup": "handleMouseUp",
       "keydown": "handleKeyDown",
@@ -470,7 +488,7 @@
     };
 
     Editor.prototype.initialize = function(opts) {
-      var bodyplaceholder, embedplaceholder, extractplaceholder, titleplaceholder;
+      var bodyplaceholder, embedplaceholder, extractplaceholder, title, titleplaceholder;
       if (opts == null) {
         opts = {};
       }
@@ -503,6 +521,8 @@
       this.store();
       titleplaceholder = opts.title_placeholder || 'Title';
       this.title_placeholder = "<span class='defaultValue defaultValue--root'>" + titleplaceholder + "</span><br>";
+      title = opts.title || '';
+      this.title = title;
       bodyplaceholder = opts.body_placeholder || 'Tell your story…';
       this.body_placeholder = "<span class='defaultValue defaultValue--root'>" + bodyplaceholder + "</span><br>";
       embedplaceholder = opts.embed_placeholder || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter';
@@ -513,8 +533,9 @@
     };
 
     Editor.prototype.initializeWidgets = function(opts) {
-      var base_widgets;
+      var base_widgets, self;
       base_widgets = opts.base_widgets;
+      self = this;
       if (base_widgets.indexOf("uploader") >= 0) {
         this.uploader_widget = new Dante.View.TooltipWidget.Uploader({
           current_editor: this
@@ -536,6 +557,9 @@
       if (opts.extra_tooltip_widgets) {
         return _.each(opts.extra_tooltip_widgets, (function(_this) {
           return function(w) {
+            if (!w.current_editor) {
+              w.current_editor = self;
+            }
             return _this.widgets.push(w);
           };
         })(this));
@@ -584,7 +608,7 @@
     };
 
     Editor.prototype.renderTitle = function() {
-      return "<h3 class='graf graf--h3'>" + this.title_placeholder + " </h3>";
+      return "<h3 class='graf graf--h3'>" + (this.title.length > 0 ? this.title : this.title_placeholder) + "</h3>";
     };
 
     Editor.prototype.template = function() {
@@ -1185,18 +1209,18 @@
     };
 
     Editor.prototype.handleKeyDown = function(e) {
-      var anchor_node, li, parent, utils_anchor_node;
+      var anchor_node, eventHandled, li, parent, utils_anchor_node;
       utils.log("KEYDOWN");
       anchor_node = this.getNode();
       parent = $(anchor_node);
       if (anchor_node) {
         this.markAsSelected(anchor_node);
       }
-      if (e.which === 9) {
+      if (e.which === TAB) {
         this.handleTab(anchor_node);
         return false;
       }
-      if (e.which === 13) {
+      if (e.which === ENTER) {
         $(this.el).find(".is-selected").removeClass("is-selected");
         utils.log(this.isLastChar());
         if (parent.hasClass("graf--p")) {
@@ -1262,7 +1286,8 @@
           };
         })(this), 2);
       }
-      if (e.which === 8) {
+      if (e.which === BACKSPACE) {
+        eventHandled = false;
         this.tooltip_view.hide();
         utils.log("removing from down");
         if (this.reachedTop) {
@@ -1274,8 +1299,30 @@
         utils.log("pass initial validations");
         anchor_node = this.getNode();
         utils_anchor_node = utils.getNode();
+        utils.log(anchor_node);
+        utils.log(utils_anchor_node);
+        utils.log("HANDLING WIDGET BACKSPACES");
+        _.each(this.widgets, (function(_this) {
+          return function(w) {
+            var handled;
+            if (w.handleBackspaceKey && !handled) {
+              return handled = w.handleBackspaceKey(e, anchor_node);
+            }
+          };
+        })(this));
+        if (eventHandled) {
+          e.preventDefault();
+          return false;
+        }
         if (parent.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
           return this.handleListBackspace(parent, e);
+        }
+        if ($(anchor_node).hasClass("graf--p") && this.isFirstChar) {
+          if ($(anchor_node).prev().hasClass("graf--figure")) {
+            e.preventDefault();
+            $(anchor_node).prev().find("img").click();
+            utils.log("Focus on the previous image");
+          }
         }
         if ($(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")) {
           utils.log("SECTION DETECTED FROM KEYDOWN " + (_.isEmpty($(utils_anchor_node).text())));
@@ -1301,19 +1348,14 @@
             return false;
           }
         }
-        if ($(".is-selected").hasClass("graf--figure") && (anchor_node == null)) {
-          this.replaceWith("p", $(".is-selected"));
-          this.setRangeAt($(".is-selected")[0]);
-          return false;
-        }
       }
-      if (e.which === 32) {
+      if (e.which === SPACEBAR) {
         utils.log("SPACEBAR");
         if (parent.hasClass("graf--p")) {
           this.handleSmartList(parent, e);
         }
       }
-      if (_.contains([38, 40], e.which)) {
+      if (_.contains([UPARROW, DOWNARROW], e.which)) {
         utils.log(e.which);
         this.handleArrowForKeyDown(e);
       }
@@ -1343,12 +1385,12 @@
       anchor_node = this.getNode();
       utils_anchor_node = utils.getNode();
       this.handleTextSelection(anchor_node);
-      if (_.contains([8, 32, 13], e.which)) {
+      if (_.contains([BACKSPACE, SPACEBAR, ENTER], e.which)) {
         if ($(anchor_node).hasClass("graf--li")) {
           this.removeSpanTag($(anchor_node));
         }
       }
-      if (e.which === 8) {
+      if (e.which === BACKSPACE) {
         if ($(utils_anchor_node).hasClass("postField--body")) {
           utils.log("ALL GONE from UP");
           this.handleCompleteDeletion($(this.el));
@@ -1384,7 +1426,7 @@
           false;
         }
       }
-      if (_.contains([37, 38, 39, 40], e.which)) {
+      if (_.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)) {
         return this.handleArrow(e);
       }
     };
@@ -1861,6 +1903,7 @@
     __extends(Uploader, _super);
 
     function Uploader() {
+      this.handleBackspaceKey = __bind(this.handleBackspaceKey, this);
       this.uploadCompleted = __bind(this.uploadCompleted, this);
       this.updateProgressBar = __bind(this.updateProgressBar, this);
       this.uploadFile = __bind(this.uploadFile, this);
@@ -2111,6 +2154,27 @@
 
     Uploader.prototype.uploadCompleted = function(url, node) {
       return node.find("img").attr("src", url);
+    };
+
+
+    /*
+     * Handles the behavior of deleting images when using the backspace key
+     *
+     * @param {Event} e    - The backspace event that is being handled
+     * @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
+     *
+     * @return {Boolean} true if this function handled the backspace event, otherwise false
+     */
+
+    Uploader.prototype.handleBackspaceKey = function(e, node) {
+      if ($(".is-selected").hasClass("graf--figure") && (typeof anchor_node === "undefined" || anchor_node === null)) {
+        utils.log("Replacing selected node");
+        this.current_editor.replaceWith("p", $(".is-selected"));
+        e.preventDefault();
+        this.current_editor.setRangeAt($(".is-selected")[0]);
+        return true;
+      }
+      return false;
     };
 
     return Uploader;
