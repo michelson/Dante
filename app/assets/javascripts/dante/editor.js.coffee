@@ -503,8 +503,8 @@ class Dante.Editor extends Dante.View
 
   #parse text for initial mess
   parseInitialMess: ()->
-    @setupElementsClasses $(@el).find('.section-inner') , ()=>
-      @handleUnwrappedImages($(@el).find('.section-inner'))
+    @setupElementsClasses $(@el).find('.section-inner') , (e)=>
+      @handleUnwrappedImages(e)
 
   handleDblclick: ()->
     utils.log "handleDblclick"
@@ -517,7 +517,7 @@ class Dante.Editor extends Dante.View
   #then clean up the content and copies to currentNode, very clever uh?
   handlePaste: (ev)=>
     utils.log("pasted!")
-    @aa =  @getNode()
+    @aa = @getNode()
 
     pastedText = undefined
     if (window.clipboardData && window.clipboardData.getData) #IE
@@ -531,25 +531,35 @@ class Dante.Editor extends Dante.View
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
       pastedText = pastedText.replace(/&.*;/g, "")
+
       #convert pasted divs in p before copy contents into div
       pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
 
-      document.body.appendChild($("<div id='#{@paste_element_id.replace('#', '')}'></div>")[0])
+      #create the placeholder element and assign pasted content
+      document.body.appendChild( $("<div id='#{@paste_element_id.replace('#', '')}' class='dante-paste'></div>")[0] )
       $(@paste_element_id).html("<span>#{pastedText}</span>")
 
-      @setupElementsClasses $(@paste_element_id), ()=>
-        nodes = $($(@paste_element_id).html()).insertAfter($(@aa))
-        $(@paste_element_id).remove()
+      #clean pasted content
+
+      @setupElementsClasses $(@paste_element_id), (e)=>
+        # e is the target object which is cleaned
+        nodes = $(e.html()).insertAfter($(@aa))
+        #remove paste div since we wont use it until the next paste
+        e.remove()
         #set caret on newly created node
         last_node = nodes.last()[0]
         num = last_node.childNodes.length
         @setRangeAt(last_node, num)
+        #select new node
         new_node = $(@getNode())
-        top = new_node.offset().top
         @markAsSelected(new_node)
         @displayTooltipAt($(@el).find(".is-selected"))
-        #scroll to element top
+
         @handleUnwrappedImages(nodes)
+
+        #scroll to element top
+        top = new_node.offset().top
+
         $('html, body').animate
           scrollTop: top
         , 200
@@ -985,34 +995,35 @@ class Dante.Editor extends Dante.View
 
   setupElementsClasses: (element, cb)->
     if _.isUndefined(element)
-      @element = $(@el).find('.section-inner')
+      element = $(@el).find('.section-inner')
     else
-      @element = element
+      element = element
 
     setTimeout ()=>
       #clean context and wrap text nodes
-      @cleanContents(@element)
-      @wrapTextNodes(@element)
-
+      @cleanContents(element)
+      @wrapTextNodes(element)
       #setup classes
-      _.each  @element.children(), (n)=>
+      _.each  element.children(), (n)=>
         name = $(n).prop("tagName").toLowerCase()
         n = @addClassesToElement(n)
         @setElementName(n)
 
-      @setupLinks(@element.find("a"))
+      @setupLinks(element.find("a"))
       @setupFirstAndLast()
-
-      cb() if _.isFunction(cb)
+      cb(element) if _.isFunction(cb)
     , 20
 
   cleanContents: (element)->
     #TODO: should config tags
+    utils.log "ti"
+    utils.log element
     if _.isUndefined(element)
-      @element = $(@el).find('.section-inner')
+      element = $(@el).find('.section-inner')
     else
-      @element = element
+      element = element
 
+    paste_div = @paste_element_id
     s = new Sanitize
       elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li']
 
@@ -1026,6 +1037,8 @@ class Dante.Editor extends Dante.View
 
       transformers: [(input)->
                       if (input.node_name == "span" && $(input.node).hasClass("defaultValue") )
+                        return whitelist_nodes: [input.node]
+                      if(input.node_name == 'div' && $(input.node).parents(".dante-paste") )
                         return whitelist_nodes: [input.node]
                       else
                         return null
@@ -1077,9 +1090,9 @@ class Dante.Editor extends Dante.View
                         return null
                     ]
 
-    if @element.exists()
-      utils.log "CLEAN HTML #{@element[0].tagName}"
-      @element.html(s.clean_node( @element[0] ))
+    if element.exists()
+      utils.log "CLEAN HTML #{element[0].tagName}"
+      element.html(s.clean_node( element[0] ))
 
   setupLinks: (elems)->
     _.each elems, (n)=>

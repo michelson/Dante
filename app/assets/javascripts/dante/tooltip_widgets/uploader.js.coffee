@@ -36,19 +36,20 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
     #is a child element or a first level element ?
 
     if $(image_element).parents(".graf").length > 0
-      #return if its already wrapped in graf--figure
+      #return if it's already wrapped in graf--figure
       if $(image_element).parents(".graf").hasClass("graf--figure")
         return
       utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
       node = @current_editor.getNode()
+      #wtf?
       if node
         @current_editor.preCleanNode($(node))
         @current_editor.addClassesToElement(node)
     else
       utils.log "DOS"
-      img = $(image_element).parentsUntil(".section-inner").first()
-      $(img).replaceWith(tmpl)
+      #legacy
+      $(image_element).replaceWith(tmpl)
 
     utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
     @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
@@ -59,7 +60,6 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       for i in [0..n-1] by 1
         $("[name='#{tmpl.attr('name')}']").unwrap()
 
-    utils.log "FIG"
     #utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
 
   replaceImg: (image_element, figure)->
@@ -239,9 +239,8 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       @current_editor.replaceWith("p", $(".is-selected"))
 
       e.preventDefault() #without this line, the browser may interpret the backspace as a "go pack a page" command
-      
+
       @current_editor.setRangeAt($(".is-selected")[0])
       return true
 
     return false
-  
