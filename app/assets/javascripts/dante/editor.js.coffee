@@ -540,7 +540,6 @@ class Dante.Editor extends Dante.View
       $(@paste_element_id).html("<span>#{pastedText}</span>")
 
       #clean pasted content
-
       @setupElementsClasses $(@paste_element_id), (e)=>
         # e is the target object which is cleaned
         nodes = $(e.html()).insertAfter($(@aa))
@@ -559,10 +558,10 @@ class Dante.Editor extends Dante.View
 
         #scroll to element top
         top = new_node.offset().top
-
         $('html, body').animate
           scrollTop: top
-        , 200
+        , 20
+
 
       return false # Prevent the default handler from running.
 
@@ -1038,8 +1037,9 @@ class Dante.Editor extends Dante.View
       transformers: [(input)->
                       if (input.node_name == "span" && $(input.node).hasClass("defaultValue") )
                         return whitelist_nodes: [input.node]
-                      if(input.node_name == 'div' && $(input.node).parents(".dante-paste") )
-                        return whitelist_nodes: [input.node]
+                      if input.node_name == 'div'
+                        if(input.node_name == 'div' && ( $(input.node).parents(".dante-paste") or $(input.node).hasClass("dante-paste") ) )
+                          return whitelist_nodes: [input.node]
                       else
                         return null
                     (input)->

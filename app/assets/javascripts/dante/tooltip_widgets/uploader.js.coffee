@@ -29,7 +29,6 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   #replace existing img tag , and wrap it in insertTamplate
   #TODO: take the url and upload it
   uploadExistentImage: (image_element, opts = {})->
-
     utils.log ("process image here!")
     tmpl = $(@insertTemplate())
     tmpl.find("img").attr('src', @current_editor.default_loading_placeholder )
@@ -39,6 +38,7 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       #return if it's already wrapped in graf--figure
       if $(image_element).parents(".graf").hasClass("graf--figure")
         return
+
       utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
       node = @current_editor.getNode()
@@ -48,7 +48,6 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
         @current_editor.addClassesToElement(node)
     else
       utils.log "DOS"
-      #legacy
       $(image_element).replaceWith(tmpl)
 
     utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
