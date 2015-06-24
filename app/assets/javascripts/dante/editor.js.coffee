@@ -675,7 +675,7 @@ class Dante.Editor extends Dante.View
       @handleTab(anchor_node)
       return false
 
-    if e.which == ENTER
+    if e.which is ENTER
 
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
@@ -742,7 +742,7 @@ class Dante.Editor extends Dante.View
       , 2
 
     #delete key
-    if (e.which == BACKSPACE)
+    if (e.which is BACKSPACE)
       eventHandled = false;
       @tooltip_view.hide()
       utils.log("removing from down")
@@ -770,7 +770,7 @@ class Dante.Editor extends Dante.View
           return this.handleListBackspace(parent, e);
 
       #select an image if backspacing into it from a paragraph
-      if($(anchor_node).hasClass("graf--p") && @isFirstChar)
+      if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
         if($(anchor_node).prev().hasClass("graf--figure") && @getSelectedText().length == 0)
           e.preventDefault();
           $(anchor_node).prev().find("img").click();
@@ -798,7 +798,7 @@ class Dante.Editor extends Dante.View
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
     #spacebar
-    if (e.which == SPACEBAR)
+    if (e.which is SPACEBAR)
       utils.log("SPACEBAR")
       if (parent.hasClass("graf--p"))
         @handleSmartList(parent, e)
