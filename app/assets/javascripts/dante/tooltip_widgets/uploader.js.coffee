@@ -232,14 +232,20 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   ###
   handleBackspaceKey: (e, node) =>
 
-    #remove graf figure is is selected but not in range (not focus on caption)
-    if $(".is-selected").hasClass("graf--figure") && !anchor_node?
+    #remove graf figure if is selected but not in range (not focus on caption)
+    if $(".is-selected").hasClass("graf--figure")
+
+      #exit if selection is on caption
+      anchor_node = @current_editor.selection().anchorNode
+
+      return if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
+
       utils.log("Replacing selected node")
+
       @current_editor.replaceWith("p", $(".is-selected"))
 
-      e.preventDefault() #without this line, the browser may interpret the backspace as a "go pack a page" command
-
       @current_editor.setRangeAt($(".is-selected")[0])
+
       return true
 
     return false
