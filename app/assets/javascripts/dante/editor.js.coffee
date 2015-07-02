@@ -613,6 +613,7 @@ class Dante.Editor extends Dante.View
       node = $(range.commonAncestorContainer)
       prev = node.prev()
       num = prev[0].childNodes.length
+      utils.log "PREV NODE"
       utils.log prev
       if prev.hasClass("graf")
         @setRangeAt(prev[0], num)
@@ -622,6 +623,8 @@ class Dante.Editor extends Dante.View
         @setRangeAt(prev[0], num)
         node.remove()
         @markAsSelected(@getNode())
+      else if prev.hasClass("postList")
+        @.setRangeAt(prev.find("li").last()[0])
       else if !prev
         @.setRangeAt(@.$el.find(".section-inner p")[0])
 
@@ -764,6 +767,7 @@ class Dante.Editor extends Dante.View
 
       if (eventHandled)
         e.preventDefault();
+        utils.log("SCAPE FROM BACKSPACE HANDLER");
         return false;
 
       if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
