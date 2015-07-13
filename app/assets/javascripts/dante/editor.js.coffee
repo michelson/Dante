@@ -248,11 +248,11 @@ class Dante.Editor extends Dante.View
     a is b
 
   #set focus and caret position on element
-  setRangeAt: (element, int=0)->
+  setRangeAt: (element, pos=0)->
     range = document.createRange()
     sel = window.getSelection()
     #node = element.firstChild;
-    range.setStart(element, int); #DANGER this is supported by IE 9
+    range.setStart(element, pos); #DANGER this is supported by IE 9
     #range.setStartAfter(element)
     #range.setEnd(element, int);
     range.collapse(true)
@@ -261,7 +261,7 @@ class Dante.Editor extends Dante.View
     element.focus()
 
   #set focus and caret position on element
-  setRangeAtText: (element, int=0)->
+  setRangeAtText: (element, pos=0)->
     range = document.createRange()
     sel = window.getSelection()
     node = element.firstChild;
