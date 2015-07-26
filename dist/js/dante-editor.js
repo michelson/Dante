@@ -2796,9 +2796,10 @@
     };
 
     Menu.prototype.commandWrap = function(tag) {
-      var node, val;
+      var node, text, val;
+      text = $(node).text();
       node = this.current_editor.current_node;
-      val = "<" + tag + ">" + selection + "</" + tag + ">";
+      val = "<" + tag + ">" + text + "</" + tag + ">";
       return this.commandOverall("insertHTML", val);
     };
 

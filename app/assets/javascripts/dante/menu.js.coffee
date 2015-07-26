@@ -151,8 +151,9 @@ class Dante.Editor.Menu extends Dante.View
     @commandOverall "formatblock", name
 
   commandWrap: (tag) ->
+    text =  $(node).text()
     node = @current_editor.current_node
-    val = "<" + tag + ">" + selection + "</" + tag + ">"
+    val = "<" + tag + ">" + text + "</" + tag + ">"
     @commandOverall "insertHTML", val
 
   # node effects
