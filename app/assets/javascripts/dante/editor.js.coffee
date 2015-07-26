@@ -68,6 +68,8 @@ class Dante.Editor extends Dante.View
     @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
     title               = opts.title              || ''
     @title              = title
+    body                = opts.body               || ''
+    @body               = body
     bodyplaceholder     = opts.body_placeholder   || 'Tell your story…'
     @body_placeholder   = "<span class='defaultValue defaultValue--root'>#{bodyplaceholder}</span><br>"
     embedplaceholder    = opts.embed_placeholder  || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
@@ -131,6 +133,9 @@ class Dante.Editor extends Dante.View
   getContent: ()->
     $(@el).find(".section-inner").html()
 
+  renderBody: ()->
+    "<p class='graf graf--p body'>#{if @body.length > 0 then @body else @body_placeholder}<p>"
+
   renderTitle: ()->
     "<h3 class='graf graf--h3'>#{if @title.length > 0 then @title else @title_placeholder}</h3>"
 
@@ -144,7 +149,7 @@ class Dante.Editor extends Dante.View
       <div class='section-content'>
         <div class='section-inner layoutSingleColumn'>
           #{if @disable_title then '' else @renderTitle()}
-          <p class='graf graf--p'>#{@body_placeholder}<p>
+          #{@renderBody()}
         </div>
       </div>
 
@@ -774,7 +779,7 @@ class Dante.Editor extends Dante.View
           return this.handleListBackspace(parent, e);
 
       #select an image if backspacing into it from a paragraph
-      if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
+      if($(anchor_node).hasClass("graf--figure") && @isFirstChar() )
         if($(anchor_node).prev().hasClass("graf--figure") && @getSelectedText().length == 0)
           e.preventDefault();
           $(anchor_node).prev().find("img").click();
