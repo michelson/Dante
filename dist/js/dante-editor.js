@@ -509,6 +509,7 @@
       this.store_interval = opts.store_interval || 15000;
       this.paste_element_id = "#dante-paste-div";
       this.tooltip_class = opts.tooltip_class || Dante.Editor.Tooltip;
+      this.sanitize = opts.sanitize || false;
       opts.base_widgets || (opts.base_widgets = ["uploader", "embed", "embed_extract"]);
       this.widgets = [];
       window.debugMode = opts.debug || false;
@@ -1081,31 +1082,33 @@
         pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
       }
       utils.log("Process and handle text...");
-      if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
-        utils.log("HTML DETECTED ON PASTE");
-        pastedText = pastedText.replace(/&.*;/g, "");
-        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
-        document.body.appendChild($("<div id='" + (this.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
-        $(this.paste_element_id).html("<span>" + pastedText + "</span>");
-        this.setupElementsClasses($(this.paste_element_id), (function(_this) {
-          return function(e) {
-            var last_node, new_node, nodes, num, top;
-            nodes = $(e.html()).insertAfter($(_this.aa));
-            e.remove();
-            last_node = nodes.last()[0];
-            num = last_node.childNodes.length;
-            _this.setRangeAt(last_node, num);
-            new_node = $(_this.getNode());
-            _this.markAsSelected(new_node);
-            _this.displayTooltipAt($(_this.el).find(".is-selected"));
-            _this.handleUnwrappedImages(nodes);
-            top = new_node.offset().top;
-            return $('html, body').animate({
-              scrollTop: top
-            }, 20);
-          };
-        })(this));
-        return false;
+      if (this.sanitize) {
+        if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
+          utils.log("HTML DETECTED ON PASTE");
+          pastedText = pastedText.replace(/&.*;/g, "");
+          pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
+          document.body.appendChild($("<div id='" + (this.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
+          $(this.paste_element_id).html("<span>" + pastedText + "</span>");
+          this.setupElementsClasses($(this.paste_element_id), (function(_this) {
+            return function(e) {
+              var last_node, new_node, nodes, num, top;
+              nodes = $(e.html()).insertAfter($(_this.aa));
+              e.remove();
+              last_node = nodes.last()[0];
+              num = last_node.childNodes.length;
+              _this.setRangeAt(last_node, num);
+              new_node = $(_this.getNode());
+              _this.markAsSelected(new_node);
+              _this.displayTooltipAt($(_this.el).find(".is-selected"));
+              _this.handleUnwrappedImages(nodes);
+              top = new_node.offset().top;
+              return $('html, body').animate({
+                scrollTop: top
+              }, 20);
+            };
+          })(this));
+          return false;
+        }
       }
     };
 

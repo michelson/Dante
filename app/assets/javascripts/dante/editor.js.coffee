@@ -50,6 +50,7 @@ class Dante.Editor extends Dante.View
     @store_interval  = opts.store_interval || 15000
     @paste_element_id = "#dante-paste-div"
     @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
+    @sanitize        = opts.sanitize || false
 
     opts.base_widgets ||= ["uploader", "embed", "embed_extract"]
 
@@ -533,42 +534,45 @@ class Dante.Editor extends Dante.View
 
     utils.log("Process and handle text...")
     #detect if is html
-    if pastedText.match(/<\/*[a-z][^>]+?>/gi)
-      utils.log("HTML DETECTED ON PASTE")
-      pastedText = pastedText.replace(/&.*;/g, "")
 
-      #convert pasted divs in p before copy contents into div
-      pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
+    # sanitize input by user's option
+    if (@sanitize)
+      if pastedText.match(/<\/*[a-z][^>]+?>/gi)
+        utils.log("HTML DETECTED ON PASTE")
+        pastedText = pastedText.replace(/&.*;/g, "")
 
-      #create the placeholder element and assign pasted content
-      document.body.appendChild( $("<div id='#{@paste_element_id.replace('#', '')}' class='dante-paste'></div>")[0] )
-      $(@paste_element_id).html("<span>#{pastedText}</span>")
+        #convert pasted divs in p before copy contents into div
+        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
 
-      #clean pasted content
-      @setupElementsClasses $(@paste_element_id), (e)=>
-        # e is the target object which is cleaned
-        nodes = $(e.html()).insertAfter($(@aa))
-        #remove paste div since we wont use it until the next paste
-        e.remove()
-        #set caret on newly created node
-        last_node = nodes.last()[0]
-        num = last_node.childNodes.length
-        @setRangeAt(last_node, num)
-        #select new node
-        new_node = $(@getNode())
-        @markAsSelected(new_node)
-        @displayTooltipAt($(@el).find(".is-selected"))
+        #create the placeholder element and assign pasted content
+        document.body.appendChild( $("<div id='#{@paste_element_id.replace('#', '')}' class='dante-paste'></div>")[0] )
+        $(@paste_element_id).html("<span>#{pastedText}</span>")
 
-        @handleUnwrappedImages(nodes)
+        #clean pasted content
+        @setupElementsClasses $(@paste_element_id), (e)=>
+          # e is the target object which is cleaned
+          nodes = $(e.html()).insertAfter($(@aa))
+          #remove paste div since we wont use it until the next paste
+          e.remove()
+          #set caret on newly created node
+          last_node = nodes.last()[0]
+          num = last_node.childNodes.length
+          @setRangeAt(last_node, num)
+          #select new node
+          new_node = $(@getNode())
+          @markAsSelected(new_node)
+          @displayTooltipAt($(@el).find(".is-selected"))
 
-        #scroll to element top
-        top = new_node.offset().top
-        $('html, body').animate
-          scrollTop: top
-        , 20
+          @handleUnwrappedImages(nodes)
+
+          #scroll to element top
+          top = new_node.offset().top
+          $('html, body').animate
+            scrollTop: top
+          , 20
 
 
-      return false # Prevent the default handler from running.
+        return false # Prevent the default handler from running.
 
   handleUnwrappedImages: (elements)->
     #http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
