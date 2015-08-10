@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.13"
+    version: "0.0.14"
   };
 
 }).call(this);
@@ -747,24 +747,24 @@
       return a === b;
     };
 
-    Editor.prototype.setRangeAt = function(element, int) {
+    Editor.prototype.setRangeAt = function(element, pos) {
       var range, sel;
-      if (int == null) {
-        int = 0;
+      if (pos == null) {
+        pos = 0;
       }
       range = document.createRange();
       sel = window.getSelection();
-      range.setStart(element, int);
+      range.setStart(element, pos);
       range.collapse(true);
       sel.removeAllRanges();
       sel.addRange(range);
       return element.focus();
     };
 
-    Editor.prototype.setRangeAtText = function(element, int) {
+    Editor.prototype.setRangeAtText = function(element, pos) {
       var node, range, sel;
-      if (int == null) {
-        int = 0;
+      if (pos == null) {
+        pos = 0;
       }
       range = document.createRange();
       sel = window.getSelection();
@@ -1002,7 +1002,7 @@
           break;
         case "Up":
           prev_node = current_node.prev();
-          utils.log("PREV NODE IS " + (prev_node.attr('class')));
+          utils.log("PREV NODE IS " + (prev_node.attr('class')) + " " + (prev_node.attr('name')));
           utils.log("CURRENT NODE IS up " + (current_node.attr('class')));
           if (!$(current_node).hasClass("graf")) {
             return;
@@ -1047,8 +1047,8 @@
 
     Editor.prototype.parseInitialMess = function() {
       return this.setupElementsClasses($(this.el).find('.section-inner'), (function(_this) {
-        return function() {
-          return _this.handleUnwrappedImages($(_this.el).find('.section-inner'));
+        return function(e) {
+          return _this.handleUnwrappedImages(e);
         };
       })(this));
     };
@@ -1079,24 +1079,24 @@
         utils.log("HTML DETECTED ON PASTE");
         pastedText = pastedText.replace(/&.*;/g, "");
         pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
-        document.body.appendChild($("<div id='" + (this.paste_element_id.replace('#', '')) + "'></div>")[0]);
+        document.body.appendChild($("<div id='" + (this.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
         $(this.paste_element_id).html("<span>" + pastedText + "</span>");
         this.setupElementsClasses($(this.paste_element_id), (function(_this) {
-          return function() {
+          return function(e) {
             var last_node, new_node, nodes, num, top;
-            nodes = $($(_this.paste_element_id).html()).insertAfter($(_this.aa));
-            $(_this.paste_element_id).remove();
+            nodes = $(e.html()).insertAfter($(_this.aa));
+            e.remove();
             last_node = nodes.last()[0];
             num = last_node.childNodes.length;
             _this.setRangeAt(last_node, num);
             new_node = $(_this.getNode());
-            top = new_node.offset().top;
             _this.markAsSelected(new_node);
             _this.displayTooltipAt($(_this.el).find(".is-selected"));
             _this.handleUnwrappedImages(nodes);
+            top = new_node.offset().top;
             return $('html, body').animate({
               scrollTop: top
-            }, 200);
+            }, 20);
           };
         })(this));
         return false;
@@ -1156,6 +1156,7 @@
         node = $(range.commonAncestorContainer);
         prev = node.prev();
         num = prev[0].childNodes.length;
+        utils.log("PREV NODE");
         utils.log(prev);
         if (prev.hasClass("graf")) {
           this.setRangeAt(prev[0], num);
@@ -1165,6 +1166,8 @@
           this.setRangeAt(prev[0], num);
           node.remove();
           this.markAsSelected(this.getNode());
+        } else if (prev.hasClass("postList")) {
+          this.setRangeAt(prev.find("li").last()[0]);
         } else if (!prev) {
           this.setRangeAt(this.$el.find(".section-inner p")[0]);
         }
@@ -1304,21 +1307,22 @@
         utils.log("HANDLING WIDGET BACKSPACES");
         _.each(this.widgets, (function(_this) {
           return function(w) {
-            var handled;
-            if (w.handleBackspaceKey && !handled) {
-              return handled = w.handleBackspaceKey(e, anchor_node);
+            if (_.isFunction(w.handleBackspaceKey) && !eventHandled) {
+              eventHandled = w.handleBackspaceKey(e, anchor_node);
+              return utils.log(eventHandled);
             }
           };
         })(this));
         if (eventHandled) {
           e.preventDefault();
+          utils.log("SCAPE FROM BACKSPACE HANDLER");
           return false;
         }
         if (parent.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
           return this.handleListBackspace(parent, e);
         }
-        if ($(anchor_node).hasClass("graf--p") && this.isFirstChar) {
-          if ($(anchor_node).prev().hasClass("graf--figure")) {
+        if ($(anchor_node).hasClass("graf--p") && this.isFirstChar()) {
+          if ($(anchor_node).prev().hasClass("graf--figure") && this.getSelectedText().length === 0) {
             e.preventDefault();
             $(anchor_node).prev().find("img").click();
             utils.log("Focus on the previous image");
@@ -1468,6 +1472,7 @@
     };
 
     Editor.prototype.markAsSelected = function(element) {
+      utils.log(element);
       if (_.isUndefined(element)) {
         return;
       }
@@ -1555,36 +1560,37 @@
 
     Editor.prototype.setupElementsClasses = function(element, cb) {
       if (_.isUndefined(element)) {
-        this.element = $(this.el).find('.section-inner');
+        element = $(this.el).find('.section-inner');
       } else {
-        this.element = element;
+        element = element;
       }
-      return setTimeout((function(_this) {
-        return function() {
-          _this.cleanContents(_this.element);
-          _this.wrapTextNodes(_this.element);
-          _.each(_this.element.children(), function(n) {
-            var name;
-            name = $(n).prop("tagName").toLowerCase();
-            n = _this.addClassesToElement(n);
-            return _this.setElementName(n);
-          });
-          _this.setupLinks(_this.element.find("a"));
-          _this.setupFirstAndLast();
-          if (_.isFunction(cb)) {
-            return cb();
-          }
+      this.cleanContents(element);
+      this.wrapTextNodes(element);
+      _.each(element.children(), (function(_this) {
+        return function(n) {
+          var name;
+          name = $(n).prop("tagName").toLowerCase();
+          n = _this.addClassesToElement(n);
+          return _this.setElementName(n);
         };
-      })(this), 20);
+      })(this));
+      this.setupLinks(element.find("a"));
+      this.setupFirstAndLast();
+      if (_.isFunction(cb)) {
+        return cb(element);
+      }
     };
 
     Editor.prototype.cleanContents = function(element) {
-      var s;
+      var paste_div, s;
+      utils.log("ti");
+      utils.log(element);
       if (_.isUndefined(element)) {
-        this.element = $(this.el).find('.section-inner');
+        element = $(this.el).find('.section-inner');
       } else {
-        this.element = element;
+        element = element;
       }
+      paste_div = this.paste_element_id;
       s = new Sanitize({
         elements: ['strong', 'img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li'],
         attributes: {
@@ -1600,6 +1606,11 @@
         transformers: [
           function(input) {
             if (input.node_name === "span" && $(input.node).hasClass("defaultValue")) {
+              return {
+                whitelist_nodes: [input.node]
+              };
+            }
+            if ($(input.node).hasClass("dante-paste")) {
               return {
                 whitelist_nodes: [input.node]
               };
@@ -1673,9 +1684,9 @@
           }
         ]
       });
-      if (this.element.exists()) {
-        utils.log("CLEAN HTML " + this.element[0].tagName);
-        return this.element.html(s.clean_node(this.element[0]));
+      if (element.exists()) {
+        utils.log("CLEAN HTML " + element[0].tagName);
+        return element.html(s.clean_node(element[0]));
       }
     };
 
@@ -1835,7 +1846,7 @@
         content = $li.html();
         this.replaceWith("p", $li);
         $paragraph = $(".is-selected");
-        $paragraph.removeClass("graf--empty").html(content);
+        $paragraph.removeClass("graf--empty").html(content).attr("name", utils.generateUniqueName());
         if ($list.children().length === 0) {
           $list.remove();
         }
@@ -1930,7 +1941,7 @@
     };
 
     Uploader.prototype.uploadExistentImage = function(image_element, opts) {
-      var i, img, n, node, tmpl, _i, _ref;
+      var i, n, node, tmpl, _i, _ref, _results;
       if (opts == null) {
         opts = {};
       }
@@ -1950,18 +1961,18 @@
         }
       } else {
         utils.log("DOS");
-        img = $(image_element).parentsUntil(".section-inner").first();
-        $(img).replaceWith(tmpl);
+        $(image_element).replaceWith(tmpl);
       }
       utils.log($("[name='" + (tmpl.attr('name')) + "']").attr("name"));
       this.replaceImg(image_element, $("[name='" + (tmpl.attr('name')) + "']"));
       n = $("[name='" + (tmpl.attr('name')) + "']").parentsUntil(".section-inner").length;
       if (n !== 0) {
+        _results = [];
         for (i = _i = 0, _ref = n - 1; _i <= _ref; i = _i += 1) {
-          $("[name='" + (tmpl.attr('name')) + "']").unwrap();
+          _results.push($("[name='" + (tmpl.attr('name')) + "']").unwrap());
         }
+        return _results;
       }
-      return utils.log("FIG");
     };
 
     Uploader.prototype.replaceImg = function(image_element, figure) {
@@ -2163,18 +2174,27 @@
      * @param {Event} e    - The backspace event that is being handled
      * @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
      *
-     * @return {Boolean} true if this function handled the backspace event, otherwise false
+     * @return {Boolean} true if this function should scape the default behavior
      */
 
     Uploader.prototype.handleBackspaceKey = function(e, node) {
-      if ($(".is-selected").hasClass("graf--figure") && (typeof anchor_node === "undefined" || anchor_node === null)) {
+      var anchor_node;
+      utils.log("handleBackspaceKey on uploader widget");
+      if ($(node).hasClass("is-selected") && $(node).hasClass("graf--figure")) {
+        anchor_node = this.current_editor.selection().anchorNode;
+        if ((anchor_node != null) && $(anchor_node.parentNode).hasClass("imageCaption")) {
+          if (this.current_editor.isFirstChar()) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      } else if ($(".is-selected").hasClass("is-mediaFocused")) {
         utils.log("Replacing selected node");
         this.current_editor.replaceWith("p", $(".is-selected"));
-        e.preventDefault();
         this.current_editor.setRangeAt($(".is-selected")[0]);
         return true;
       }
-      return false;
     };
 
     return Uploader;

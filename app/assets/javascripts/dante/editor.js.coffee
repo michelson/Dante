@@ -77,7 +77,6 @@ class Dante.Editor extends Dante.View
 
     @initializeWidgets(opts)
 
-
   initializeWidgets: (opts)->
     #TODO: this could be a hash to access widgets without var
     #Base widgets
@@ -248,11 +247,11 @@ class Dante.Editor extends Dante.View
     a is b
 
   #set focus and caret position on element
-  setRangeAt: (element, int=0)->
+  setRangeAt: (element, pos=0)->
     range = document.createRange()
     sel = window.getSelection()
     #node = element.firstChild;
-    range.setStart(element, int); #DANGER this is supported by IE 9
+    range.setStart(element, pos); #DANGER this is supported by IE 9
     #range.setStartAfter(element)
     #range.setEnd(element, int);
     range.collapse(true)
@@ -261,7 +260,7 @@ class Dante.Editor extends Dante.View
     element.focus()
 
   #set focus and caret position on element
-  setRangeAtText: (element, int=0)->
+  setRangeAtText: (element, pos=0)->
     range = document.createRange()
     sel = window.getSelection()
     node = element.firstChild;
@@ -460,7 +459,7 @@ class Dante.Editor extends Dante.View
 
       when "Up"
         prev_node = current_node.prev()
-        utils.log "PREV NODE IS #{prev_node.attr('class')}"
+        utils.log "PREV NODE IS #{prev_node.attr('class')} #{prev_node.attr('name')}"
         utils.log "CURRENT NODE IS up #{current_node.attr('class')}"
 
         return unless $(current_node).hasClass("graf")
@@ -503,8 +502,8 @@ class Dante.Editor extends Dante.View
 
   #parse text for initial mess
   parseInitialMess: ()->
-    @setupElementsClasses $(@el).find('.section-inner') , ()=>
-      @handleUnwrappedImages($(@el).find('.section-inner'))
+    @setupElementsClasses $(@el).find('.section-inner') , (e)=>
+      @handleUnwrappedImages(e)
 
   handleDblclick: ()->
     utils.log "handleDblclick"
@@ -517,7 +516,7 @@ class Dante.Editor extends Dante.View
   #then clean up the content and copies to currentNode, very clever uh?
   handlePaste: (ev)=>
     utils.log("pasted!")
-    @aa =  @getNode()
+    @aa = @getNode()
 
     pastedText = undefined
     if (window.clipboardData && window.clipboardData.getData) #IE
@@ -531,28 +530,38 @@ class Dante.Editor extends Dante.View
     if pastedText.match(/<\/*[a-z][^>]+?>/gi)
       utils.log("HTML DETECTED ON PASTE")
       pastedText = pastedText.replace(/&.*;/g, "")
+
       #convert pasted divs in p before copy contents into div
       pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
 
-      document.body.appendChild($("<div id='#{@paste_element_id.replace('#', '')}'></div>")[0])
+      #create the placeholder element and assign pasted content
+      document.body.appendChild( $("<div id='#{@paste_element_id.replace('#', '')}' class='dante-paste'></div>")[0] )
       $(@paste_element_id).html("<span>#{pastedText}</span>")
 
-      @setupElementsClasses $(@paste_element_id), ()=>
-        nodes = $($(@paste_element_id).html()).insertAfter($(@aa))
-        $(@paste_element_id).remove()
+      #clean pasted content
+
+      @setupElementsClasses $(@paste_element_id), (e)=>
+        # e is the target object which is cleaned
+        nodes = $(e.html()).insertAfter($(@aa))
+        #remove paste div since we wont use it until the next paste
+        e.remove()
         #set caret on newly created node
         last_node = nodes.last()[0]
         num = last_node.childNodes.length
         @setRangeAt(last_node, num)
+        #select new node
         new_node = $(@getNode())
-        top = new_node.offset().top
         @markAsSelected(new_node)
         @displayTooltipAt($(@el).find(".is-selected"))
-        #scroll to element top
+
         @handleUnwrappedImages(nodes)
+
+        #scroll to element top
+        top = new_node.offset().top
         $('html, body').animate
           scrollTop: top
-        , 200
+        , 20
+
 
       return false # Prevent the default handler from running.
 
@@ -604,6 +613,7 @@ class Dante.Editor extends Dante.View
       node = $(range.commonAncestorContainer)
       prev = node.prev()
       num = prev[0].childNodes.length
+      utils.log "PREV NODE"
       utils.log prev
       if prev.hasClass("graf")
         @setRangeAt(prev[0], num)
@@ -613,6 +623,8 @@ class Dante.Editor extends Dante.View
         @setRangeAt(prev[0], num)
         node.remove()
         @markAsSelected(@getNode())
+      else if prev.hasClass("postList")
+        @.setRangeAt(prev.find("li").last()[0])
       else if !prev
         @.setRangeAt(@.$el.find(".section-inner p")[0])
 
@@ -658,15 +670,13 @@ class Dante.Editor extends Dante.View
     anchor_node = @getNode() #current node on which cursor is positioned
     parent = $(anchor_node)
 
-
     @markAsSelected( anchor_node ) if anchor_node
 
     if e.which is TAB
-
       @handleTab(anchor_node)
       return false
 
-    if e.which == ENTER
+    if e.which is ENTER
 
       #removes previous selected nodes
       $(@el).find(".is-selected").removeClass("is-selected")
@@ -733,7 +743,7 @@ class Dante.Editor extends Dante.View
       , 2
 
     #delete key
-    if (e.which == BACKSPACE)
+    if (e.which is BACKSPACE)
       eventHandled = false;
       @tooltip_view.hide()
       utils.log("removing from down")
@@ -748,20 +758,22 @@ class Dante.Editor extends Dante.View
       utils.log(utils_anchor_node);
 
       #check if any of the widgets can handle a backspace keydown
-      utils.log("HANDLING WIDGET BACKSPACES");
+      utils.log("HANDLING WIDGET BACKSPACES")
       _.each @widgets, (w)=>
-        if w.handleBackspaceKey && !handled
-          handled = w.handleBackspaceKey(e, anchor_node);
+        if _.isFunction(w.handleBackspaceKey) && !eventHandled
+          eventHandled = w.handleBackspaceKey(e, anchor_node)
+          utils.log(eventHandled)
 
       if (eventHandled)
-        e.preventDefault();
+        e.preventDefault()
+        utils.log("SCAPE FROM BACKSPACE HANDLER")
         return false;
 
       if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
-          return this.handleListBackspace(parent, e);
+        return this.handleListBackspace(parent, e);
 
       #select an image if backspacing into it from a paragraph
-      if($(anchor_node).hasClass("graf--p") && @isFirstChar)
+      if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
         if($(anchor_node).prev().hasClass("graf--figure") && @getSelectedText().length == 0)
           e.preventDefault();
           $(anchor_node).prev().find("img").click();
@@ -789,12 +801,12 @@ class Dante.Editor extends Dante.View
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
     #spacebar
-    if (e.which == SPACEBAR)
+    if (e.which is SPACEBAR)
       utils.log("SPACEBAR")
       if (parent.hasClass("graf--p"))
         @handleSmartList(parent, e)
+    
     #arrows key
-    #if _.contains([37,38,39,40], e.which)
     #up & down
     if _.contains([UPARROW, DOWNARROW], e.which)
       utils.log e.which
@@ -912,7 +924,7 @@ class Dante.Editor extends Dante.View
 
   #mark the current row as selected
   markAsSelected: (element)->
-
+    utils.log element
     return if _.isUndefined element
 
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
@@ -985,34 +997,35 @@ class Dante.Editor extends Dante.View
 
   setupElementsClasses: (element, cb)->
     if _.isUndefined(element)
-      @element = $(@el).find('.section-inner')
+      element = $(@el).find('.section-inner')
     else
-      @element = element
+      element = element
 
-    setTimeout ()=>
-      #clean context and wrap text nodes
-      @cleanContents(@element)
-      @wrapTextNodes(@element)
+    #setTimeout ()=>
+    #clean context and wrap text nodes
+    @cleanContents(element)
+    @wrapTextNodes(element)
+    #setup classes
+    _.each  element.children(), (n)=>
+      name = $(n).prop("tagName").toLowerCase()
+      n = @addClassesToElement(n)
+      @setElementName(n)
 
-      #setup classes
-      _.each  @element.children(), (n)=>
-        name = $(n).prop("tagName").toLowerCase()
-        n = @addClassesToElement(n)
-        @setElementName(n)
-
-      @setupLinks(@element.find("a"))
-      @setupFirstAndLast()
-
-      cb() if _.isFunction(cb)
-    , 20
+    @setupLinks(element.find("a"))
+    @setupFirstAndLast()
+    cb(element) if _.isFunction(cb)
+    #, 20
 
   cleanContents: (element)->
     #TODO: should config tags
+    utils.log "ti"
+    utils.log element
     if _.isUndefined(element)
-      @element = $(@el).find('.section-inner')
+      element = $(@el).find('.section-inner')
     else
-      @element = element
+      element = element
 
+    paste_div = @paste_element_id
     s = new Sanitize
       elements: ['strong','img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li']
 
@@ -1026,6 +1039,8 @@ class Dante.Editor extends Dante.View
 
       transformers: [(input)->
                       if (input.node_name == "span" && $(input.node).hasClass("defaultValue") )
+                        return whitelist_nodes: [input.node]
+                      if( $(input.node).hasClass("dante-paste") )
                         return whitelist_nodes: [input.node]
                       else
                         return null
@@ -1077,9 +1092,9 @@ class Dante.Editor extends Dante.View
                         return null
                     ]
 
-    if @element.exists()
-      utils.log "CLEAN HTML #{@element[0].tagName}"
-      @element.html(s.clean_node( @element[0] ))
+    if element.exists()
+      utils.log "CLEAN HTML #{element[0].tagName}"
+      element.html(s.clean_node( element[0] ))
 
   setupLinks: (elems)->
     _.each elems, (n)=>

@@ -29,26 +29,26 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   #replace existing img tag , and wrap it in insertTamplate
   #TODO: take the url and upload it
   uploadExistentImage: (image_element, opts = {})->
-
     utils.log ("process image here!")
     tmpl = $(@insertTemplate())
     tmpl.find("img").attr('src', @current_editor.default_loading_placeholder )
     #is a child element or a first level element ?
 
     if $(image_element).parents(".graf").length > 0
-      #return if its already wrapped in graf--figure
+      #return if it's already wrapped in graf--figure
       if $(image_element).parents(".graf").hasClass("graf--figure")
         return
+
       utils.log "UNO"
       tmpl.insertBefore( $(image_element).parents(".graf") )
       node = @current_editor.getNode()
+      #wtf?
       if node
         @current_editor.preCleanNode($(node))
         @current_editor.addClassesToElement(node)
     else
       utils.log "DOS"
-      img = $(image_element).parentsUntil(".section-inner").first()
-      $(img).replaceWith(tmpl)
+      $(image_element).replaceWith(tmpl)
 
     utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
     @replaceImg(image_element, $("[name='#{tmpl.attr('name')}']"))
@@ -59,7 +59,6 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       for i in [0..n-1] by 1
         $("[name='#{tmpl.attr('name')}']").unwrap()
 
-    utils.log "FIG"
     #utils.log $("[name='#{tmpl.attr('name')}']").attr("name")
 
   replaceImg: (image_element, figure)->
@@ -229,19 +228,27 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   # @param {Event} e    - The backspace event that is being handled
   # @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
   #
-  # @return {Boolean} true if this function handled the backspace event, otherwise false
+  # @return {Boolean} true if this function should scape the default behavior
   ###
   handleBackspaceKey: (e, node) =>
+    utils.log "handleBackspaceKey on uploader widget"
+   
+    # remove graf figure if is selected but not in range (not focus on caption)
+    if $(node).hasClass("is-selected") && $(node).hasClass("graf--figure")
+      # exit if selection is on caption
+      anchor_node = @current_editor.selection().anchorNode
+      
+      # return false unless backspace is in the first char
+      if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
+        if @current_editor.isFirstChar()
+          return true
+        else
+          return false
 
-    #remove graf figure is is selected but not in range (not focus on caption)
-    if $(".is-selected").hasClass("graf--figure") && !anchor_node?
+    else if $(".is-selected").hasClass("is-mediaFocused")
+      # assume that select node is the current media element
+      # if it's focused when backspace it means that it should be removed
       utils.log("Replacing selected node")
       @current_editor.replaceWith("p", $(".is-selected"))
-
-      e.preventDefault() #without this line, the browser may interpret the backspace as a "go pack a page" command
-      
       @current_editor.setRangeAt($(".is-selected")[0])
       return true
-
-    return false
-  
