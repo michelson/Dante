@@ -77,7 +77,6 @@ class Dante.Editor extends Dante.View
 
     @initializeWidgets(opts)
 
-
   initializeWidgets: (opts)->
     #TODO: this could be a hash to access widgets without var
     #Base widgets
@@ -460,7 +459,7 @@ class Dante.Editor extends Dante.View
 
       when "Up"
         prev_node = current_node.prev()
-        utils.log "PREV NODE IS #{prev_node.attr('class')}"
+        utils.log "PREV NODE IS #{prev_node.attr('class')} #{prev_node.attr('name')}"
         utils.log "CURRENT NODE IS up #{current_node.attr('class')}"
 
         return unless $(current_node).hasClass("graf")
@@ -540,6 +539,7 @@ class Dante.Editor extends Dante.View
       $(@paste_element_id).html("<span>#{pastedText}</span>")
 
       #clean pasted content
+
       @setupElementsClasses $(@paste_element_id), (e)=>
         # e is the target object which is cleaned
         nodes = $(e.html()).insertAfter($(@aa))
@@ -670,11 +670,9 @@ class Dante.Editor extends Dante.View
     anchor_node = @getNode() #current node on which cursor is positioned
     parent = $(anchor_node)
 
-
     @markAsSelected( anchor_node ) if anchor_node
 
     if e.which is TAB
-
       @handleTab(anchor_node)
       return false
 
@@ -760,18 +758,19 @@ class Dante.Editor extends Dante.View
       utils.log(utils_anchor_node);
 
       #check if any of the widgets can handle a backspace keydown
-      utils.log("HANDLING WIDGET BACKSPACES");
+      utils.log("HANDLING WIDGET BACKSPACES")
       _.each @widgets, (w)=>
-        if w.handleBackspaceKey && !handled
-          handled = w.handleBackspaceKey(e, anchor_node);
+        if _.isFunction(w.handleBackspaceKey) && !eventHandled
+          eventHandled = w.handleBackspaceKey(e, anchor_node)
+          utils.log(eventHandled)
 
       if (eventHandled)
-        e.preventDefault();
-        utils.log("SCAPE FROM BACKSPACE HANDLER");
+        e.preventDefault()
+        utils.log("SCAPE FROM BACKSPACE HANDLER")
         return false;
 
       if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
-          return this.handleListBackspace(parent, e);
+        return this.handleListBackspace(parent, e);
 
       #select an image if backspacing into it from a paragraph
       if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
@@ -806,8 +805,8 @@ class Dante.Editor extends Dante.View
       utils.log("SPACEBAR")
       if (parent.hasClass("graf--p"))
         @handleSmartList(parent, e)
+    
     #arrows key
-    #if _.contains([37,38,39,40], e.which)
     #up & down
     if _.contains([UPARROW, DOWNARROW], e.which)
       utils.log e.which
@@ -925,7 +924,7 @@ class Dante.Editor extends Dante.View
 
   #mark the current row as selected
   markAsSelected: (element)->
-
+    utils.log element
     return if _.isUndefined element
 
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
@@ -1002,20 +1001,20 @@ class Dante.Editor extends Dante.View
     else
       element = element
 
-    setTimeout ()=>
-      #clean context and wrap text nodes
-      @cleanContents(element)
-      @wrapTextNodes(element)
-      #setup classes
-      _.each  element.children(), (n)=>
-        name = $(n).prop("tagName").toLowerCase()
-        n = @addClassesToElement(n)
-        @setElementName(n)
+    #setTimeout ()=>
+    #clean context and wrap text nodes
+    @cleanContents(element)
+    @wrapTextNodes(element)
+    #setup classes
+    _.each  element.children(), (n)=>
+      name = $(n).prop("tagName").toLowerCase()
+      n = @addClassesToElement(n)
+      @setElementName(n)
 
-      @setupLinks(element.find("a"))
-      @setupFirstAndLast()
-      cb(element) if _.isFunction(cb)
-    , 20
+    @setupLinks(element.find("a"))
+    @setupFirstAndLast()
+    cb(element) if _.isFunction(cb)
+    #, 20
 
   cleanContents: (element)->
     #TODO: should config tags
@@ -1041,9 +1040,8 @@ class Dante.Editor extends Dante.View
       transformers: [(input)->
                       if (input.node_name == "span" && $(input.node).hasClass("defaultValue") )
                         return whitelist_nodes: [input.node]
-                      if input.node_name == 'div'
-                        if(input.node_name == 'div' && ( $(input.node).parents(".dante-paste") or $(input.node).hasClass("dante-paste") ) )
-                          return whitelist_nodes: [input.node]
+                      if( $(input.node).hasClass("dante-paste") )
+                        return whitelist_nodes: [input.node]
                       else
                         return null
                     (input)->

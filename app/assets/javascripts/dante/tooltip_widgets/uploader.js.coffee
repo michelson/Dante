@@ -228,24 +228,27 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   # @param {Event} e    - The backspace event that is being handled
   # @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
   #
-  # @return {Boolean} true if this function handled the backspace event, otherwise false
+  # @return {Boolean} true if this function should scape the default behavior
   ###
   handleBackspaceKey: (e, node) =>
-
-    #remove graf figure if is selected but not in range (not focus on caption)
-    if $(".is-selected").hasClass("graf--figure")
-
-      #exit if selection is on caption
+    utils.log "handleBackspaceKey on uploader widget"
+   
+    # remove graf figure if is selected but not in range (not focus on caption)
+    if $(node).hasClass("is-selected") && $(node).hasClass("graf--figure")
+      # exit if selection is on caption
       anchor_node = @current_editor.selection().anchorNode
+      
+      # return false unless backspace is in the first char
+      if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
+        if @current_editor.isFirstChar()
+          return true
+        else
+          return false
 
-      return if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
-
+    else if $(".is-selected").hasClass("is-mediaFocused")
+      # assume that select node is the current media element
+      # if it's focused when backspace it means that it should be removed
       utils.log("Replacing selected node")
-
       @current_editor.replaceWith("p", $(".is-selected"))
-
       @current_editor.setRangeAt($(".is-selected")[0])
-
       return true
-
-    return false
