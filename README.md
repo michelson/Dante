@@ -7,7 +7,7 @@
 ##Motivation:
 
 So far I have tried all the Medium.com wysiwyg clones out there, these are really great, and each have their pros and cons. [But none of them has all the features that the real medium editor provides.](http://howtox.com/medium-editor-clones-in-js/)
-so I wonder, How complicated could be write my own Medium wysiwyg clone?
+so I wonder, How complicated could it be to write my own Medium wysiwyg clone?
 
 ## Demo:
 
