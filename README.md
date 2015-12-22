@@ -122,7 +122,7 @@ see TODO list below.**
 Some dependencies are required in order to Dante editor works properly:
 
 + Jquery
-+ [Underscore](https://github.com/documentcloud/underscore)
++ [Underscore](https://github.com/jashkenas/underscore)
 + [Sanitize.js](https://github.com/gbirke/sanitize.js)
 
 
@@ -162,8 +162,8 @@ tests are located in source/tests and /source/assets/spec folder and accessible 
 
 ## MAINTAINERS:
 
-+ [Miguel Michelson](http://github.com/michelson)
-+ [Cristian Ferrari](http://github.com/cristianferrarig)
++ [Miguel Michelson](https://github.com/michelson)
++ [Cristian Ferrari](https://github.com/cristianferrarig)
 
 ### CONTRIBUTORS
 
