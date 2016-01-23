@@ -143,7 +143,7 @@ class Dante.Editor extends Dante.View
       <div class='section-content'>
         <div class='section-inner layoutSingleColumn'>
           #{if @disable_title then '' else @renderTitle()}
-          <p class='graf graf--p'>#{@body_placeholder}<p>
+          <p class='graf graf--p'>#{@body_placeholder}</p>
         </div>
       </div>
 
