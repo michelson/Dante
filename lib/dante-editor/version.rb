@@ -1,5 +1,5 @@
 require "dante-editor/version"
 
 module DanteEditor
-  VERSION = "0.0.14"
+  VERSION = "0.0.15"
 end

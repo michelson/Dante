@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dante-editor (0.0.14)
+    dante-editor (0.0.15)
 
 GEM
   remote: http://rubygems.org/
@@ -140,4 +140,4 @@ DEPENDENCIES
   wdm (~> 0.1.0)
 
 BUNDLED WITH
-   1.10.5
+   1.10.6
