@@ -8,6 +8,7 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     @actionEvent = opts.title
     @current_editor = opts.current_editor
     @_name = null
+    @fetch_results = []
 
   # idea:
   # detectar si existe el markup--query, 
@@ -18,21 +19,35 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     
     #if @_name
     # e.preventDefault()
- 
-    if e.keyCode is 64
-      e.preventDefault()
-
-      # unless inside markup
-      unless @checkQuery()
-        # debugger
+    if !@insideQuery()
+      if e.keyCode is 64
+        e.preventDefault()
         @pasteHtmlAtCaret(@wrapperTemplate("@"), false)
+    else    
+      console.log "ok let's search"
+      if @getResults()
+        console.log @fetch_results
+        @displayPopOver()
+      
+  getResults: ->
+    @fetch_results = @fakeResults()
+
+  fakeResults: ->
+    [{name: "john", avatar: ""},
+    {name: "ringo", avatar: ""},
+    {name: "paul", avatar: ""}]
+
+  displayPopOver: ->
+    @current_editor.pop_over.render()
 
   getSelectionStart: ->
     node = document.getSelection().anchorNode
     if node.nodeType == 3 then node.parentNode else node
 
-  checkQuery: (node)->
-    $(@getSelectionStart()).hasClass(".markup--query")
+  insideQuery: ()->
+    console.log $(@getSelectionStart())
+    #debugger
+    $(@getSelectionStart()).hasClass("markup--query")
 
   wrapperTemplate: (name)->
     "<span class='markup--query'>#{name}</span>"
@@ -110,4 +125,19 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     return
 
 
-
+###
+<div class="popover js-popover  typeahead typeahead--mention popover--maxWidth360 popover--bottom is-active">
+    <div class="popover-inner js-popover-inner" style="height: 138px;">
+        <ul>
+          <li class="typeahead-item" data-action-value="Michael Bleigh" data-action="typeahead-populate" data-id="a6df102dcd62">
+            <div class="avatar">
+              <img src="https://cdn-images-1.medium.com/fit/c/32/32/0*_p-C5Z2OdRg23U7u.jpeg" class="avatar-image avatar-image--icon" alt="Michael Bleigh">
+              <span class="avatar-text">Michael Bleigh</span>
+              <em class="avatar-description">@mbleigh</em>
+            </div>
+          </li>
+        </ul>    
+    </div>
+    <div class="popover-arrow" style="left: 297px;"></div>
+</div>
+###

@@ -64,7 +64,6 @@ class Dante.Editor.PopOver extends Dante.View
     else
       target.position()
 
-
   handleDirection: (target)->
     if target.parents(".graf--mixtapeEmbed").exists()
       $(@el).find(".popover").removeClass("popover--bottom").addClass("popover--top")
