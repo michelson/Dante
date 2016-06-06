@@ -1,6 +1,6 @@
 
 compass_config do |config|
-  config.line_comments = false
+  #config.line_comments = false
 end
 
 class DistBuilder < Middleman::Extension

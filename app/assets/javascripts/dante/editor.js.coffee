@@ -17,6 +17,7 @@ class Dante.Editor extends Dante.View
     "mouseup"  : "handleMouseUp"
     "keydown"  : "handleKeyDown"
     "keyup"    : "handleKeyUp"
+    "keypress" : "handleKeyPress"
     "paste"    : "handlePaste"
     "dblclick" : "handleDblclick"
     "dragstart": "handleDrag"
@@ -51,9 +52,11 @@ class Dante.Editor extends Dante.View
     @paste_element_id = "#dante-paste-div"
     @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
 
-    opts.base_widgets ||= ["uploader", "embed", "embed_extract"]
+    opts.base_widgets   ||= ["uploader", "embed", "embed_extract"]
+    opts.base_behaviors ||= ["suggest"]
 
-    @widgets = []
+    @widgets   = []
+    @behaviors = []
 
     window.debugMode = opts.debug || false
 
@@ -76,6 +79,15 @@ class Dante.Editor extends Dante.View
     @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
 
     @initializeWidgets(opts)
+    @initializeBehaviors(opts)
+
+  initializeBehaviors: (opts)->
+    base_behaviors = opts.base_behaviors
+    self = @
+
+    if base_behaviors.indexOf("suggest") >= 0
+      @suggest_behavior = new Dante.View.Behavior.Suggest(current_editor: @, el: @el)
+      @behaviors.push @suggest_behavior
 
   initializeWidgets: (opts)->
     #TODO: this could be a hash to access widgets without var
@@ -290,12 +302,12 @@ class Dante.Editor extends Dante.View
     return if @selection().rangeCount < 1
     range = @selection().getRangeAt(0)
     node = range.commonAncestorContainer
-    return null  if not node or node is root
+    return null if not node or node is root
 
     #node = node.parentNode while node and (node.nodeType isnt 1) and (node.parentNode isnt root)
     #node = node.parentNode while node and (node.parentNode isnt root)
 
-    node = node.parentNode  while node and (node.nodeType isnt 1 or not $(node).hasClass("graf")) and (node.parentNode isnt root)
+    node = node.parentNode while node and (node.nodeType isnt 1 or not $(node).hasClass("graf")) and (node.parentNode isnt root)
     if not $(node).hasClass("graf--li")
       node = node.parentNode  while node and (node.parentNode isnt root)
 
@@ -826,6 +838,12 @@ class Dante.Editor extends Dante.View
       $(".is-selected").removeClass("is-mediaFocused")
       return false
 
+    #handle keyups for each widget
+    utils.log("HANDLING Behavior KEYDOWN");
+    _.each @behaviors, (b)=>
+      if b.handleKeyDown
+        b.handleKeyDown(e, parent);
+
   handleKeyUp: (e , node)->
 
     if @skip_keyup
@@ -886,11 +904,25 @@ class Dante.Editor extends Dante.View
       #  @setupFirstAndLast()
       #  @displayTooltipAt($(@el).find(".is-selected"))
 
-
     #arrows key
     if _.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)
       @handleArrow(e)
       #return false
+
+    #handle keyups for each widget
+    utils.log("HANDLING Behavior KEYUPS");
+    _.each @behaviors, (b)=>
+      if b.handleKeyUp
+        b.handleKeyUp(e, parent);
+
+  handleKeyPress: (e, node)->
+    anchor_node = @getNode()
+    parent = $(anchor_node)
+    #handle keyups for each widget
+    utils.log("HANDLING Behavior KEYPRESS");
+    _.each @behaviors, (b)=>
+      if b.handleKeyPress
+        b.handleKeyPress(e, parent);
 
   #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
