@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.14"
+    version: "0.0.15"
   };
 
 }).call(this);
