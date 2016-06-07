@@ -2,7 +2,15 @@ utils = Dante.utils
 
 class Dante.View.Behavior.Suggest extends Dante.View.Behavior
 
-  "keyup"    : "handleKeyUp"
+  el: "body"
+  #"keyup"    : "handleKeyUp"
+
+  #events:
+  #  "mouseover .markup--query" : "displayPopOver"
+  #  "mouseout  .markup--query" : "hidePopOver"
+
+  events:
+    "click .typeahead-item": "handleOptionSelection"
 
   initialize: (opts={})->
     @actionEvent = opts.title
@@ -10,6 +18,21 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     @_name = null
     @fetch_results = []
 
+    # TODO: this has to be pluggable too!
+    #@pop_over_typeahead = new Dante.Editor.PopOverTypeAhead(editor: @)
+    #@pop_over_typeahead.render().hide()
+
+  displayPopOver: (ev)->
+    @current_editor.pop_over_typeahead.displayAt(@getSelectionStart())
+
+  hidePopOver: (ev)->
+    console.log "display popover from typeahead"
+    @current_editor.pop_over_typeahead.displayAt(ev)
+
+  handleOptionSelection: (ev)->
+    debugger
+    @current_editor.pop_over_typeahead.handleOptionSelection()
+  
   # idea:
   # detectar si existe el markup--query, 
   # si existe checkear si estoy dentro tipeando
@@ -26,19 +49,17 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     else    
       console.log "ok let's search"
       if @getResults()
+        @displayPopOver(e)
+        @current_editor.pop_over_typeahead.appendData(@fetch_results)
         console.log @fetch_results
-        @displayPopOver()
       
   getResults: ->
     @fetch_results = @fakeResults()
 
   fakeResults: ->
-    [{name: "john", avatar: ""},
-    {name: "ringo", avatar: ""},
-    {name: "paul", avatar: ""}]
-
-  displayPopOver: ->
-    @current_editor.pop_over.render()
+    [{text: "John Lennon", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/zeldman/128.jpg", description: "@john"},
+    {text: "Ringo Star", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/iannnnn/128.jpg", description: "@ringo"},
+    {text: "Paul McCartney", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/adellecharles/128.jpg", description: "@paul"}]
 
   getSelectionStart: ->
     node = document.getSelection().anchorNode
@@ -53,12 +74,8 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     "<span class='markup--query'>#{name}</span>"
 
   linkTemplate: ()->
-    "<a href='https://medium.com/u/ac63ac3175a7' 
-      data-href='https://medium.com/u/ac63ac3175a'
-      data-anchor-type='2'
-      data-user-id='ac63ac3175a7' 
-      data-action='show-user-card' 
-      data-action-type='hover' 
+    "<a href='#' 
+      data-href='#'
       class='markup--user markup--p-user'>
       John Doe
     </a>"
@@ -124,20 +141,3 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
         range.select()
     return
 
-
-###
-<div class="popover js-popover  typeahead typeahead--mention popover--maxWidth360 popover--bottom is-active">
-    <div class="popover-inner js-popover-inner" style="height: 138px;">
-        <ul>
-          <li class="typeahead-item" data-action-value="Michael Bleigh" data-action="typeahead-populate" data-id="a6df102dcd62">
-            <div class="avatar">
-              <img src="https://cdn-images-1.medium.com/fit/c/32/32/0*_p-C5Z2OdRg23U7u.jpeg" class="avatar-image avatar-image--icon" alt="Michael Bleigh">
-              <span class="avatar-text">Michael Bleigh</span>
-              <em class="avatar-description">@mbleigh</em>
-            </div>
-          </li>
-        </ul>    
-    </div>
-    <div class="popover-arrow" style="left: 297px;"></div>
-</div>
-###

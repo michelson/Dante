@@ -171,6 +171,11 @@ class Dante.Editor extends Dante.View
     @tooltip_view = new @tooltip_class(editor: @ , widgets: @widgets)
     @pop_over = new Dante.Editor.PopOver(editor: @)
     @pop_over.render().hide()
+    
+    # TODO: this has to be pluggable too!
+    @pop_over_typeahead = new Dante.Editor.PopOverTypeAhead(editor: @)
+    @pop_over_typeahead.render().hide()
+
     @tooltip_view.render().hide()
 
   appendInitialContent: ()=>

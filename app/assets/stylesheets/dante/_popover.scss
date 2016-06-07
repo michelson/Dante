@@ -54,11 +54,13 @@
   transition:opacity 0 ease;
 }
 */
-
-.popover-inner {
-  background-color: rgba(0,0,0,0.8);
-  color: #fff;
+.popover--tooltip {
+  .popover-inner {
+    background-color: rgba(0,0,0,0.8);
+    color: #fff;
+  }  
 }
+
 .popover-arrow {
   position: absolute;
 }
