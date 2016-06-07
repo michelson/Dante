@@ -34,10 +34,14 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     @current_editor.pop_over_typeahead.handleOptionSelection()
   
   # idea:
-  # detectar si existe el markup--query, 
-  # si existe checkear si estoy dentro tipeando
+  # ok: detectar si existe el markup--query, 
+  # ok: si existe checkear si estoy dentro tipeando
   # si estoy dentro no hacer nada (osea buscar)
   # si no estoy dentro, borrar (reemplazar por texto) y crear el nuevo
+  
+  # boquear en espacio blanco (no mas de dos espacios) "foo "
+  # si no se encuentran resultados, remover markup--query y reposicionar caret
+
   handleKeyPress: (e)->
     
     #if @_name
