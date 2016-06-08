@@ -62,6 +62,7 @@ set :fonts_dir, 'assets/fonts'
 set :markdown_engine, :kramdown
 
 page "/tests/*", :layout => "spec"
+page '/api/*', :content_type => 'application/json', layout: false
 
 sprockets.append_path File.join "#{root}", "bower_components"
 

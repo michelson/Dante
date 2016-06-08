@@ -43,22 +43,24 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
   # si no se encuentran resultados, remover markup--query y reposicionar caret
 
   handleKeyPress: (e)->
-    
-    #if @_name
-    # e.preventDefault()
     if !@insideQuery()
       if e.keyCode is 64
         e.preventDefault()
         @pasteHtmlAtCaret(@wrapperTemplate("@"), false)
-    else    
+    else
       console.log "ok let's search"
-      if @getResults()
+      @getResults (e)=>
+        @json_request.abort() if @json_request
         @displayPopOver(e)
         @current_editor.pop_over_typeahead.appendData(@fetch_results)
-        console.log @fetch_results
       
-  getResults: ->
-    @fetch_results = @fakeResults()
+  getResults: (cb, e)->
+    @json_request = $.getJSON @current_editor.suggest_url
+    .success (data)=>
+      @fetch_results = data
+      cb(e) if cb
+    .error (data, err)=>
+      console.log "error fetching results"
 
   fakeResults: ->
     [{text: "John Lennon", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/zeldman/128.jpg", description: "@john"},

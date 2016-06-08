@@ -27,6 +27,7 @@ Until now I´ve been able to implement the following features:
   + Embed data for pasted link through OEmbed services.
   + Embed media information for pasted links through OEmbed services.
   + Add or remove tooltip buttons with ease with plugin system.
++ Suggest data when type @
 + List creation with shorcuts ie:. 1. , - , 1) with spacebar or return key
 + Custom tooltip bottons support
 + CSS tries to use the same fonts used in Medium, (if you have already setup those fonts) or fallbacks to open fonts (by Google fonts) or system fonts.
