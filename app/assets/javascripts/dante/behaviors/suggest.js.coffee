@@ -9,12 +9,9 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
   #  "mouseover .markup--query" : "displayPopOver"
   #  "mouseout  .markup--query" : "hidePopOver"
 
-  events:
-    "click .typeahead-item": "handleOptionSelection"
-
   initialize: (opts={})->
     @actionEvent = opts.title
-    @current_editor = opts.current_editor
+    @editor = opts.current_editor
     @_name = null
     @fetch_results = []
 
@@ -23,25 +20,12 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     #@pop_over_typeahead.render().hide()
 
   displayPopOver: (ev)->
-    @current_editor.pop_over_typeahead.displayAt(@getSelectionStart())
+    @editor.pop_over_typeahead.displayAt(@editor.getSelectionStart())
 
   hidePopOver: (ev)->
     console.log "display popover from typeahead"
-    @current_editor.pop_over_typeahead.displayAt(ev)
-
-  handleOptionSelection: (ev)->
-    debugger
-    @current_editor.pop_over_typeahead.handleOptionSelection()
+    @editor.pop_over_typeahead.displayAt(ev)
   
-  # idea:
-  # ok: detectar si existe el markup--query, 
-  # ok: si existe checkear si estoy dentro tipeando
-  # si estoy dentro no hacer nada (osea buscar)
-  # si no estoy dentro, borrar (reemplazar por texto) y crear el nuevo
-  
-  # boquear en espacio blanco (no mas de dos espacios) "foo "
-  # si no se encuentran resultados, remover markup--query y reposicionar caret
-
   handleKeyPress: (e)->
     if !@insideQuery()
       if e.keyCode is 64
@@ -52,41 +36,31 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
       @getResults (e)=>
         @json_request.abort() if @json_request
         @displayPopOver(e)
-        @current_editor.pop_over_typeahead.appendData(@fetch_results)
+        @editor.pop_over_typeahead.appendData(@fetch_results)
       
+  handleKeyUp: (e)->
+    if @insideQuery()
+      @getResults (e)=>
+        @json_request.abort() if @json_request
+        @displayPopOver(e)
+        @editor.pop_over_typeahead.appendData(@fetch_results)
+
   getResults: (cb, e)->
-    @json_request = $.getJSON @current_editor.suggest_url
+    q = @editor.getSelectionStart().textContent.replace("@", "")
+    @json_request = $.getJSON "#{@editor.suggest_url}?q=#{q}"
     .success (data)=>
       @fetch_results = data
       cb(e) if cb
     .error (data, err)=>
       console.log "error fetching results"
 
-  fakeResults: ->
-    [{text: "John Lennon", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/zeldman/128.jpg", description: "@john"},
-    {text: "Ringo Star", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/iannnnn/128.jpg", description: "@ringo"},
-    {text: "Paul McCartney", avatar: "https://s3.amazonaws.com/uifaces/faces/twitter/adellecharles/128.jpg", description: "@paul"}]
-
-  getSelectionStart: ->
-    node = document.getSelection().anchorNode
-    if node.nodeType == 3 then node.parentNode else node
-
   insideQuery: ()->
-    console.log $(@getSelectionStart())
-    #debugger
-    $(@getSelectionStart()).hasClass("markup--query")
+    $(@editor.getSelectionStart()).hasClass("markup--query")
 
   wrapperTemplate: (name)->
     "<span class='markup--query'>#{name}</span>"
 
-  linkTemplate: ()->
-    "<a href='#' 
-      data-href='#'
-      class='markup--user markup--p-user'>
-      John Doe
-    </a>"
-
-  # not used
+  # not used!
   placeCaretAtEnd: (el) ->
     el.focus()
     if typeof window.getSelection != 'undefined' and typeof document.createRange != 'undefined'

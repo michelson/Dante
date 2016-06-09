@@ -9,6 +9,7 @@ class Dante.Editor.PopOver extends Dante.View
 
   initialize: (opts = {})->
     utils.log("initialized popover")
+    @pop_over_element = ".popover--tooltip"
     @editor = opts.editor
     @hideTimeout
     @settings = {timeout: 300}
@@ -43,7 +44,10 @@ class Dante.Editor.PopOver extends Dante.View
   displayAt: (ev)->
     @cancelHide()
     target = $(ev.currentTarget)
-    $(@el).find(".popover-inner a").text( target.attr('href') ).attr('href', target.attr("href") )
+    @findElement()
+      .find(".popover-inner a")
+      .text( target.attr('href') )
+      .attr('href', target.attr("href") )
     @positionAt(ev)
     @findElement().css("pointer-events", "auto")
     $(@el).show()
@@ -64,7 +68,6 @@ class Dante.Editor.PopOver extends Dante.View
     else
       target.position()
 
-
   handleDirection: (target)->
     if target.parents(".graf--mixtapeEmbed").exists()
       @findElement().removeClass("popover--bottom").addClass("popover--top")
@@ -72,7 +75,7 @@ class Dante.Editor.PopOver extends Dante.View
       @findElement().removeClass("popover--top").addClass("popover--bottom")
 
   findElement: ()->
-    $(@el).find(".popover--tooltip")
+    $(@el).find(@pop_over_element)
 
   render: ()->
     $(@template()).insertAfter(@editor.$el)
@@ -104,7 +107,10 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
     </div>"
 
   popoverItem: (item)->
-    "<li class='typeahead-item' data-action-value='Michael Bleigh' data-action='typeahead-populate' data-id='a6df102dcd62'>
+    "<li class='typeahead-item' 
+      data-action-value='#{item.text}' 
+      data-action='typeahead-populate' data-id='#{item.id}' 
+      data-type='#{item.type}'>
       <div class='avatar'>
         <img src='#{item.avatar}' class='avatar-image avatar-image--icon' alt='#{item.text}'>
         <span class='avatar-text'>#{item.text}</span>
@@ -118,6 +124,19 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
   handleOptionSelection: (ev)->
     ev.preventDefault
     console.log "Select option here!"
+    data = $(ev.currentTarget).data()
+    $(".markup--query").replaceWith(@linkTemplate(data))
+    @hide(0)
+    #@setRangeAt(new_paragraph[0])
+
+  linkTemplate: (data)->
+    "<a href='#'
+      data-type='#{data.type}' 
+      data-href='#{data.href}'
+      data-id='#{data.id}'
+      class='markup--user markup--p-user'>
+      John Doe
+    </a>"
 
   #display & copy original link
   positionAt: (target)->
@@ -152,11 +171,11 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
   findElement: ->
     $(@el).find(".#{@pop_over_element}")
 
-  hide: (ev)->
+  hide: (ev, timeout = @settings.timeout)->
     @cancelHide()
     @hideTimeout = setTimeout ()=>
       @findElement().hide()
-    , @settings.timeout
+    , timeout
 
   appendData: (data)->
     _.each data, (item)=>
@@ -176,4 +195,93 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
 
   render: ()->
     $(@template()).insertAfter(@editor.$el)
+
+
+class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
+
+  el: "body"
+
+  events:
+
+    "mouseover .popover--card": "cancelHide"
+    "mouseout  .popover--card": "hide"
+
+    "mouseover .markup--user" : "displayPopOver"
+    "mouseout  .markup--user" : "hidePopOver"
+
+    #"click .typeahead-item": "handleOptionSelection"
+
+  initialize: (opts = {})->
+    @pop_over_element = ".popover--card"
+    utils.log("initialized popover")
+    @editor = opts.editor
+    @hideTimeout
+    @settings = {timeout: 300}
+
+  template: ->
+    "<div class='popover popover--card js-popover popover--animated popover--flexible popover--top is-active'>
+      
+      <div class='popover-inner js-popover-inner'>
+        <div class='popoverCard'>
+            <div class='u-clearfix'>
+                
+                <div class='u-floatLeft popoverCard-meta'>
+                    <h4 class='popoverCard-title'>
+                        <a class='link u-baseColor--link' 
+                          href='#' 
+                          title='' 
+                          aria-label='' 
+                          data-user-id='' 
+                          dir='auto'>
+                          miguel michelson
+                        </a>
+                    </h4>
+                    <div class='popoverCard-description'>
+                      artista visual, desarrollador de aplicaciones web, escucho mucho Zappa
+                    </div>
+                </div>
+
+                <div class='u-floatRight popoverCard-avatar'>
+                  <a class='link avatar u-baseColor--link' 
+                    href='https://medium.com/@michelson' 
+                    title='Go to the profile of miguel michelson' 
+                    aria-label='Go to the profile of miguel michelson' 
+                    data-user-id='dd80df097b95' 
+                    dir='auto'>
+                    <img src='https://cdn-images-1.medium.com/fit/c/60/60/0*lpLY8594SBOEmJrb.jpg' 
+                    class='avatar-image avatar-image--small' 
+                      alt='Go to the profile of miguel michelson'>
+                  </a>
+                </div>
+            </div>
+            
+            <div class='popoverCard-actions u-clearfix'>
+              <div class='u-floatLeft popoverCard-stats'>
+                  <span class='popoverCard-stat'>
+                      Following
+                      <span class='popoverCard-count js-userFollowingCount'>124</span>
+                  </span>
+                  <span class='popoverCard-stat'>
+                      Followers
+                      <span class='popoverCard-count js-userFollowersCount'>79</span>
+                  </span>
+              </div>
+            </div>
+            
+        </div>
+        <div class='popover-arrow'></div>
+      </div>
+    </div>"
+
+
+  displayPopOver: (ev)->
+    @.displayAt(ev)
+
+  displayAt: (ev)->
+    @cancelHide()
+    @positionAt(ev)
+
+  hidePopOver: (ev)->
+    @.hide(ev)
+
 

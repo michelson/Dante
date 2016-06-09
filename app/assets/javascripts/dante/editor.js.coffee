@@ -176,6 +176,10 @@ class Dante.Editor extends Dante.View
     @pop_over_typeahead = new Dante.Editor.PopOverTypeAhead(editor: @)
     @pop_over_typeahead.render().hide()
 
+    @pop_over_card = new Dante.Editor.PopOverCard(editor: @)
+    @pop_over_card.render().hide()
+    
+
     @tooltip_view.render().hide()
 
   appendInitialContent: ()=>
@@ -212,6 +216,10 @@ class Dante.Editor extends Dante.View
       selection = window.getSelection()
     else if (document.selection && document.selection.type != "Control")
       selection = document.selection
+
+  getSelectionStart: ->
+    node = document.getSelection().anchorNode
+    if node.nodeType == 3 then node.parentNode else node
 
   getRange: () ->
     editor = $(@el)[0]
@@ -689,6 +697,12 @@ class Dante.Editor extends Dante.View
 
     @markAsSelected( anchor_node ) if anchor_node
 
+    #handle keyups for each widget
+    utils.log("HANDLING Behavior KEYDOWN");
+    _.each @behaviors, (b)=>
+      if b.handleKeyDown
+        b.handleKeyDown(e, parent);
+
     if e.which is TAB
       @handleTab(anchor_node)
       return false
@@ -843,12 +857,6 @@ class Dante.Editor extends Dante.View
       $(".is-selected").removeClass("is-mediaFocused")
       return false
 
-    #handle keyups for each widget
-    utils.log("HANDLING Behavior KEYDOWN");
-    _.each @behaviors, (b)=>
-      if b.handleKeyDown
-        b.handleKeyDown(e, parent);
-
   handleKeyUp: (e , node)->
 
     if @skip_keyup
@@ -856,7 +864,7 @@ class Dante.Editor extends Dante.View
       utils.log "SKIP KEYUP"
       return false
 
-    utils.log "KEYUP"
+    utils.log "ENTER KEYUP"
 
     @editor_menu.hide() #hides menu just in case
     @reachedTop = false
@@ -865,6 +873,13 @@ class Dante.Editor extends Dante.View
 
     @handleTextSelection(anchor_node)
 
+    # handle keyups for each widget
+    utils.log("HANDLING Behavior KEYUPS");
+    _.each @behaviors, (b)=>
+      if b.handleKeyUp
+        b.handleKeyUp(e, parent);
+
+    # TODO: this should be behaviors too!
     if (_.contains([BACKSPACE, SPACEBAR, ENTER], e.which))
       if $(anchor_node).hasClass("graf--li")
         @removeSpanTag($(anchor_node));
@@ -914,12 +929,6 @@ class Dante.Editor extends Dante.View
       @handleArrow(e)
       #return false
 
-    #handle keyups for each widget
-    utils.log("HANDLING Behavior KEYUPS");
-    _.each @behaviors, (b)=>
-      if b.handleKeyUp
-        b.handleKeyUp(e, parent);
-
   handleKeyPress: (e, node)->
     anchor_node = @getNode()
     parent = $(anchor_node)
@@ -929,7 +938,6 @@ class Dante.Editor extends Dante.View
       if b.handleKeyPress
         b.handleKeyPress(e, parent);
 
-  #TODO: Separate in little functions
   handleLineBreakWith: (element_type, from_element)->
     new_paragraph = $("<#{element_type} class='graf graf--#{element_type} graf--empty is-selected'><br/></#{element_type}>")
     if from_element.parent().is('[class^="graf--"]')
@@ -1270,6 +1278,8 @@ class Dante.Editor extends Dante.View
 
     $list = $li.parent("ol, ul")
     utils.log("LIST BACKSPACE")
+
+
 
     if($li.prev().length is 0)
       e.preventDefault()
