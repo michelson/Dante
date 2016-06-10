@@ -3,11 +3,6 @@ utils = Dante.utils
 class Dante.View.Behavior.Suggest extends Dante.View.Behavior
 
   el: "body"
-  #"keyup"    : "handleKeyUp"
-
-  #events:
-  #  "mouseover .markup--query" : "displayPopOver"
-  #  "mouseout  .markup--query" : "hidePopOver"
 
   initialize: (opts={})->
     @actionEvent = opts.title
@@ -25,7 +20,11 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
   hidePopOver: (ev)->
     console.log "display popover from typeahead"
     @editor.pop_over_typeahead.displayAt(ev)
-  
+
+  desintegratePopOver: (e)->
+    $(@.editor.getSelectionStart()).remove()
+    @pasteHtmlAtCaret(@.editor.getSelectionStart().textContent, false)
+
   handleKeyPress: (e)->
     if !@insideQuery()
       if e.keyCode is 64
@@ -35,12 +34,14 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
       console.log "ok let's search"
       @getResults (e)=>
         @fetchResults(e)
-        
+
   handleKeyUp: (e)->
     if @insideQuery()
       @fetchResults(e)
       
   fetchResults: (e)->
+    @desintegratePopOver(e) if @getResults.length < 1
+    
     @getResults (e)=>
       @json_request.abort() if @json_request
       @displayPopOver(e)
@@ -121,4 +122,3 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
         range.setEndPoint 'StartToStart', originalRange
         range.select()
     return
-
