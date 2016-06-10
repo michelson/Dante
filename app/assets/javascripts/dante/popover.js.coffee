@@ -110,12 +110,19 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
     "<li class='typeahead-item' 
       data-action-value='#{item.text}' 
       data-action='typeahead-populate' data-id='#{item.id}' 
-      data-type='#{item.type}'>
+      data-type='#{item.type}'
+      data-href='#{item.href}'>
+
       <div class='avatar'>
-        <img src='#{item.avatar}' class='avatar-image avatar-image--icon' alt='#{item.text}'>
+        <img src='#{item.avatar}' 
+          class='avatar-image avatar-image--icon' 
+          alt='#{item.text}'>
+
         <span class='avatar-text'>#{item.text}</span>
         <em class='avatar-description'>#{item.description}</em>
+
       </div>
+
     </li>"
 
   typeaheadStyles: ->
@@ -135,7 +142,7 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
       data-href='#{data.href}'
       data-id='#{data.id}'
       class='markup--user markup--p-user'>
-      John Doe
+      #{data.actionValue}
     </a>"
 
   #display & copy original link
@@ -202,13 +209,10 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
   el: "body"
 
   events:
-
     "mouseover .popover--card": "cancelHide"
     "mouseout  .popover--card": "hide"
-
     "mouseover .markup--user" : "displayPopOver"
     "mouseout  .markup--user" : "hidePopOver"
-
     #"click .typeahead-item": "handleOptionSelection"
 
   initialize: (opts = {})->
@@ -217,71 +221,87 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
     @editor = opts.editor
     @hideTimeout
     @settings = {timeout: 300}
+    @card_data = {}
 
-  template: ->
+  template: ()->
     "<div class='popover popover--card js-popover popover--animated popover--flexible popover--top is-active'>
-      
       <div class='popover-inner js-popover-inner'>
-        <div class='popoverCard'>
-            <div class='u-clearfix'>
-                
-                <div class='u-floatLeft popoverCard-meta'>
-                    <h4 class='popoverCard-title'>
-                        <a class='link u-baseColor--link' 
-                          href='#' 
-                          title='' 
-                          aria-label='' 
-                          data-user-id='' 
-                          dir='auto'>
-                          miguel michelson
-                        </a>
-                    </h4>
-                    <div class='popoverCard-description'>
-                      artista visual, desarrollador de aplicaciones web, escucho mucho Zappa
-                    </div>
-                </div>
-
-                <div class='u-floatRight popoverCard-avatar'>
-                  <a class='link avatar u-baseColor--link' 
-                    href='https://medium.com/@michelson' 
-                    title='Go to the profile of miguel michelson' 
-                    aria-label='Go to the profile of miguel michelson' 
-                    data-user-id='dd80df097b95' 
-                    dir='auto'>
-                    <img src='https://cdn-images-1.medium.com/fit/c/60/60/0*lpLY8594SBOEmJrb.jpg' 
-                    class='avatar-image avatar-image--small' 
-                      alt='Go to the profile of miguel michelson'>
-                  </a>
-                </div>
-            </div>
-            
-            <div class='popoverCard-actions u-clearfix'>
-              <div class='u-floatLeft popoverCard-stats'>
-                  <span class='popoverCard-stat'>
-                      Following
-                      <span class='popoverCard-count js-userFollowingCount'>124</span>
-                  </span>
-                  <span class='popoverCard-stat'>
-                      Followers
-                      <span class='popoverCard-count js-userFollowersCount'>79</span>
-                  </span>
-              </div>
-            </div>
-            
-        </div>
-        <div class='popover-arrow'></div>
       </div>
     </div>"
 
+  cardTemplate: ->
+    "<div class='popoverCard'>
+        <div class='u-clearfix'>
+            
+            <div class='u-floatLeft popoverCard-meta'>
+                <h4 class='popoverCard-title'>
+                    <a class='link u-baseColor--link' 
+                      href='#{@card_data.href}' 
+                      title='#{@card_data.text}' 
+                      aria-label='#{@card_data.text}' 
+                      data-user-id='#{@card_data.id}' 
+                      dir='auto'>
+                      #{@card_data.text}
+                    </a>
+                </h4>
+                <div class='popoverCard-description'>
+                  #{@card_data.description}
+                </div>
+            </div>
+
+            <div class='u-floatRight popoverCard-avatar'>
+              <a class='link avatar u-baseColor--link' 
+                href='#{@card_data.href}' 
+                title='#{@card_data.text}' 
+                aria-label='#{@card_data.text}' 
+                data-user-id='#{@card_data.id}' 
+                dir='auto'>
+                <img src='#{@card_data.avatar}' 
+                class='avatar-image avatar-image--small' 
+                  alt='#{@card_data.text}'>
+              </a>
+            </div>
+        </div>
+        #{ 
+          # @footerTemplate() 
+        }
+        <div class='popover-arrow'></div>
+        
+    </div>"
+
+  # TODO: implement footer
+  footerTemplate: ->
+    "<div class='popoverCard-actions u-clearfix'>
+      <div class='u-floatLeft popoverCard-stats'>
+          <span class='popoverCard-stat'>
+              Following
+              <span class='popoverCard-count js-userFollowingCount'>124</span>
+          </span>
+          <span class='popoverCard-stat'>
+              Followers
+              <span class='popoverCard-count js-userFollowersCount'>79</span>
+          </span>
+      </div>
+    </div>"
 
   displayPopOver: (ev)->
     @.displayAt(ev)
 
   displayAt: (ev)->
     @cancelHide()
-    @positionAt(ev)
+    
+    $.getJSON($(ev.currentTarget).data().href)
+    .success (data)=>
+      @card_data = data
+      @refreshTemplate()
+      @positionAt(ev)
 
   hidePopOver: (ev)->
     @.hide(ev)
+
+  refreshTemplate: ->
+    $(".popover--card .popover-inner").html(@cardTemplate())
+    
+
 
 

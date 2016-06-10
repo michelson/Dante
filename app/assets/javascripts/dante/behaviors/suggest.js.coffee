@@ -34,16 +34,17 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
     else
       console.log "ok let's search"
       @getResults (e)=>
-        @json_request.abort() if @json_request
-        @displayPopOver(e)
-        @editor.pop_over_typeahead.appendData(@fetch_results)
-      
+        @fetchResults(e)
+        
   handleKeyUp: (e)->
     if @insideQuery()
-      @getResults (e)=>
-        @json_request.abort() if @json_request
-        @displayPopOver(e)
-        @editor.pop_over_typeahead.appendData(@fetch_results)
+      @fetchResults(e)
+      
+  fetchResults: (e)->
+    @getResults (e)=>
+      @json_request.abort() if @json_request
+      @displayPopOver(e)
+      @editor.pop_over_typeahead.appendData(@fetch_results)
 
   getResults: (cb, e)->
     q = @editor.getSelectionStart().textContent.replace("@", "")
