@@ -15,7 +15,7 @@ class Dante.Editor.PopOver extends Dante.View
     @settings = {timeout: 300}
 
   template: ()->
-    "<div class='popover popover--tooltip popover--Linktooltip popover--bottom is-active'>
+    "<div class='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active'>
       <div class='popover-inner'>
         <a href='#' target='_blank'> Link </a>
       </div>
@@ -80,7 +80,6 @@ class Dante.Editor.PopOver extends Dante.View
   render: ()->
     $(@template()).insertAfter(@editor.$el)
 
-
 class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
   el: "body"
 
@@ -99,8 +98,8 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
     @typeaheadStyles()
 
   template: ()->
-    "<div class='popover popover--typeahead js-popover typeahead typeahead--mention popover--maxWidth360 popover--bottom is-active'>
-      <div class='popover-inner js-popover-inner' style='height: 138px;'>
+    "<div class='dante-popover popover--typeahead js-popover typeahead typeahead--mention popover--maxWidth360 popover--bottom is-active'>
+      <div class='popover-inner js-popover-inner'>
         <ul></ul>    
       </div>
       <div class='popover-arrow' style='left: 297px;'></div>
@@ -113,7 +112,7 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
       data-type='#{item.type}'
       data-href='#{item.href}'>
 
-      <div class='avatar'>
+      <div class='dante-avatar'>
         <img src='#{item.avatar}' 
           class='avatar-image avatar-image--icon' 
           alt='#{item.text}'>
@@ -185,6 +184,7 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
     , timeout
 
   appendData: (data)->
+    @findElement().find(".popover-inner ul").html("")
     _.each data, (item)=>
       @findElement().find(".popover-inner ul").append(@popoverItem(item))
 
@@ -202,7 +202,6 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
 
   render: ()->
     $(@template()).insertAfter(@editor.$el)
-
 
 class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
 
@@ -224,7 +223,7 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
     @card_data = {}
 
   template: ()->
-    "<div class='popover popover--card js-popover popover--animated popover--flexible popover--top is-active'>
+    "<div class='dante-popover popover--card js-popover popover--animated popover--flexible popover--top is-active'>
       <div class='popover-inner js-popover-inner'>
       </div>
     </div>"
@@ -250,7 +249,7 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
             </div>
 
             <div class='u-floatRight popoverCard-avatar'>
-              <a class='link avatar u-baseColor--link' 
+              <a class='link dante-avatar u-baseColor--link' 
                 href='#{@card_data.href}' 
                 title='#{@card_data.text}' 
                 aria-label='#{@card_data.text}' 
@@ -262,9 +261,7 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
               </a>
             </div>
         </div>
-        #{ 
-          # @footerTemplate() 
-        }
+        #{ @footerTemplate() }
         <div class='popover-arrow'></div>
         
     </div>"
@@ -292,7 +289,11 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
     
     $.getJSON($(ev.currentTarget).data().href)
     .success (data)=>
-      @card_data = data
+      if @editor.suggest_resource_handler
+        @card_data =  @editor.suggest_resource_handler(data)
+      else
+        @card_data = data
+
       @refreshTemplate()
       @positionAt(ev)
 
@@ -301,7 +302,3 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
 
   refreshTemplate: ->
     $(".popover--card .popover-inner").html(@cardTemplate())
-    
-
-
-

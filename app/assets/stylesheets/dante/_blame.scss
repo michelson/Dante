@@ -27,55 +27,60 @@ a[rel=token], .markup--query {
 }
 
 .popover.popover--maxWidth360 .popover-inner {
-    max-width: 360px;
+  max-width: 360px;
 }
 
 .popover:not(.popover--flexible) .popover-inner {
-    max-width: 280px;
+  max-width: 280px;
 }
 .typeahead .popover-inner {
-    padding: 0;
-    overflow: hidden;
-    min-width: 100px;
+  padding: 0;
+  overflow: hidden;
+  min-width: 100px;
 }
 
 .typeahead .typeahead-item:first-child {
-    padding-top: 7px;
+  padding-top: 7px;
 }
 
 .typeahead--mention .typeahead-item {
-    padding: 6px 15px;
-    font-size: 13px;
+  padding: 6px 15px;
+  font-size: 13px;
 }
 
 .typeahead-item.is-active, .typeahead-item:hover  {
-    background: #02b875;
-    color: #fff;
+  background: #02b875;
+  color: #fff;
 }
 .typeahead .typeahead-item {
-    cursor: pointer;
-    padding: 5px 10px;
-    line-height: 2;
-    font-size: 12px;
-    text-align: left;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+  cursor: pointer;
+  padding: 5px 10px;
+  line-height: 2;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-.typeahead .avatar {
-    float: left;
-    margin: 0 6px 0 -2px;
+.typeahead .dante-avatar {
+  //float: left;
+  margin: 0 6px 0 -2px;
 }
 
 .avatar-image--icon {
-    width: 32px;
-    height: 32px;
+  width: 32px;
+  height: 32px;
 }
 .avatar-image {
-    display: inline-block;
-    vertical-align: middle;
-    border-radius: 100%;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 100%;
+}
+
+.typeahead-item .avatar-image {
+  width: 32px;
+  height: 32px;
 }
 
 .typeahead--mention .popover-arrow {
@@ -166,7 +171,7 @@ a[rel=token], .markup--query {
     content: " ";
 }
 
-.avatar {
+.dante-avatar {
   display: block;
   white-space: nowrap;
   overflow: hidden;
