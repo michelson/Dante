@@ -75,23 +75,6 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
   wrapperTemplate: (name)->
     "<span class='markup--query'>#{name}</span>"
 
-  # not used!
-  placeCaretAtEnd: (el) ->
-    el.focus()
-    if typeof window.getSelection != 'undefined' and typeof document.createRange != 'undefined'
-      range = document.createRange()
-      range.selectNodeContents el
-      range.collapse false
-      sel = window.getSelection()
-      sel.removeAllRanges()
-      sel.addRange range
-    else if typeof document.body.createTextRange != 'undefined'
-      textRange = document.body.createTextRange()
-      textRange.moveToElementText el
-      textRange.collapse false
-      textRange.select()
-    return
-
   # http://stackoverflow.com/questions/6690752/insert-html-at-caret-in-a-contenteditable-div
   pasteHtmlAtCaret: (html, selectPastedContent) ->
     sel = undefined
