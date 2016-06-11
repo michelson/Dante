@@ -42,19 +42,32 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
   fetchResults: (e)->
     @desintegratePopOver(e) if @getResults.length < 1
     
+    @json_request.abort() if @json_request
+    
     @getResults (e)=>
-      @json_request.abort() if @json_request
       @displayPopOver(e)
       @editor.pop_over_typeahead.appendData(@fetch_results)
 
   getResults: (cb, e)->
     q = @editor.getSelectionStart().textContent.replace("@", "")
-    @json_request = $.getJSON "#{@editor.suggest_url}?q=#{q}"
-    .success (data)=>
-      @fetch_results = data
-      cb(e) if cb
-    .error (data, err)=>
-      console.log "error fetching results"
+    
+    clearTimeout(@timeout)
+    
+    @timeout = setTimeout =>
+      @json_request = $.ajax 
+        url: "#{@editor.suggest_url}?#{@editor.suggest_query_param}=#{q}"
+        method: "get"
+        dataType: "json"
+        #data: { "#{@editor.suggest_query_param}": q }
+      .success (data)=>
+        if @editor.suggest_handler
+          @fetch_results = @editor.suggest_handler(data)
+        else
+          @fetch_results = data
+        cb(e) if cb
+      .error (data, err)=>
+        console.log "error fetching results"
+    , @editor.suggest_query_timeout
 
   insideQuery: ()->
     $(@editor.getSelectionStart()).hasClass("markup--query")

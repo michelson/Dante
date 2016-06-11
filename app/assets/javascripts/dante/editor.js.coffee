@@ -51,7 +51,14 @@ class Dante.Editor extends Dante.View
     @store_interval  = opts.store_interval || 15000
     @paste_element_id = "#dante-paste-div"
     @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
-    @suggest_url     = opts.suggest_url || "/api/suggest.json"
+    
+    # suggest feature options
+    @suggest_url              = opts.suggest_url || "/api/suggest.json"
+    @suggest_query_param      = opts.suggest_query_param || "q"
+    @suggest_query_timeout    = opts.suggest_query_timeout || 300
+    @suggest_handler          = opts.suggest_handler || null
+    @suggest_resource_handler = opts.suggest_resource_handler || null
+    
     opts.base_widgets   ||= ["uploader", "embed", "embed_extract"]
     opts.base_behaviors ||= ["suggest"]
 
