@@ -32,11 +32,9 @@ class Dante.View.Behavior.Save extends Dante.View.Behavior
       $.ajax
         url: @editor.store_url
         method: @editor.store_method
+        dataType: "json"
         data:
           body: @editor.getContent()
-        success: (res)->
+        success: (res)=>
           utils.log "STORING CONTENT"
-          # TODO: handle store redirect
-          utils.log res
-        complete: (jxhr) =>
-          @store()
+          @editor.store_success_handler(res) if @editor.store_success_handler
