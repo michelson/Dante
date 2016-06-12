@@ -6,42 +6,44 @@ $font-family-base:              $font-family-sans;
 $font-size-base:                14px;
 $line-height-base:              1.428571429; // 20/14
 
-$active-color:                  #5BD974;
 
-$menu-tone:                     #333;
-$menu-factor:                   5%;
-$menu-background:               linear-gradient(to bottom, darken($menu-tone,$menu-factor), $menu-tone) repeat scroll 0 0 $menu-tone;
-$menu-shadow:                   1px 2px 3px -2px #222;
-$menu-border-width:             1px;
-$menu-border-color:             darken($menu-tone,$menu-factor);
-$menu-border-radius:            5px;
-$menu-border:                   $menu-border-width solid $menu-border-color;
-$menu-color:                    #FFFFFF;
-$menu-color-active:             $active-color;
-$menu-caret-size:               8px;
 
-$menu-height:                   45px;
-$menu-button-height:            $menu-height - ($menu-border-width * 2);
+$active-color:                  #5BD974 !default;
 
-$tooltip-color:                 black;
-$tooltip-color-opacity:         0.44;
-$tooltip-color-opacity-hover:   0.9;
-$tooltip-background-opacity:    0;
-$tooltip-border-width:          1px;
-$tooltip-border-radius:         999em;
+$menu-tone:                     #333 !default;
+$menu-factor:                   5% !default;
+$menu-background:               linear-gradient(to bottom, darken($menu-tone,$menu-factor), $menu-tone) repeat scroll 0 0 $menu-tone !default;
+$menu-shadow:                   1px 2px 3px -2px #222 !default;
+$menu-border-width:             1px !default;
+$menu-border-color:             darken($menu-tone,$menu-factor) !default;
+$menu-border-radius:            5px !default;
+$menu-border:                   $menu-border-width solid $menu-border-color !default;
+$menu-color:                    #FFFFFF !default;
+$menu-color-active:             $active-color !default;
+$menu-caret-size:               8px !default;
 
-$tooltip-button-spacing:        9px;
-$tooltip-menu-spacing:          22px;
+$menu-height:                   45px !default;
+$menu-button-height:            $menu-height - ($menu-border-width * 2) !default;
 
-$tooltip-items:                 3;
-$tooltip-item-delay:            30;
-$tooltip-size:                  32px;
-$tooltip-line-height:           $tooltip-size;
+$tooltip-color:                 black !default;
+$tooltip-color-opacity:         0.44 !default;
+$tooltip-color-opacity-hover:   0.9 !default;
+$tooltip-background-opacity:    0 !default;
+$tooltip-border-width:          1px !default;
+$tooltip-border-radius:         999em !default;
+
+$tooltip-button-spacing:        9px !default;
+$tooltip-menu-spacing:          22px !default;
+
+$tooltip-items:                 3 !default;
+$tooltip-item-delay:            30 !default;
+$tooltip-size:                  32px !default;
+$tooltip-line-height:           $tooltip-size !default;
 
 // Add 1px on expanded tooltip to avoid colapsed buttons in FF
-$tooltip-size-expanded:         1 + ($tooltip-size + $tooltip-menu-spacing) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items);
-$tooltip-default-transition:    100ms border-color, 100ms color;
-$tooltip-forward-transition:    transform 100ms;
-$tooltip-backward-transition:   transform 250ms;
+$tooltip-size-expanded:         1 + ($tooltip-size + $tooltip-menu-spacing) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items) !default;
+$tooltip-default-transition:    100ms border-color, 100ms color !default;
+$tooltip-forward-transition:    transform 100ms !default;
+$tooltip-backward-transition:   transform 250ms !default;
 
-$debugger:                      true;
+$debugger:                      false !default;
