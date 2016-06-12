@@ -22,12 +22,7 @@ class Dante.Editor extends Dante.View
     "dblclick" : "handleDblclick"
     "dragstart": "handleDrag"
     "drop"     : "handleDrag"
-    "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
-    "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
-
-    "mouseover .graf--figure.graf--iframe" : "handleGrafFigureSelectIframe"
-    "mouseleave .graf--figure.graf--iframe" : "handleGrafFigureUnSelectIframe"
-    "keyup .graf--figure figcaption"   : "handleGrafCaptionTyping"
+    
 
     "mouseover .markup--anchor" : "displayPopOver"
     "mouseout  .markup--anchor" : "hidePopOver"
@@ -65,7 +60,7 @@ class Dante.Editor extends Dante.View
     @suggest_resource_handler = opts.suggest_resource_handler || null
     
     opts.base_widgets   ||= ["uploader", "embed", "embed_extract"]
-    opts.base_behaviors ||= ["save", "suggest"]
+    opts.base_behaviors ||= ["save", "image","list", "suggest"]
 
     @widgets   = []
     @behaviors = []
@@ -98,6 +93,21 @@ class Dante.Editor extends Dante.View
     if base_behaviors.indexOf("save") >= 0
       @save_behavior = new Dante.View.Behavior.Save(current_editor: @, el: @el)
       @behaviors.push @save_behavior
+
+    if base_behaviors.indexOf("image") >= 0
+      @save_behavior = new Dante.View.Behavior.Image(current_editor: @, el: @el)
+      @behaviors.push @save_behavior
+
+    if base_behaviors.indexOf("list") >= 0
+      @save_behavior = new Dante.View.Behavior.List(current_editor: @, el: @el)
+      @behaviors.push @save_behavior
+
+    #add extra behaviors
+    if opts.extra_behaviors
+      _.each opts.extra_behaviors, (w)=>
+        if !w.current_editor
+          w.current_editor = self
+        @behaviors.push w
 
   initializeWidgets: (opts)->
     #TODO: this could be a hash to access widgets without var
@@ -323,19 +333,13 @@ class Dante.Editor extends Dante.View
   handleDrag: ()->
     return false
 
-  handleGrafCaptionTyping: (ev)->
-    if _.isEmpty(utils.getNode().textContent.trim())
-      $(@getNode()).addClass("is-defaultValue")
-    else
-      $(@getNode()).removeClass("is-defaultValue")
-
-  #get text of selected and displays menu
+  # get text of selected and displays menu
   handleTextSelection: (anchor_node)->
     @editor_menu.hide()
     text = @getSelectedText()
     if !$(anchor_node).is(".graf--mixtapeEmbed, .graf--figure") && !_.isEmpty text.trim()
-        @current_node  = anchor_node
-        @.displayMenu()
+      @current_node  = anchor_node
+      @.displayMenu()
 
   relocateMenu: (position)->
     height = @editor_menu.$el.outerHeight()
@@ -356,32 +360,6 @@ class Dante.Editor extends Dante.View
 
   hidePopOver: (ev)->
     @pop_over.hide(ev)
-
-  handleGrafFigureSelectImg: (ev)->
-    utils.log "FIGURE SELECT"
-    element = ev.currentTarget
-    @markAsSelected( element )
-    $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused")
-    @selection().removeAllRanges()
-
-  handleGrafFigureSelectIframe: (ev)->
-    utils.log "FIGURE IFRAME SELECT"
-    element = ev.currentTarget
-    @iframeSelected = element
-    @markAsSelected( element )
-    $(element).addClass("is-selected is-mediaFocused")
-    @selection().removeAllRanges()
-
-  handleGrafFigureUnSelectIframe: (ev)->
-    utils.log "FIGURE IFRAME UNSELECT"
-    element = ev.currentTarget
-    @iframeSelected = null
-    $(element).removeClass("is-selected is-mediaFocused")
-
-  handleGrafFigureSelectCaption: (ev)->
-    utils.log "FIGCAPTION"
-    element = ev.currentTarget
-    $(element).parent(".graf--figure").removeClass("is-mediaFocused")
 
   handleMouseUp: (ev)=>
     utils.log "MOUSE UP"
@@ -577,7 +555,7 @@ class Dante.Editor extends Dante.View
       return false # Prevent the default handler from running.
 
   handleUnwrappedImages: (elements)->
-    #http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+    # http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
     _.each elements.find("img"), (image)=>
       utils.log ("process image here!")
       @uploader_widget.uploadExistentImage(image)
@@ -589,9 +567,9 @@ class Dante.Editor extends Dante.View
     @setRangeAt($(element).prev()[0])
     $(element).remove()
 
-  #TODO: not used anymore, remove this
-  #when found that the current node is text node
-  #create a new <p> and focus
+  # TODO: not used anymore, remove this
+  # when found that the current node is text node
+  # create a new <p> and focus
   handleUnwrappedNode: (element)->
     tmpl = $(@baseParagraphTmpl())
     @setElementName(tmpl)
@@ -685,6 +663,7 @@ class Dante.Editor extends Dante.View
 
     #handle keyups for each widget
     utils.log("HANDLING Behavior KEYDOWN");
+    
     _.each @behaviors, (b)=>
       if b.handleKeyDown
         b.handleKeyDown(e, parent);
@@ -699,13 +678,6 @@ class Dante.Editor extends Dante.View
       $(@el).find(".is-selected").removeClass("is-selected")
 
       utils.log @isLastChar()
-
-      #smart list support
-      if parent.hasClass("graf--p")
-        li = @handleSmartList(parent, e)
-        anchor_node = li if li
-      else if parent.hasClass("graf--li")
-        @handleListLineBreak(parent, e)
 
       #handle keydowns for each widget
       utils.log("HANDLING WIDGET KEYDOWNS");
@@ -741,7 +713,7 @@ class Dante.Editor extends Dante.View
       setTimeout ()=>
         node = @getNode()
         return if _.isUndefined(node)
-        #set name on new element
+        # set name on new element
         @setElementName($(node))
 
         if node.nodeName.toLowerCase() is "div"
@@ -749,17 +721,17 @@ class Dante.Editor extends Dante.View
         @markAsSelected( $(node) ) #if anchor_node
         @setupFirstAndLast()
 
-        #empty childs if text is empty
+        # empty childs if text is empty
         if _.isEmpty $(node).text().trim()
           _.each $(node).children(), (n)->
             $(n).remove()
           $(node).append("<br>")
 
-        #shows tooltip
+        # shows tooltip
         @displayTooltipAt($(@el).find(".is-selected"))
       , 2
 
-    #delete key
+    # delete key
     if (e.which is BACKSPACE)
       eventHandled = false;
       @tooltip_view.hide()
@@ -786,9 +758,6 @@ class Dante.Editor extends Dante.View
         utils.log("SCAPE FROM BACKSPACE HANDLER")
         return false;
 
-      if(parent.hasClass("graf--li") and @getCharacterPrecedingCaret().length is 0)
-        return this.handleListBackspace(parent, e);
-
       #select an image if backspacing into it from a paragraph
       if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
         if($(anchor_node).prev().hasClass("graf--figure") && @getSelectedText().length == 0)
@@ -801,11 +770,11 @@ class Dante.Editor extends Dante.View
         return false if _.isEmpty($(utils_anchor_node).text())
 
       if anchor_node && anchor_node.nodeType is 3
-        #@displayEmptyPlaceholder()
+        # @displayEmptyPlaceholder()
         utils.log("TextNode detected from Down!")
         #return false
 
-      #supress del into & delete embed if empty content found on delete key
+      # supress del into & delete embed if empty content found on delete key
       if $(anchor_node).hasClass("graf--mixtapeEmbed") or $(anchor_node).hasClass("graf--iframe")
         if _.isEmpty $(anchor_node).text().trim() or @isFirstChar()
           utils.log("Check for inmediate deletion on empty embed text")
@@ -813,16 +782,10 @@ class Dante.Editor extends Dante.View
           @handleInmediateDeletion($(anchor_node)) if @inmediateDeletion
           return false
 
-      #TODO: supress del when the prev el is embed and current_node is at first char
+      # TODO: supress del when the prev el is embed and current_node is at first char
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
 
-    #spacebar
-    if (e.which is SPACEBAR)
-      utils.log("SPACEBAR")
-      if (parent.hasClass("graf--p"))
-        @handleSmartList(parent, e)
-    
     #arrows key
     #up & down
     if _.contains([UPARROW, DOWNARROW], e.which)
@@ -863,12 +826,7 @@ class Dante.Editor extends Dante.View
     utils.log("HANDLING Behavior KEYUPS");
     _.each @behaviors, (b)=>
       if b.handleKeyUp
-        b.handleKeyUp(e, parent);
-
-    # TODO: this should be behaviors too!
-    if (_.contains([BACKSPACE, SPACEBAR, ENTER], e.which))
-      if $(anchor_node).hasClass("graf--li")
-        @removeSpanTag($(anchor_node));
+        b.handleKeyUp(e)
 
     if (e.which == BACKSPACE)
 
@@ -1048,9 +1006,7 @@ class Dante.Editor extends Dante.View
     #, 20
 
   cleanContents: (element)->
-    #TODO: should config tags
-    utils.log "ti"
-    utils.log element
+    # TODO: should config tags
     if _.isUndefined(element)
       element = $(@el).find('.section-inner')
     else
@@ -1172,118 +1128,8 @@ class Dante.Editor extends Dante.View
   setElementName: (element)->
     $(element).attr("name", utils.generateUniqueName())
 
-  # LIST METHODS
-
-  listify: ($paragraph, listType, regex)->
-
-    utils.log "LISTIFY PARAGRAPH"
-
-    @removeSpanTag($paragraph);
-
-    content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "")
-
-    switch(listType)
-      when "ul" then $list = $("<ul></ul>")
-      when "ol" then $list = $("<ol></ol>")
-      else return false
-
-    @addClassesToElement($list[0])
-    @replaceWith("li", $paragraph)
-    $li = $(".is-selected")
-
-    @setElementName($li[0])
-
-    $li.html(content).wrap($list)
-
-    if($li.find("br").length == 0)
-      $li.append("<br/>")
-
-    @setRangeAt($li[0])
-
-    $li[0]
-
-  handleSmartList: ($item, e)->
-    utils.log("HANDLE A SMART LIST")
-
-    chars = @getCharacterPrecedingCaret()
-    match = chars.match(/^\s*(\-|\*)\s*$/)
-    if(match)
-        utils.log("CREATING LIST ITEM")
-        e.preventDefault()
-        regex = new RegExp(/\s*(\-|\*)\s*/)
-        $li = @listify($item, "ul", regex)
-    else
-      match = chars.match(/^\s*1(\.|\))\s*$/)
-      if(match)
-        utils.log("CREATING LIST ITEM")
-        e.preventDefault()
-
-        regex = new RegExp(/\s*1(\.|\))\s*/)
-        $li = @listify($item, "ol", regex)
-    $li
-
-  handleListLineBreak: ($li, e)->
-    utils.log("LIST LINE BREAK")
-    @tooltip_view.hide()
-    $list = $li.parent("ol, ul")
-    $paragraph = $("<p></p>")
-    utils.log($li.prev());
-    if($list.children().length is 1 and $li.text() is "")
-      @replaceWith("p", $list)
-
-    else if $li.text() is "" and ($li.next().length isnt 0)
-      e.preventDefault()
-
-    else if ($li.next().length is 0)
-      if($li.text() is "")
-        e.preventDefault()
-        utils.log("BREAK FROM LIST")
-        $list.after($paragraph)
-        $li.addClass("graf--removed").remove()
-
-      else if ($li.prev().length isnt 0 and $li.prev().text() is "" and @getCharacterPrecedingCaret() is "")
-        e.preventDefault()
-        utils.log("PREV IS EMPTY")
-        content = $li.html()
-        $list.after($paragraph)
-        $li.prev().remove()
-        $li.addClass("graf--removed").remove()
-        $paragraph.html(content)
-
-    if $list and $list.children().length is 0 then $list.remove()
-
-    utils.log($li);
-    if ($li.hasClass("graf--removed"))
-      utils.log("ELEMENT REMOVED")
-      @addClassesToElement($paragraph[0])
-      @setRangeAt($paragraph[0])
-      @markAsSelected($paragraph[0])
-      @scrollTo($paragraph)
-
-  handleListBackspace: ($li, e)->
-
-    $list = $li.parent("ol, ul")
-    utils.log("LIST BACKSPACE")
-
-
-
-    if($li.prev().length is 0)
-      e.preventDefault()
-
-      $list.before($li)
-      content = $li.html()
-      @replaceWith("p", $li)
-      $paragraph = $(".is-selected")
-      $paragraph.removeClass("graf--empty").html(content).attr("name", utils.generateUniqueName());
-
-      if($list.children().length is 0)
-        $list.remove()
-
-      @setupFirstAndLast()
-
-  #Remove Non-default Spans From Elements
+  # Remove Non-default Spans From Elements
   removeSpanTag: ($item)->
-
     $spans = $item.find("span")
     $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
     $item
