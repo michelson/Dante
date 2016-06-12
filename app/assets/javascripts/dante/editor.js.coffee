@@ -60,7 +60,7 @@ class Dante.Editor extends Dante.View
     @suggest_resource_handler = opts.suggest_resource_handler || null
     
     opts.base_widgets   ||= ["uploader", "embed", "embed_extract"]
-    opts.base_behaviors ||= ["suggest"]
+    opts.base_behaviors ||= ["save", "suggest"]
 
     @widgets   = []
     @behaviors = []
@@ -68,11 +68,6 @@ class Dante.Editor extends Dante.View
     window.debugMode = opts.debug || false
 
     $(@el).addClass("debug") if window.debugMode
-
-    if (localStorage.getItem('contenteditable'))
-      $(@el).html  localStorage.getItem('contenteditable')
-
-    @store()
 
     titleplaceholder    = opts.title_placeholder  || 'Title'
     @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
@@ -84,9 +79,8 @@ class Dante.Editor extends Dante.View
     @embed_placeholder  = "<span class='defaultValue defaultValue--root'>#{embedplaceholder}</span><br>"
     extractplaceholder  = opts.extract_placeholder|| "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
     @extract_placeholder= "<span class='defaultValue defaultValue--root'>#{extractplaceholder}</span><br>"
-
+    
     @initializeWidgets(opts)
-    @initializeBehaviors(opts)
 
   initializeBehaviors: (opts)->
     base_behaviors = opts.base_behaviors
@@ -95,6 +89,10 @@ class Dante.Editor extends Dante.View
     if base_behaviors.indexOf("suggest") >= 0
       @suggest_behavior = new Dante.View.Behavior.Suggest(current_editor: @, el: @el)
       @behaviors.push @suggest_behavior
+
+    if base_behaviors.indexOf("save") >= 0
+      @save_behavior = new Dante.View.Behavior.Save(current_editor: @, el: @el)
+      @behaviors.push @save_behavior
 
   initializeWidgets: (opts)->
     #TODO: this could be a hash to access widgets without var
@@ -120,31 +118,6 @@ class Dante.Editor extends Dante.View
         if !w.current_editor
           w.current_editor = self
         @widgets.push w
-
-  store: ()->
-    #localStorage.setItem("contenteditable", $(@el).html() )
-    return unless @store_url
-    setTimeout ()=>
-      @checkforStore()
-    , @store_interval
-
-  checkforStore: ()->
-    if @content is @getContent()
-      utils.log "content not changed skip store"
-      @store()
-    else
-      utils.log "content changed! update"
-      @content = @getContent()
-      $.ajax
-        url: @store_url
-        method: @store_method
-        data:
-          body: @getContent()
-        success: (res)->
-          utils.log "store!"
-          utils.log res
-        complete: (jxhr) =>
-          @store()
 
   getContent: ()->
     $(@el).find(".section-inner").html()
@@ -201,6 +174,7 @@ class Dante.Editor extends Dante.View
     @appendMenus()
     @appendInitialContent() unless _.isEmpty @initial_html.trim()
     @parseInitialMess()
+    @initializeBehaviors(@editor_options)
 
   restart: ()=>
     @render()

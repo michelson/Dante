@@ -2,8 +2,6 @@ utils = Dante.utils
 
 class Dante.View.Behavior.Suggest extends Dante.View.Behavior
 
-  el: "body"
-
   initialize: (opts={})->
     @actionEvent = opts.title
     @editor = opts.current_editor
