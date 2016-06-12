@@ -7,19 +7,22 @@ class Dante.View.Behavior.Save extends Dante.View.Behavior
 
   initialize: (opts={})->
     @actionEvent = opts.title
-    @editor = opts.current_editor
+    @editor      = opts.current_editor
+    @content     = @editor.getContent()
 
   handleStore: (ev)->
-    utils.log "persist dante content"
+    @store()
 
   store: ()->
     return unless @editor.store_url
+    utils.log "HANDLE DATA STORE"
     clearTimeout(@timeout)
     @timeout = setTimeout =>
       @checkforStore()
     , @editor.store_interval
 
   checkforStore: ()->
+    utils.log "ENTER DATA STORE"
     if @content is @editor.getContent()
       utils.log "content not changed skip store"
       @store()

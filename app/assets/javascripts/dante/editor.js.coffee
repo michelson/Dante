@@ -48,7 +48,7 @@ class Dante.Editor extends Dante.View
     @store_method    = opts.store_method || "POST"
     @spell_check     = opts.spellcheck || false
     @disable_title   = opts.disable_title || false
-    @store_interval  = opts.store_interval || 15000
+    @store_interval  = opts.store_interval || 1500
     @paste_element_id = "#dante-paste-div"
     @tooltip_class   = opts.tooltip_class || Dante.Editor.Tooltip
     
