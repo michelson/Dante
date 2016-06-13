@@ -343,7 +343,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     @positionPopOver(@findSelectedImage())
 
   template: ()->
-    "<div class='dante-popover popover--tooltip-align popover--Linktooltip popover--bottom is-active'>
+    "<div class='dante-popover popover--tooltip-align popover--Linktooltip popover--bottom'>
       
       <div class='popover-inner'>
         
@@ -365,11 +365,6 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
       </div>
     </div>"
 
-  #display & copy original link
-  positionAt: (ev)->
-    target = $(ev.currentTarget)
-    @positionPopOver(target)
-
   positionPopOver: (target)->
     target_offset    = target.offset()
     target_width     = target.outerWidth()
@@ -377,7 +372,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     popover_width    = @findElement().outerWidth()
 
     # hacky hack
-    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then -32 else 30
+    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then -30 else 30
 
     top_value        = target_offset.top - target_height - pad_top # target_positions.top + target_height
     left_value       = target_offset.left + (target_width/2) - (popover_width/2)
@@ -386,24 +381,16 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
       .css("top", top_value)
       .css("left",  left_value )
       .show()
+      .addClass("is-active")
 
     @handleDirection(target)
-
-  displayAt: (ev)->
-    @cancelHide()
-    target = $(ev.currentTarget)
-    @findElement()
-      .find(".popover-inner a")
-      .text( target.attr('href') )
-      .attr('href', target.attr("href") )
-    @positionAt(ev)
-    @findElement().css("pointer-events", "auto")
-    $(@el).show()
 
   hide: (ev)->
     @cancelHide()
     @hideTimeout = setTimeout ()=>
-      @findElement().hide()
+      @findElement()
+      .hide()
+      .removeClass("is-active")
     , @settings.timeout
 
   findSelectedImage: ->
