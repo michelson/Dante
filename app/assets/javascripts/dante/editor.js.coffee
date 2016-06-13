@@ -1020,7 +1020,7 @@ class Dante.Editor extends Dante.View
 
       attributes:
         '__ALL__': ['class']
-        a: ['href', 'title', 'target']
+        a: ['href', 'title', 'target', 'data-id', 'data-type', 'data-href', 'data-avatar']
         img: ['src']
 
       protocols:

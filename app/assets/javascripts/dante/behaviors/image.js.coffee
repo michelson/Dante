@@ -7,7 +7,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
     "click .graf--figure figcaption" : "handleGrafFigureSelectCaption"
     "keyup .graf--figure figcaption"   : "handleGrafCaptionTyping"
 
-    #TODO: this is from embed! move this to embed behavior
+    # TODO: this is from embed! move this to embed behavior
     "mouseover .graf--figure.graf--iframe" : "handleGrafFigureSelectIframe"
     "mouseleave .graf--figure.graf--iframe" : "handleGrafFigureUnSelectIframe"
 
