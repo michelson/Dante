@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.0.15"
+    version: "0.1.0"
   };
 
 }).call(this);
@@ -1589,7 +1589,7 @@
         elements: ['strong', 'img', 'em', 'br', 'a', 'blockquote', 'b', 'u', 'i', 'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li'],
         attributes: {
           '__ALL__': ['class'],
-          a: ['href', 'title', 'target'],
+          a: ['href', 'title', 'target', 'data-id', 'data-type', 'data-href', 'data-avatar'],
           img: ['src']
         },
         protocols: {
@@ -1695,9 +1695,11 @@
     Editor.prototype.setupLink = function(n) {
       var href, parent_name;
       parent_name = $(n).parent().prop("tagName").toLowerCase();
-      $(n).addClass("markup--anchor markup--" + parent_name + "-anchor");
-      href = $(n).attr("href");
-      return $(n).attr("data-href", href);
+      if ($(n).data("type") !== "user") {
+        $(n).addClass("markup--anchor markup--" + parent_name + "-anchor");
+        href = $(n).attr("href");
+        return $(n).attr("data-href", href);
+      }
     };
 
     Editor.prototype.preCleanNode = function(element) {
@@ -1973,7 +1975,7 @@
     Image.prototype.showAlignPopover = function(ev) {
       var target;
       target = $(ev.currentTarget);
-      if (!$(".popover--tooltip-align").hasClass('is-active')) {
+      if (!$(".popover--Aligntooltip").hasClass('is-active')) {
         return this.editor.pop_over_align.positionPopOver(target);
       }
     };
@@ -3167,7 +3169,22 @@
     };
 
     PopOverCard.prototype.footerTemplate = function() {
-      return "<div class='popoverCard-actions u-clearfix'> <div class='u-floatLeft popoverCard-stats'> <span class='popoverCard-stat'> Following <span class='popoverCard-count js-userFollowingCount'>124</span> </span> <span class='popoverCard-stat'> Followers <span class='popoverCard-count js-userFollowersCount'>79</span> </span> </div> </div>";
+      return "";
+
+      /*
+      "<div class='popoverCard-actions u-clearfix'>
+        <div class='u-floatLeft popoverCard-stats'>
+            <span class='popoverCard-stat'>
+                Following
+                <span class='popoverCard-count js-userFollowingCount'>124</span>
+            </span>
+            <span class='popoverCard-stat'>
+                Followers
+                <span class='popoverCard-count js-userFollowersCount'>79</span>
+            </span>
+        </div>
+      </div>"
+       */
     };
 
     PopOverCard.prototype.displayPopOver = function(ev) {
@@ -3221,7 +3238,7 @@
         opts = {};
       }
       utils.log("initialized popover");
-      this.pop_over_element = ".popover--tooltip-align";
+      this.pop_over_element = ".popover--Aligntooltip";
       this.editor = opts.editor;
       this.hideTimeout;
       return this.settings = {
@@ -3263,7 +3280,7 @@
     };
 
     ImageTooltip.prototype.template = function() {
-      return "<div class='dante-popover popover--tooltip-align popover--Linktooltip popover--bottom'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> left </li> <li class='dante-menu-button align-center active'> center </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
+      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon icon-image-fill'></span> </li> <li class='dante-menu-button align-center active'> <span class='tooltip-icon icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
     };
 
     ImageTooltip.prototype.positionPopOver = function(target) {
@@ -3275,8 +3292,7 @@
       pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? -30 : 30;
       top_value = target_offset.top - target_height - pad_top;
       left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
-      this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
-      return this.handleDirection(target);
+      return this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
     };
 
     ImageTooltip.prototype.hide = function(ev) {

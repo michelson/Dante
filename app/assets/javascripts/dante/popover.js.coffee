@@ -268,6 +268,8 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
 
   # TODO: implement footer
   footerTemplate: ->
+    ""
+    ###
     "<div class='popoverCard-actions u-clearfix'>
       <div class='u-floatLeft popoverCard-stats'>
           <span class='popoverCard-stat'>
@@ -280,6 +282,7 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
           </span>
       </div>
     </div>"
+    ###
 
   displayPopOver: (ev)->
     @.displayAt(ev)

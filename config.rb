@@ -1,8 +1,4 @@
 
-compass_config do |config|
-  #config.line_comments = false
-end
-
 class DistBuilder < Middleman::Extension
 
   def initialize(app, options_hash={}, &block)
@@ -77,6 +73,10 @@ configure :build do
 
   # Enable cache buster
   # activate :asset_hash
+
+  compass_config do |config|
+    config.line_comments = false
+  end
 
   activate :relative_assets
   set :relative_links, true
