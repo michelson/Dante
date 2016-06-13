@@ -81,6 +81,10 @@ Until now I´ve been able to implement the following features:
 + **base_widgets:** default: ["uploader", "embed", "embed-extract"],
 + **extra_tooltip_widgets:** an array of new Dante.TooltipWidget instances.
 
+#### Behaviors
++ **base_behaviors:** default: ["save", "image","list", "suggest"]
++ **extra_behaviors:** an array of new Dante.Behavior instances.
+
 #### Store Behavior: 
 + **store_url:**   default: to none , url to store data with interval
 + **store_method** default: to POST , http verb to use when store_url is present.
