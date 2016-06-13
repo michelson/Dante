@@ -375,7 +375,11 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     target_width     = target.outerWidth()
     target_height    = target.outerHeight()
     popover_width    = @findElement().outerWidth()
-    top_value        = target_offset.top - target_height - 30 # target_positions.top + target_height
+
+    # hacky hack
+    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then -32 else 30
+
+    top_value        = target_offset.top - target_height - pad_top # target_positions.top + target_height
     left_value       = target_offset.left + (target_width/2) - (popover_width/2)
 
     @findElement()
