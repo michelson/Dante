@@ -408,7 +408,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     , @settings.timeout
 
   findSelectedImage: ->
-    $(".graf--figure").addClass("is-selected is-mediaFocused")
+    $(".graf--figure.is-mediaFocused")
 
   render: ()->
     $(@template()).insertAfter(@editor.$el)
