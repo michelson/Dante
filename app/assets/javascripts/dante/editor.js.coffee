@@ -1091,9 +1091,10 @@ class Dante.Editor extends Dante.View
 
   setupLink: (n)->
     parent_name = $(n).parent().prop("tagName").toLowerCase()
-    $(n).addClass("markup--anchor markup--#{parent_name}-anchor")
-    href = $(n).attr("href")
-    $(n).attr("data-href", href)
+    unless $(n).data("type") is "user"
+      $(n).addClass("markup--anchor markup--#{parent_name}-anchor")
+      href = $(n).attr("href")
+      $(n).attr("data-href", href)
 
   preCleanNode: (element)->
     s = new Sanitize
