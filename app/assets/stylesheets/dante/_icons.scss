@@ -34,7 +34,6 @@
   font-weight: bold;
 }
 
-
 .tooltip-icon {
   &:before {
     font-family: 'dante-tooltip';
@@ -51,7 +50,13 @@
   }
 }
 
-.icon-video:before { content: "\e600"; }
-.icon-image:before { content: "\e601"; }
-.icon-plus:before  { content: "\e602"; }
-.icon-embed:before { content: "\e603"; }
+.icon-image-center:before { content: "\e900"; }
+.icon-image-fill:before   { content: "\e901"; }
+.icon-image-left:before   { content: "\e902"; }
+.icon-image-wide:before   { content: "\e903"; }
+
+.icon-video:before        { content: "\e600"; }
+.icon-image:before        { content: "\e601"; }
+.icon-plus:before         { content: "\e602"; }
+.icon-embed:before        { content: "\e603"; }
+

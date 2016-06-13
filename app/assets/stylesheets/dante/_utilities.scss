@@ -53,3 +53,7 @@
   animation: spinner .6s linear infinite;
   -webkit-animation: spinner .6s linear infinite;
 }
+
+.hidden {
+  display: none !important;
+}

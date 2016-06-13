@@ -10,17 +10,19 @@ $active-color:                  #5BD974;
 
 $menu-tone:                     #333;
 $menu-factor:                   5%;
-$menu-background:               linear-gradient(to bottom, darken($menu-tone,$menu-factor), $menu-tone) repeat scroll 0 0 $menu-tone;
+$menu-background:               linear-gradient(to bottom, $menu-tone, darken($menu-tone,$menu-factor)) repeat scroll 0 0 $menu-tone;
 $menu-shadow:                   1px 2px 3px -2px #222;
-$menu-border-width:             1px;
+$menu-border-width:             0px;
 $menu-border-color:             darken($menu-tone,$menu-factor);
 $menu-border-radius:            5px;
 $menu-border:                   $menu-border-width solid $menu-border-color;
 $menu-color:                    #FFFFFF;
 $menu-color-active:             $active-color;
 $menu-caret-size:               8px;
+$menu-caret-color:              darken($menu-tone,$menu-factor);
 
-$menu-height:                   45px;
+
+$menu-height:                   42px;
 $menu-button-height:            $menu-height - ($menu-border-width * 2);
 
 $tooltip-color:                 black;
@@ -37,6 +39,8 @@ $tooltip-items:                 3;
 $tooltip-item-delay:            30;
 $tooltip-size:                  32px;
 $tooltip-line-height:           $tooltip-size;
+
+$tooltip-caret-size:            12px;
 
 // Add 1px on expanded tooltip to avoid colapsed buttons in FF
 $tooltip-size-expanded:         1 + ($tooltip-size + $tooltip-menu-spacing) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items);

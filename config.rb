@@ -1,8 +1,4 @@
 
-compass_config do |config|
-  config.line_comments = false
-end
-
 class DistBuilder < Middleman::Extension
 
   def initialize(app, options_hash={}, &block)
@@ -62,6 +58,7 @@ set :fonts_dir, 'assets/fonts'
 set :markdown_engine, :kramdown
 
 page "/tests/*", :layout => "spec"
+page '/api/*', :content_type => 'application/json', layout: false
 
 sprockets.append_path File.join "#{root}", "bower_components"
 
@@ -76,6 +73,10 @@ configure :build do
 
   # Enable cache buster
   # activate :asset_hash
+
+  compass_config do |config|
+    config.line_comments = false
+  end
 
   activate :relative_assets
   set :relative_links, true

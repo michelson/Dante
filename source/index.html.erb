@@ -7,10 +7,17 @@ title: Dante Editor example
 </div>
 
 <script type="text/javascript">
+  handler = function(data){
+    console.log("content saved");
+  }
+
   editor = new Dante.Editor(
     {
       el: "#editor",
       upload_url: "/uploads/new.json",
+      store_url: "/api/save.json",
+      suggest_url: "api/suggest.json",
+      store_success_handler: handler,
       debug: <%= build? ? false : true %>
     }
   )
