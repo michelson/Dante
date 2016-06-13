@@ -25,7 +25,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
   showAlignPopover: (ev)->
     target = $(ev.currentTarget)
-    @editor.pop_over_align.positionPopOver(target) unless $(".popover--tooltip-align").hasClass('is-active')
+    @editor.pop_over_align.positionPopOver(target) unless $(".popover--Aligntooltip").hasClass('is-active')
 
   handleGrafFigureSelectCaption: (ev)->
     utils.log "FIGCAPTION"

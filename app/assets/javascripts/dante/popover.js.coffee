@@ -100,21 +100,21 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
   template: ()->
     "<div class='dante-popover popover--typeahead js-popover typeahead typeahead--mention popover--maxWidth360 popover--bottom is-active'>
       <div class='popover-inner js-popover-inner'>
-        <ul></ul>    
+        <ul></ul>
       </div>
       <div class='popover-arrow' style='left: 297px;'></div>
     </div>"
 
   popoverItem: (item)->
-    "<li class='typeahead-item' 
-      data-action-value='#{item.text}' 
-      data-action='typeahead-populate' data-id='#{item.id}' 
+    "<li class='typeahead-item'
+      data-action-value='#{item.text}'
+      data-action='typeahead-populate' data-id='#{item.id}'
       data-type='#{item.type}'
       data-href='#{item.href}'>
 
       <div class='dante-avatar'>
-        <img src='#{item.avatar}' 
-          class='avatar-image avatar-image--icon' 
+        <img src='#{item.avatar}'
+          class='avatar-image avatar-image--icon'
           alt='#{item.text}'>
 
         <span class='avatar-text'>#{item.text}</span>
@@ -137,7 +137,7 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
 
   linkTemplate: (data)->
     "<a href='#'
-      data-type='#{data.type}' 
+      data-type='#{data.type}'
       data-href='#{data.href}'
       data-id='#{data.id}'
       class='markup--user markup--p-user'>
@@ -231,14 +231,14 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
   cardTemplate: ->
     "<div class='popoverCard'>
         <div class='u-clearfix'>
-            
+
             <div class='u-floatLeft popoverCard-meta'>
                 <h4 class='popoverCard-title'>
-                    <a class='link u-baseColor--link' 
-                      href='#{@card_data.href}' 
-                      title='#{@card_data.text}' 
-                      aria-label='#{@card_data.text}' 
-                      data-user-id='#{@card_data.id}' 
+                    <a class='link u-baseColor--link'
+                      href='#{@card_data.href}'
+                      title='#{@card_data.text}'
+                      aria-label='#{@card_data.text}'
+                      data-user-id='#{@card_data.id}'
                       dir='auto'>
                       #{@card_data.text}
                     </a>
@@ -249,21 +249,21 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
             </div>
 
             <div class='u-floatRight popoverCard-avatar'>
-              <a class='link dante-avatar u-baseColor--link' 
-                href='#{@card_data.href}' 
-                title='#{@card_data.text}' 
-                aria-label='#{@card_data.text}' 
-                data-user-id='#{@card_data.id}' 
+              <a class='link dante-avatar u-baseColor--link'
+                href='#{@card_data.href}'
+                title='#{@card_data.text}'
+                aria-label='#{@card_data.text}'
+                data-user-id='#{@card_data.id}'
                 dir='auto'>
-                <img src='#{@card_data.avatar}' 
-                class='avatar-image avatar-image--small' 
+                <img src='#{@card_data.avatar}'
+                class='avatar-image avatar-image--small'
                   alt='#{@card_data.text}'>
               </a>
             </div>
         </div>
         #{ @footerTemplate() }
         <div class='popover-arrow'></div>
-        
+
     </div>"
 
   # TODO: implement footer
@@ -286,7 +286,7 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
 
   displayAt: (ev)->
     @cancelHide()
-    
+
     $.getJSON($(ev.currentTarget).data().href)
     .success (data)=>
       if @editor.suggest_resource_handler
@@ -303,7 +303,6 @@ class Dante.Editor.PopOverCard extends Dante.Editor.PopOver
   refreshTemplate: ->
     $(".popover--card .popover-inner").html(@cardTemplate())
 
-
 class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
 
   el: "body"
@@ -318,7 +317,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
 
   initialize: (opts = {})->
     utils.log("initialized popover")
-    @pop_over_element = ".popover--tooltip-align"
+    @pop_over_element = ".popover--Aligntooltip"
     @editor = opts.editor
     @hideTimeout
     @settings = {timeout: 300}
@@ -343,18 +342,25 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     @positionPopOver(@findSelectedImage())
 
   template: ()->
-    "<div class='dante-popover popover--tooltip-align popover--Linktooltip popover--bottom'>
-      
+    "<div class='dante-popover popover--Aligntooltip popover--top'>
+
       <div class='popover-inner'>
-        
+
         <ul class='dante-menu-buttons'>
-          
+
           <li class='dante-menu-button align-left'>
-            left
+            <span class='tooltip-icon icon-image-left'></span>
+          </li>
+
+          <li class='dante-menu-button align-wide hidden'>
+            <span class='tooltip-icon icon-image-wide'></span>
+          </li>
+          <li class='dante-menu-button align-fill hidden'>
+            <span class='tooltip-icon icon-image-fill'></span>
           </li>
 
           <li class='dante-menu-button align-center active'>
-            center
+            <span class='tooltip-icon icon-image-center'></span>
           </li>
 
         </ul>
@@ -383,7 +389,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
       .show()
       .addClass("is-active")
 
-    @handleDirection(target)
+    # @handleDirection(target)
 
   hide: (ev)->
     @cancelHide()

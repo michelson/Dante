@@ -15,6 +15,7 @@ a[rel=token], .markup--query {
     overflow: hidden;
     min-width: 100px;
 }
+/*
 .popover-inner {
     position: relative;
     padding: 14px;
@@ -33,6 +34,7 @@ a[rel=token], .markup--query {
 .popover:not(.popover--flexible) .popover-inner {
   max-width: 280px;
 }
+*/
 .typeahead .popover-inner {
   padding: 0;
   overflow: hidden;
@@ -212,29 +214,7 @@ a[rel=token], .markup--query {
 
 // popover-align
 
-.popover--tooltip-align {
-  .popover-inner {
-    background-color: rgba(0,0,0,0.8);
-    color: #fff;
-  }  
 
-  .popover-arrow{
-    top: 59px;
-  }
-
-  .popover-arrow:after {
-      -webkit-transform: rotate(-136deg) translate(6px, 6px);
-      -ms-transform: rotate(-136deg) translate(6px, 6px);
-      transform: rotate(-136deg) translate(6px, 6px);
-      box-shadow: -1px -1px 1px -1px rgba(0, 0, 0, 0.44);
-  }
-  .dante-menu-button{
-    line-height: 18px;
-    height: 19px;    
-  }
-
-
-}
 
 
 // uploader tooltip
