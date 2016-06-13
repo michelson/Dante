@@ -308,6 +308,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
   el: "body"
 
   events:
+    "click .graf" : "handleHide"
     "click .dante-menu-button.align-left": "alignLeft"
     "click .dante-menu-button.align-center": "alignCenter"
 
@@ -325,6 +326,10 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
   alignLeft: (ev)->
     @activateLink $(ev.currentTarget)
     @findSelectedImage().addClass("graf--layoutOutsetLeft")
+
+  handleHide: (ev)->
+    target = $(ev.currentTarget)
+    @hide(ev) unless target.hasClass("graf--figure") and target.hasClass("is-mediaFocused")
 
   alignCenter: (ev)->
     @activateLink $(ev.currentTarget)
