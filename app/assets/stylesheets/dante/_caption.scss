@@ -39,6 +39,20 @@
   }
 }
 
+figure.graf--layoutOutsetLeft {
+  .imageCaption,
+  .postField--outsetCenterImage > .imageCaption {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    left: 0;
+    margin-top: 10px;
+  }
+  .imageCaption:before {
+    display: none;
+  }
+}
+
 figure.is-defaultValue .imageCaption,
 .graf--sectionCaption.is-defaultValue {
   display: none;

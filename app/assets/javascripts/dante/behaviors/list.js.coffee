@@ -15,10 +15,7 @@ class Dante.View.Behavior.List extends Dante.View.Behavior
   #events:
 
   initialize: (opts={})->
-    @actionEvent = opts.title
     @editor = opts.current_editor
-    @_name = null
-    @fetch_results = []
 
   # LIST METHODS
 
@@ -48,7 +45,7 @@ class Dante.View.Behavior.List extends Dante.View.Behavior
       if $(anchor_node).hasClass("graf--li")
         @editor.removeSpanTag($(anchor_node));
 
-  listify: ($paragraph, listType, regex)->
+  buildList: ($paragraph, listType, regex)->
 
     utils.log "LISTIFY PARAGRAPH"
 
@@ -84,7 +81,7 @@ class Dante.View.Behavior.List extends Dante.View.Behavior
       utils.log("CREATING LIST ITEM")
       e.preventDefault()
       regex = new RegExp(/\s*(\-|\*)\s*/)
-      $li = @listify($item, "ul", regex)
+      $li = @buildList($item, "ul", regex)
     else
       match = chars.match(/^\s*1(\.|\))\s*$/)
       if(match)
@@ -92,7 +89,7 @@ class Dante.View.Behavior.List extends Dante.View.Behavior
         e.preventDefault()
 
         regex = new RegExp(/\s*1(\.|\))\s*/)
-        $li = @listify($item, "ol", regex)
+        $li = @buildList($item, "ol", regex)
     $li
 
   handleListLineBreak: ($li, e)->

@@ -23,7 +23,7 @@ class Dante.Editor extends Dante.View
     "dragstart": "handleDrag"
     "drop"     : "handleDrag"
     
-
+    # TODO: this events should be in tooltip class
     "mouseover .markup--anchor" : "displayPopOver"
     "mouseout  .markup--anchor" : "hidePopOver"
 
@@ -173,7 +173,9 @@ class Dante.Editor extends Dante.View
 
     @pop_over_card = new Dante.Editor.PopOverCard(editor: @)
     @pop_over_card.render().hide()
-    
+
+    @pop_over_align = new Dante.Editor.ImageTooltip(editor: @)
+    @pop_over_align.render().hide()
 
     @tooltip_view.render().hide()
 

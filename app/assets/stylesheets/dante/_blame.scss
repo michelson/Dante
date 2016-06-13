@@ -209,3 +209,48 @@ a[rel=token], .markup--query {
   padding-left: 5px;
   color: rgba(0,0,0,.6);
 }
+
+// popover-align
+
+.popover--tooltip-align {
+  .popover-inner {
+    background-color: rgba(0,0,0,0.8);
+    color: #fff;
+  }  
+
+  .popover-arrow{
+    top: 59px;
+  }
+
+  .popover-arrow:after {
+      -webkit-transform: rotate(-136deg) translate(6px, 6px);
+      -ms-transform: rotate(-136deg) translate(6px, 6px);
+      transform: rotate(-136deg) translate(6px, 6px);
+      box-shadow: -1px -1px 1px -1px rgba(0, 0, 0, 0.44);
+  }
+  .dante-menu-button{
+    line-height: 18px;
+    height: 19px;    
+  }
+
+
+}
+
+
+// uploader tooltip
+
+.graf--layoutOutsetLeft {
+    margin-left: -160px;
+}
+
+.graf--layoutOutsetLeft {
+    width: 75%;
+}
+.graf--layoutInsetLeft, .graf--layoutOutsetLeft {
+    float: left;
+    margin-right: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+// .graf--layoutOutsetLeft
