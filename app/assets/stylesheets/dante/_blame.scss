@@ -4,9 +4,7 @@ a[rel=token], .markup--query {
     background-image: none!important;
 }
 
-.popover.is-active {
-    visibility: visible;
-}
+
 .typeahead--mention {
     padding-top: 10px;
 }
@@ -14,31 +12,6 @@ a[rel=token], .markup--query {
     padding: 0;
     overflow: hidden;
     min-width: 100px;
-}
-/*
-.popover-inner {
-    position: relative;
-    padding: 14px;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.25),0 0 1px rgba(0,0,0,.35);
-    ul{
-      padding-left: 0px;
-    }
-}
-
-.popover.popover--maxWidth360 .popover-inner {
-  max-width: 360px;
-}
-
-.popover:not(.popover--flexible) .popover-inner {
-  max-width: 280px;
-}
-*/
-.typeahead .popover-inner {
-  padding: 0;
-  overflow: hidden;
-  min-width: 100px;
 }
 
 .typeahead .typeahead-item:first-child {
