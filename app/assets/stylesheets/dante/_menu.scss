@@ -20,8 +20,8 @@
 
 
   // CARET
-  &:after,
-  &:before {
+  //&:before,
+  &:after {
     content: "";
     height: 0;
     width: 0;
@@ -31,13 +31,13 @@
     border: $menu-caret-size solid transparent;
     margin-left: -($menu-caret-size/2);
   }
+  //&:before {
+  //  border-top-color: $menu-border-color;
+  //  bottom: -($menu-caret-size*2);
+  //}
   &:after {
-    border-top-color: $menu-tone;
+    border-top-color: $menu-caret-color;
     bottom: -(($menu-caret-size*2)-1);
-  }
-  &:before {
-    border-top-color: $menu-border-color;
-    bottom: -($menu-caret-size*2);
   }
 
 }
