@@ -26,8 +26,8 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
     </figure>"
 
   #UPLOADER
-  #replace existing img tag , and wrap it in insertTamplate
-  #TODO: take the url and upload it
+  # replaces existing img tag , and wrap it in insertTamplate
+  # TODO: take the url and upload it
   uploadExistentImage: (image_element, opts = {})->
     utils.log ("process image here!")
     tmpl = $(@insertTemplate())

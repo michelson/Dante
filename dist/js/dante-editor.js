@@ -474,15 +474,11 @@
       "mouseup": "handleMouseUp",
       "keydown": "handleKeyDown",
       "keyup": "handleKeyUp",
+      "keypress": "handleKeyPress",
       "paste": "handlePaste",
       "dblclick": "handleDblclick",
       "dragstart": "handleDrag",
       "drop": "handleDrag",
-      "click .graf--figure .aspectRatioPlaceholder": "handleGrafFigureSelectImg",
-      "click .graf--figure figcaption": "handleGrafFigureSelectCaption",
-      "mouseover .graf--figure.graf--iframe": "handleGrafFigureSelectIframe",
-      "mouseleave .graf--figure.graf--iframe": "handleGrafFigureUnSelectIframe",
-      "keyup .graf--figure figcaption": "handleGrafCaptionTyping",
       "mouseover .markup--anchor": "displayPopOver",
       "mouseout  .markup--anchor": "hidePopOver"
     };
@@ -504,21 +500,25 @@
       this.default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder;
       this.store_url = opts.store_url;
       this.store_method = opts.store_method || "POST";
+      this.store_success_handler = opts.store_success_handler;
       this.spell_check = opts.spellcheck || false;
       this.disable_title = opts.disable_title || false;
-      this.store_interval = opts.store_interval || 15000;
+      this.store_interval = opts.store_interval || 1500;
       this.paste_element_id = "#dante-paste-div";
       this.tooltip_class = opts.tooltip_class || Dante.Editor.Tooltip;
+      this.suggest_url = opts.suggest_url || "/api/suggest.json";
+      this.suggest_query_param = opts.suggest_query_param || "q";
+      this.suggest_query_timeout = opts.suggest_query_timeout || 300;
+      this.suggest_handler = opts.suggest_handler || null;
+      this.suggest_resource_handler = opts.suggest_resource_handler || null;
       opts.base_widgets || (opts.base_widgets = ["uploader", "embed", "embed_extract"]);
+      opts.base_behaviors || (opts.base_behaviors = ["save", "image", "list", "suggest"]);
       this.widgets = [];
+      this.behaviors = [];
       window.debugMode = opts.debug || false;
       if (window.debugMode) {
         $(this.el).addClass("debug");
       }
-      if (localStorage.getItem('contenteditable')) {
-        $(this.el).html(localStorage.getItem('contenteditable'));
-      }
-      this.store();
       titleplaceholder = opts.title_placeholder || 'Title';
       this.title_placeholder = "<span class='defaultValue defaultValue--root'>" + titleplaceholder + "</span><br>";
       title = opts.title || '';
@@ -530,6 +530,50 @@
       extractplaceholder = opts.extract_placeholder || "Paste a link to embed content from another site (e.g. Twitter) and press Enter";
       this.extract_placeholder = "<span class='defaultValue defaultValue--root'>" + extractplaceholder + "</span><br>";
       return this.initializeWidgets(opts);
+    };
+
+    Editor.prototype.initializeBehaviors = function(opts) {
+      var base_behaviors, self;
+      base_behaviors = opts.base_behaviors;
+      self = this;
+      if (base_behaviors.indexOf("suggest") >= 0) {
+        this.suggest_behavior = new Dante.View.Behavior.Suggest({
+          current_editor: this,
+          el: this.el
+        });
+        this.behaviors.push(this.suggest_behavior);
+      }
+      if (base_behaviors.indexOf("save") >= 0) {
+        this.save_behavior = new Dante.View.Behavior.Save({
+          current_editor: this,
+          el: this.el
+        });
+        this.behaviors.push(this.save_behavior);
+      }
+      if (base_behaviors.indexOf("image") >= 0) {
+        this.save_behavior = new Dante.View.Behavior.Image({
+          current_editor: this,
+          el: this.el
+        });
+        this.behaviors.push(this.save_behavior);
+      }
+      if (base_behaviors.indexOf("list") >= 0) {
+        this.save_behavior = new Dante.View.Behavior.List({
+          current_editor: this,
+          el: this.el
+        });
+        this.behaviors.push(this.save_behavior);
+      }
+      if (opts.extra_behaviors) {
+        return _.each(opts.extra_behaviors, (function(_this) {
+          return function(w) {
+            if (!w.current_editor) {
+              w.current_editor = self;
+            }
+            return _this.behaviors.push(w);
+          };
+        })(this));
+      }
     };
 
     Editor.prototype.initializeWidgets = function(opts) {
@@ -566,43 +610,6 @@
       }
     };
 
-    Editor.prototype.store = function() {
-      if (!this.store_url) {
-        return;
-      }
-      return setTimeout((function(_this) {
-        return function() {
-          return _this.checkforStore();
-        };
-      })(this), this.store_interval);
-    };
-
-    Editor.prototype.checkforStore = function() {
-      if (this.content === this.getContent()) {
-        utils.log("content not changed skip store");
-        return this.store();
-      } else {
-        utils.log("content changed! update");
-        this.content = this.getContent();
-        return $.ajax({
-          url: this.store_url,
-          method: this.store_method,
-          data: {
-            body: this.getContent()
-          },
-          success: function(res) {
-            utils.log("store!");
-            return utils.log(res);
-          },
-          complete: (function(_this) {
-            return function(jxhr) {
-              return _this.store();
-            };
-          })(this)
-        });
-      }
-    };
-
     Editor.prototype.getContent = function() {
       return $(this.el).find(".section-inner").html();
     };
@@ -633,6 +640,18 @@
         editor: this
       });
       this.pop_over.render().hide();
+      this.pop_over_typeahead = new Dante.Editor.PopOverTypeAhead({
+        editor: this
+      });
+      this.pop_over_typeahead.render().hide();
+      this.pop_over_card = new Dante.Editor.PopOverCard({
+        editor: this
+      });
+      this.pop_over_card.render().hide();
+      this.pop_over_align = new Dante.Editor.ImageTooltip({
+        editor: this
+      });
+      this.pop_over_align.render().hide();
       return this.tooltip_view.render().hide();
     };
 
@@ -650,7 +669,8 @@
       if (!_.isEmpty(this.initial_html.trim())) {
         this.appendInitialContent();
       }
-      return this.parseInitialMess();
+      this.parseInitialMess();
+      return this.initializeBehaviors(this.editor_options);
     };
 
     Editor.prototype.restart = function() {
@@ -680,6 +700,16 @@
         return selection = window.getSelection();
       } else if (document.selection && document.selection.type !== "Control") {
         return selection = document.selection;
+      }
+    };
+
+    Editor.prototype.getSelectionStart = function() {
+      var node;
+      node = document.getSelection().anchorNode;
+      if (node.nodeType === 3) {
+        return node.parentNode;
+      } else {
+        return node;
       }
     };
 
@@ -835,14 +865,6 @@
       return false;
     };
 
-    Editor.prototype.handleGrafCaptionTyping = function(ev) {
-      if (_.isEmpty(utils.getNode().textContent.trim())) {
-        return $(this.getNode()).addClass("is-defaultValue");
-      } else {
-        return $(this.getNode()).removeClass("is-defaultValue");
-      }
-    };
-
     Editor.prototype.handleTextSelection = function(anchor_node) {
       var text;
       this.editor_menu.hide();
@@ -880,40 +902,6 @@
 
     Editor.prototype.hidePopOver = function(ev) {
       return this.pop_over.hide(ev);
-    };
-
-    Editor.prototype.handleGrafFigureSelectImg = function(ev) {
-      var element;
-      utils.log("FIGURE SELECT");
-      element = ev.currentTarget;
-      this.markAsSelected(element);
-      $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused");
-      return this.selection().removeAllRanges();
-    };
-
-    Editor.prototype.handleGrafFigureSelectIframe = function(ev) {
-      var element;
-      utils.log("FIGURE IFRAME SELECT");
-      element = ev.currentTarget;
-      this.iframeSelected = element;
-      this.markAsSelected(element);
-      $(element).addClass("is-selected is-mediaFocused");
-      return this.selection().removeAllRanges();
-    };
-
-    Editor.prototype.handleGrafFigureUnSelectIframe = function(ev) {
-      var element;
-      utils.log("FIGURE IFRAME UNSELECT");
-      element = ev.currentTarget;
-      this.iframeSelected = null;
-      return $(element).removeClass("is-selected is-mediaFocused");
-    };
-
-    Editor.prototype.handleGrafFigureSelectCaption = function(ev) {
-      var element;
-      utils.log("FIGCAPTION");
-      element = ev.currentTarget;
-      return $(element).parent(".graf--figure").removeClass("is-mediaFocused");
     };
 
     Editor.prototype.handleMouseUp = function(ev) {
@@ -1212,13 +1200,21 @@
     };
 
     Editor.prototype.handleKeyDown = function(e) {
-      var anchor_node, eventHandled, li, parent, utils_anchor_node;
+      var anchor_node, eventHandled, parent, utils_anchor_node;
       utils.log("KEYDOWN");
       anchor_node = this.getNode();
       parent = $(anchor_node);
       if (anchor_node) {
         this.markAsSelected(anchor_node);
       }
+      utils.log("HANDLING Behavior KEYDOWN");
+      _.each(this.behaviors, (function(_this) {
+        return function(b) {
+          if (b.handleKeyDown) {
+            return b.handleKeyDown(e, parent);
+          }
+        };
+      })(this));
       if (e.which === TAB) {
         this.handleTab(anchor_node);
         return false;
@@ -1226,14 +1222,6 @@
       if (e.which === ENTER) {
         $(this.el).find(".is-selected").removeClass("is-selected");
         utils.log(this.isLastChar());
-        if (parent.hasClass("graf--p")) {
-          li = this.handleSmartList(parent, e);
-          if (li) {
-            anchor_node = li;
-          }
-        } else if (parent.hasClass("graf--li")) {
-          this.handleListLineBreak(parent, e);
-        }
         utils.log("HANDLING WIDGET KEYDOWNS");
         _.each(this.widgets, (function(_this) {
           return function(w) {
@@ -1318,9 +1306,6 @@
           utils.log("SCAPE FROM BACKSPACE HANDLER");
           return false;
         }
-        if (parent.hasClass("graf--li") && this.getCharacterPrecedingCaret().length === 0) {
-          return this.handleListBackspace(parent, e);
-        }
         if ($(anchor_node).hasClass("graf--p") && this.isFirstChar()) {
           if ($(anchor_node).prev().hasClass("graf--figure") && this.getSelectedText().length === 0) {
             e.preventDefault();
@@ -1353,12 +1338,6 @@
           }
         }
       }
-      if (e.which === SPACEBAR) {
-        utils.log("SPACEBAR");
-        if (parent.hasClass("graf--p")) {
-          this.handleSmartList(parent, e);
-        }
-      }
       if (_.contains([UPARROW, DOWNARROW], e.which)) {
         utils.log(e.which);
         this.handleArrowForKeyDown(e);
@@ -1383,17 +1362,20 @@
         utils.log("SKIP KEYUP");
         return false;
       }
-      utils.log("KEYUP");
+      utils.log("ENTER KEYUP");
       this.editor_menu.hide();
       this.reachedTop = false;
       anchor_node = this.getNode();
       utils_anchor_node = utils.getNode();
       this.handleTextSelection(anchor_node);
-      if (_.contains([BACKSPACE, SPACEBAR, ENTER], e.which)) {
-        if ($(anchor_node).hasClass("graf--li")) {
-          this.removeSpanTag($(anchor_node));
-        }
-      }
+      utils.log("HANDLING Behavior KEYUPS");
+      _.each(this.behaviors, (function(_this) {
+        return function(b) {
+          if (b.handleKeyUp) {
+            return b.handleKeyUp(e);
+          }
+        };
+      })(this));
       if (e.which === BACKSPACE) {
         if ($(utils_anchor_node).hasClass("postField--body")) {
           utils.log("ALL GONE from UP");
@@ -1433,6 +1415,20 @@
       if (_.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)) {
         return this.handleArrow(e);
       }
+    };
+
+    Editor.prototype.handleKeyPress = function(e, node) {
+      var anchor_node, parent;
+      anchor_node = this.getNode();
+      parent = $(anchor_node);
+      utils.log("HANDLING Behavior KEYPRESS");
+      return _.each(this.behaviors, (function(_this) {
+        return function(b) {
+          if (b.handleKeyPress) {
+            return b.handleKeyPress(e, parent);
+          }
+        };
+      })(this));
     };
 
     Editor.prototype.handleLineBreakWith = function(element_type, from_element) {
@@ -1583,8 +1579,6 @@
 
     Editor.prototype.cleanContents = function(element) {
       var paste_div, s;
-      utils.log("ti");
-      utils.log(element);
       if (_.isUndefined(element)) {
         element = $(this.el).find('.section-inner');
       } else {
@@ -1747,10 +1741,359 @@
       return $(element).attr("name", utils.generateUniqueName());
     };
 
-    Editor.prototype.listify = function($paragraph, listType, regex) {
+    Editor.prototype.removeSpanTag = function($item) {
+      var $spans, span, _i, _len;
+      $spans = $item.find("span");
+      for (_i = 0, _len = $spans.length; _i < _len; _i++) {
+        span = $spans[_i];
+        if (!$(span).hasClass("defaultValue")) {
+          $(span).replaceWith($(span).html());
+        }
+      }
+      return $item;
+    };
+
+    return Editor;
+
+  })(Dante.View);
+
+}).call(this);
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Dante.View.Behavior = (function(_super) {
+    __extends(Behavior, _super);
+
+    function Behavior() {
+      return Behavior.__super__.constructor.apply(this, arguments);
+    }
+
+    return Behavior;
+
+  })(Dante.View);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.Suggest = (function(_super) {
+    __extends(Suggest, _super);
+
+    function Suggest() {
+      return Suggest.__super__.constructor.apply(this, arguments);
+    }
+
+    Suggest.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.actionEvent = opts.title;
+      this.editor = opts.current_editor;
+      this._name = null;
+      return this.fetch_results = [];
+    };
+
+    Suggest.prototype.displayPopOver = function(ev) {
+      return this.editor.pop_over_typeahead.displayAt(this.editor.getSelectionStart());
+    };
+
+    Suggest.prototype.hidePopOver = function(ev) {
+      console.log("display popover from typeahead");
+      return this.editor.pop_over_typeahead.displayAt(ev);
+    };
+
+    Suggest.prototype.desintegratePopOver = function(e) {
+      $(this.editor.getSelectionStart()).remove();
+      return this.pasteHtmlAtCaret(this.editor.getSelectionStart().textContent, false);
+    };
+
+    Suggest.prototype.handleKeyPress = function(e) {
+      if (!this.insideQuery()) {
+        if (e.keyCode === 64) {
+          e.preventDefault();
+          return this.pasteHtmlAtCaret(this.wrapperTemplate("@"), false);
+        }
+      } else {
+        console.log("ok let's search");
+        return this.getResults((function(_this) {
+          return function(e) {
+            return _this.fetchResults(e);
+          };
+        })(this));
+      }
+    };
+
+    Suggest.prototype.handleKeyUp = function(e) {
+      if (this.insideQuery()) {
+        return this.fetchResults(e);
+      }
+    };
+
+    Suggest.prototype.fetchResults = function(e) {
+      if (this.getResults.length < 1) {
+        this.desintegratePopOver(e);
+      }
+      if (this.json_request) {
+        this.json_request.abort();
+      }
+      return this.getResults((function(_this) {
+        return function(e) {
+          _this.displayPopOver(e);
+          return _this.editor.pop_over_typeahead.appendData(_this.fetch_results);
+        };
+      })(this));
+    };
+
+    Suggest.prototype.getResults = function(cb, e) {
+      var q;
+      q = this.editor.getSelectionStart().textContent.replace("@", "");
+      clearTimeout(this.timeout);
+      return this.timeout = setTimeout((function(_this) {
+        return function() {
+          return _this.json_request = $.ajax({
+            url: "" + _this.editor.suggest_url + "?" + _this.editor.suggest_query_param + "=" + q,
+            method: "get",
+            dataType: "json"
+          }).success(function(data) {
+            if (_this.editor.suggest_handler) {
+              _this.fetch_results = _this.editor.suggest_handler(data);
+            } else {
+              _this.fetch_results = data;
+            }
+            if (cb) {
+              return cb(e);
+            }
+          }).error(function(data, err) {
+            return console.log("error fetching results");
+          });
+        };
+      })(this), this.editor.suggest_query_timeout);
+    };
+
+    Suggest.prototype.insideQuery = function() {
+      return $(this.editor.getSelectionStart()).hasClass("markup--query");
+    };
+
+    Suggest.prototype.wrapperTemplate = function(name) {
+      return "<span class='markup--query'>" + name + "</span>";
+    };
+
+    Suggest.prototype.pasteHtmlAtCaret = function(html, selectPastedContent) {
+      var el, firstNode, frag, lastNode, node, originalRange, range, sel;
+      sel = void 0;
+      range = void 0;
+      if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+          range = sel.getRangeAt(0);
+          range.deleteContents();
+          el = document.createElement('div');
+          el.innerHTML = html;
+          frag = document.createDocumentFragment();
+          node = void 0;
+          lastNode = void 0;
+          while (node = el.firstChild) {
+            lastNode = frag.appendChild(node);
+          }
+          firstNode = frag.firstChild;
+          range.insertNode(frag);
+          if (lastNode) {
+            range = range.cloneRange();
+            range.setStartAfter(lastNode);
+            if (selectPastedContent) {
+              range.setStartBefore(firstNode);
+            } else {
+              range.collapse(true);
+            }
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        }
+      } else if ((sel = document.selection) && sel.type !== 'Control') {
+        originalRange = sel.createRange();
+        originalRange.collapse(true);
+        sel.createRange().pasteHTML(html);
+        if (selectPastedContent) {
+          range = sel.createRange();
+          range.setEndPoint('StartToStart', originalRange);
+          range.select();
+        }
+      }
+    };
+
+    return Suggest;
+
+  })(Dante.View.Behavior);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.Image = (function(_super) {
+    __extends(Image, _super);
+
+    function Image() {
+      return Image.__super__.constructor.apply(this, arguments);
+    }
+
+    Image.prototype.events = {
+      "click .graf--figure .aspectRatioPlaceholder": "handleGrafFigureSelectImg",
+      "click .graf--figure figcaption": "handleGrafFigureSelectCaption",
+      "keyup .graf--figure figcaption": "handleGrafCaptionTyping",
+      "mouseover .graf--figure.graf--iframe": "handleGrafFigureSelectIframe",
+      "mouseleave .graf--figure.graf--iframe": "handleGrafFigureUnSelectIframe"
+    };
+
+    Image.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      return this.editor = opts.current_editor;
+    };
+
+    Image.prototype.handleGrafFigureSelectImg = function(ev) {
+      var element;
+      utils.log("FIGURE SELECT");
+      element = ev.currentTarget;
+      this.editor.markAsSelected(element);
+      $(element).parent(".graf--figure").addClass("is-selected is-mediaFocused");
+      this.editor.selection().removeAllRanges();
+      return this.showAlignPopover(ev);
+    };
+
+    Image.prototype.showAlignPopover = function(ev) {
+      var target;
+      target = $(ev.currentTarget);
+      if (!$(".popover--tooltip-align").hasClass('is-active')) {
+        return this.editor.pop_over_align.positionPopOver(target);
+      }
+    };
+
+    Image.prototype.handleGrafFigureSelectCaption = function(ev) {
+      var element;
+      utils.log("FIGCAPTION");
+      element = ev.currentTarget;
+      return $(element).parent(".graf--figure").removeClass("is-mediaFocused");
+    };
+
+    Image.prototype.handleGrafCaptionTyping = function(ev) {
+      if (_.isEmpty(utils.getNode().textContent.trim())) {
+        return $(this.editor.getNode()).addClass("is-defaultValue");
+      } else {
+        return $(this.editor.getNode()).removeClass("is-defaultValue");
+      }
+    };
+
+    Image.prototype.handleGrafFigureSelectIframe = function(ev) {
+      var element;
+      utils.log("FIGURE IFRAME SELECT");
+      element = ev.currentTarget;
+      this.iframeSelected = element;
+      this.editor.markAsSelected(element);
+      $(element).addClass("is-selected is-mediaFocused");
+      return this.editor.selection().removeAllRanges();
+    };
+
+    Image.prototype.handleGrafFigureUnSelectIframe = function(ev) {
+      var element;
+      utils.log("FIGURE IFRAME UNSELECT");
+      element = ev.currentTarget;
+      this.iframeSelected = null;
+      return $(element).removeClass("is-selected is-mediaFocused");
+    };
+
+    return Image;
+
+  })(Dante.View.Behavior);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.List = (function(_super) {
+    var BACKSPACE, DOWNARROW, ENTER, LEFTARROW, RIGHTARROW, SPACEBAR, TAB, UPARROW;
+
+    __extends(List, _super);
+
+    function List() {
+      return List.__super__.constructor.apply(this, arguments);
+    }
+
+    BACKSPACE = 8;
+
+    TAB = 9;
+
+    ENTER = 13;
+
+    SPACEBAR = 32;
+
+    LEFTARROW = 37;
+
+    UPARROW = 38;
+
+    RIGHTARROW = 39;
+
+    DOWNARROW = 40;
+
+    List.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      return this.editor = opts.current_editor;
+    };
+
+    List.prototype.handleKeyDown = function(e, parent) {
+      var anchor_node, li;
+      if (e.which === ENTER) {
+        if (parent.hasClass("graf--p")) {
+          li = this.handleSmartList(parent, e);
+          if (li) {
+            anchor_node = li;
+          }
+        } else if (parent.hasClass("graf--li")) {
+          this.handleListLineBreak(parent, e);
+        }
+      }
+      if (e.which === SPACEBAR) {
+        utils.log("SPACEBAR");
+        if (parent.hasClass("graf--p")) {
+          this.handleSmartList(parent, e);
+        }
+      }
+      if (e.which === BACKSPACE) {
+        if (parent.hasClass("graf--li") && this.editor.getCharacterPrecedingCaret().length === 0) {
+          return this.handleListBackspace(parent, e);
+        }
+      }
+    };
+
+    List.prototype.handleKeyUp = function(e) {
+      var anchor_node;
+      anchor_node = this.editor.getNode();
+      if (_.contains([BACKSPACE, SPACEBAR, ENTER], e.which)) {
+        if ($(anchor_node).hasClass("graf--li")) {
+          return this.editor.removeSpanTag($(anchor_node));
+        }
+      }
+    };
+
+    List.prototype.buildList = function($paragraph, listType, regex) {
       var $li, $list, content;
       utils.log("LISTIFY PARAGRAPH");
-      this.removeSpanTag($paragraph);
+      this.editor.removeSpanTag($paragraph);
       content = $paragraph.html().replace(/&nbsp;/g, " ").replace(regex, "");
       switch (listType) {
         case "ul":
@@ -1762,49 +2105,49 @@
         default:
           return false;
       }
-      this.addClassesToElement($list[0]);
-      this.replaceWith("li", $paragraph);
+      this.editor.addClassesToElement($list[0]);
+      this.editor.replaceWith("li", $paragraph);
       $li = $(".is-selected");
-      this.setElementName($li[0]);
+      this.editor.setElementName($li[0]);
       $li.html(content).wrap($list);
       if ($li.find("br").length === 0) {
         $li.append("<br/>");
       }
-      this.setRangeAt($li[0]);
+      this.editor.setRangeAt($li[0]);
       return $li[0];
     };
 
-    Editor.prototype.handleSmartList = function($item, e) {
+    List.prototype.handleSmartList = function($item, e) {
       var $li, chars, match, regex;
       utils.log("HANDLE A SMART LIST");
-      chars = this.getCharacterPrecedingCaret();
+      chars = this.editor.getCharacterPrecedingCaret();
       match = chars.match(/^\s*(\-|\*)\s*$/);
       if (match) {
         utils.log("CREATING LIST ITEM");
         e.preventDefault();
         regex = new RegExp(/\s*(\-|\*)\s*/);
-        $li = this.listify($item, "ul", regex);
+        $li = this.buildList($item, "ul", regex);
       } else {
         match = chars.match(/^\s*1(\.|\))\s*$/);
         if (match) {
           utils.log("CREATING LIST ITEM");
           e.preventDefault();
           regex = new RegExp(/\s*1(\.|\))\s*/);
-          $li = this.listify($item, "ol", regex);
+          $li = this.buildList($item, "ol", regex);
         }
       }
       return $li;
     };
 
-    Editor.prototype.handleListLineBreak = function($li, e) {
+    List.prototype.handleListLineBreak = function($li, e) {
       var $list, $paragraph, content;
       utils.log("LIST LINE BREAK");
-      this.tooltip_view.hide();
+      this.editor.tooltip_view.hide();
       $list = $li.parent("ol, ul");
       $paragraph = $("<p></p>");
       utils.log($li.prev());
       if ($list.children().length === 1 && $li.text() === "") {
-        this.replaceWith("p", $list);
+        this.editor.replaceWith("p", $list);
       } else if ($li.text() === "" && ($li.next().length !== 0)) {
         e.preventDefault();
       } else if ($li.next().length === 0) {
@@ -1829,14 +2172,14 @@
       utils.log($li);
       if ($li.hasClass("graf--removed")) {
         utils.log("ELEMENT REMOVED");
-        this.addClassesToElement($paragraph[0]);
-        this.setRangeAt($paragraph[0]);
-        this.markAsSelected($paragraph[0]);
-        return this.scrollTo($paragraph);
+        this.editor.addClassesToElement($paragraph[0]);
+        this.editor.setRangeAt($paragraph[0]);
+        this.editor.markAsSelected($paragraph[0]);
+        return this.editor.scrollTo($paragraph);
       }
     };
 
-    Editor.prototype.handleListBackspace = function($li, e) {
+    List.prototype.handleListBackspace = function($li, e) {
       var $list, $paragraph, content;
       $list = $li.parent("ol, ul");
       utils.log("LIST BACKSPACE");
@@ -1844,31 +2187,95 @@
         e.preventDefault();
         $list.before($li);
         content = $li.html();
-        this.replaceWith("p", $li);
+        this.editor.replaceWith("p", $li);
         $paragraph = $(".is-selected");
         $paragraph.removeClass("graf--empty").html(content).attr("name", utils.generateUniqueName());
         if ($list.children().length === 0) {
           $list.remove();
         }
-        return this.setupFirstAndLast();
+        return this.editor.setupFirstAndLast();
       }
     };
 
-    Editor.prototype.removeSpanTag = function($item) {
-      var $spans, span, _i, _len;
-      $spans = $item.find("span");
-      for (_i = 0, _len = $spans.length; _i < _len; _i++) {
-        span = $spans[_i];
-        if (!$(span).hasClass("defaultValue")) {
-          $(span).replaceWith($(span).html());
-        }
-      }
-      return $item;
+    return List;
+
+  })(Dante.View.Behavior);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.Save = (function(_super) {
+    __extends(Save, _super);
+
+    function Save() {
+      return Save.__super__.constructor.apply(this, arguments);
+    }
+
+    Save.prototype.events = {
+      "input": "handleStore"
     };
 
-    return Editor;
+    Save.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.actionEvent = opts.title;
+      this.editor = opts.current_editor;
+      return this.content = this.editor.getContent();
+    };
 
-  })(Dante.View);
+    Save.prototype.handleStore = function(ev) {
+      return this.store();
+    };
+
+    Save.prototype.store = function() {
+      if (!this.editor.store_url) {
+        return;
+      }
+      utils.log("HANDLE DATA STORE");
+      clearTimeout(this.timeout);
+      return this.timeout = setTimeout((function(_this) {
+        return function() {
+          return _this.checkforStore();
+        };
+      })(this), this.editor.store_interval);
+    };
+
+    Save.prototype.checkforStore = function() {
+      utils.log("ENTER DATA STORE");
+      if (this.content === this.editor.getContent()) {
+        utils.log("content not changed skip store");
+        return this.store();
+      } else {
+        utils.log("content changed! update");
+        this.content = this.editor.getContent();
+        return $.ajax({
+          url: this.editor.store_url,
+          method: this.editor.store_method,
+          dataType: "json",
+          data: {
+            body: this.editor.getContent()
+          },
+          success: (function(_this) {
+            return function(res) {
+              utils.log("STORING CONTENT");
+              if (_this.editor.store_success_handler) {
+                return _this.editor.store_success_handler(res);
+              }
+            };
+          })(this)
+        });
+      }
+    };
+
+    return Save;
+
+  })(Dante.View.Behavior);
 
 }).call(this);
 (function() {
@@ -2507,8 +2914,8 @@
     PopOver.prototype.el = "body";
 
     PopOver.prototype.events = {
-      "mouseover .popover": "cancelHide",
-      "mouseout  .popover": "hide"
+      "mouseover .popover--tooltip": "cancelHide",
+      "mouseout  .popover--tooltip": "hide"
     };
 
     PopOver.prototype.initialize = function(opts) {
@@ -2516,6 +2923,7 @@
         opts = {};
       }
       utils.log("initialized popover");
+      this.pop_over_element = ".popover--tooltip";
       this.editor = opts.editor;
       this.hideTimeout;
       return this.settings = {
@@ -2524,7 +2932,7 @@
     };
 
     PopOver.prototype.template = function() {
-      return "<div class='popover popover--tooltip popover--Linktooltip popover--bottom is-active'> <div class='popover-inner'> <a href='#' target='_blank'> Link </a> </div> <div class='popover-arrow'> </div> </div>";
+      return "<div class='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active'> <div class='popover-inner'> <a href='#' target='_blank'> Link </a> </div> <div class='popover-arrow'> </div> </div>";
     };
 
     PopOver.prototype.positionAt = function(ev) {
@@ -2534,10 +2942,10 @@
       target_offset = target.offset();
       target_width = target.outerWidth();
       target_height = target.outerHeight();
-      popover_width = $(this.el).find(".popover").outerWidth();
+      popover_width = this.findElement().outerWidth();
       top_value = target_positions.top + target_height;
       left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
-      $(this.el).find(".popover").css("top", top_value).css("left", left_value).show();
+      this.findElement().css("top", top_value).css("left", left_value).show();
       return this.handleDirection(target);
     };
 
@@ -2545,9 +2953,9 @@
       var target;
       this.cancelHide();
       target = $(ev.currentTarget);
-      $(this.el).find(".popover-inner a").text(target.attr('href')).attr('href', target.attr("href"));
+      this.findElement().find(".popover-inner a").text(target.attr('href')).attr('href', target.attr("href"));
       this.positionAt(ev);
-      $(this.el).find(".popover--tooltip").css("pointer-events", "auto");
+      this.findElement().css("pointer-events", "auto");
       return $(this.el).show();
     };
 
@@ -2560,7 +2968,7 @@
       this.cancelHide();
       return this.hideTimeout = setTimeout((function(_this) {
         return function() {
-          return $(_this.el).find(".popover").hide();
+          return _this.findElement().hide();
         };
       })(this), this.settings.timeout);
     };
@@ -2575,10 +2983,14 @@
 
     PopOver.prototype.handleDirection = function(target) {
       if (target.parents(".graf--mixtapeEmbed").exists()) {
-        return $(this.el).find(".popover").removeClass("popover--bottom").addClass("popover--top");
+        return this.findElement().removeClass("popover--bottom").addClass("popover--top");
       } else {
-        return $(this.el).find(".popover").removeClass("popover--top").addClass("popover--bottom");
+        return this.findElement().removeClass("popover--top").addClass("popover--bottom");
       }
+    };
+
+    PopOver.prototype.findElement = function() {
+      return $(this.el).find(this.pop_over_element);
     };
 
     PopOver.prototype.render = function() {
@@ -2588,6 +3000,305 @@
     return PopOver;
 
   })(Dante.View);
+
+  Dante.Editor.PopOverTypeAhead = (function(_super) {
+    __extends(PopOverTypeAhead, _super);
+
+    function PopOverTypeAhead() {
+      return PopOverTypeAhead.__super__.constructor.apply(this, arguments);
+    }
+
+    PopOverTypeAhead.prototype.el = "body";
+
+    PopOverTypeAhead.prototype.events = {
+      "mouseover .popover--typeahead": "cancelHide",
+      "mouseout  .popover--typeahead": "hide",
+      "click .typeahead-item": "handleOptionSelection"
+    };
+
+    PopOverTypeAhead.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.pop_over_element = "popover--typeahead";
+      utils.log("initialized popover");
+      this.editor = opts.editor;
+      this.hideTimeout;
+      this.settings = {
+        timeout: 300
+      };
+      return this.typeaheadStyles();
+    };
+
+    PopOverTypeAhead.prototype.template = function() {
+      return "<div class='dante-popover popover--typeahead js-popover typeahead typeahead--mention popover--maxWidth360 popover--bottom is-active'> <div class='popover-inner js-popover-inner'> <ul></ul> </div> <div class='popover-arrow' style='left: 297px;'></div> </div>";
+    };
+
+    PopOverTypeAhead.prototype.popoverItem = function(item) {
+      return "<li class='typeahead-item' data-action-value='" + item.text + "' data-action='typeahead-populate' data-id='" + item.id + "' data-type='" + item.type + "' data-href='" + item.href + "'> <div class='dante-avatar'> <img src='" + item.avatar + "' class='avatar-image avatar-image--icon' alt='" + item.text + "'> <span class='avatar-text'>" + item.text + "</span> <em class='avatar-description'>" + item.description + "</em> </div> </li>";
+    };
+
+    PopOverTypeAhead.prototype.typeaheadStyles = function() {
+      return this.classesForCurrent = "typeahead typeahead--mention popover--maxWidth360";
+    };
+
+    PopOverTypeAhead.prototype.handleOptionSelection = function(ev) {
+      var data;
+      ev.preventDefault;
+      console.log("Select option here!");
+      data = $(ev.currentTarget).data();
+      $(".markup--query").replaceWith(this.linkTemplate(data));
+      return this.hide(0);
+    };
+
+    PopOverTypeAhead.prototype.linkTemplate = function(data) {
+      return "<a href='#' data-type='" + data.type + "' data-href='" + data.href + "' data-id='" + data.id + "' class='markup--user markup--p-user'> " + data.actionValue + " </a>";
+    };
+
+    PopOverTypeAhead.prototype.positionAt = function(target) {
+      var left_value, popover_width, target_height, target_offset, target_positions, target_width, top_value;
+      target = $(target);
+      target_positions = this.resolveTargetPosition(target);
+      target_offset = target.offset();
+      target_width = target.outerWidth();
+      target_height = target.outerHeight();
+      popover_width = this.findElement().outerWidth();
+      top_value = target_positions.top + target_height;
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
+      this.findElement().css("top", top_value).css("left", left_value).show();
+      return this.handleDirection(target);
+    };
+
+    PopOverTypeAhead.prototype.displayAt = function(ev) {
+      this.cancelHide();
+      return this.positionAt(ev);
+    };
+
+    PopOverTypeAhead.prototype.cancelHide = function() {
+      utils.log("Cancel Hide");
+      return clearTimeout(this.hideTimeout);
+    };
+
+    PopOverTypeAhead.prototype.findElement = function() {
+      return $(this.el).find("." + this.pop_over_element);
+    };
+
+    PopOverTypeAhead.prototype.hide = function(ev, timeout) {
+      if (timeout == null) {
+        timeout = this.settings.timeout;
+      }
+      this.cancelHide();
+      return this.hideTimeout = setTimeout((function(_this) {
+        return function() {
+          return _this.findElement().hide();
+        };
+      })(this), timeout);
+    };
+
+    PopOverTypeAhead.prototype.appendData = function(data) {
+      this.findElement().find(".popover-inner ul").html("");
+      return _.each(data, (function(_this) {
+        return function(item) {
+          return _this.findElement().find(".popover-inner ul").append(_this.popoverItem(item));
+        };
+      })(this));
+    };
+
+    PopOverTypeAhead.prototype.resolveTargetPosition = function(target) {
+      if (target.parents(".graf--mixtapeEmbed").exists()) {
+        return target.parents(".graf--mixtapeEmbed").position();
+      } else {
+        return target.position();
+      }
+    };
+
+    PopOverTypeAhead.prototype.handleDirection = function(target) {
+      if (target.parents(".graf--mixtapeEmbed").exists()) {
+        return this.findElement().removeClass("popover--bottom").addClass("popover--top");
+      } else {
+        return this.findElement().removeClass("popover--top").addClass("popover--bottom");
+      }
+    };
+
+    PopOverTypeAhead.prototype.render = function() {
+      return $(this.template()).insertAfter(this.editor.$el);
+    };
+
+    return PopOverTypeAhead;
+
+  })(Dante.Editor.PopOver);
+
+  Dante.Editor.PopOverCard = (function(_super) {
+    __extends(PopOverCard, _super);
+
+    function PopOverCard() {
+      return PopOverCard.__super__.constructor.apply(this, arguments);
+    }
+
+    PopOverCard.prototype.el = "body";
+
+    PopOverCard.prototype.events = {
+      "mouseover .popover--card": "cancelHide",
+      "mouseout  .popover--card": "hide",
+      "mouseover .markup--user": "displayPopOver",
+      "mouseout  .markup--user": "hidePopOver"
+    };
+
+    PopOverCard.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.pop_over_element = ".popover--card";
+      utils.log("initialized popover");
+      this.editor = opts.editor;
+      this.hideTimeout;
+      this.settings = {
+        timeout: 300
+      };
+      return this.card_data = {};
+    };
+
+    PopOverCard.prototype.template = function() {
+      return "<div class='dante-popover popover--card js-popover popover--animated popover--flexible popover--top is-active'> <div class='popover-inner js-popover-inner'> </div> </div>";
+    };
+
+    PopOverCard.prototype.cardTemplate = function() {
+      return "<div class='popoverCard'> <div class='u-clearfix'> <div class='u-floatLeft popoverCard-meta'> <h4 class='popoverCard-title'> <a class='link u-baseColor--link' href='" + this.card_data.href + "' title='" + this.card_data.text + "' aria-label='" + this.card_data.text + "' data-user-id='" + this.card_data.id + "' dir='auto'> " + this.card_data.text + " </a> </h4> <div class='popoverCard-description'> " + this.card_data.description + " </div> </div> <div class='u-floatRight popoverCard-avatar'> <a class='link dante-avatar u-baseColor--link' href='" + this.card_data.href + "' title='" + this.card_data.text + "' aria-label='" + this.card_data.text + "' data-user-id='" + this.card_data.id + "' dir='auto'> <img src='" + this.card_data.avatar + "' class='avatar-image avatar-image--small' alt='" + this.card_data.text + "'> </a> </div> </div> " + (this.footerTemplate()) + " <div class='popover-arrow'></div> </div>";
+    };
+
+    PopOverCard.prototype.footerTemplate = function() {
+      return "<div class='popoverCard-actions u-clearfix'> <div class='u-floatLeft popoverCard-stats'> <span class='popoverCard-stat'> Following <span class='popoverCard-count js-userFollowingCount'>124</span> </span> <span class='popoverCard-stat'> Followers <span class='popoverCard-count js-userFollowersCount'>79</span> </span> </div> </div>";
+    };
+
+    PopOverCard.prototype.displayPopOver = function(ev) {
+      return this.displayAt(ev);
+    };
+
+    PopOverCard.prototype.displayAt = function(ev) {
+      this.cancelHide();
+      return $.getJSON($(ev.currentTarget).data().href).success((function(_this) {
+        return function(data) {
+          if (_this.editor.suggest_resource_handler) {
+            _this.card_data = _this.editor.suggest_resource_handler(data);
+          } else {
+            _this.card_data = data;
+          }
+          _this.refreshTemplate();
+          return _this.positionAt(ev);
+        };
+      })(this));
+    };
+
+    PopOverCard.prototype.hidePopOver = function(ev) {
+      return this.hide(ev);
+    };
+
+    PopOverCard.prototype.refreshTemplate = function() {
+      return $(".popover--card .popover-inner").html(this.cardTemplate());
+    };
+
+    return PopOverCard;
+
+  })(Dante.Editor.PopOver);
+
+  Dante.Editor.ImageTooltip = (function(_super) {
+    __extends(ImageTooltip, _super);
+
+    function ImageTooltip() {
+      return ImageTooltip.__super__.constructor.apply(this, arguments);
+    }
+
+    ImageTooltip.prototype.el = "body";
+
+    ImageTooltip.prototype.events = {
+      "click .graf": "handleHide",
+      "click .dante-menu-button.align-left": "alignLeft",
+      "click .dante-menu-button.align-center": "alignCenter"
+    };
+
+    ImageTooltip.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      utils.log("initialized popover");
+      this.pop_over_element = ".popover--tooltip-align";
+      this.editor = opts.editor;
+      this.hideTimeout;
+      return this.settings = {
+        timeout: 300
+      };
+    };
+
+    ImageTooltip.prototype.alignLeft = function(ev) {
+      this.activateLink($(ev.currentTarget));
+      return this.findSelectedImage().addClass("graf--layoutOutsetLeft");
+    };
+
+    ImageTooltip.prototype.handleHide = function(ev) {
+      var target;
+      target = $(ev.currentTarget);
+      if (!(target.hasClass("graf--figure") && target.hasClass("is-mediaFocused"))) {
+        return this.hide(ev);
+      }
+    };
+
+    ImageTooltip.prototype.alignCenter = function(ev) {
+      this.activateLink($(ev.currentTarget));
+      this.findSelectedImage().removeClass("graf--layoutOutsetLeft");
+      return this.repositionWithActiveImage();
+    };
+
+    ImageTooltip.prototype.activateLink = function(element) {
+      this.findElement().find(".dante-menu-button").removeClass("active");
+      element.addClass("active");
+      return setTimeout((function(_this) {
+        return function() {
+          return _this.repositionWithActiveImage();
+        };
+      })(this), 20);
+    };
+
+    ImageTooltip.prototype.repositionWithActiveImage = function() {
+      return this.positionPopOver(this.findSelectedImage());
+    };
+
+    ImageTooltip.prototype.template = function() {
+      return "<div class='dante-popover popover--tooltip-align popover--Linktooltip popover--bottom'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> left </li> <li class='dante-menu-button align-center active'> center </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
+    };
+
+    ImageTooltip.prototype.positionPopOver = function(target) {
+      var left_value, pad_top, popover_width, target_height, target_offset, target_width, top_value;
+      target_offset = target.offset();
+      target_width = target.outerWidth();
+      target_height = target.outerHeight();
+      popover_width = this.findElement().outerWidth();
+      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? -30 : 30;
+      top_value = target_offset.top - target_height - pad_top;
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
+      this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
+      return this.handleDirection(target);
+    };
+
+    ImageTooltip.prototype.hide = function(ev) {
+      this.cancelHide();
+      return this.hideTimeout = setTimeout((function(_this) {
+        return function() {
+          return _this.findElement().hide().removeClass("is-active");
+        };
+      })(this), this.settings.timeout);
+    };
+
+    ImageTooltip.prototype.findSelectedImage = function() {
+      return $(".graf--figure").addClass("is-selected is-mediaFocused");
+    };
+
+    ImageTooltip.prototype.render = function() {
+      return $(this.template()).insertAfter(this.editor.$el);
+    };
+
+    return ImageTooltip;
+
+  })(Dante.Editor.PopOver);
 
 }).call(this);
 (function() {
@@ -2874,6 +3585,11 @@
 
 }).call(this);
 //Editor components
+
+
+
+
+
 
 
 

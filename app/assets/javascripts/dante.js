@@ -3,6 +3,11 @@
 //= require dante/utils
 //= require dante/view
 //= require dante/editor
+//= require dante/behavior
+//= require dante/behaviors/suggest
+//= require dante/behaviors/image
+//= require dante/behaviors/list
+//= require dante/behaviors/save
 //= require dante/tooltip_widget
 //= require dante/tooltip_widgets/uploader
 //= require dante/tooltip_widgets/embed
