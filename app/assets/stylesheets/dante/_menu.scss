@@ -49,7 +49,7 @@
     //  bottom: -($dante-menu-caret-size*2);
     //}
     &:after {
-      border-top-color: $menu-caret-color;
+      border-top-color: $dante-menu-background;
       bottom: -(($dante-menu-caret-size*2)-1);
     }
   }
