@@ -37,7 +37,7 @@ class Dante.Editor.Menu extends Dante.View
       ]
     ###
 
-    buttons: ['bold', 'italic', 'h2', 'h3', 'h4', 'blockquote', 'createlink']
+    buttons: ['bold', 'italic', 'createlink', 'h3', 'h4', 'blockquote']
 
   template: ()=>
     html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='Paste or type a link'><div class='dante-menu-button'>x</div></div>"

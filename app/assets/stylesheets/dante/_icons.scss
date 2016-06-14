@@ -12,9 +12,9 @@
   }
 }
 
-.icon-h2:before                   { content: "H1"; }
-.icon-h3:before                   { content: "H2"; }
-.icon-h4:before                   { content: "H3"; }
+.icon-h2:before                   { content: ""; }
+.icon-h3:before                   { content: "H1"; }
+.icon-h4:before                   { content: "H2"; }
 .icon-p:before                    { content:  "P"; }
 .icon-code:before                 { content: ""; }
 .icon-insertorderedlist:before    { content: ""; }
