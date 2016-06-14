@@ -32,7 +32,7 @@ class Dante.Editor.Menu extends Dante.View
   default_config: ()->
     ###
     buttons: [
-        'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+        'blockquote', 'h3', 'h4', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
         'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
       ]
     ###
