@@ -39,7 +39,7 @@ class Dante.Editor extends Dante.View
     @upload_url      = opts.upload_url  || "/uploads.json"
     @upload_callback = opts.upload_callback
     @image_delete_callback = opts.image_delete_callback
-    
+
     @oembed_url      = opts.oembed_url  || "http://api.embed.ly/1/oembed?key=#{opts.api_key}&url="
     @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=#{opts.api_key}&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
@@ -62,7 +62,7 @@ class Dante.Editor extends Dante.View
     @suggest_resource_handler = opts.suggest_resource_handler || null
     
     opts.base_widgets   ||= ["uploader", "embed", "embed_extract"]
-    opts.base_behaviors ||= ["save", "image","list", "suggest"]
+    opts.base_behaviors ||= ["save", "image", "paste", "list", "suggest"]
 
     @widgets   = []
     @behaviors = []
@@ -96,13 +96,17 @@ class Dante.Editor extends Dante.View
       @save_behavior = new Dante.View.Behavior.Save(current_editor: @, el: @el)
       @behaviors.push @save_behavior
 
+    if base_behaviors.indexOf("paste") >= 0
+      @paste_behavior = new Dante.View.Behavior.Paste(current_editor: @, el: @el)
+      @behaviors.push @paste_behavior
+
     if base_behaviors.indexOf("image") >= 0
-      @save_behavior = new Dante.View.Behavior.Image(current_editor: @, el: @el)
-      @behaviors.push @save_behavior
+      @image_behavior = new Dante.View.Behavior.Image(current_editor: @, el: @el)
+      @behaviors.push @image_behavior
 
     if base_behaviors.indexOf("list") >= 0
-      @save_behavior = new Dante.View.Behavior.List(current_editor: @, el: @el)
-      @behaviors.push @save_behavior
+      @list_behavior = new Dante.View.Behavior.List(current_editor: @, el: @el)
+      @behaviors.push @list_behavior
 
     #add extra behaviors
     if opts.extra_behaviors
@@ -409,56 +413,17 @@ class Dante.Editor extends Dante.View
 
   #detects html data , creates a hidden node to paste ,
   #then clean up the content and copies to currentNode, very clever uh?
-  handlePaste: (ev)=>
-    utils.log("pasted!")
-    @aa = @getNode()
+  handlePaste: (e)=>
+    @continue = true
+    #handle paste for each widget
+    utils.log("HANDLING PASTE");
+    parent = @getNode()
 
-    pastedText = undefined
-    if (window.clipboardData && window.clipboardData.getData) #IE
-      pastedText = window.clipboardData.getData('Text')
-    else if (ev.originalEvent.clipboardData && ev.originalEvent.clipboardData.getData)
-      cbd = ev.originalEvent.clipboardData
-      pastedText = if _.isEmpty(cbd.getData('text/html')) then cbd.getData('text/plain') else cbd.getData('text/html')
+    _.each @behaviors, (b)=>
+      if b.handlePaste
+        b.handlePaste(e, parent);
 
-    utils.log("Process and handle text...")
-    #detect if is html
-    if pastedText.match(/<\/*[a-z][^>]+?>/gi)
-      utils.log("HTML DETECTED ON PASTE")
-      pastedText = pastedText.replace(/&.*;/g, "")
-
-      #convert pasted divs in p before copy contents into div
-      pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
-
-      #create the placeholder element and assign pasted content
-      document.body.appendChild( $("<div id='#{@paste_element_id.replace('#', '')}' class='dante-paste'></div>")[0] )
-      $(@paste_element_id).html("<span>#{pastedText}</span>")
-
-      #clean pasted content
-
-      @setupElementsClasses $(@paste_element_id), (e)=>
-        # e is the target object which is cleaned
-        nodes = $(e.html()).insertAfter($(@aa))
-        #remove paste div since we wont use it until the next paste
-        e.remove()
-        #set caret on newly created node
-        last_node = nodes.last()[0]
-        num = last_node.childNodes.length
-        @setRangeAt(last_node, num)
-        #select new node
-        new_node = $(@getNode())
-        @markAsSelected(new_node)
-        @displayTooltipAt($(@el).find(".is-selected"))
-
-        @handleUnwrappedImages(nodes)
-
-        #scroll to element top
-        top = new_node.offset().top
-        $('html, body').animate
-          scrollTop: top
-        , 20
-
-
-      return false # Prevent the default handler from running.
+    return false unless @continue
 
   handleUnwrappedImages: (elements)->
     # http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata

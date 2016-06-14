@@ -5,6 +5,7 @@
 //= require dante/editor
 //= require dante/behavior
 //= require dante/behaviors/suggest
+//= require dante/behaviors/paste
 //= require dante/behaviors/image
 //= require dante/behaviors/list
 //= require dante/behaviors/save

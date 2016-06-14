@@ -219,7 +219,9 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       utils.log complete
 
   uploadCompleted: (url, node)=>
-    node.find("img").attr("src", url)
+    node.find("img")
+    .attr("src", url)
+    .data("src", url)
     #return false
 
   ###
