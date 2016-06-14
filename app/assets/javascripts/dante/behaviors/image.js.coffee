@@ -153,7 +153,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
           @editor.markAsSelected(next_node)
           next_node.addClass("is-mediaFocused is-selected")
           
-          # @editor.setRangeAt $(".is-selected").find("figcaption")[0]
+          #@editor.setRangeAt $(".is-selected").find("figcaption")[0]
           @editor.pop_over_align.positionPopOver(@placeHolderDiv(next_node))
           @editor.continue = false
 
