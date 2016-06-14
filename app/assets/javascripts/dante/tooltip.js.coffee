@@ -31,7 +31,7 @@ class Dante.Editor.Tooltip extends Dante.View
 
     _.find @widgets, (e)->
       e.action == name
-    
+
 
   render: ()=>
     $(@el).html(@template())
@@ -46,7 +46,7 @@ class Dante.Editor.Tooltip extends Dante.View
   move: (coords)->
     tooltip         = $(@el)
     control_width   = tooltip.find(".control").css("width")
-    control_spacing = tooltip.find(".inlineTooltip-menu").css("padding-left")
+    control_spacing = tooltip.find(".inlineTooltip-button").css("margin-right")
     pull_size       = parseInt(control_width.replace(/px/,"")) + parseInt(control_spacing.replace(/px/,""))
     coord_left      = coords.left - pull_size
     coord_top       = coords.top

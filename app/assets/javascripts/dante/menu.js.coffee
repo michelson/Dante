@@ -32,18 +32,22 @@ class Dante.Editor.Menu extends Dante.View
   default_config: ()->
     ###
     buttons: [
-        'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+        'blockquote', 'h3', 'h4', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
         'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
       ]
     ###
 
-    buttons: ['bold', 'italic', 'h2', 'h3', 'h4', 'blockquote', 'createlink']
+    buttons: ['bold', 'italic', 'createlink', 'divider', 'h3', 'h4', 'blockquote']
 
   template: ()=>
-    html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='http://'><div class='dante-menu-button'>x</div></div>"
+    html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='Paste or type a link'><div class='dante-menu-button'>x</div></div>"
     html += "<ul class='dante-menu-buttons'>"
     _.each @config.buttons, (item)->
-      html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+      if item == "divider"
+        html += "<li class='dante-menu-divider'></li>"
+      else
+        html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+
     html += "</ul>"
     html
 
@@ -65,7 +69,11 @@ class Dante.Editor.Menu extends Dante.View
         $(@el).addClass("dante-menu--linkmode")
         input.focus()
     else
-      @menuApply action
+      if $(ev.currentTarget).hasClass("dante-menu-button--disabled")
+        utils.log "menu #{action} item blocked!"
+        ev.preventDefault()
+      else
+        @menuApply action
 
     return false
 
@@ -194,18 +202,18 @@ class Dante.Editor.Menu extends Dante.View
           utils.log "nothing to select"
 
       if tag.match /(?:h[1-6])/i
-        $(@el).find(".icon-bold, .icon-italic, .icon-blockquote")
-        .parent("li").remove()
+        @toggleMenuButtons(@el, ".icon-bold, .icon-italic")
+
       else if tag is "indent"
-        $(@el).find(".icon-h2, .icon-h3, .icon-h4, .icon-blockquote")
-        .parent("li").remove()
-        #.parent("li").hide()
-        #.addClass("hidden")
+        @toggleMenuButtons(@el, ".icon-h3, .icon-h4, .icon-blockquote")
 
       @highlight(tag)
 
   highlight: (tag)->
     $(".icon-#{tag}").parent("li").addClass("active")
+
+  toggleMenuButtons: (el,buttons)->
+    $(el).find(buttons).parent("li").addClass("dante-menu-button--disabled")
 
   show: ()->
     $(@el).addClass("dante-menu--active")
