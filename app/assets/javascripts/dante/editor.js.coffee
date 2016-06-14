@@ -394,7 +394,7 @@ class Dante.Editor extends Dante.View
       @displayTooltipAt( current_node )
 
   #handle arrow direction from keyDown.
-  handleArrowForKeyDown: (ev)=>
+  handleArrowForKey: (ev)=>
     caret_node   = @getNode()
     current_node = $(caret_node)
     utils.log(ev)
@@ -686,7 +686,7 @@ class Dante.Editor extends Dante.View
       utils.log @isLastChar()
 
       #handle keydowns for each widget
-      utils.log("HANDLING WIDGET KEYDOWNS");
+      utils.log("HANDLING WIDGET ENTER");
       _.each @widgets, (w)=>
         if w.handleEnterKey
           w.handleEnterKey(e, parent);
@@ -796,7 +796,7 @@ class Dante.Editor extends Dante.View
     #up & down
     if _.contains([UPARROW, DOWNARROW], e.which)
       utils.log e.which
-      @handleArrowForKeyDown(e)
+      @handleArrowForKey(e)
       #return false
 
     #hides tooltip if anchor_node text is empty
