@@ -80,15 +80,17 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
     if (e.which is BACKSPACE)
       
-      # without selection but with target
+      # without selection but with target active
       if $(e.target).hasClass("graf--figure")
         e.preventDefault()
-        # decide if range will be is set on prev or next element
-        n = if $(e.target).prev().length > 0 then $(e.target).prev() else $(e.target).next()
         
-        $(e.target).remove()
-        num = n[0].childNodes.length
-        @editor.setRangeAt n[0], num
+        # call callback for image delete 
+        if @editor.image_delete_callback
+          @editor.image_delete_callback( $(".is-selected").find("img").data() )
+        
+        utils.log("Replacing selected node")
+        @editor.replaceWith("p", $(".is-selected"))
+        @editor.setRangeAt($(".is-selected")[0])
         @editor.pop_over_align.hide()
         utils.log("Focus on the previous graf")
         @editor.continue = false
@@ -150,7 +152,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
     switch ev_type
 
       when "ArrowDown", "Down"
-        #when graff-image selected but none selection is found
+        # when graff-image selected but none selection is found
         if _.isUndefined(current_node) or !current_node.exists()
           if $(".is-selected").exists()
             current_node = $(".is-selected")
@@ -216,18 +218,16 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
           #num = n[0].childNodes.length
           #@editor.setRangeAt n[0], num
           @editor.continue = false
-
           @editor.markAsSelected(n[0])
           @editor.pop_over_align.hide()
-
           return false
-        else if prev_node.length is 0 && $(".graf--figure.is-mediaFocused").length > 0
-          # do the best we can to detect up arrow from selected
+
+        else if prev_node.length > 0 && $(".graf--figure.is-mediaFocused").length > 0
+          # do our best to detect up arrow from selected
           n = $(".graf--figure.is-mediaFocused").prev(".graf")
           #num = n[0].childNodes.length
           #@editor.setRangeAt n[0], num
           @editor.continue = false
-
           @editor.markAsSelected(n[0])
           @editor.pop_over_align.hide()
           return false
