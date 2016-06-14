@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.1.0"
+    version: "0.1.1"
   };
 
 }).call(this);
@@ -1975,9 +1975,7 @@
     Image.prototype.showAlignPopover = function(ev) {
       var target;
       target = $(ev.currentTarget);
-      if (!$(".popover--Aligntooltip").hasClass('is-active')) {
-        return this.editor.pop_over_align.positionPopOver(target);
-      }
+      return this.editor.pop_over_align.positionPopOver(target);
     };
 
     Image.prototype.handleGrafFigureSelectCaption = function(ev) {
@@ -3265,9 +3263,16 @@
       return this.repositionWithActiveImage();
     };
 
-    ImageTooltip.prototype.activateLink = function(element) {
+    ImageTooltip.prototype.handleActiveClass = function() {
       this.findElement().find(".dante-menu-button").removeClass("active");
-      element.addClass("active");
+      if (this.findSelectedImage().hasClass("graf--layoutOutsetLeft")) {
+        return this.findElement().find(".icon-image-left").parent().addClass("active");
+      } else {
+        return this.findElement().find(".icon-image-center").parent().addClass("active");
+      }
+    };
+
+    ImageTooltip.prototype.activateLink = function(element) {
       return setTimeout((function(_this) {
         return function() {
           return _this.repositionWithActiveImage();
@@ -3276,23 +3281,25 @@
     };
 
     ImageTooltip.prototype.repositionWithActiveImage = function() {
-      return this.positionPopOver(this.findSelectedImage());
+      return this.positionPopOver(this.findSelectedImage().find("div"));
     };
 
     ImageTooltip.prototype.template = function() {
-      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon icon-image-fill'></span> </li> <li class='dante-menu-button align-center active'> <span class='tooltip-icon icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
+      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon icon-image-fill'></span> </li> <li class='dante-menu-button align-center'> <span class='tooltip-icon icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
     };
 
     ImageTooltip.prototype.positionPopOver = function(target) {
-      var left_value, pad_top, popover_width, target_height, target_offset, target_width, top_value;
+      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value;
       target_offset = target.offset();
+      target_position = target.parent().position();
       target_width = target.outerWidth();
       target_height = target.outerHeight();
       popover_width = this.findElement().outerWidth();
-      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? -30 : 30;
-      top_value = target_offset.top - target_height - pad_top;
+      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? 52 : 54;
+      top_value = target_position.top - pad_top;
       left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
-      return this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
+      this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
+      return this.handleActiveClass();
     };
 
     ImageTooltip.prototype.hide = function(ev) {
@@ -3305,7 +3312,7 @@
     };
 
     ImageTooltip.prototype.findSelectedImage = function() {
-      return $(".graf--figure").addClass("is-selected is-mediaFocused");
+      return $(".graf--figure.is-mediaFocused");
     };
 
     ImageTooltip.prototype.render = function() {

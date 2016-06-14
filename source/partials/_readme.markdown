@@ -18,7 +18,7 @@ We don't have any intention to target all browsers versions, really... if you li
 
 ### MAINTAINERS:
 
-+ <a href="#" data-type="user" data-href="/api/miguel.json" data-id="1" class="markup--user markup--p-user"> Miguel Michelson </a>
-+ <a href="#" data-type="user" data-href="/api/cristian.json" data-id="1" class="markup--user markup--p-user"> Cristian Ferrari </a>
++ <a href="#" data-type="user" data-href="api/miguel.json" data-id="1" class="markup--user markup--p-user"> Miguel Michelson </a>
++ <a href="#" data-type="user" data-href="api/cristian.json" data-id="1" class="markup--user markup--p-user"> Cristian Ferrari </a>
 
 [Licensed under MIT.](./license.md) 2014
