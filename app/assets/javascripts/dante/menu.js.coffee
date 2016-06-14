@@ -32,18 +32,22 @@ class Dante.Editor.Menu extends Dante.View
   default_config: ()->
     ###
     buttons: [
-        'blockquote', 'h2', 'h3', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
+        'blockquote', 'h3', 'h4', 'p', 'code', 'insertorderedlist', 'insertunorderedlist', 'inserthorizontalrule',
         'indent', 'outdent', 'bold', 'italic', 'underline', 'createlink'
       ]
     ###
 
-    buttons: ['bold', 'italic', 'createlink', 'h3', 'h4', 'blockquote']
+    buttons: ['bold', 'italic', 'createlink', 'divider', 'h3', 'h4', 'blockquote']
 
   template: ()=>
     html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='Paste or type a link'><div class='dante-menu-button'>x</div></div>"
     html += "<ul class='dante-menu-buttons'>"
     _.each @config.buttons, (item)->
-      html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+      if item == "divider"
+        html += "<li class='dante-menu-divider'></li>"
+      else
+        html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+
     html += "</ul>"
     html
 

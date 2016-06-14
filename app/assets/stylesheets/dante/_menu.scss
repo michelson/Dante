@@ -91,6 +91,20 @@
   padding: 0;
   line-height: 0;
 }
+.dante-menu-divider {
+  width: 1px;
+  height: $dante-menu-height - 18px;
+  margin: 9px 2px;
+  background: rgba($dante-menu-color,.2);
+  display: inline-block;
+  overflow: hidden;
+  cursor: default;
+  line-height: $dante-menu-height;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
 .dante-menu-button {
   & {
     min-width: 20px;
