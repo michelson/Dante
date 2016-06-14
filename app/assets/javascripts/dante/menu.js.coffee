@@ -194,18 +194,18 @@ class Dante.Editor.Menu extends Dante.View
           utils.log "nothing to select"
 
       if tag.match /(?:h[1-6])/i
-        $(@el).find(".icon-bold, .icon-italic, .icon-blockquote")
-        .parent("li").remove()
+        @toggleMenuButtons(@el, ".icon-bold, .icon-italic")
+
       else if tag is "indent"
-        $(@el).find(".icon-h2, .icon-h3, .icon-h4, .icon-blockquote")
-        .parent("li").remove()
-        #.parent("li").hide()
-        #.addClass("hidden")
+        @toggleMenuButtons(@el, ".icon-h3, .icon-h4, .icon-blockquote")
 
       @highlight(tag)
 
   highlight: (tag)->
     $(".icon-#{tag}").parent("li").addClass("active")
+
+  toggleMenuButtons: (el,buttons)->
+    $(el).find(buttons).parent("li").addClass("dante-menu-button--disabled")
 
   show: ()->
     $(@el).addClass("dante-menu--active")
