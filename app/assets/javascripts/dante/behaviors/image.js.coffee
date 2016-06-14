@@ -44,7 +44,6 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
     utils.log "FIGCAPTION"
     element = ev.currentTarget
     $(element).parent(".graf--figure").removeClass("is-mediaFocused")
-    #debugger
     @editor.pop_over_align.hide()
 
   handleGrafCaptionTyping: (ev)->
@@ -83,7 +82,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
       # without selection but with target active
       if $(e.target).hasClass("graf--figure")
         e.preventDefault()
-        
+
         # call callback for image delete 
         if @editor.image_delete_callback
           @editor.image_delete_callback( $(".is-selected").find("img").data() )

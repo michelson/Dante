@@ -74,7 +74,7 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       utils.log(this.width + 'x' + this.height);
 
       ar = self.getAspectRatio(this.width, this.height)
-      #debugger
+
       figure.find(".aspectRatioPlaceholder").css
         'max-width': ar.width
         'max-height': ar.height
