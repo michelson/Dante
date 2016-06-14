@@ -80,10 +80,12 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
     if (e.which is BACKSPACE)
       
-      #without selection but with target
+      # without selection but with target
       if $(e.target).hasClass("graf--figure")
         e.preventDefault()
-        n = $(e.target).prev()
+        # decide if range will be is set on prev or next element
+        n = if $(e.target).prev().length > 0 then $(e.target).prev() else $(e.target).next()
+        
         $(e.target).remove()
         num = n[0].childNodes.length
         @editor.setRangeAt n[0], num
