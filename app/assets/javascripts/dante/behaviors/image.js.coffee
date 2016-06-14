@@ -4,7 +4,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
   events:
     "click .graf--figure .aspectRatioPlaceholder" : "handleGrafFigureSelectImg"
-    "click .graf--figure figcaption" : "handleGrafFigureSelectCaption"
+    "click .graf--figure figcaption"   : "handleGrafFigureSelectCaption"
     "keyup .graf--figure figcaption"   : "handleGrafCaptionTyping"
 
     # TODO: this is from embed! move this to embed behavior
@@ -25,7 +25,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
   showAlignPopover: (ev)->
     target = $(ev.currentTarget)
-    @editor.pop_over_align.positionPopOver(target) unless $(".popover--Aligntooltip").hasClass('is-active')
+    @editor.pop_over_align.positionPopOver(target)
 
   handleGrafFigureSelectCaption: (ev)->
     utils.log "FIGCAPTION"

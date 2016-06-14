@@ -339,15 +339,21 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     @findSelectedImage().removeClass("graf--layoutOutsetLeft")
     @repositionWithActiveImage()
 
-  activateLink: (element)->
+  handleActiveClass: ->
     @findElement().find(".dante-menu-button").removeClass("active")
-    element.addClass("active")
+    if @findSelectedImage().hasClass("graf--layoutOutsetLeft")
+      @findElement().find(".icon-image-left").parent().addClass("active")
+    else
+      @findElement().find(".icon-image-center").parent().addClass("active")
+
+  activateLink: (element)->
     setTimeout =>
       @repositionWithActiveImage()
     , 20
 
   repositionWithActiveImage: ->
-    @positionPopOver(@findSelectedImage())
+    # pass the same element that is passed from click event
+    @positionPopOver(@findSelectedImage().find("div") )
 
   template: ()->
     "<div class='dante-popover popover--Aligntooltip popover--top'>
@@ -363,11 +369,12 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
           <li class='dante-menu-button align-wide hidden'>
             <span class='tooltip-icon icon-image-wide'></span>
           </li>
+
           <li class='dante-menu-button align-fill hidden'>
             <span class='tooltip-icon icon-image-fill'></span>
           </li>
 
-          <li class='dante-menu-button align-center active'>
+          <li class='dante-menu-button align-center'>
             <span class='tooltip-icon icon-image-center'></span>
           </li>
 
@@ -381,15 +388,16 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
 
   positionPopOver: (target)->
     target_offset    = target.offset()
+    target_position  = target.parent().position()
     target_width     = target.outerWidth()
     target_height    = target.outerHeight()
     popover_width    = @findElement().outerWidth()
 
     # hacky hack
-    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then -30 else 30
+    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then 52 else 54
 
-    top_value        = target_offset.top - target_height - pad_top # target_positions.top + target_height
-    left_value       = target_offset.left + (target_width/2) - (popover_width/2)
+    top_value  = target_position.top - pad_top # target_positions.top + target_height
+    left_value = target_offset.left + (target_width/2) - (popover_width/2)
 
     @findElement()
       .css("top", top_value)
@@ -397,7 +405,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
       .show()
       .addClass("is-active")
 
-    # @handleDirection(target)
+    @handleActiveClass()
 
   hide: (ev)->
     @cancelHide()
@@ -408,7 +416,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     , @settings.timeout
 
   findSelectedImage: ->
-    $(".graf--figure").addClass("is-selected is-mediaFocused")
+    $(".graf--figure.is-mediaFocused")
 
   render: ()->
     $(@template()).insertAfter(@editor.$el)
