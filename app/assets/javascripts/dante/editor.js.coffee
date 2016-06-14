@@ -217,6 +217,7 @@ class Dante.Editor extends Dante.View
 
   getSelectionStart: ->
     node = document.getSelection().anchorNode
+    return if node is null
     if node.nodeType == 3 then node.parentNode else node
 
   getRange: () ->
@@ -401,24 +402,27 @@ class Dante.Editor extends Dante.View
 
     utils.log("ENTER ARROW for key #{ev_type}")
 
+    
     #handle keys for image figure
     switch ev_type
 
-      when "Down"
+      when "ArrowDown", "Down"
         #when graff-image selected but none selection is found
         if _.isUndefined(current_node) or !current_node.exists()
           if $(".is-selected").exists()
             current_node = $(".is-selected")
 
         next_node = current_node.next()
-
+        
         utils.log "NEXT NODE IS #{next_node.attr('class')}"
         utils.log "CURRENT NODE IS #{current_node.attr('class')}"
 
+        
         return unless $(current_node).hasClass("graf")
         return unless current_node.hasClass("graf--figure") or $(current_node).editableCaretOnLastLine()
 
         utils.log "ENTER ARROW PASSED RETURNS"
+
 
         #if next element is embed select & focus it
         if next_node.hasClass("graf--figure") && caret_node
@@ -448,7 +452,7 @@ class Dante.Editor extends Dante.View
           @setRangeAt next_node[0]
           return false
 
-      when "Up"
+      when "ArrowUp", "Up"
         prev_node = current_node.prev()
         utils.log "PREV NODE IS #{prev_node.attr('class')} #{prev_node.attr('name')}"
         utils.log "CURRENT NODE IS up #{current_node.attr('class')}"
