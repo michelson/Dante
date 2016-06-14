@@ -495,8 +495,8 @@
       this.el = opts.el || "#editor";
       this.upload_url = opts.upload_url || "/uploads.json";
       this.upload_callback = opts.upload_callback;
-      this.oembed_url = opts.oembed_url || "http://api.embed.ly/1/oembed?url=";
-      this.extract_url = opts.extract_url || "http://api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url=";
+      this.oembed_url = opts.oembed_url || ("http://api.embed.ly/1/oembed?key=" + opts.api_key + "&url=");
+      this.extract_url = opts.extract_url || ("http://api.embed.ly/1/extract?key=" + opts.api_key + "&url=");
       this.default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder;
       this.store_url = opts.store_url;
       this.store_method = opts.store_method || "POST";
