@@ -2603,10 +2603,27 @@
         }
       } else if ($(".is-selected").hasClass("is-mediaFocused")) {
         utils.log("Replacing selected node");
+        var imgSrc = $(".is-selected").find('img.graf-image').attr('src');
+        this.deleteFile(imgSrc);        
         this.current_editor.replaceWith("p", $(".is-selected"));
         this.current_editor.setRangeAt($(".is-selected")[0]);
         return true;
       }
+    };
+
+    Uploader.prototype.deleteFile = function(imgSrc) {
+      return $.ajax({
+        type: "delete",
+        url: this.current_editor.upload_url,
+        cache: false,
+        contentType: false,
+        error: (function(_this) {
+          return function(jqxhr) {
+            return utils.log("ERROR: got error deleting file " + jqxhr.responseText);
+          };
+        })(this),
+        data: imgSrc
+      });
     };
 
     return Uploader;
