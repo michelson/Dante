@@ -65,7 +65,11 @@ class Dante.Editor.Menu extends Dante.View
         $(@el).addClass("dante-menu--linkmode")
         input.focus()
     else
-      @menuApply action
+      if $(ev.currentTarget).hasClass("dante-menu-button--disabled")
+        utils.log "menu #{action} item blocked!"
+        ev.preventDefault()
+      else
+        @menuApply action
 
     return false
 
