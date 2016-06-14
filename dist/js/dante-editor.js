@@ -3382,7 +3382,7 @@
 
     Menu.prototype.template = function() {
       var html;
-      html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='http://'><div class='dante-menu-button'>x</div></div>";
+      html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='Paste or type a link'><div class='dante-menu-button'>x</div></div>";
       html += "<ul class='dante-menu-buttons'>";
       _.each(this.config.buttons, function(item) {
         return html += "<li class='dante-menu-button'><i class=\"dante-icon icon-" + item + "\" data-action=\"" + item + "\"></i></li>";

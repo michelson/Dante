@@ -40,7 +40,7 @@ class Dante.Editor.Menu extends Dante.View
     buttons: ['bold', 'italic', 'h2', 'h3', 'h4', 'blockquote', 'createlink']
 
   template: ()=>
-    html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='http://'><div class='dante-menu-button'>x</div></div>"
+    html = "<div class='dante-menu-linkinput'><input class='dante-menu-input' placeholder='Paste or type a link'><div class='dante-menu-button'>x</div></div>"
     html += "<ul class='dante-menu-buttons'>"
     _.each @config.buttons, (item)->
       html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
