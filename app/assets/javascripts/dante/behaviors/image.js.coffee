@@ -49,10 +49,13 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
   handleGrafCaptionTyping: (ev)->
     @editor.pop_over_align.hide()
+    
+    node = $(@editor.getNode())
+    
     if _.isEmpty(utils.getNode().textContent.trim())
-      $(@editor.getNode()).addClass("is-defaultValue")
+      $(node).addClass("is-defaultValue")
     else
-      $(@editor.getNode()).removeClass("is-defaultValue")
+      $(node).removeClass("is-defaultValue")
 
   #TODO: this is from embed! move this to embed behavior
   handleGrafFigureSelectIframe: (ev)->
@@ -70,20 +73,25 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
     $(element).removeClass("is-selected is-mediaFocused")
 
   handleKeyDown: (e, parent)->
+
     if _.contains([UPARROW, DOWNARROW], e.which)
       utils.log e.which
       @handleArrowForKeyDown(e)
 
-    #when user types over a selected image (graf--figure)
-    #unselect image , and set range on caption
-    if _.isUndefined(parent) or parent.length is 0 && $(".is-selected").hasClass("is-mediaFocused")
-      @editor.setRangeAt $(".is-selected").find("figcaption")[0]
-      $(".is-selected").removeClass("is-mediaFocused")
-      @editor.pop_over_align.hide()
-      #@editor.continue = false
-      return false
-
     if (e.which is BACKSPACE)
+      
+      #without selection but with target
+      if $(e.target).hasClass("graf--figure")
+        e.preventDefault()
+        n = $(e.target).prev()
+        $(e.target).remove()
+        num = n[0].childNodes.length
+        @editor.setRangeAt n[0], num
+        @editor.pop_over_align.hide()
+        utils.log("Focus on the previous graf")
+        @editor.continue = false
+        return false 
+
       #select an image if backspacing into it from a paragraph
       if(parent.hasClass("graf--p") && @editor.isFirstChar() )
         if(parent.prev().hasClass("graf--figure") && @editor.getSelectedText().length == 0)
@@ -109,6 +117,19 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
         if @editor.isFirstChar() && !_.isEmpty( parent.text().trim() )
           @editor.continue = false
           return false
+
+    # when user types over a selected image (graf--figure)
+    # unselect image , and set range on caption
+    if _.isUndefined(parent) or parent.length is 0 && $(".is-selected").hasClass("is-mediaFocused")
+      # will remove default value on typing
+      node = $(".is-selected").find("figcaption")
+      node.find(".defaultValue").remove()
+    
+      @editor.setRangeAt node[0]
+      $(".is-selected").removeClass("is-mediaFocused")
+      @editor.pop_over_align.hide()
+      #@editor.continue = false
+      return false
 
   # handleKeyUp: (e, parent)->
 

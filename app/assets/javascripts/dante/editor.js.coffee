@@ -926,14 +926,15 @@ class Dante.Editor extends Dante.View
 
   #mark the current row as selected
   markAsSelected: (element)->
-    utils.log element
+    utils.log "MARK AS SELECTED"
+
     return if _.isUndefined element
 
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
 
     $(element).addClass("is-selected")
 
-    $(element).find(".defaultValue").remove()
+    #$(element).find(".defaultValue").remove()
     #set reached top if element is first!
     if $(element).hasClass("graf--first")
       @reachedTop = true
