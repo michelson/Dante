@@ -24,7 +24,6 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
     @showAlignPopover(ev)
 
   showAlignPopover: (ev)->
-
     target = $(ev.currentTarget)
     @editor.pop_over_align.positionPopOver(target) #unless $(".popover--Aligntooltip").hasClass('is-active')
 
