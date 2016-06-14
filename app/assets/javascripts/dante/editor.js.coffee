@@ -387,14 +387,15 @@ class Dante.Editor extends Dante.View
     , 20
 
   #handle arrow direction from keyUp.
-  handleArrow: (ev)=>
+  handleArrowForKeyUp: (ev)=>
     current_node = $(@getNode())
     if current_node.length > 0
       @markAsSelected( current_node )
       @displayTooltipAt( current_node )
 
+  ###
   #handle arrow direction from keyDown.
-  handleArrowForKey: (ev)=>
+  handleArrowForKeyDown: (ev)=>
     caret_node   = @getNode()
     current_node = $(caret_node)
     utils.log(ev)
@@ -494,6 +495,7 @@ class Dante.Editor extends Dante.View
           @skip_keyup = true
           @markAsSelected(prev_node)
           return false
+  ###
 
   #parse text for initial mess
   parseInitialMess: ()->
@@ -662,6 +664,8 @@ class Dante.Editor extends Dante.View
   handleKeyDown: (e)->
     utils.log "KEYDOWN"
 
+    @continue = true
+
     anchor_node = @getNode() #current node on which cursor is positioned
     parent = $(anchor_node)
 
@@ -673,6 +677,8 @@ class Dante.Editor extends Dante.View
     _.each @behaviors, (b)=>
       if b.handleKeyDown
         b.handleKeyDown(e, parent);
+
+    return false unless @continue
 
     if e.which is TAB
       @handleTab(anchor_node)
@@ -765,11 +771,11 @@ class Dante.Editor extends Dante.View
         return false;
 
       #select an image if backspacing into it from a paragraph
-      if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
-        if($(anchor_node).prev().hasClass("graf--figure") && @getSelectedText().length == 0)
-          e.preventDefault();
-          $(anchor_node).prev().find("img").click();
-          utils.log("Focus on the previous image");
+      #if($(anchor_node).hasClass("graf--p") && @isFirstChar() )
+      #  if($(anchor_node).prev().hasClass("graf--figure") && @getSelectedText().length == 0)
+      #    e.preventDefault();
+      #    $(anchor_node).prev().find("img").click();
+      #    utils.log("Focus on the previous image");
 
       if $(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")
         utils.log "SECTION DETECTED FROM KEYDOWN #{_.isEmpty($(utils_anchor_node).text())}"
@@ -780,6 +786,7 @@ class Dante.Editor extends Dante.View
         utils.log("TextNode detected from Down!")
         #return false
 
+      ###
       # supress del into & delete embed if empty content found on delete key
       if $(anchor_node).hasClass("graf--mixtapeEmbed") or $(anchor_node).hasClass("graf--iframe")
         if _.isEmpty $(anchor_node).text().trim() or @isFirstChar()
@@ -791,28 +798,26 @@ class Dante.Editor extends Dante.View
       # TODO: supress del when the prev el is embed and current_node is at first char
       if $(anchor_node).prev().hasClass("graf--mixtapeEmbed")
         return false if @isFirstChar() && !_.isEmpty( $(anchor_node).text().trim() )
+      ###
 
     #arrows key
     #up & down
+    ###
     if _.contains([UPARROW, DOWNARROW], e.which)
       utils.log e.which
-      @handleArrowForKey(e)
+      @handleArrowForKeyDown(e)
       #return false
-
+    ###
+    
     #hides tooltip if anchor_node text is empty
     if anchor_node
       unless _.isEmpty($(anchor_node).text())
         @tooltip_view.hide()
         $(anchor_node).removeClass("graf--empty")
 
-    #when user types over a selected image (graf--figure)
-    #unselect image , and set range on caption
-    if _.isUndefined(anchor_node) && $(".is-selected").hasClass("is-mediaFocused")
-      @setRangeAt $(".is-selected").find("figcaption")[0]
-      $(".is-selected").removeClass("is-mediaFocused")
-      return false
-
   handleKeyUp: (e , node)->
+
+    @continue = true
 
     if @skip_keyup
       @skip_keyup = null
@@ -833,6 +838,8 @@ class Dante.Editor extends Dante.View
     _.each @behaviors, (b)=>
       if b.handleKeyUp
         b.handleKeyUp(e)
+
+    return false unless @continue
 
     if (e.which == BACKSPACE)
 
@@ -876,7 +883,7 @@ class Dante.Editor extends Dante.View
 
     #arrows key
     if _.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)
-      @handleArrow(e)
+      @handleArrowForKeyUp(e)
       #return false
 
   handleKeyPress: (e, node)->
@@ -923,6 +930,7 @@ class Dante.Editor extends Dante.View
     return if _.isUndefined element
 
     $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
+
     $(element).addClass("is-selected")
 
     $(element).find(".defaultValue").remove()
@@ -1001,7 +1009,7 @@ class Dante.Editor extends Dante.View
     @cleanContents(element)
     @wrapTextNodes(element)
     #setup classes
-    _.each  element.children(), (n)=>
+    _.each element.children(), (n)=>
       name = $(n).prop("tagName").toLowerCase()
       n = @addClassesToElement(n)
       @setElementName(n)
@@ -1118,7 +1126,7 @@ class Dante.Editor extends Dante.View
 
   setupFirstAndLast: ()=>
     childs = $(@el).find(".section-inner").children()
-    childs.removeClass("graf--last , graf--first")
+    childs.removeClass("graf--last, graf--first")
     childs.first().addClass("graf--first")
     childs.last().addClass("graf--last")
 
