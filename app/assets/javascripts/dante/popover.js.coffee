@@ -324,7 +324,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     @pop_over_element = ".popover--Aligntooltip"
     @editor = opts.editor
     @hideTimeout
-    @settings = {timeout: 300}
+    @settings = {timeout: 100}
 
   alignLeft: (ev)->
     @activateLink $(ev.currentTarget)
