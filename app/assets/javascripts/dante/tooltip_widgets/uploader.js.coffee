@@ -74,7 +74,7 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       utils.log(this.width + 'x' + this.height);
 
       ar = self.getAspectRatio(this.width, this.height)
-      #debugger
+
       figure.find(".aspectRatioPlaceholder").css
         'max-width': ar.width
         'max-height': ar.height
@@ -219,7 +219,9 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       utils.log complete
 
   uploadCompleted: (url, node)=>
-    node.find("img").attr("src", url)
+    node.find("img")
+    .attr("src", url)
+    .data("src", url)
     #return false
 
   ###
@@ -231,6 +233,8 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
   # @return {Boolean} true if this function should scape the default behavior
   ###
   handleBackspaceKey: (e, node) =>
+    # this is not needed here since we are handling backspace for images in image behavior
+    ###
     utils.log "handleBackspaceKey on uploader widget"
    
     # remove graf figure if is selected but not in range (not focus on caption)
@@ -252,3 +256,4 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       @current_editor.replaceWith("p", $(".is-selected"))
       @current_editor.setRangeAt($(".is-selected")[0])
       return true
+    ###

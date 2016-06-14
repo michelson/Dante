@@ -94,7 +94,7 @@ Until now I´ve been able to implement the following features:
 #### Uploader:
 + **upload_url:**  default: /uploads.json
 + **upload_callback** default: empty, allows optional way to handle the server response when image is uploaded This is useful when you don't have control on the backend response.
-
++ **image_delete_callback**: default: none, returns the image data before deletion. use this if you want to destroy image from the server.
 #### Embed tool:
 + **oembed_url:**  default: http://api.embed.ly/1/oembed?url="
 + **extract_url:** default: http://api.embed.ly/1/extract?url="

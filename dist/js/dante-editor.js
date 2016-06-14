@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.1.3"
+    version: "0.1.4"
   };
 
 }).call(this);
@@ -440,8 +440,7 @@
       this.setupFirstAndLast = __bind(this.setupFirstAndLast, this);
       this.addClassesToElement = __bind(this.addClassesToElement, this);
       this.handlePaste = __bind(this.handlePaste, this);
-      this.handleArrowForKey = __bind(this.handleArrowForKey, this);
-      this.handleArrow = __bind(this.handleArrow, this);
+      this.handleArrowForKeyUp = __bind(this.handleArrowForKeyUp, this);
       this.handleMouseUp = __bind(this.handleMouseUp, this);
       this.selection = __bind(this.selection, this);
       this.render = __bind(this.render, this);
@@ -495,6 +494,7 @@
       this.el = opts.el || "#editor";
       this.upload_url = opts.upload_url || "/uploads.json";
       this.upload_callback = opts.upload_callback;
+      this.image_delete_callback = opts.image_delete_callback;
       this.oembed_url = opts.oembed_url || ("http://api.embed.ly/1/oembed?key=" + opts.api_key + "&url=");
       this.extract_url = opts.extract_url || ("http://api.embed.ly/1/extract?key=" + opts.api_key + "&url=");
       this.default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder;
@@ -512,7 +512,7 @@
       this.suggest_handler = opts.suggest_handler || null;
       this.suggest_resource_handler = opts.suggest_resource_handler || null;
       opts.base_widgets || (opts.base_widgets = ["uploader", "embed", "embed_extract"]);
-      opts.base_behaviors || (opts.base_behaviors = ["save", "image", "list", "suggest"]);
+      opts.base_behaviors || (opts.base_behaviors = ["save", "image", "paste", "list", "suggest"]);
       this.widgets = [];
       this.behaviors = [];
       window.debugMode = opts.debug || false;
@@ -550,19 +550,26 @@
         });
         this.behaviors.push(this.save_behavior);
       }
-      if (base_behaviors.indexOf("image") >= 0) {
-        this.save_behavior = new Dante.View.Behavior.Image({
+      if (base_behaviors.indexOf("paste") >= 0) {
+        this.paste_behavior = new Dante.View.Behavior.Paste({
           current_editor: this,
           el: this.el
         });
-        this.behaviors.push(this.save_behavior);
+        this.behaviors.push(this.paste_behavior);
+      }
+      if (base_behaviors.indexOf("image") >= 0) {
+        this.image_behavior = new Dante.View.Behavior.Image({
+          current_editor: this,
+          el: this.el
+        });
+        this.behaviors.push(this.image_behavior);
       }
       if (base_behaviors.indexOf("list") >= 0) {
-        this.save_behavior = new Dante.View.Behavior.List({
+        this.list_behavior = new Dante.View.Behavior.List({
           current_editor: this,
           el: this.el
         });
-        this.behaviors.push(this.save_behavior);
+        this.behaviors.push(this.list_behavior);
       }
       if (opts.extra_behaviors) {
         return _.each(opts.extra_behaviors, (function(_this) {
@@ -932,109 +939,12 @@
       }, 20);
     };
 
-    Editor.prototype.handleArrow = function(ev) {
+    Editor.prototype.handleArrowForKeyUp = function(ev) {
       var current_node;
       current_node = $(this.getNode());
       if (current_node.length > 0) {
         this.markAsSelected(current_node);
         return this.displayTooltipAt(current_node);
-      }
-    };
-
-    Editor.prototype.handleArrowForKey = function(ev) {
-      var caret_node, current_node, ev_type, n, next_node, num, prev_node;
-      caret_node = this.getNode();
-      current_node = $(caret_node);
-      utils.log(ev);
-      ev_type = ev.originalEvent.key || ev.originalEvent.keyIdentifier;
-      utils.log("ENTER ARROW for key " + ev_type);
-      switch (ev_type) {
-        case "ArrowDown":
-        case "Down":
-          if (_.isUndefined(current_node) || !current_node.exists()) {
-            if ($(".is-selected").exists()) {
-              current_node = $(".is-selected");
-            }
-          }
-          next_node = current_node.next();
-          utils.log("NEXT NODE IS " + (next_node.attr('class')));
-          utils.log("CURRENT NODE IS " + (current_node.attr('class')));
-          if (!$(current_node).hasClass("graf")) {
-            return;
-          }
-          if (!(current_node.hasClass("graf--figure") || $(current_node).editableCaretOnLastLine())) {
-            return;
-          }
-          utils.log("ENTER ARROW PASSED RETURNS");
-          if (next_node.hasClass("graf--figure") && caret_node) {
-            n = next_node.find(".imageCaption");
-            this.scrollTo(n);
-            utils.log("1 down");
-            utils.log(n[0]);
-            this.skip_keyup = true;
-            this.selection().removeAllRanges();
-            this.markAsSelected(next_node);
-            next_node.addClass("is-mediaFocused is-selected");
-            return false;
-          } else if (next_node.hasClass("graf--mixtapeEmbed")) {
-            n = current_node.next(".graf--mixtapeEmbed");
-            num = n[0].childNodes.length;
-            this.setRangeAt(n[0], num);
-            this.scrollTo(n);
-            utils.log("2 down");
-            return false;
-          }
-          if (current_node.hasClass("graf--figure") && next_node.hasClass("graf")) {
-            this.scrollTo(next_node);
-            utils.log("3 down, from figure to next graf");
-            this.markAsSelected(next_node);
-            this.setRangeAt(next_node[0]);
-            return false;
-          }
-          break;
-        case "ArrowUp":
-        case "Up":
-          prev_node = current_node.prev();
-          utils.log("PREV NODE IS " + (prev_node.attr('class')) + " " + (prev_node.attr('name')));
-          utils.log("CURRENT NODE IS up " + (current_node.attr('class')));
-          if (!$(current_node).hasClass("graf")) {
-            return;
-          }
-          if (!$(current_node).editableCaretOnFirstLine()) {
-            return;
-          }
-          utils.log("ENTER ARROW PASSED RETURNS");
-          if (prev_node.hasClass("graf--figure")) {
-            utils.log("1 up");
-            n = prev_node.find(".imageCaption");
-            this.scrollTo(n);
-            this.skip_keyup = true;
-            this.selection().removeAllRanges();
-            this.markAsSelected(prev_node);
-            prev_node.addClass("is-mediaFocused");
-            return false;
-          } else if (prev_node.hasClass("graf--mixtapeEmbed")) {
-            n = current_node.prev(".graf--mixtapeEmbed");
-            num = n[0].childNodes.length;
-            this.setRangeAt(n[0], num);
-            this.scrollTo(n);
-            utils.log("2 up");
-            return false;
-          }
-          if (current_node.hasClass("graf--figure") && prev_node.hasClass("graf")) {
-            this.setRangeAt(prev_node[0]);
-            this.scrollTo(prev_node);
-            utils.log("3 up");
-            return false;
-          } else if (prev_node.hasClass("graf")) {
-            n = current_node.prev(".graf");
-            num = n[0].childNodes.length;
-            this.scrollTo(n);
-            utils.log("4 up");
-            this.skip_keyup = true;
-            this.markAsSelected(prev_node);
-            return false;
-          }
       }
     };
 
@@ -1056,42 +966,19 @@
       return false;
     };
 
-    Editor.prototype.handlePaste = function(ev) {
-      var cbd, pastedText;
-      utils.log("pasted!");
-      this.aa = this.getNode();
-      pastedText = void 0;
-      if (window.clipboardData && window.clipboardData.getData) {
-        pastedText = window.clipboardData.getData('Text');
-      } else if (ev.originalEvent.clipboardData && ev.originalEvent.clipboardData.getData) {
-        cbd = ev.originalEvent.clipboardData;
-        pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
-      }
-      utils.log("Process and handle text...");
-      if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
-        utils.log("HTML DETECTED ON PASTE");
-        pastedText = pastedText.replace(/&.*;/g, "");
-        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
-        document.body.appendChild($("<div id='" + (this.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
-        $(this.paste_element_id).html("<span>" + pastedText + "</span>");
-        this.setupElementsClasses($(this.paste_element_id), (function(_this) {
-          return function(e) {
-            var last_node, new_node, nodes, num, top;
-            nodes = $(e.html()).insertAfter($(_this.aa));
-            e.remove();
-            last_node = nodes.last()[0];
-            num = last_node.childNodes.length;
-            _this.setRangeAt(last_node, num);
-            new_node = $(_this.getNode());
-            _this.markAsSelected(new_node);
-            _this.displayTooltipAt($(_this.el).find(".is-selected"));
-            _this.handleUnwrappedImages(nodes);
-            top = new_node.offset().top;
-            return $('html, body').animate({
-              scrollTop: top
-            }, 20);
-          };
-        })(this));
+    Editor.prototype.handlePaste = function(e) {
+      var parent;
+      this["continue"] = true;
+      utils.log("HANDLING PASTE");
+      parent = this.getNode();
+      _.each(this.behaviors, (function(_this) {
+        return function(b) {
+          if (b.handlePaste) {
+            return b.handlePaste(e, parent);
+          }
+        };
+      })(this));
+      if (!this["continue"]) {
         return false;
       }
     };
@@ -1207,6 +1094,7 @@
     Editor.prototype.handleKeyDown = function(e) {
       var anchor_node, eventHandled, parent, utils_anchor_node;
       utils.log("KEYDOWN");
+      this["continue"] = true;
       anchor_node = this.getNode();
       parent = $(anchor_node);
       if (anchor_node) {
@@ -1220,6 +1108,9 @@
           }
         };
       })(this));
+      if (!this["continue"]) {
+        return false;
+      }
       if (e.which === TAB) {
         this.handleTab(anchor_node);
         return false;
@@ -1311,13 +1202,6 @@
           utils.log("SCAPE FROM BACKSPACE HANDLER");
           return false;
         }
-        if ($(anchor_node).hasClass("graf--p") && this.isFirstChar()) {
-          if ($(anchor_node).prev().hasClass("graf--figure") && this.getSelectedText().length === 0) {
-            e.preventDefault();
-            $(anchor_node).prev().find("img").click();
-            utils.log("Focus on the previous image");
-          }
-        }
         if ($(utils_anchor_node).hasClass("section-content") || $(utils_anchor_node).hasClass("graf--first")) {
           utils.log("SECTION DETECTED FROM KEYDOWN " + (_.isEmpty($(utils_anchor_node).text())));
           if (_.isEmpty($(utils_anchor_node).text())) {
@@ -1327,41 +1211,18 @@
         if (anchor_node && anchor_node.nodeType === 3) {
           utils.log("TextNode detected from Down!");
         }
-        if ($(anchor_node).hasClass("graf--mixtapeEmbed") || $(anchor_node).hasClass("graf--iframe")) {
-          if (_.isEmpty($(anchor_node).text().trim() || this.isFirstChar())) {
-            utils.log("Check for inmediate deletion on empty embed text");
-            this.inmediateDeletion = this.isSelectingAll(anchor_node);
-            if (this.inmediateDeletion) {
-              this.handleInmediateDeletion($(anchor_node));
-            }
-            return false;
-          }
-        }
-        if ($(anchor_node).prev().hasClass("graf--mixtapeEmbed")) {
-          if (this.isFirstChar() && !_.isEmpty($(anchor_node).text().trim())) {
-            return false;
-          }
-        }
-      }
-      if (_.contains([UPARROW, DOWNARROW], e.which)) {
-        utils.log(e.which);
-        this.handleArrowForKey(e);
       }
       if (anchor_node) {
         if (!_.isEmpty($(anchor_node).text())) {
           this.tooltip_view.hide();
-          $(anchor_node).removeClass("graf--empty");
+          return $(anchor_node).removeClass("graf--empty");
         }
-      }
-      if (_.isUndefined(anchor_node) && $(".is-selected").hasClass("is-mediaFocused")) {
-        this.setRangeAt($(".is-selected").find("figcaption")[0]);
-        $(".is-selected").removeClass("is-mediaFocused");
-        return false;
       }
     };
 
     Editor.prototype.handleKeyUp = function(e, node) {
       var anchor_node, next_graf, utils_anchor_node;
+      this["continue"] = true;
       if (this.skip_keyup) {
         this.skip_keyup = null;
         utils.log("SKIP KEYUP");
@@ -1381,6 +1242,9 @@
           }
         };
       })(this));
+      if (!this["continue"]) {
+        return false;
+      }
       if (e.which === BACKSPACE) {
         if ($(utils_anchor_node).hasClass("postField--body")) {
           utils.log("ALL GONE from UP");
@@ -1418,7 +1282,7 @@
         }
       }
       if (_.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)) {
-        return this.handleArrow(e);
+        return this.handleArrowForKeyUp(e);
       }
     };
 
@@ -1473,13 +1337,12 @@
     };
 
     Editor.prototype.markAsSelected = function(element) {
-      utils.log(element);
+      utils.log("MARK AS SELECTED");
       if (_.isUndefined(element)) {
         return;
       }
       $(this.el).find(".is-selected").removeClass("is-mediaFocused is-selected");
       $(element).addClass("is-selected");
-      $(element).find(".defaultValue").remove();
       if ($(element).hasClass("graf--first")) {
         this.reachedTop = true;
         if ($(element).find("br").length === 0) {
@@ -1728,7 +1591,7 @@
     Editor.prototype.setupFirstAndLast = function() {
       var childs;
       childs = $(this.el).find(".section-inner").children();
-      childs.removeClass("graf--last , graf--first");
+      childs.removeClass("graf--last, graf--first");
       childs.first().addClass("graf--first");
       return childs.last().addClass("graf--last");
     };
@@ -1940,17 +1803,106 @@
 }).call(this);
 (function() {
   var utils,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.Paste = (function(_super) {
+    __extends(Paste, _super);
+
+    function Paste() {
+      this.handlePaste = __bind(this.handlePaste, this);
+      return Paste.__super__.constructor.apply(this, arguments);
+    }
+
+    Paste.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      return this.editor = opts.current_editor;
+    };
+
+    Paste.prototype.handlePaste = function(ev, parent) {
+      var cbd, pastedText;
+      utils.log("pasted!");
+      pastedText = void 0;
+      if (window.clipboardData && window.clipboardData.getData) {
+        pastedText = window.clipboardData.getData('Text');
+      } else if (ev.originalEvent.clipboardData && ev.originalEvent.clipboardData.getData) {
+        cbd = ev.originalEvent.clipboardData;
+        pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
+      }
+      utils.log("Process and handle text...");
+      if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
+        utils.log("HTML DETECTED ON PASTE");
+        pastedText = pastedText.replace(/&.*;/g, "");
+        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
+        document.body.appendChild($("<div id='" + (this.editor.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
+        $(this.editor.paste_element_id).html("<span>" + pastedText + "</span>");
+        this.editor.setupElementsClasses($(this.editor.paste_element_id), (function(_this) {
+          return function(e) {
+            var last_node, new_node, nodes, num, top;
+            nodes = $(e.html()).insertAfter($(parent));
+            e.remove();
+            last_node = nodes.last()[0];
+            num = last_node.childNodes.length;
+            _this.editor.setRangeAt(last_node, num);
+            new_node = $(_this.editor.getNode());
+            _this.editor.markAsSelected(new_node);
+            _this.editor.displayTooltipAt($(_this.editor.el).find(".is-selected"));
+            _this.editor.handleUnwrappedImages(nodes);
+            top = new_node.offset().top;
+            return $('html, body').animate({
+              scrollTop: top
+            }, 20);
+          };
+        })(this));
+        this.editor["continue"] = false;
+        return false;
+      }
+    };
+
+    return Paste;
+
+  })(Dante.View.Behavior);
+
+}).call(this);
+(function() {
+  var utils,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   utils = Dante.utils;
 
   Dante.View.Behavior.Image = (function(_super) {
+    var BACKSPACE, DOWNARROW, ENTER, LEFTARROW, RIGHTARROW, SPACEBAR, TAB, UPARROW;
+
     __extends(Image, _super);
 
     function Image() {
+      this.handleArrowForKeyUp = __bind(this.handleArrowForKeyUp, this);
+      this.handleArrowForKeyDown = __bind(this.handleArrowForKeyDown, this);
       return Image.__super__.constructor.apply(this, arguments);
     }
+
+    BACKSPACE = 8;
+
+    TAB = 9;
+
+    ENTER = 13;
+
+    SPACEBAR = 32;
+
+    LEFTARROW = 37;
+
+    UPARROW = 38;
+
+    RIGHTARROW = 39;
+
+    DOWNARROW = 40;
 
     Image.prototype.events = {
       "click .graf--figure .aspectRatioPlaceholder": "handleGrafFigureSelectImg",
@@ -1983,18 +1935,26 @@
       return this.editor.pop_over_align.positionPopOver(target);
     };
 
+    Image.prototype.placeHolderDiv = function(target) {
+      return target.find(".aspectRatioPlaceholder");
+    };
+
     Image.prototype.handleGrafFigureSelectCaption = function(ev) {
       var element;
       utils.log("FIGCAPTION");
       element = ev.currentTarget;
-      return $(element).parent(".graf--figure").removeClass("is-mediaFocused");
+      $(element).parent(".graf--figure").removeClass("is-mediaFocused");
+      return this.editor.pop_over_align.hide();
     };
 
     Image.prototype.handleGrafCaptionTyping = function(ev) {
+      var node;
+      this.editor.pop_over_align.hide();
+      node = $(this.editor.getNode());
       if (_.isEmpty(utils.getNode().textContent.trim())) {
-        return $(this.editor.getNode()).addClass("is-defaultValue");
+        return $(node).addClass("is-defaultValue");
       } else {
-        return $(this.editor.getNode()).removeClass("is-defaultValue");
+        return $(node).removeClass("is-defaultValue");
       }
     };
 
@@ -2014,6 +1974,191 @@
       element = ev.currentTarget;
       this.iframeSelected = null;
       return $(element).removeClass("is-selected is-mediaFocused");
+    };
+
+    Image.prototype.handleKeyDown = function(e, parent) {
+      var node;
+      if (_.contains([UPARROW, DOWNARROW], e.which)) {
+        utils.log(e.which);
+        this.handleArrowForKeyDown(e);
+      }
+      if (e.which === BACKSPACE) {
+        if ($(e.target).hasClass("graf--figure")) {
+          e.preventDefault();
+          if (this.editor.image_delete_callback) {
+            this.editor.image_delete_callback($(".is-selected").find("img").data());
+          }
+          utils.log("Replacing selected node");
+          this.editor.replaceWith("p", $(".is-selected"));
+          this.editor.setRangeAt($(".is-selected")[0]);
+          this.editor.pop_over_align.hide();
+          utils.log("Focus on the previous graf");
+          this.editor["continue"] = false;
+          return false;
+        }
+        if (parent.hasClass("graf--p") && this.editor.isFirstChar()) {
+          if (parent.prev().hasClass("graf--figure") && this.editor.getSelectedText().length === 0) {
+            e.preventDefault();
+            parent.prev().find("img").click();
+            this.editor.pop_over_align.positionPopOver(parent.prev());
+            utils.log("Focus on the previous image");
+            this.editor["continue"] = false;
+            return false;
+          }
+        }
+        if (parent.hasClass("graf--mixtapeEmbed") || parent.hasClass("graf--iframe")) {
+          if (_.isEmpty(parent.text().trim() || this.isFirstChar())) {
+            utils.log("Check for inmediate deletion on empty embed text");
+            this.editor.inmediateDeletion = this.editor.isSelectingAll(anchor_node);
+            if (this.editor.inmediateDeletion) {
+              this.editor.handleInmediateDeletion(parent);
+            }
+            e.preventDefault();
+            this.editor["continue"] = false;
+            return false;
+          }
+        }
+        if (parent.prev().hasClass("graf--mixtapeEmbed")) {
+          if (this.editor.isFirstChar() && !_.isEmpty(parent.text().trim())) {
+            this.editor["continue"] = false;
+            return false;
+          }
+        }
+      }
+      if (_.isUndefined(parent) || parent.length === 0 && $(".is-selected").hasClass("is-mediaFocused")) {
+        node = $(".is-selected").find("figcaption");
+        node.find(".defaultValue").remove();
+        this.editor.setRangeAt(node[0]);
+        $(".is-selected").removeClass("is-mediaFocused");
+        this.editor.pop_over_align.hide();
+        return false;
+      }
+    };
+
+    Image.prototype.handleArrowForKeyDown = function(ev) {
+      var caret_node, current_node, ev_type, n, next_node, num, prev_node;
+      caret_node = this.editor.getNode();
+      current_node = $(caret_node);
+      utils.log(ev);
+      ev_type = ev.originalEvent.key || ev.originalEvent.keyIdentifier;
+      utils.log("ENTER ARROW for key " + ev_type);
+      switch (ev_type) {
+        case "ArrowDown":
+        case "Down":
+          if (_.isUndefined(current_node) || !current_node.exists()) {
+            if ($(".is-selected").exists()) {
+              current_node = $(".is-selected");
+            }
+          }
+          next_node = current_node.next();
+          utils.log("NEXT NODE IS " + (next_node.attr('class')));
+          utils.log("CURRENT NODE IS " + (current_node.attr('class')));
+          if (!$(current_node).hasClass("graf")) {
+            return;
+          }
+          if (!(current_node.hasClass("graf--figure") || $(current_node).editableCaretOnLastLine())) {
+            return;
+          }
+          utils.log("ENTER ARROW PASSED RETURNS");
+          if (next_node.hasClass("graf--figure") && caret_node) {
+            n = next_node.find(".imageCaption");
+            this.editor.scrollTo(n);
+            utils.log("1 down");
+            utils.log(n[0]);
+            this.editor.skip_keyup = true;
+            this.editor.selection().removeAllRanges();
+            this.editor.markAsSelected(next_node);
+            next_node.addClass("is-mediaFocused is-selected");
+            this.editor.pop_over_align.positionPopOver(this.placeHolderDiv(next_node));
+            this.editor["continue"] = false;
+            return false;
+          } else if (next_node.prev().hasClass("graf--figure")) {
+            this.editor.pop_over_align.hide();
+          } else if (next_node.hasClass("graf--mixtapeEmbed")) {
+            n = current_node.next(".graf--mixtapeEmbed");
+            num = n[0].childNodes.length;
+            this.editor.setRangeAt(n[0], num);
+            utils.log("2 down");
+            this.editor["continue"] = false;
+            return false;
+          }
+          if (current_node.hasClass("graf--figure") && next_node.hasClass("graf")) {
+            this.editor.scrollTo(next_node);
+            utils.log("3 down, from figure to next graf");
+            this.editor.skip_keyup = true;
+            this.editor.markAsSelected(next_node);
+            this.editor.setRangeAt(next_node[0]);
+            this.editor["continue"] = false;
+            return false;
+          }
+          break;
+        case "ArrowUp":
+        case "Up":
+          prev_node = current_node.prev();
+          utils.log("PREV NODE IS " + (prev_node.attr('class')) + " " + (prev_node.attr('name')));
+          utils.log("CURRENT NODE IS up " + (current_node.attr('class')));
+          if (prev_node.length === 0 && $(ev.target).hasClass("graf--figure")) {
+            n = $(ev.target).prev(".graf");
+            this.editor["continue"] = false;
+            this.editor.markAsSelected(n[0]);
+            this.editor.pop_over_align.hide();
+            return false;
+          } else if (prev_node.length > 0 && $(".graf--figure.is-mediaFocused").length > 0) {
+            n = $(".graf--figure.is-mediaFocused").prev(".graf");
+            this.editor["continue"] = false;
+            this.editor.markAsSelected(n[0]);
+            this.editor.pop_over_align.hide();
+            return false;
+          }
+          if (!$(current_node).hasClass("graf")) {
+            return;
+          }
+          if (!$(current_node).editableCaretOnFirstLine()) {
+            return;
+          }
+          utils.log("ENTER ARROW PASSED RETURNS");
+          if (prev_node.hasClass("graf--figure")) {
+            utils.log("1 up");
+            n = prev_node.find(".imageCaption");
+            this.editor.scrollTo(n);
+            this.editor.skip_keyup = true;
+            this.editor.selection().removeAllRanges();
+            this.editor.markAsSelected(prev_node);
+            prev_node.addClass("is-mediaFocused");
+            this.editor.pop_over_align.positionPopOver(this.placeHolderDiv(prev_node));
+            this.editor["continue"] = false;
+            return false;
+          } else if (prev_node.hasClass("graf--mixtapeEmbed")) {
+            n = current_node.prev(".graf--mixtapeEmbed");
+            num = n[0].childNodes.length;
+            this.editor.setRangeAt(n[0], num);
+            utils.log("2 up");
+            this.editor["continue"] = false;
+            return false;
+          }
+          if (current_node.hasClass("graf--figure") && prev_node.hasClass("graf")) {
+            this.editor.setRangeAt(prev_node[0]);
+            utils.log("3 up");
+            this.editor["continue"] = false;
+            return false;
+          } else if (prev_node.hasClass("graf")) {
+            n = current_node.prev(".graf");
+            num = n[0].childNodes.length;
+            utils.log("4 up");
+            this.editor.skip_keyup = true;
+            this.editor.markAsSelected(prev_node);
+            return false;
+          }
+      }
+    };
+
+    Image.prototype.handleArrowForKeyUp = function(ev) {
+      var current_node;
+      current_node = $(this.editor.editor.getNode());
+      if (current_node.length > 0) {
+        this.editor.markAsSelected(current_node);
+        return this.editor.displayTooltipAt(current_node);
+      }
     };
 
     return Image;
@@ -2576,7 +2721,7 @@
     };
 
     Uploader.prototype.uploadCompleted = function(url, node) {
-      return node.find("img").attr("src", url);
+      return node.find("img").attr("src", url).data("src", url);
     };
 
 
@@ -2590,23 +2735,30 @@
      */
 
     Uploader.prototype.handleBackspaceKey = function(e, node) {
-      var anchor_node;
-      utils.log("handleBackspaceKey on uploader widget");
-      if ($(node).hasClass("is-selected") && $(node).hasClass("graf--figure")) {
-        anchor_node = this.current_editor.selection().anchorNode;
-        if ((anchor_node != null) && $(anchor_node.parentNode).hasClass("imageCaption")) {
-          if (this.current_editor.isFirstChar()) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      } else if ($(".is-selected").hasClass("is-mediaFocused")) {
-        utils.log("Replacing selected node");
-        this.current_editor.replaceWith("p", $(".is-selected"));
-        this.current_editor.setRangeAt($(".is-selected")[0]);
-        return true;
-      }
+
+      /*
+      utils.log "handleBackspaceKey on uploader widget"
+         
+       * remove graf figure if is selected but not in range (not focus on caption)
+      if $(node).hasClass("is-selected") && $(node).hasClass("graf--figure")
+         * exit if selection is on caption
+        anchor_node = @current_editor.selection().anchorNode
+        
+         * return false unless backspace is in the first char
+        if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
+          if @current_editor.isFirstChar()
+            return true
+          else
+            return false
+      
+      else if $(".is-selected").hasClass("is-mediaFocused")
+         * assume that select node is the current media element
+         * if it's focused when backspace it means that it should be removed
+        utils.log("Replacing selected node")
+        @current_editor.replaceWith("p", $(".is-selected"))
+        @current_editor.setRangeAt($(".is-selected")[0])
+        return true
+       */
     };
 
     return Uploader;
@@ -3245,7 +3397,7 @@
       this.editor = opts.editor;
       this.hideTimeout;
       return this.settings = {
-        timeout: 300
+        timeout: 100
       };
     };
 
@@ -3626,6 +3778,7 @@
 
 }).call(this);
 //Editor components
+
 
 
 
