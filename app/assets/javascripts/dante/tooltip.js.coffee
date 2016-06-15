@@ -34,8 +34,20 @@ class Dante.Editor.Tooltip extends Dante.View
 
 
   render: ()=>
-    $(@el).html(@template())
-    $(@el).addClass("is-active")
+    tooltip = $(@el)
+    tooltip.html(@template())
+    tooltip.addClass("is-active")
+
+    # Set menu size
+    tooltip_menu           = tooltip.find(".inlineTooltip-menu")
+    tooltip_buttons        = tooltip_menu.find(".inlineTooltip-button")
+    tooltip_button_width   = $(tooltip_buttons[0]).css("width")
+    tooltip_button_spacing = $(tooltip_buttons[0]).css("margin-right")
+    tooltip_button_size    = parseInt(tooltip_button_width.replace(/px/,"")) + parseInt(tooltip_button_spacing.replace(/px/,""))
+    tooltip_menu_size      = tooltip_button_size * tooltip_buttons.length
+
+    # Add 1px on expanded tooltip to avoid colapsed buttons in FF
+    tooltip_menu.css("width", "#{tooltip_menu_size + 1}px")
     @
 
   toggleOptions: ()=>

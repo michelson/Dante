@@ -20,17 +20,14 @@
   &.is-scaled {
     -webkit-transition-delay: 0;
     transition-delay: 0;
+    width: auto;
   }
 }
 
 // MENU
 .inlineTooltip-menu {
-  & {
-    width: $tooltip-size-expanded;
-  }
-  button {
-    margin-right: $tooltip-button-spacing;
-  }
+  display: inline-block;
+  margin-left: $tooltip-size + $tooltip-menu-spacing;
 }
 
 // BUTTON
@@ -39,7 +36,7 @@
   // BASE
   & {
     float: left;
-    margin-right: $tooltip-menu-spacing;
+    margin-right: $tooltip-button-spacing;
     display: inline-block;
     position: relative;
     outline: 0;
@@ -105,6 +102,11 @@
 
   // CONTROL
   &.control {
+    & {
+      display: block;
+      position: absolute;
+      margin-right: $tooltip-menu-spacing;
+    }
     & {
       -webkit-transition: -webkit-#{$tooltip-forward-transition}, $tooltip-default-transition;
               transition: $tooltip-forward-transition, $tooltip-default-transition;
