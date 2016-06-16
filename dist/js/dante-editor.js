@@ -3093,15 +3093,16 @@
     };
 
     PopOver.prototype.positionAt = function(ev) {
-      var left_value, popover_width, target, target_height, target_offset, target_positions, target_width, top_value;
+      var left_value, popover_width, target, target_height, target_offset, target_positions, target_width, top_value, wrapperOffset;
       target = $(ev.currentTarget);
+      wrapperOffset = target.closest('article.postArticle').offset();
       target_positions = this.resolveTargetPosition(target);
       target_offset = target.offset();
       target_width = target.outerWidth();
       target_height = target.outerHeight();
       popover_width = this.findElement().outerWidth();
       top_value = target_positions.top + target_height;
-      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2) - wrapperOffset.left;
       this.findElement().css("top", top_value).css("left", left_value).show();
       return this.handleDirection(target);
     };
@@ -3446,15 +3447,16 @@
     };
 
     ImageTooltip.prototype.positionPopOver = function(target) {
-      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value;
+      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value, wrapperOffset;
+      wrapperOffset = target.closest('article.postArticle').offset();
       target_offset = target.offset();
       target_position = target.parent().position();
       target_width = target.outerWidth();
       target_height = target.outerHeight();
       popover_width = this.findElement().outerWidth();
-      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? 52 : 54;
+      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? 72 : 74;
       top_value = target_position.top - pad_top;
-      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2) - wrapperOffset.left;
       this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
       return this.handleActiveClass();
     };
