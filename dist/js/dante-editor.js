@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.1.4"
+    version: "0.1.5"
   };
 
 }).call(this);
@@ -2992,8 +2992,17 @@
     };
 
     Tooltip.prototype.render = function() {
-      $(this.el).html(this.template());
-      $(this.el).addClass("is-active");
+      var tooltip, tooltip_button_size, tooltip_button_spacing, tooltip_button_width, tooltip_buttons, tooltip_menu, tooltip_menu_size;
+      tooltip = $(this.el);
+      tooltip.html(this.template());
+      tooltip.addClass("is-active");
+      tooltip_menu = tooltip.find(".inlineTooltip-menu");
+      tooltip_buttons = tooltip_menu.find(".inlineTooltip-button");
+      tooltip_button_width = $(tooltip_buttons[0]).css("width");
+      tooltip_button_spacing = $(tooltip_buttons[0]).css("margin-right");
+      tooltip_button_size = parseInt(tooltip_button_width.replace(/px/, "")) + parseInt(tooltip_button_spacing.replace(/px/, ""));
+      tooltip_menu_size = tooltip_button_size * tooltip_buttons.length;
+      tooltip_menu.css("width", "" + (tooltip_menu_size + 1) + "px");
       return this;
     };
 
@@ -3214,15 +3223,16 @@
     };
 
     PopOverTypeAhead.prototype.positionAt = function(target) {
-      var left_value, popover_width, target_height, target_offset, target_positions, target_width, top_value;
+      var left_value, popover_width, target_height, target_offset, target_positions, target_width, top_value, wrapperOffset;
       target = $(target);
+      wrapperOffset = target.closest('article.postArticle').offset();
       target_positions = this.resolveTargetPosition(target);
       target_offset = target.offset();
       target_width = target.outerWidth();
       target_height = target.outerHeight();
       popover_width = this.findElement().outerWidth();
       top_value = target_positions.top + target_height;
-      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2) - wrapperOffset.left;
       this.findElement().css("top", top_value).css("left", left_value).show();
       return this.handleDirection(target);
     };
@@ -3447,8 +3457,7 @@
     };
 
     ImageTooltip.prototype.positionPopOver = function(target) {
-      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value, wrapperOffset;
-      wrapperOffset = target.closest('article.postArticle').offset();
+      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value;
       target_offset = target.offset();
       target_position = target.parent().position();
       target_width = target.outerWidth();
@@ -3456,7 +3465,7 @@
       popover_width = this.findElement().outerWidth();
       pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? 72 : 74;
       top_value = target_position.top - pad_top;
-      left_value = target_offset.left + (target_width / 2) - (popover_width / 2) - wrapperOffset.left;
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
       this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
       return this.handleActiveClass();
     };

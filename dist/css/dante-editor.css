@@ -435,16 +435,16 @@
     pointer-events: auto; }
   .inlineTooltip.is-scaled {
     -webkit-transition-delay: 0;
-    transition-delay: 0; }
+    transition-delay: 0;
+    width: auto; }
 
 .inlineTooltip-menu {
-  width: 178px; }
-.inlineTooltip-menu button {
-  margin-right: 9px; }
+  display: inline-block;
+  margin-left: 54px; }
 
 .inlineTooltip-button {
   float: left;
-  margin-right: 22px;
+  margin-right: 9px;
   display: inline-block;
   position: relative;
   outline: 0;
@@ -490,6 +490,27 @@
   transform: scale(1);
   -webkit-transition: -webkit-transform 250ms, 100ms border-color, 100ms color;
   transition: transform 250ms, 100ms border-color, 100ms color; }
+.inlineTooltip-button.scale:nth-child(11) {
+  -webkit-transition-delay: 300ms;
+  transition-delay: 300ms; }
+.inlineTooltip-button.scale:nth-child(10) {
+  -webkit-transition-delay: 270ms;
+  transition-delay: 270ms; }
+.inlineTooltip-button.scale:nth-child(9) {
+  -webkit-transition-delay: 240ms;
+  transition-delay: 240ms; }
+.inlineTooltip-button.scale:nth-child(8) {
+  -webkit-transition-delay: 210ms;
+  transition-delay: 210ms; }
+.inlineTooltip-button.scale:nth-child(7) {
+  -webkit-transition-delay: 180ms;
+  transition-delay: 180ms; }
+.inlineTooltip-button.scale:nth-child(6) {
+  -webkit-transition-delay: 150ms;
+  transition-delay: 150ms; }
+.inlineTooltip-button.scale:nth-child(5) {
+  -webkit-transition-delay: 120ms;
+  transition-delay: 120ms; }
 .inlineTooltip-button.scale:nth-child(4) {
   -webkit-transition-delay: 90ms;
   transition-delay: 90ms; }
@@ -499,6 +520,10 @@
 .inlineTooltip-button.scale:nth-child(2) {
   -webkit-transition-delay: 30ms;
   transition-delay: 30ms; }
+.inlineTooltip-button.control {
+  display: block;
+  position: absolute;
+  margin-right: 22px; }
 .inlineTooltip-button.control {
   -webkit-transition: -webkit-transform 100ms, 100ms border-color, 100ms color;
   transition: transform 100ms, 100ms border-color, 100ms color;
