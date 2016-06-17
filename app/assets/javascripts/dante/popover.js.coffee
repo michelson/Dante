@@ -148,13 +148,14 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
   #display & copy original link
   positionAt: (target)->
     target           = $(target)
+    wrapperOffset    = target.closest('article.postArticle').offset()
     target_positions = @resolveTargetPosition(target)
     target_offset    = target.offset()
     target_width     = target.outerWidth()
     target_height    = target.outerHeight()
     popover_width    = @findElement().outerWidth()
     top_value        = target_positions.top + target_height
-    left_value       = target_offset.left + (target_width/2) - (popover_width/2)
+    left_value       = target_offset.left + (target_width/2) - (popover_width/2) - wrapperOffset.left
 
     @findElement()
       .css("top", top_value)
