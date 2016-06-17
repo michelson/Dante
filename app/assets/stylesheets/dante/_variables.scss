@@ -80,15 +80,13 @@ $tooltip-border-radius:         999em;
 $tooltip-button-spacing:        9px;
 $tooltip-menu-spacing:          22px;
 
-$tooltip-items:                 3;
+$tooltip-items:                 10; // Fix this and remove it
 $tooltip-item-delay:            30;
 $tooltip-size:                  32px;
 $tooltip-line-height:           $tooltip-size;
 
 $tooltip-caret-size:            12px;
 
-// Add 1px on expanded tooltip to avoid colapsed buttons in FF
-$tooltip-size-expanded:         1 + ($tooltip-size + $tooltip-menu-spacing) + (($tooltip-size + $tooltip-button-spacing) * $tooltip-items);
 $tooltip-default-transition:    100ms border-color, 100ms color;
 $tooltip-forward-transition:    transform 100ms;
 $tooltip-backward-transition:   transform 250ms;
