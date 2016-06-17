@@ -26,13 +26,14 @@ class Dante.Editor.PopOver extends Dante.View
   #display & copy original link
   positionAt: (ev)->
     target           = $(ev.currentTarget)
+    wrapperOffset    = target.closest('article.postArticle').offset()
     target_positions = @resolveTargetPosition(target)
     target_offset    = target.offset()
     target_width     = target.outerWidth()
     target_height    = target.outerHeight()
     popover_width    = @findElement().outerWidth()
     top_value        = target_positions.top + target_height
-    left_value       = target_offset.left + (target_width/2) - (popover_width/2)
+    left_value       = target_offset.left + (target_width/2) - (popover_width/2) - wrapperOffset.left
 
     @findElement()
       .css("top", top_value)
@@ -147,13 +148,14 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
   #display & copy original link
   positionAt: (target)->
     target           = $(target)
+    wrapperOffset    = target.closest('article.postArticle').offset()
     target_positions = @resolveTargetPosition(target)
     target_offset    = target.offset()
     target_width     = target.outerWidth()
     target_height    = target.outerHeight()
     popover_width    = @findElement().outerWidth()
     top_value        = target_positions.top + target_height
-    left_value       = target_offset.left + (target_width/2) - (popover_width/2)
+    left_value       = target_offset.left + (target_width/2) - (popover_width/2) - wrapperOffset.left
 
     @findElement()
       .css("top", top_value)
@@ -394,7 +396,7 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
     popover_width    = @findElement().outerWidth()
 
     # hacky hack
-    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then 52 else 54
+    pad_top = if @findSelectedImage().hasClass("graf--layoutOutsetLeft") then 72 else 74
 
     top_value  = target_position.top - pad_top # target_positions.top + target_height
     left_value = target_offset.left + (target_width/2) - (popover_width/2)
