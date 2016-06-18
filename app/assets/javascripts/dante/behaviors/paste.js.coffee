@@ -28,13 +28,12 @@ class Dante.View.Behavior.Paste extends Dante.View.Behavior
       utils.log("HTML DETECTED ON PASTE")
       #pastedText = pastedText.replace(/&.*;/g, "")
 
-      #convert pasted divs in p before copy contents into div
+      # convert pasted divs in p before copy contents into div
       pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>')
 
-      #create the placeholder element and assign pasted content
+      # create the placeholder element and assign pasted content
       document.body.appendChild( $("<div id='#{@editor.paste_element_id.replace('#', '')}' class='dante-paste'></div>")[0] )
-      utils.log(pastedText)
-      
+
       paste_el = $(@editor.paste_element_id)
       paste_el.html("<span>#{pastedText}</span>")
       nodes = $(paste_el.html()).insertBefore($(parent))
