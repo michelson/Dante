@@ -8,7 +8,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.1.5"
+    version: "0.1.6"
   };
 
 }).call(this);
@@ -1825,7 +1825,7 @@
     };
 
     Paste.prototype.handlePaste = function(ev, parent) {
-      var cbd, pastedText;
+      var cbd, nodes, paste_el, pastedText;
       utils.log("pasted!");
       pastedText = void 0;
       if (window.clipboardData && window.clipboardData.getData) {
@@ -1835,30 +1835,41 @@
         pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
       }
       utils.log("Process and handle text...");
+      utils.log(pastedText);
       if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
         utils.log("HTML DETECTED ON PASTE");
-        pastedText = pastedText.replace(/&.*;/g, "");
         pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
         document.body.appendChild($("<div id='" + (this.editor.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
-        $(this.editor.paste_element_id).html("<span>" + pastedText + "</span>");
-        this.editor.setupElementsClasses($(this.editor.paste_element_id), (function(_this) {
-          return function(e) {
-            var last_node, new_node, nodes, num, top;
-            nodes = $(e.html()).insertAfter($(parent));
-            e.remove();
-            last_node = nodes.last()[0];
-            num = last_node.childNodes.length;
-            _this.editor.setRangeAt(last_node, num);
-            new_node = $(_this.editor.getNode());
-            _this.editor.markAsSelected(new_node);
-            _this.editor.displayTooltipAt($(_this.editor.el).find(".is-selected"));
-            _this.editor.handleUnwrappedImages(nodes);
-            top = new_node.offset().top;
-            return $('html, body').animate({
-              scrollTop: top
-            }, 20);
-          };
-        })(this));
+        paste_el = $(this.editor.paste_element_id);
+        paste_el.html("<span>" + pastedText + "</span>");
+        nodes = $(paste_el.html()).insertBefore($(parent));
+        this.editor.parseInitialMess();
+
+        /*
+        @editor.setupElementsClasses $(@editor.paste_element_id), (e)=>
+           * e is the target object which is cleaned
+          nodes = $(e.html()).insertAfter($(parent))
+           *remove paste div since we wont use it until the next paste
+          e.remove()
+           *set caret on newly created node
+          last_node = nodes.last()[0]
+          num = last_node.childNodes.length
+          @editor.setRangeAt(last_node, num)
+          
+           *select new node
+          new_node = $(@editor.getNode())
+          @editor.markAsSelected(new_node)
+          @editor.displayTooltipAt($(@editor.el).find(".is-selected"))
+          
+           * wrap new images
+          @editor.handleUnwrappedImages(nodes)
+        
+           *scroll to element top
+          top = new_node.offset().top
+          $('html, body').animate
+            scrollTop: top
+          , 20
+         */
         this.editor["continue"] = false;
         return false;
       }
