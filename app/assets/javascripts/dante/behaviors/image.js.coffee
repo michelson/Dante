@@ -85,11 +85,11 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
         # call callback for image delete 
         if @editor.image_delete_callback
-          @editor.image_delete_callback( $(".is-selected").find("img").data() )
+          @editor.image_delete_callback( @editor.findSelected().find("img").data() )
         
         utils.log("Replacing selected node")
-        @editor.replaceWith("p", $(".is-selected"))
-        @editor.setRangeAt($(".is-selected")[0])
+        @editor.replaceWith("p", @editor.findSelected())
+        @editor.setRangeAt(@editor.findSelected()[0])
         @editor.pop_over_align.hide()
         utils.log("Focus on the previous graf")
         @editor.continue = false
@@ -123,13 +123,13 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
 
     # when user types over a selected image (graf--figure)
     # unselect image , and set range on caption
-    if _.isUndefined(parent) or parent.length is 0 && $(".is-selected").hasClass("is-mediaFocused")
+    if _.isUndefined(parent) or parent.length is 0 && @editor.findSelected().hasClass("is-mediaFocused")
       # will remove default value on typing
-      node = $(".is-selected").find("figcaption")
+      node = @editor.findSelected().find("figcaption")
       node.find(".defaultValue").remove()
     
       @editor.setRangeAt node[0]
-      $(".is-selected").removeClass("is-mediaFocused")
+      @editor.findSelected().removeClass("is-mediaFocused")
       @editor.pop_over_align.hide()
       #@editor.continue = false
       return false
@@ -153,8 +153,8 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
       when "ArrowDown", "Down"
         # when graff-image selected but none selection is found
         if _.isUndefined(current_node) or !current_node.exists()
-          if $(".is-selected").exists()
-            current_node = $(".is-selected")
+          if @editor.findSelected().exists()
+            current_node = @editor.findSelected()
 
         next_node = current_node.next()
         

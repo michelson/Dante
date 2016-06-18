@@ -60,7 +60,7 @@ class Dante.View.Behavior.List extends Dante.View.Behavior
 
     @editor.addClassesToElement($list[0])
     @editor.replaceWith("li", $paragraph)
-    $li = $(".is-selected")
+    $li = @editor.findSelected()
 
     @editor.setElementName($li[0])
 
@@ -141,7 +141,7 @@ class Dante.View.Behavior.List extends Dante.View.Behavior
       $list.before($li)
       content = $li.html()
       @editor.replaceWith("p", $li)
-      $paragraph = $(".is-selected")
+      $paragraph = @editor.findSelected()
       $paragraph.removeClass("graf--empty").html(content).attr("name", utils.generateUniqueName());
 
       if($list.children().length is 0)

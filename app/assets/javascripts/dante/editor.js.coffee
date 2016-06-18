@@ -488,7 +488,7 @@ class Dante.Editor extends Dante.View
       else if !prev
         @.setRangeAt(@.$el.find(".section-inner p")[0])
 
-      @displayTooltipAt($(@el).find(".is-selected"))
+      @displayTooltipAt(@findSelected())
 
   #used when all the content is removed, then it re render
   handleCompleteDeletion: (element)->
@@ -550,7 +550,7 @@ class Dante.Editor extends Dante.View
     if e.which is ENTER
 
       #removes previous selected nodes
-      $(@el).find(".is-selected").removeClass("is-selected")
+      @findSelected().removeClass("is-selected")
 
       utils.log @isLastChar()
 
@@ -569,9 +569,9 @@ class Dante.Editor extends Dante.View
       if parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         if @isLastChar()
           @handleLineBreakWith("p", parent)
-          @setRangeAtText($(".is-selected")[0])
+          @setRangeAtText(@findSelected()[0])
 
-          $(".is-selected").trigger("mouseup") #is not making any change
+          @findSelected().trigger("mouseup") #is not making any change
           return false
         else
           return false
@@ -603,7 +603,7 @@ class Dante.Editor extends Dante.View
           $(node).append("<br>")
 
         # shows tooltip
-        @displayTooltipAt($(@el).find(".is-selected"))
+        @displayTooltipAt(@findSelected())
       , 2
 
     # delete key
@@ -770,7 +770,7 @@ class Dante.Editor extends Dante.View
 
     return if _.isUndefined element
 
-    $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
+    @findSelected().removeClass("is-mediaFocused is-selected")
 
     $(element).addClass("is-selected")
 
@@ -990,3 +990,5 @@ class Dante.Editor extends Dante.View
     $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
     $item
 
+  findSelected: ->
+    $(@el).find(".is-selected")
