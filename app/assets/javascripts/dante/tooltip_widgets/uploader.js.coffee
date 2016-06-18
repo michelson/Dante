@@ -20,7 +20,7 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
         <img src='' data-height='' data-width='' data-image-id='' class='graf-image' data-delayed-src=''>
       </div>
       <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'>
-        <span class='defaultValue'>Type caption for image (optional)</span>
+        <span class='defaultValue'>#{@current_editor.image_caption_placeholder}</span>
         <br>
       </figcaption>
     </figure>"

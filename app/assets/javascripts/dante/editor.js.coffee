@@ -39,11 +39,13 @@ class Dante.Editor extends Dante.View
     @upload_url      = opts.upload_url  || "/uploads.json"
     @upload_callback = opts.upload_callback
     @image_delete_callback = opts.image_delete_callback
+    @image_caption_placeholder = opts.image_caption_placeholder || "Type caption for image (optional)"
 
     @oembed_url      = opts.oembed_url  || "http://api.embed.ly/1/oembed?key=#{opts.api_key}&url="
     @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=#{opts.api_key}&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
-    
+    @embed_caption_placeholder = opts.embed_caption_placeholder || "Type caption for embed (optional)"
+
     @store_url       = opts.store_url
     @store_method    = opts.store_method || "POST"
     @store_success_handler = opts.store_success_handler
