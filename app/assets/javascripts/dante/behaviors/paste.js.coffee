@@ -13,6 +13,9 @@ class Dante.View.Behavior.Paste extends Dante.View.Behavior
   handlePaste: (ev, parent)=>
     
     utils.log("pasted!")
+    
+    # hide default value if it's any
+    @editor.hidePlaceholder($(parent))
 
     pastedText = undefined
     if (window.clipboardData && window.clipboardData.getData) #IE

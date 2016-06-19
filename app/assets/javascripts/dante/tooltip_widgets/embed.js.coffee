@@ -21,7 +21,7 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
         <iframe frameborder='0' width='700' height='393' data-media-id='' src='' data-height='480' data-width='854'>
         </iframe>
       </div>
-      <figcaption contenteditable='true' data-default-value='Type caption for embed (optional)' class='imageCaption'>
+      <figcaption contenteditable='true' data-default-value='#{@current_editor.embed_caption_placeholder}' class='imageCaption'>
         <a rel='nofollow' class='markup--anchor markup--figure-anchor' data-href='' href='' target='_blank'>
 
         </a>
@@ -41,8 +41,8 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
     @node = $(node)
     @node_name = @node.attr("name")
     @node.addClass("spinner")
-
-    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}")
+    url = "#{@current_editor.oembed_url}#{$(@node).text()}&scheme=https"
+    $.getJSON(url)
       .success (data)=>
         @node = $("[name=#{@node_name}]")
         iframe_src = $(data.html).prop("src")

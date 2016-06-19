@@ -92,13 +92,19 @@ Until now I´ve been able to implement the following features:
 + **store_interval:** default: 1500 (1.5 secs), used when store_url is present.
 
 #### Uploader:
+
 + **upload_url:**  default: /uploads.json
 + **upload_callback** default: empty, allows optional way to handle the server response when image is uploaded This is useful when you don't have control on the backend response.
 + **image_delete_callback**: default: none, returns the image data before deletion. use this if you want to destroy image from the server.
++ **image_caption_placeholder** default: "Type caption for image (optional)"
+
+
 #### Embed tool:
+
 + **oembed_url:**  default: http://api.embed.ly/1/oembed?url="
 + **extract_url:** default: http://api.embed.ly/1/extract?url="
 + **embed_placeholder** default: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
++ **embed_caption_placeholder** default: "Type caption for embed (optional)"
 + **extract_placeholder** default: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 
 #### Suggest Behavior (new!)

@@ -495,9 +495,11 @@
       this.upload_url = opts.upload_url || "/uploads.json";
       this.upload_callback = opts.upload_callback;
       this.image_delete_callback = opts.image_delete_callback;
+      this.image_caption_placeholder = opts.image_caption_placeholder || "Type caption for image (optional)";
       this.oembed_url = opts.oembed_url || ("http://api.embed.ly/1/oembed?key=" + opts.api_key + "&url=");
       this.extract_url = opts.extract_url || ("http://api.embed.ly/1/extract?key=" + opts.api_key + "&url=");
       this.default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder;
+      this.embed_caption_placeholder = opts.embed_caption_placeholder || "Type caption for embed (optional)";
       this.store_url = opts.store_url;
       this.store_method = opts.store_method || "POST";
       this.store_success_handler = opts.store_success_handler;
@@ -1051,7 +1053,7 @@
         } else if (!prev) {
           this.setRangeAt(this.$el.find(".section-inner p")[0]);
         }
-        return this.displayTooltipAt($(this.el).find(".is-selected"));
+        return this.displayTooltipAt(this.findSelected());
       }
     };
 
@@ -1101,22 +1103,12 @@
         this.markAsSelected(anchor_node);
       }
       utils.log("HANDLING Behavior KEYDOWN");
-      _.each(this.behaviors, (function(_this) {
-        return function(b) {
-          if (b.handleKeyDown) {
-            return b.handleKeyDown(e, parent);
-          }
-        };
-      })(this));
-      if (!this["continue"]) {
-        return false;
-      }
       if (e.which === TAB) {
         this.handleTab(anchor_node);
         return false;
       }
       if (e.which === ENTER) {
-        $(this.el).find(".is-selected").removeClass("is-selected");
+        this.findSelected().removeClass("is-selected");
         utils.log(this.isLastChar());
         utils.log("HANDLING WIDGET ENTER");
         _.each(this.widgets, (function(_this) {
@@ -1135,8 +1127,8 @@
         if (parent.hasClass("graf--iframe") || parent.hasClass("graf--figure")) {
           if (this.isLastChar()) {
             this.handleLineBreakWith("p", parent);
-            this.setRangeAtText($(".is-selected")[0]);
-            $(".is-selected").trigger("mouseup");
+            this.setRangeAtText(this.findSelected()[0]);
+            this.findSelected().trigger("mouseup");
             return false;
           } else {
             return false;
@@ -1169,7 +1161,7 @@
               });
               $(node).append("<br>");
             }
-            return _this.displayTooltipAt($(_this.el).find(".is-selected"));
+            return _this.displayTooltipAt(_this.findSelected());
           };
         })(this), 2);
       }
@@ -1215,8 +1207,18 @@
       if (anchor_node) {
         if (!_.isEmpty($(anchor_node).text())) {
           this.tooltip_view.hide();
-          return $(anchor_node).removeClass("graf--empty");
+          $(anchor_node).removeClass("graf--empty");
         }
+      }
+      _.each(this.behaviors, (function(_this) {
+        return function(b) {
+          if (b.handleKeyDown) {
+            return b.handleKeyDown(e, parent);
+          }
+        };
+      })(this));
+      if (!this["continue"]) {
+        return false;
       }
     };
 
@@ -1234,17 +1236,6 @@
       anchor_node = this.getNode();
       utils_anchor_node = utils.getNode();
       this.handleTextSelection(anchor_node);
-      utils.log("HANDLING Behavior KEYUPS");
-      _.each(this.behaviors, (function(_this) {
-        return function(b) {
-          if (b.handleKeyUp) {
-            return b.handleKeyUp(e);
-          }
-        };
-      })(this));
-      if (!this["continue"]) {
-        return false;
-      }
       if (e.which === BACKSPACE) {
         if ($(utils_anchor_node).hasClass("postField--body")) {
           utils.log("ALL GONE from UP");
@@ -1282,7 +1273,18 @@
         }
       }
       if (_.contains([LEFTARROW, UPARROW, RIGHTARROW, DOWNARROW], e.which)) {
-        return this.handleArrowForKeyUp(e);
+        this.handleArrowForKeyUp(e);
+      }
+      utils.log("HANDLING Behavior KEYUPS");
+      _.each(this.behaviors, (function(_this) {
+        return function(b) {
+          if (b.handleKeyUp) {
+            return b.handleKeyUp(e);
+          }
+        };
+      })(this));
+      if (!this["continue"]) {
+        return false;
       }
     };
 
@@ -1290,6 +1292,7 @@
       var anchor_node, parent;
       anchor_node = this.getNode();
       parent = $(anchor_node);
+      this.hidePlaceholder(parent);
       utils.log("HANDLING Behavior KEYPRESS");
       return _.each(this.behaviors, (function(_this) {
         return function(b) {
@@ -1341,7 +1344,7 @@
       if (_.isUndefined(element)) {
         return;
       }
-      $(this.el).find(".is-selected").removeClass("is-mediaFocused is-selected");
+      this.findSelected().removeClass("is-mediaFocused is-selected");
       $(element).addClass("is-selected");
       if ($(element).hasClass("graf--first")) {
         this.reachedTop = true;
@@ -1623,6 +1626,10 @@
       return $item;
     };
 
+    Editor.prototype.findSelected = function() {
+      return $(this.el).find(".is-selected");
+    };
+
     return Editor;
 
   })(Dante.View);
@@ -1827,6 +1834,7 @@
     Paste.prototype.handlePaste = function(ev, parent) {
       var cbd, nodes, paste_el, pastedText;
       utils.log("pasted!");
+      this.editor.hidePlaceholder($(parent));
       pastedText = void 0;
       if (window.clipboardData && window.clipboardData.getData) {
         pastedText = window.clipboardData.getData('Text');
@@ -1997,11 +2005,11 @@
         if ($(e.target).hasClass("graf--figure")) {
           e.preventDefault();
           if (this.editor.image_delete_callback) {
-            this.editor.image_delete_callback($(".is-selected").find("img").data());
+            this.editor.image_delete_callback(this.editor.findSelected().find("img").data());
           }
           utils.log("Replacing selected node");
-          this.editor.replaceWith("p", $(".is-selected"));
-          this.editor.setRangeAt($(".is-selected")[0]);
+          this.editor.replaceWith("p", this.editor.findSelected());
+          this.editor.setRangeAt(this.editor.findSelected()[0]);
           this.editor.pop_over_align.hide();
           utils.log("Focus on the previous graf");
           this.editor["continue"] = false;
@@ -2036,11 +2044,11 @@
           }
         }
       }
-      if (_.isUndefined(parent) || parent.length === 0 && $(".is-selected").hasClass("is-mediaFocused")) {
-        node = $(".is-selected").find("figcaption");
+      if (_.isUndefined(parent) || parent.length === 0 && this.editor.findSelected().hasClass("is-mediaFocused")) {
+        node = this.editor.findSelected().find("figcaption");
         node.find(".defaultValue").remove();
         this.editor.setRangeAt(node[0]);
-        $(".is-selected").removeClass("is-mediaFocused");
+        this.editor.findSelected().removeClass("is-mediaFocused");
         this.editor.pop_over_align.hide();
         return false;
       }
@@ -2057,8 +2065,8 @@
         case "ArrowDown":
         case "Down":
           if (_.isUndefined(current_node) || !current_node.exists()) {
-            if ($(".is-selected").exists()) {
-              current_node = $(".is-selected");
+            if (this.editor.findSelected().exists()) {
+              current_node = this.editor.findSelected();
             }
           }
           next_node = current_node.next();
@@ -2156,7 +2164,6 @@
             n = current_node.prev(".graf");
             num = n[0].childNodes.length;
             utils.log("4 up");
-            this.editor.skip_keyup = true;
             this.editor.markAsSelected(prev_node);
             return false;
           }
@@ -2268,7 +2275,7 @@
       }
       this.editor.addClassesToElement($list[0]);
       this.editor.replaceWith("li", $paragraph);
-      $li = $(".is-selected");
+      $li = this.editor.findSelected();
       this.editor.setElementName($li[0]);
       $li.html(content).wrap($list);
       if ($li.find("br").length === 0) {
@@ -2349,7 +2356,7 @@
         $list.before($li);
         content = $li.html();
         this.editor.replaceWith("p", $li);
-        $paragraph = $(".is-selected");
+        $paragraph = this.editor.findSelected();
         $paragraph.removeClass("graf--empty").html(content).attr("name", utils.generateUniqueName());
         if ($list.children().length === 0) {
           $list.remove();
@@ -2505,7 +2512,7 @@
     };
 
     Uploader.prototype.insertTemplate = function() {
-      return "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='" + (utils.generateUniqueName()) + "' tabindex='0'> <div style='' class='aspectRatioPlaceholder is-locked'> <div style='padding-bottom: 100%;' class='aspect-ratio-fill'></div> <img src='' data-height='' data-width='' data-image-id='' class='graf-image' data-delayed-src=''> </div> <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'> <span class='defaultValue'>Type caption for image (optional)</span> <br> </figcaption> </figure>";
+      return "<figure contenteditable='false' class='graf graf--figure is-defaultValue' name='" + (utils.generateUniqueName()) + "' tabindex='0'> <div style='' class='aspectRatioPlaceholder is-locked'> <div style='padding-bottom: 100%;' class='aspect-ratio-fill'></div> <img src='' data-height='' data-width='' data-image-id='' class='graf-image' data-delayed-src=''> </div> <figcaption contenteditable='true' data-default-value='Type caption for image (optional)' class='imageCaption'> <span class='defaultValue'>" + this.current_editor.image_caption_placeholder + "</span> <br> </figcaption> </figure>";
     };
 
     Uploader.prototype.uploadExistentImage = function(image_element, opts) {
@@ -2814,7 +2821,7 @@
     };
 
     Embed.prototype.embedTemplate = function() {
-      return "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'> <div class='iframeContainer'> <iframe frameborder='0' width='700' height='393' data-media-id='' src='' data-height='480' data-width='854'> </iframe> </div> <figcaption contenteditable='true' data-default-value='Type caption for embed (optional)' class='imageCaption'> <a rel='nofollow' class='markup--anchor markup--figure-anchor' data-href='' href='' target='_blank'> </a> </figcaption> </figure>";
+      return "<figure contenteditable='false' class='graf--figure graf--iframe graf--first' name='504e' tabindex='0'> <div class='iframeContainer'> <iframe frameborder='0' width='700' height='393' data-media-id='' src='' data-height='480' data-width='854'> </iframe> </div> <figcaption contenteditable='true' data-default-value='" + this.current_editor.embed_caption_placeholder + "' class='imageCaption'> <a rel='nofollow' class='markup--anchor markup--figure-anchor' data-href='' href='' target='_blank'> </a> </figcaption> </figure>";
     };
 
     Embed.prototype.displayEmbedPlaceHolder = function() {
@@ -2828,12 +2835,14 @@
     };
 
     Embed.prototype.getEmbedFromNode = function(node) {
+      var url;
       this.node = $(node);
       this.node_name = this.node.attr("name");
       this.node.addClass("spinner");
-      return $.getJSON("" + this.current_editor.oembed_url + ($(this.node).text())).success((function(_this) {
+      url = "" + this.current_editor.oembed_url + ($(this.node).text()) + "&scheme=https";
+      return $.getJSON(url).success((function(_this) {
         return function(data) {
-          var iframe_src, replaced_node, tmpl, url;
+          var iframe_src, replaced_node, tmpl;
           _this.node = $("[name=" + _this.node_name + "]");
           iframe_src = $(data.html).prop("src");
           tmpl = $(_this.embedTemplate());
@@ -2896,7 +2905,7 @@
     };
 
     EmbedExtract.prototype.extractTemplate = function() {
-      return "<div class='graf graf--mixtapeEmbed is-selected' name=''> <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''> </a> <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'> <strong class='markup--strong markup--mixtapeEmbed-strong'></strong> <em class='markup--em markup--mixtapeEmbed-em'></em> </a> </div>";
+      return "<div class='graf graf--mixtapeEmbed is-selected' name=''> <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''> </a> <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'> <strong class='markup--strong markup--mixtapeEmbed-strong'> </strong> <em class='markup--em markup--mixtapeEmbed-em'> </em> </a> </div>";
     };
 
     EmbedExtract.prototype.displayExtractPlaceHolder = function() {

@@ -39,11 +39,13 @@ class Dante.Editor extends Dante.View
     @upload_url      = opts.upload_url  || "/uploads.json"
     @upload_callback = opts.upload_callback
     @image_delete_callback = opts.image_delete_callback
+    @image_caption_placeholder = opts.image_caption_placeholder || "Type caption for image (optional)"
 
     @oembed_url      = opts.oembed_url  || "http://api.embed.ly/1/oembed?key=#{opts.api_key}&url="
     @extract_url     = opts.extract_url || "http://api.embed.ly/1/extract?key=#{opts.api_key}&url="
     @default_loading_placeholder = opts.default_loading_placeholder || Dante.defaults.image_placeholder
-    
+    @embed_caption_placeholder = opts.embed_caption_placeholder || "Type caption for embed (optional)"
+
     @store_url       = opts.store_url
     @store_method    = opts.store_method || "POST"
     @store_success_handler = opts.store_success_handler
@@ -488,7 +490,7 @@ class Dante.Editor extends Dante.View
       else if !prev
         @.setRangeAt(@.$el.find(".section-inner p")[0])
 
-      @displayTooltipAt($(@el).find(".is-selected"))
+      @displayTooltipAt(@findSelected())
 
   #used when all the content is removed, then it re render
   handleCompleteDeletion: (element)->
@@ -525,6 +527,7 @@ class Dante.Editor extends Dante.View
     @scrollTo $(next)
 
   handleKeyDown: (e)->
+    
     utils.log "KEYDOWN"
 
     @continue = true
@@ -536,12 +539,6 @@ class Dante.Editor extends Dante.View
 
     #handle keyups for each widget
     utils.log("HANDLING Behavior KEYDOWN");
-    
-    _.each @behaviors, (b)=>
-      if b.handleKeyDown
-        b.handleKeyDown(e, parent);
-
-    return false unless @continue
 
     if e.which is TAB
       @handleTab(anchor_node)
@@ -550,7 +547,7 @@ class Dante.Editor extends Dante.View
     if e.which is ENTER
 
       #removes previous selected nodes
-      $(@el).find(".is-selected").removeClass("is-selected")
+      @findSelected().removeClass("is-selected")
 
       utils.log @isLastChar()
 
@@ -569,9 +566,9 @@ class Dante.Editor extends Dante.View
       if parent.hasClass("graf--iframe") or parent.hasClass("graf--figure")
         if @isLastChar()
           @handleLineBreakWith("p", parent)
-          @setRangeAtText($(".is-selected")[0])
+          @setRangeAtText(@findSelected()[0])
 
-          $(".is-selected").trigger("mouseup") #is not making any change
+          @findSelected().trigger("mouseup") #is not making any change
           return false
         else
           return false
@@ -603,7 +600,7 @@ class Dante.Editor extends Dante.View
           $(node).append("<br>")
 
         # shows tooltip
-        @displayTooltipAt($(@el).find(".is-selected"))
+        @displayTooltipAt(@findSelected())
       , 2
 
     # delete key
@@ -651,9 +648,15 @@ class Dante.Editor extends Dante.View
     
     #hides tooltip if anchor_node text is empty
     if anchor_node
-      unless _.isEmpty($(anchor_node).text())
+      if !_.isEmpty($(anchor_node).text())
         @tooltip_view.hide()
         $(anchor_node).removeClass("graf--empty")
+
+    _.each @behaviors, (b)=>
+      if b.handleKeyDown
+        b.handleKeyDown(e, parent);
+
+    return false unless @continue
 
   handleKeyUp: (e , node)->
 
@@ -672,14 +675,6 @@ class Dante.Editor extends Dante.View
     utils_anchor_node = utils.getNode()
 
     @handleTextSelection(anchor_node)
-
-    # handle keyups for each widget
-    utils.log("HANDLING Behavior KEYUPS");
-    _.each @behaviors, (b)=>
-      if b.handleKeyUp
-        b.handleKeyUp(e)
-
-    return false unless @continue
 
     if (e.which == BACKSPACE)
 
@@ -726,10 +721,21 @@ class Dante.Editor extends Dante.View
       @handleArrowForKeyUp(e)
       #return false
 
+    # handle keyups for each widget
+    utils.log("HANDLING Behavior KEYUPS");
+    _.each @behaviors, (b)=>
+      if b.handleKeyUp
+        b.handleKeyUp(e)
+
+    return false unless @continue
+
   handleKeyPress: (e, node)->
     anchor_node = @getNode()
     parent = $(anchor_node)
-    #handle keyups for each widget
+
+    @hidePlaceholder(parent)
+
+    # handle keyups for each widget
     utils.log("HANDLING Behavior KEYPRESS");
     _.each @behaviors, (b)=>
       if b.handleKeyPress
@@ -770,7 +776,7 @@ class Dante.Editor extends Dante.View
 
     return if _.isUndefined element
 
-    $(@el).find(".is-selected").removeClass("is-mediaFocused is-selected")
+    @findSelected().removeClass("is-mediaFocused is-selected")
 
     $(element).addClass("is-selected")
 
@@ -990,3 +996,5 @@ class Dante.Editor extends Dante.View
     $(span).replaceWith($(span).html()) for span in $spans when not $(span).hasClass("defaultValue")
     $item
 
+  findSelected: ->
+    $(@el).find(".is-selected")
