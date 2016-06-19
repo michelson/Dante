@@ -65,9 +65,11 @@ class Dante.Editor extends Dante.View
     
     opts.base_widgets   ||= ["uploader", "embed", "embed_extract"]
     opts.base_behaviors ||= ["save", "image", "paste", "list", "suggest"]
+    opts.base_popovers  ||= ["anchor", "typeahead", "card", "align"]
 
     @widgets   = []
     @behaviors = []
+    @popovers  = []
 
     window.debugMode = opts.debug || false
 
@@ -75,8 +77,7 @@ class Dante.Editor extends Dante.View
 
     titleplaceholder    = opts.title_placeholder  || 'Title'
     @title_placeholder  = "<span class='defaultValue defaultValue--root'>#{titleplaceholder}</span><br>"
-    title               = opts.title              || ''
-    @title              = title
+    @title              = opts.title              || ''
     bodyplaceholder     = opts.body_placeholder   || 'Tell your story…'
     @body_placeholder   = "<span class='defaultValue defaultValue--root'>#{bodyplaceholder}</span><br>"
     embedplaceholder    = opts.embed_placeholder  || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
@@ -110,7 +111,7 @@ class Dante.Editor extends Dante.View
       @list_behavior = new Dante.View.Behavior.List(current_editor: @, el: @el)
       @behaviors.push @list_behavior
 
-    #add extra behaviors
+    # add extra behaviors
     if opts.extra_behaviors
       _.each opts.extra_behaviors, (w)=>
         if !w.current_editor
@@ -118,8 +119,8 @@ class Dante.Editor extends Dante.View
         @behaviors.push w
 
   initializeWidgets: (opts)->
-    #TODO: this could be a hash to access widgets without var
-    #Base widgets
+    # TODO: this could be a hash to access widgets without var
+    # Base widgets
     base_widgets = opts.base_widgets
     self = @
 
@@ -135,12 +136,44 @@ class Dante.Editor extends Dante.View
       @embed_extract_widget = new Dante.View.TooltipWidget.EmbedExtract(current_editor: @)
       @widgets.push @embed_extract_widget
 
-    #add extra widgets
+    # add extra widgets
     if opts.extra_tooltip_widgets
       _.each opts.extra_tooltip_widgets, (w)=>
         if !w.current_editor
           w.current_editor = self
         @widgets.push w
+
+  intializePopOvers: (opts)->
+
+    base_popovers = opts.base_popovers
+    self = @
+
+    if base_popovers.indexOf("anchor") >= 0
+      @pop_over = new Dante.Editor.PopOver(editor: @)
+      @pop_over.render().hide()
+
+    if base_popovers.indexOf("typeahead") >= 0
+      @pop_over_typeahead  = new Dante.Editor.PopOverTypeAhead(editor: @)
+      @popovers.push @pop_over_typeahead
+
+    if base_popovers.indexOf("card") >= 0
+      @pop_over_card = new Dante.Editor.PopOverCard(editor: @)
+      @popovers.push @pop_over_card
+
+    if base_popovers.indexOf("align") >= 0
+      @pop_over_align = new Dante.Editor.ImageTooltip(editor: @)
+      @popovers.push @pop_over_align
+
+    # add extra widgets
+    if opts.extra_popovers
+      _.each opts.extra_popovers, (w)=>
+        if !w.current_editor
+          w.current_editor = self
+        @popovers.push w
+
+    # render and hide
+    @popovers.forEach (p)->
+      p.render().hide()
 
   getContent: ()->
     $(@el).find(".section-inner").html()
@@ -172,18 +205,8 @@ class Dante.Editor extends Dante.View
     $("<div class='inlineTooltip'></div>").insertAfter(@el)
     @editor_menu = new Dante.Editor.Menu(editor: @)
     @tooltip_view = new @tooltip_class(editor: @ , widgets: @widgets)
-    @pop_over = new Dante.Editor.PopOver(editor: @)
-    @pop_over.render().hide()
     
-    # TODO: this has to be pluggable too!
-    @pop_over_typeahead = new Dante.Editor.PopOverTypeAhead(editor: @)
-    @pop_over_typeahead.render().hide()
-
-    @pop_over_card = new Dante.Editor.PopOverCard(editor: @)
-    @pop_over_card.render().hide()
-
-    @pop_over_align = new Dante.Editor.ImageTooltip(editor: @)
-    @pop_over_align.render().hide()
+    @intializePopOvers(@editor_options)
 
     @tooltip_view.render().hide()
 
