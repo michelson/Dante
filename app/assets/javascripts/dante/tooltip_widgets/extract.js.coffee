@@ -19,9 +19,18 @@ class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
     "<div class='graf graf--mixtapeEmbed is-selected' name=''>
       <a target='_blank' data-media-id='' class='js-mixtapeImage mixtapeImage mixtapeImage--empty u-ignoreBlock' href=''>
       </a>
-      <a data-tooltip-type='link' data-tooltip-position='bottom' data-tooltip='' title='' class='markup--anchor markup--mixtapeEmbed-anchor' data-href='' href='' target='_blank'>
-        <strong class='markup--strong markup--mixtapeEmbed-strong'></strong>
-        <em class='markup--em markup--mixtapeEmbed-em'></em>
+      <a data-tooltip-type='link' 
+        data-tooltip-position='bottom' 
+        data-tooltip='' 
+        title='' 
+        class='markup--anchor markup--mixtapeEmbed-anchor' 
+        data-href='' 
+        href='' 
+        target='_blank'>
+        <strong class='markup--strong markup--mixtapeEmbed-strong'>
+        </strong>
+        <em class='markup--em markup--mixtapeEmbed-em'>
+        </em>
       </a>
     </div>"
 
