@@ -4,6 +4,8 @@
 //= require dante/view
 //= require dante/editor
 
+//= require dante/article
+
 //= require dante/behavior
 //= require_tree ./dante/behaviors
 
