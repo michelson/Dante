@@ -41,8 +41,8 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
     @node = $(node)
     @node_name = @node.attr("name")
     @node.addClass("spinner")
-
-    $.getJSON("#{@current_editor.oembed_url}#{$(@node).text()}")
+    url = "#{@current_editor.oembed_url}#{$(@node).text()}&scheme=https"
+    $.getJSON(url)
       .success (data)=>
         @node = $("[name=#{@node_name}]")
         iframe_src = $(data.html).prop("src")
