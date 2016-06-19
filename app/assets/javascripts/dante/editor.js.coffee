@@ -527,6 +527,7 @@ class Dante.Editor extends Dante.View
     @scrollTo $(next)
 
   handleKeyDown: (e)->
+    
     utils.log "KEYDOWN"
 
     @continue = true
@@ -538,12 +539,6 @@ class Dante.Editor extends Dante.View
 
     #handle keyups for each widget
     utils.log("HANDLING Behavior KEYDOWN");
-    
-    _.each @behaviors, (b)=>
-      if b.handleKeyDown
-        b.handleKeyDown(e, parent);
-
-    return false unless @continue
 
     if e.which is TAB
       @handleTab(anchor_node)
@@ -653,9 +648,15 @@ class Dante.Editor extends Dante.View
     
     #hides tooltip if anchor_node text is empty
     if anchor_node
-      unless _.isEmpty($(anchor_node).text())
+      if !_.isEmpty($(anchor_node).text())
         @tooltip_view.hide()
         $(anchor_node).removeClass("graf--empty")
+
+    _.each @behaviors, (b)=>
+      if b.handleKeyDown
+        b.handleKeyDown(e, parent);
+
+    return false unless @continue
 
   handleKeyUp: (e , node)->
 
@@ -674,14 +675,6 @@ class Dante.Editor extends Dante.View
     utils_anchor_node = utils.getNode()
 
     @handleTextSelection(anchor_node)
-
-    # handle keyups for each widget
-    utils.log("HANDLING Behavior KEYUPS");
-    _.each @behaviors, (b)=>
-      if b.handleKeyUp
-        b.handleKeyUp(e)
-
-    return false unless @continue
 
     if (e.which == BACKSPACE)
 
@@ -728,10 +721,21 @@ class Dante.Editor extends Dante.View
       @handleArrowForKeyUp(e)
       #return false
 
+    # handle keyups for each widget
+    utils.log("HANDLING Behavior KEYUPS");
+    _.each @behaviors, (b)=>
+      if b.handleKeyUp
+        b.handleKeyUp(e)
+
+    return false unless @continue
+
   handleKeyPress: (e, node)->
     anchor_node = @getNode()
     parent = $(anchor_node)
-    #handle keyups for each widget
+
+    @hidePlaceholder(parent)
+
+    # handle keyups for each widget
     utils.log("HANDLING Behavior KEYPRESS");
     _.each @behaviors, (b)=>
       if b.handleKeyPress
