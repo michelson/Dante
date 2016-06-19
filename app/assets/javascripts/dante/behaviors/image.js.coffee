@@ -274,7 +274,7 @@ class Dante.View.Behavior.Image extends Dante.View.Behavior
           num = n[0].childNodes.length
           #@editor.scrollTo(n)
           utils.log "4 up"
-          @editor.skip_keyup = true
+          # @editor.skip_keyup = true
           @editor.markAsSelected(prev_node)
           # @editor.continue = false
           return false
