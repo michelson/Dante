@@ -5,10 +5,11 @@
       PopOver: {},
       Menu: {}
     },
+    Article: {},
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.1.6"
+    version: "0.1.7"
   };
 
 }).call(this);
@@ -483,7 +484,7 @@
     };
 
     Editor.prototype.initialize = function(opts) {
-      var bodyplaceholder, embedplaceholder, extractplaceholder, title, titleplaceholder;
+      var bodyplaceholder, embedplaceholder, extractplaceholder, titleplaceholder;
       if (opts == null) {
         opts = {};
       }
@@ -515,16 +516,17 @@
       this.suggest_resource_handler = opts.suggest_resource_handler || null;
       opts.base_widgets || (opts.base_widgets = ["uploader", "embed", "embed_extract"]);
       opts.base_behaviors || (opts.base_behaviors = ["save", "image", "paste", "list", "suggest"]);
+      opts.base_popovers || (opts.base_popovers = ["anchor", "typeahead", "card", "align"]);
       this.widgets = [];
       this.behaviors = [];
+      this.popovers = [];
       window.debugMode = opts.debug || false;
       if (window.debugMode) {
         $(this.el).addClass("debug");
       }
       titleplaceholder = opts.title_placeholder || 'Title';
       this.title_placeholder = "<span class='defaultValue defaultValue--root'>" + titleplaceholder + "</span><br>";
-      title = opts.title || '';
-      this.title = title;
+      this.title = opts.title || '';
       bodyplaceholder = opts.body_placeholder || 'Tell your story…';
       this.body_placeholder = "<span class='defaultValue defaultValue--root'>" + bodyplaceholder + "</span><br>";
       embedplaceholder = opts.embed_placeholder || 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter';
@@ -619,6 +621,49 @@
       }
     };
 
+    Editor.prototype.intializePopOvers = function(opts) {
+      var base_popovers, self;
+      base_popovers = opts.base_popovers;
+      self = this;
+      if (base_popovers.indexOf("anchor") >= 0) {
+        this.pop_over = new Dante.Editor.PopOver({
+          editor: this
+        });
+        this.pop_over.render().hide();
+      }
+      if (base_popovers.indexOf("typeahead") >= 0) {
+        this.pop_over_typeahead = new Dante.Editor.PopOverTypeAhead({
+          editor: this
+        });
+        this.popovers.push(this.pop_over_typeahead);
+      }
+      if (base_popovers.indexOf("card") >= 0) {
+        this.pop_over_card = new Dante.Editor.PopOverCard({
+          editor: this
+        });
+        this.popovers.push(this.pop_over_card);
+      }
+      if (base_popovers.indexOf("align") >= 0) {
+        this.pop_over_align = new Dante.Editor.ImageTooltip({
+          editor: this
+        });
+        this.popovers.push(this.pop_over_align);
+      }
+      if (opts.extra_popovers) {
+        _.each(opts.extra_popovers, (function(_this) {
+          return function(w) {
+            if (!w.current_editor) {
+              w.current_editor = self;
+            }
+            return _this.popovers.push(w);
+          };
+        })(this));
+      }
+      return this.popovers.forEach(function(p) {
+        return p.render().hide();
+      });
+    };
+
     Editor.prototype.getContent = function() {
       return $(this.el).find(".section-inner").html();
     };
@@ -645,22 +690,7 @@
         editor: this,
         widgets: this.widgets
       });
-      this.pop_over = new Dante.Editor.PopOver({
-        editor: this
-      });
-      this.pop_over.render().hide();
-      this.pop_over_typeahead = new Dante.Editor.PopOverTypeAhead({
-        editor: this
-      });
-      this.pop_over_typeahead.render().hide();
-      this.pop_over_card = new Dante.Editor.PopOverCard({
-        editor: this
-      });
-      this.pop_over_card.render().hide();
-      this.pop_over_align = new Dante.Editor.ImageTooltip({
-        editor: this
-      });
-      this.pop_over_align.render().hide();
+      this.intializePopOvers(this.editor_options);
       return this.tooltip_view.render().hide();
     };
 
@@ -1636,6 +1666,95 @@
 
 }).call(this);
 (function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Dante.Article = (function(_super) {
+    __extends(Article, _super);
+
+    function Article() {
+      this.start = __bind(this.start, this);
+      return Article.__super__.constructor.apply(this, arguments);
+    }
+
+    Article.prototype.el = "body";
+
+    Article.prototype.events = {
+      "mouseover .markup--anchor": "displayPopOver",
+      "mouseout  .markup--anchor": "hidePopOver"
+    };
+
+    Article.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.options = opts;
+      this.popovers = [];
+      return opts.base_popovers || (opts.base_popovers = ["anchor", "card"]);
+    };
+
+    Article.prototype.start = function() {
+      this.render();
+      return this.appendMenus();
+    };
+
+    Article.prototype.appendMenus = function() {
+      this.intializePopOvers(this.options);
+      return this.removeEditables();
+    };
+
+    Article.prototype.render = function() {};
+
+    Article.prototype.removeEditables = function() {
+      return $(this.el).find("[contenteditable]").removeAttr("contenteditable");
+    };
+
+    Article.prototype.intializePopOvers = function(opts) {
+      var base_popovers, self;
+      base_popovers = opts.base_popovers;
+      self = this;
+      if (base_popovers.indexOf("anchor") >= 0) {
+        this.pop_over = new Dante.Editor.PopOver({
+          editor: this
+        });
+        this.popovers.push(this.pop_over);
+      }
+      if (base_popovers.indexOf("card") >= 0) {
+        this.pop_over_card = new Dante.Editor.PopOverCard({
+          editor: this
+        });
+        this.popovers.push(this.pop_over_card);
+      }
+      if (opts.extra_popovers) {
+        _.each(opts.extra_popovers, (function(_this) {
+          return function(w) {
+            if (!w.current_editor) {
+              w.current_editor = self;
+            }
+            return _this.popovers.push(w);
+          };
+        })(this));
+      }
+      return this.popovers.forEach(function(p) {
+        return p.render().hide();
+      });
+    };
+
+    Article.prototype.displayPopOver = function(ev) {
+      return this.pop_over.displayAt(ev);
+    };
+
+    Article.prototype.hidePopOver = function(ev) {
+      return this.pop_over.hide(ev);
+    };
+
+    return Article;
+
+  })(Dante.View);
+
+}).call(this);
+(function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1649,243 +1768,6 @@
     return Behavior;
 
   })(Dante.View);
-
-}).call(this);
-(function() {
-  var utils,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  utils = Dante.utils;
-
-  Dante.View.Behavior.Suggest = (function(_super) {
-    __extends(Suggest, _super);
-
-    function Suggest() {
-      return Suggest.__super__.constructor.apply(this, arguments);
-    }
-
-    Suggest.prototype.initialize = function(opts) {
-      if (opts == null) {
-        opts = {};
-      }
-      this.actionEvent = opts.title;
-      this.editor = opts.current_editor;
-      this._name = null;
-      return this.fetch_results = [];
-    };
-
-    Suggest.prototype.displayPopOver = function(ev) {
-      return this.editor.pop_over_typeahead.displayAt(this.editor.getSelectionStart());
-    };
-
-    Suggest.prototype.hidePopOver = function(ev) {
-      console.log("display popover from typeahead");
-      return this.editor.pop_over_typeahead.displayAt(ev);
-    };
-
-    Suggest.prototype.desintegratePopOver = function(e) {
-      $(this.editor.getSelectionStart()).remove();
-      return this.pasteHtmlAtCaret(this.editor.getSelectionStart().textContent, false);
-    };
-
-    Suggest.prototype.handleKeyPress = function(e) {
-      if (!this.insideQuery()) {
-        if (e.keyCode === 64) {
-          e.preventDefault();
-          return this.pasteHtmlAtCaret(this.wrapperTemplate("@"), false);
-        }
-      } else {
-        console.log("ok let's search");
-        return this.getResults((function(_this) {
-          return function(e) {
-            return _this.fetchResults(e);
-          };
-        })(this));
-      }
-    };
-
-    Suggest.prototype.handleKeyUp = function(e) {
-      if (this.insideQuery()) {
-        return this.fetchResults(e);
-      }
-    };
-
-    Suggest.prototype.fetchResults = function(e) {
-      if (this.getResults.length < 1) {
-        this.desintegratePopOver(e);
-      }
-      if (this.json_request) {
-        this.json_request.abort();
-      }
-      return this.getResults((function(_this) {
-        return function(e) {
-          _this.displayPopOver(e);
-          return _this.editor.pop_over_typeahead.appendData(_this.fetch_results);
-        };
-      })(this));
-    };
-
-    Suggest.prototype.getResults = function(cb, e) {
-      var q;
-      q = this.editor.getSelectionStart().textContent.replace("@", "");
-      clearTimeout(this.timeout);
-      return this.timeout = setTimeout((function(_this) {
-        return function() {
-          return _this.json_request = $.ajax({
-            url: "" + _this.editor.suggest_url + "?" + _this.editor.suggest_query_param + "=" + q,
-            method: "get",
-            dataType: "json"
-          }).success(function(data) {
-            if (_this.editor.suggest_handler) {
-              _this.fetch_results = _this.editor.suggest_handler(data);
-            } else {
-              _this.fetch_results = data;
-            }
-            if (cb) {
-              return cb(e);
-            }
-          }).error(function(data, err) {
-            return console.log("error fetching results");
-          });
-        };
-      })(this), this.editor.suggest_query_timeout);
-    };
-
-    Suggest.prototype.insideQuery = function() {
-      return $(this.editor.getSelectionStart()).hasClass("markup--query");
-    };
-
-    Suggest.prototype.wrapperTemplate = function(name) {
-      return "<span class='markup--query'>" + name + "</span>";
-    };
-
-    Suggest.prototype.pasteHtmlAtCaret = function(html, selectPastedContent) {
-      var el, firstNode, frag, lastNode, node, originalRange, range, sel;
-      sel = void 0;
-      range = void 0;
-      if (window.getSelection) {
-        sel = window.getSelection();
-        if (sel.getRangeAt && sel.rangeCount) {
-          range = sel.getRangeAt(0);
-          range.deleteContents();
-          el = document.createElement('div');
-          el.innerHTML = html;
-          frag = document.createDocumentFragment();
-          node = void 0;
-          lastNode = void 0;
-          while (node = el.firstChild) {
-            lastNode = frag.appendChild(node);
-          }
-          firstNode = frag.firstChild;
-          range.insertNode(frag);
-          if (lastNode) {
-            range = range.cloneRange();
-            range.setStartAfter(lastNode);
-            if (selectPastedContent) {
-              range.setStartBefore(firstNode);
-            } else {
-              range.collapse(true);
-            }
-            sel.removeAllRanges();
-            sel.addRange(range);
-          }
-        }
-      } else if ((sel = document.selection) && sel.type !== 'Control') {
-        originalRange = sel.createRange();
-        originalRange.collapse(true);
-        sel.createRange().pasteHTML(html);
-        if (selectPastedContent) {
-          range = sel.createRange();
-          range.setEndPoint('StartToStart', originalRange);
-          range.select();
-        }
-      }
-    };
-
-    return Suggest;
-
-  })(Dante.View.Behavior);
-
-}).call(this);
-(function() {
-  var utils,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  utils = Dante.utils;
-
-  Dante.View.Behavior.Paste = (function(_super) {
-    __extends(Paste, _super);
-
-    function Paste() {
-      this.handlePaste = __bind(this.handlePaste, this);
-      return Paste.__super__.constructor.apply(this, arguments);
-    }
-
-    Paste.prototype.initialize = function(opts) {
-      if (opts == null) {
-        opts = {};
-      }
-      return this.editor = opts.current_editor;
-    };
-
-    Paste.prototype.handlePaste = function(ev, parent) {
-      var cbd, nodes, paste_el, pastedText;
-      utils.log("pasted!");
-      this.editor.hidePlaceholder($(parent));
-      pastedText = void 0;
-      if (window.clipboardData && window.clipboardData.getData) {
-        pastedText = window.clipboardData.getData('Text');
-      } else if (ev.originalEvent.clipboardData && ev.originalEvent.clipboardData.getData) {
-        cbd = ev.originalEvent.clipboardData;
-        pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
-      }
-      utils.log("Process and handle text...");
-      utils.log(pastedText);
-      if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
-        utils.log("HTML DETECTED ON PASTE");
-        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
-        document.body.appendChild($("<div id='" + (this.editor.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
-        paste_el = $(this.editor.paste_element_id);
-        paste_el.html("<span>" + pastedText + "</span>");
-        nodes = $(paste_el.html()).insertBefore($(parent));
-        this.editor.parseInitialMess();
-
-        /*
-        @editor.setupElementsClasses $(@editor.paste_element_id), (e)=>
-           * e is the target object which is cleaned
-          nodes = $(e.html()).insertAfter($(parent))
-           *remove paste div since we wont use it until the next paste
-          e.remove()
-           *set caret on newly created node
-          last_node = nodes.last()[0]
-          num = last_node.childNodes.length
-          @editor.setRangeAt(last_node, num)
-          
-           *select new node
-          new_node = $(@editor.getNode())
-          @editor.markAsSelected(new_node)
-          @editor.displayTooltipAt($(@editor.el).find(".is-selected"))
-          
-           * wrap new images
-          @editor.handleUnwrappedImages(nodes)
-        
-           *scroll to element top
-          top = new_node.offset().top
-          $('html, body').animate
-            scrollTop: top
-          , 20
-         */
-        this.editor["continue"] = false;
-        return false;
-      }
-    };
-
-    return Paste;
-
-  })(Dante.View.Behavior);
 
 }).call(this);
 (function() {
@@ -2372,6 +2254,86 @@
 }).call(this);
 (function() {
   var utils,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.Paste = (function(_super) {
+    __extends(Paste, _super);
+
+    function Paste() {
+      this.handlePaste = __bind(this.handlePaste, this);
+      return Paste.__super__.constructor.apply(this, arguments);
+    }
+
+    Paste.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      return this.editor = opts.current_editor;
+    };
+
+    Paste.prototype.handlePaste = function(ev, parent) {
+      var cbd, nodes, paste_el, pastedText;
+      utils.log("pasted!");
+      this.editor.hidePlaceholder($(parent));
+      pastedText = void 0;
+      if (window.clipboardData && window.clipboardData.getData) {
+        pastedText = window.clipboardData.getData('Text');
+      } else if (ev.originalEvent.clipboardData && ev.originalEvent.clipboardData.getData) {
+        cbd = ev.originalEvent.clipboardData;
+        pastedText = _.isEmpty(cbd.getData('text/html')) ? cbd.getData('text/plain') : cbd.getData('text/html');
+      }
+      utils.log("Process and handle text...");
+      utils.log(pastedText);
+      if (pastedText.match(/<\/*[a-z][^>]+?>/gi)) {
+        utils.log("HTML DETECTED ON PASTE");
+        pastedText = pastedText.replace(/<div>([\w\W]*?)<\/div>/gi, '<p>$1</p>');
+        document.body.appendChild($("<div id='" + (this.editor.paste_element_id.replace('#', '')) + "' class='dante-paste'></div>")[0]);
+        paste_el = $(this.editor.paste_element_id);
+        paste_el.html("<span>" + pastedText + "</span>");
+        nodes = $(paste_el.html()).insertBefore($(parent));
+        this.editor.parseInitialMess();
+
+        /*
+        @editor.setupElementsClasses $(@editor.paste_element_id), (e)=>
+           * e is the target object which is cleaned
+          nodes = $(e.html()).insertAfter($(parent))
+           *remove paste div since we wont use it until the next paste
+          e.remove()
+           *set caret on newly created node
+          last_node = nodes.last()[0]
+          num = last_node.childNodes.length
+          @editor.setRangeAt(last_node, num)
+          
+           *select new node
+          new_node = $(@editor.getNode())
+          @editor.markAsSelected(new_node)
+          @editor.displayTooltipAt($(@editor.el).find(".is-selected"))
+          
+           * wrap new images
+          @editor.handleUnwrappedImages(nodes)
+        
+           *scroll to element top
+          top = new_node.offset().top
+          $('html, body').animate
+            scrollTop: top
+          , 20
+         */
+        this.editor["continue"] = false;
+        return false;
+      }
+    };
+
+    return Paste;
+
+  })(Dante.View.Behavior);
+
+}).call(this);
+(function() {
+  var utils,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2442,6 +2404,163 @@
     };
 
     return Save;
+
+  })(Dante.View.Behavior);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.View.Behavior.Suggest = (function(_super) {
+    __extends(Suggest, _super);
+
+    function Suggest() {
+      return Suggest.__super__.constructor.apply(this, arguments);
+    }
+
+    Suggest.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.actionEvent = opts.title;
+      this.editor = opts.current_editor;
+      this._name = null;
+      return this.fetch_results = [];
+    };
+
+    Suggest.prototype.displayPopOver = function(ev) {
+      return this.editor.pop_over_typeahead.displayAt(this.editor.getSelectionStart());
+    };
+
+    Suggest.prototype.hidePopOver = function(ev) {
+      console.log("display popover from typeahead");
+      return this.editor.pop_over_typeahead.displayAt(ev);
+    };
+
+    Suggest.prototype.desintegratePopOver = function(e) {
+      $(this.editor.getSelectionStart()).remove();
+      return this.pasteHtmlAtCaret(this.editor.getSelectionStart().textContent, false);
+    };
+
+    Suggest.prototype.handleKeyPress = function(e) {
+      if (!this.insideQuery()) {
+        if (e.keyCode === 64) {
+          e.preventDefault();
+          return this.pasteHtmlAtCaret(this.wrapperTemplate("@"), false);
+        }
+      } else {
+        console.log("ok let's search");
+        return this.getResults((function(_this) {
+          return function(e) {
+            return _this.fetchResults(e);
+          };
+        })(this));
+      }
+    };
+
+    Suggest.prototype.handleKeyUp = function(e) {
+      if (this.insideQuery()) {
+        return this.fetchResults(e);
+      }
+    };
+
+    Suggest.prototype.fetchResults = function(e) {
+      if (this.getResults.length < 1) {
+        this.desintegratePopOver(e);
+      }
+      if (this.json_request) {
+        this.json_request.abort();
+      }
+      return this.getResults((function(_this) {
+        return function(e) {
+          _this.displayPopOver(e);
+          return _this.editor.pop_over_typeahead.appendData(_this.fetch_results);
+        };
+      })(this));
+    };
+
+    Suggest.prototype.getResults = function(cb, e) {
+      var q;
+      q = this.editor.getSelectionStart().textContent.replace("@", "");
+      clearTimeout(this.timeout);
+      return this.timeout = setTimeout((function(_this) {
+        return function() {
+          return _this.json_request = $.ajax({
+            url: "" + _this.editor.suggest_url + "?" + _this.editor.suggest_query_param + "=" + q,
+            method: "get",
+            dataType: "json"
+          }).success(function(data) {
+            if (_this.editor.suggest_handler) {
+              _this.fetch_results = _this.editor.suggest_handler(data);
+            } else {
+              _this.fetch_results = data;
+            }
+            if (cb) {
+              return cb(e);
+            }
+          }).error(function(data, err) {
+            return console.log("error fetching results");
+          });
+        };
+      })(this), this.editor.suggest_query_timeout);
+    };
+
+    Suggest.prototype.insideQuery = function() {
+      return $(this.editor.getSelectionStart()).hasClass("markup--query");
+    };
+
+    Suggest.prototype.wrapperTemplate = function(name) {
+      return "<span class='markup--query'>" + name + "</span>";
+    };
+
+    Suggest.prototype.pasteHtmlAtCaret = function(html, selectPastedContent) {
+      var el, firstNode, frag, lastNode, node, originalRange, range, sel;
+      sel = void 0;
+      range = void 0;
+      if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+          range = sel.getRangeAt(0);
+          range.deleteContents();
+          el = document.createElement('div');
+          el.innerHTML = html;
+          frag = document.createDocumentFragment();
+          node = void 0;
+          lastNode = void 0;
+          while (node = el.firstChild) {
+            lastNode = frag.appendChild(node);
+          }
+          firstNode = frag.firstChild;
+          range.insertNode(frag);
+          if (lastNode) {
+            range = range.cloneRange();
+            range.setStartAfter(lastNode);
+            if (selectPastedContent) {
+              range.setStartBefore(firstNode);
+            } else {
+              range.collapse(true);
+            }
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        }
+      } else if ((sel = document.selection) && sel.type !== 'Control') {
+        originalRange = sel.createRange();
+        originalRange.collapse(true);
+        sel.createRange().pasteHTML(html);
+        if (selectPastedContent) {
+          range = sel.createRange();
+          range.setEndPoint('StartToStart', originalRange);
+          range.select();
+        }
+      }
+    };
+
+    return Suggest;
 
   })(Dante.View.Behavior);
 
@@ -3188,6 +3307,225 @@
 
   })(Dante.View);
 
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.Editor.PopOverCard = (function(_super) {
+    __extends(PopOverCard, _super);
+
+    function PopOverCard() {
+      return PopOverCard.__super__.constructor.apply(this, arguments);
+    }
+
+    PopOverCard.prototype.el = "body";
+
+    PopOverCard.prototype.events = {
+      "mouseover .popover--card": "cancelHide",
+      "mouseout  .popover--card": "hide",
+      "mouseover .markup--user": "displayPopOver",
+      "mouseout  .markup--user": "hidePopOver"
+    };
+
+    PopOverCard.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.pop_over_element = ".popover--card";
+      utils.log("initialized popover");
+      this.editor = opts.editor;
+      this.hideTimeout;
+      this.settings = {
+        timeout: 300
+      };
+      return this.card_data = {};
+    };
+
+    PopOverCard.prototype.template = function() {
+      return "<div class='dante-popover popover--card js-popover popover--animated popover--flexible popover--top is-active'> <div class='popover-inner js-popover-inner'> </div> </div>";
+    };
+
+    PopOverCard.prototype.cardTemplate = function() {
+      return "<div class='popoverCard'> <div class='u-clearfix'> <div class='u-floatLeft popoverCard-meta'> <h4 class='popoverCard-title'> <a class='link u-baseColor--link' href='" + this.card_data.href + "' title='" + this.card_data.text + "' aria-label='" + this.card_data.text + "' data-user-id='" + this.card_data.id + "' dir='auto'> " + this.card_data.text + " </a> </h4> <div class='popoverCard-description'> " + this.card_data.description + " </div> </div> <div class='u-floatRight popoverCard-avatar'> <a class='link dante-avatar u-baseColor--link' href='" + this.card_data.href + "' title='" + this.card_data.text + "' aria-label='" + this.card_data.text + "' data-user-id='" + this.card_data.id + "' dir='auto'> <img src='" + this.card_data.avatar + "' class='avatar-image avatar-image--small' alt='" + this.card_data.text + "'> </a> </div> </div> " + (this.footerTemplate()) + " <div class='popover-arrow'></div> </div>";
+    };
+
+    PopOverCard.prototype.footerTemplate = function() {
+      return "";
+
+      /*
+      "<div class='popoverCard-actions u-clearfix'>
+        <div class='u-floatLeft popoverCard-stats'>
+            <span class='popoverCard-stat'>
+                Following
+                <span class='popoverCard-count js-userFollowingCount'>124</span>
+            </span>
+            <span class='popoverCard-stat'>
+                Followers
+                <span class='popoverCard-count js-userFollowersCount'>79</span>
+            </span>
+        </div>
+      </div>"
+       */
+    };
+
+    PopOverCard.prototype.displayPopOver = function(ev) {
+      return this.displayAt(ev);
+    };
+
+    PopOverCard.prototype.displayAt = function(ev) {
+      this.cancelHide();
+      return $.getJSON($(ev.currentTarget).data().href).success((function(_this) {
+        return function(data) {
+          if (_this.editor.suggest_resource_handler) {
+            _this.card_data = _this.editor.suggest_resource_handler(data);
+          } else {
+            _this.card_data = data;
+          }
+          _this.refreshTemplate();
+          return _this.positionAt(ev);
+        };
+      })(this));
+    };
+
+    PopOverCard.prototype.hidePopOver = function(ev) {
+      return this.hide(ev);
+    };
+
+    PopOverCard.prototype.refreshTemplate = function() {
+      return $(".popover--card .popover-inner").html(this.cardTemplate());
+    };
+
+    return PopOverCard;
+
+  })(Dante.Editor.PopOver);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
+  Dante.Editor.ImageTooltip = (function(_super) {
+    __extends(ImageTooltip, _super);
+
+    function ImageTooltip() {
+      return ImageTooltip.__super__.constructor.apply(this, arguments);
+    }
+
+    ImageTooltip.prototype.el = "body";
+
+    ImageTooltip.prototype.events = {
+      "click .graf": "handleHide",
+      "click .dante-menu-button.align-left": "alignLeft",
+      "click .dante-menu-button.align-center": "alignCenter"
+    };
+
+    ImageTooltip.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      utils.log("initialized popover");
+      this.pop_over_element = ".popover--Aligntooltip";
+      this.editor = opts.editor;
+      this.hideTimeout;
+      return this.settings = {
+        timeout: 100
+      };
+    };
+
+    ImageTooltip.prototype.alignLeft = function(ev) {
+      this.activateLink($(ev.currentTarget));
+      return this.findSelectedImage().addClass("graf--layoutOutsetLeft");
+    };
+
+    ImageTooltip.prototype.handleHide = function(ev) {
+      var target;
+      target = $(ev.currentTarget);
+      if (!(target.hasClass("graf--figure") && target.hasClass("is-mediaFocused"))) {
+        return this.hide(ev);
+      }
+    };
+
+    ImageTooltip.prototype.alignCenter = function(ev) {
+      this.activateLink($(ev.currentTarget));
+      this.findSelectedImage().removeClass("graf--layoutOutsetLeft");
+      return this.repositionWithActiveImage();
+    };
+
+    ImageTooltip.prototype.handleActiveClass = function() {
+      this.findElement().find(".dante-menu-button").removeClass("active");
+      if (this.findSelectedImage().hasClass("graf--layoutOutsetLeft")) {
+        return this.findElement().find(".icon-image-left").parent().addClass("active");
+      } else {
+        return this.findElement().find(".icon-image-center").parent().addClass("active");
+      }
+    };
+
+    ImageTooltip.prototype.activateLink = function(element) {
+      return setTimeout((function(_this) {
+        return function() {
+          return _this.repositionWithActiveImage();
+        };
+      })(this), 20);
+    };
+
+    ImageTooltip.prototype.repositionWithActiveImage = function() {
+      return this.positionPopOver(this.findSelectedImage().find("div"));
+    };
+
+    ImageTooltip.prototype.template = function() {
+      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon icon-image-fill'></span> </li> <li class='dante-menu-button align-center'> <span class='tooltip-icon icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
+    };
+
+    ImageTooltip.prototype.positionPopOver = function(target) {
+      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value;
+      target_offset = target.offset();
+      target_position = target.parent().position();
+      target_width = target.outerWidth();
+      target_height = target.outerHeight();
+      popover_width = this.findElement().outerWidth();
+      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? 72 : 74;
+      top_value = target_position.top - pad_top;
+      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
+      this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
+      return this.handleActiveClass();
+    };
+
+    ImageTooltip.prototype.hide = function(ev) {
+      this.cancelHide();
+      return this.hideTimeout = setTimeout((function(_this) {
+        return function() {
+          return _this.findElement().hide().removeClass("is-active");
+        };
+      })(this), this.settings.timeout);
+    };
+
+    ImageTooltip.prototype.findSelectedImage = function() {
+      return $(".graf--figure.is-mediaFocused");
+    };
+
+    ImageTooltip.prototype.render = function() {
+      return $(this.template()).insertAfter(this.editor.$el);
+    };
+
+    return ImageTooltip;
+
+  })(Dante.Editor.PopOver);
+
+}).call(this);
+(function() {
+  var utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  utils = Dante.utils;
+
   Dante.Editor.PopOverTypeAhead = (function(_super) {
     __extends(PopOverTypeAhead, _super);
 
@@ -3313,201 +3651,6 @@
     };
 
     return PopOverTypeAhead;
-
-  })(Dante.Editor.PopOver);
-
-  Dante.Editor.PopOverCard = (function(_super) {
-    __extends(PopOverCard, _super);
-
-    function PopOverCard() {
-      return PopOverCard.__super__.constructor.apply(this, arguments);
-    }
-
-    PopOverCard.prototype.el = "body";
-
-    PopOverCard.prototype.events = {
-      "mouseover .popover--card": "cancelHide",
-      "mouseout  .popover--card": "hide",
-      "mouseover .markup--user": "displayPopOver",
-      "mouseout  .markup--user": "hidePopOver"
-    };
-
-    PopOverCard.prototype.initialize = function(opts) {
-      if (opts == null) {
-        opts = {};
-      }
-      this.pop_over_element = ".popover--card";
-      utils.log("initialized popover");
-      this.editor = opts.editor;
-      this.hideTimeout;
-      this.settings = {
-        timeout: 300
-      };
-      return this.card_data = {};
-    };
-
-    PopOverCard.prototype.template = function() {
-      return "<div class='dante-popover popover--card js-popover popover--animated popover--flexible popover--top is-active'> <div class='popover-inner js-popover-inner'> </div> </div>";
-    };
-
-    PopOverCard.prototype.cardTemplate = function() {
-      return "<div class='popoverCard'> <div class='u-clearfix'> <div class='u-floatLeft popoverCard-meta'> <h4 class='popoverCard-title'> <a class='link u-baseColor--link' href='" + this.card_data.href + "' title='" + this.card_data.text + "' aria-label='" + this.card_data.text + "' data-user-id='" + this.card_data.id + "' dir='auto'> " + this.card_data.text + " </a> </h4> <div class='popoverCard-description'> " + this.card_data.description + " </div> </div> <div class='u-floatRight popoverCard-avatar'> <a class='link dante-avatar u-baseColor--link' href='" + this.card_data.href + "' title='" + this.card_data.text + "' aria-label='" + this.card_data.text + "' data-user-id='" + this.card_data.id + "' dir='auto'> <img src='" + this.card_data.avatar + "' class='avatar-image avatar-image--small' alt='" + this.card_data.text + "'> </a> </div> </div> " + (this.footerTemplate()) + " <div class='popover-arrow'></div> </div>";
-    };
-
-    PopOverCard.prototype.footerTemplate = function() {
-      return "";
-
-      /*
-      "<div class='popoverCard-actions u-clearfix'>
-        <div class='u-floatLeft popoverCard-stats'>
-            <span class='popoverCard-stat'>
-                Following
-                <span class='popoverCard-count js-userFollowingCount'>124</span>
-            </span>
-            <span class='popoverCard-stat'>
-                Followers
-                <span class='popoverCard-count js-userFollowersCount'>79</span>
-            </span>
-        </div>
-      </div>"
-       */
-    };
-
-    PopOverCard.prototype.displayPopOver = function(ev) {
-      return this.displayAt(ev);
-    };
-
-    PopOverCard.prototype.displayAt = function(ev) {
-      this.cancelHide();
-      return $.getJSON($(ev.currentTarget).data().href).success((function(_this) {
-        return function(data) {
-          if (_this.editor.suggest_resource_handler) {
-            _this.card_data = _this.editor.suggest_resource_handler(data);
-          } else {
-            _this.card_data = data;
-          }
-          _this.refreshTemplate();
-          return _this.positionAt(ev);
-        };
-      })(this));
-    };
-
-    PopOverCard.prototype.hidePopOver = function(ev) {
-      return this.hide(ev);
-    };
-
-    PopOverCard.prototype.refreshTemplate = function() {
-      return $(".popover--card .popover-inner").html(this.cardTemplate());
-    };
-
-    return PopOverCard;
-
-  })(Dante.Editor.PopOver);
-
-  Dante.Editor.ImageTooltip = (function(_super) {
-    __extends(ImageTooltip, _super);
-
-    function ImageTooltip() {
-      return ImageTooltip.__super__.constructor.apply(this, arguments);
-    }
-
-    ImageTooltip.prototype.el = "body";
-
-    ImageTooltip.prototype.events = {
-      "click .graf": "handleHide",
-      "click .dante-menu-button.align-left": "alignLeft",
-      "click .dante-menu-button.align-center": "alignCenter"
-    };
-
-    ImageTooltip.prototype.initialize = function(opts) {
-      if (opts == null) {
-        opts = {};
-      }
-      utils.log("initialized popover");
-      this.pop_over_element = ".popover--Aligntooltip";
-      this.editor = opts.editor;
-      this.hideTimeout;
-      return this.settings = {
-        timeout: 100
-      };
-    };
-
-    ImageTooltip.prototype.alignLeft = function(ev) {
-      this.activateLink($(ev.currentTarget));
-      return this.findSelectedImage().addClass("graf--layoutOutsetLeft");
-    };
-
-    ImageTooltip.prototype.handleHide = function(ev) {
-      var target;
-      target = $(ev.currentTarget);
-      if (!(target.hasClass("graf--figure") && target.hasClass("is-mediaFocused"))) {
-        return this.hide(ev);
-      }
-    };
-
-    ImageTooltip.prototype.alignCenter = function(ev) {
-      this.activateLink($(ev.currentTarget));
-      this.findSelectedImage().removeClass("graf--layoutOutsetLeft");
-      return this.repositionWithActiveImage();
-    };
-
-    ImageTooltip.prototype.handleActiveClass = function() {
-      this.findElement().find(".dante-menu-button").removeClass("active");
-      if (this.findSelectedImage().hasClass("graf--layoutOutsetLeft")) {
-        return this.findElement().find(".icon-image-left").parent().addClass("active");
-      } else {
-        return this.findElement().find(".icon-image-center").parent().addClass("active");
-      }
-    };
-
-    ImageTooltip.prototype.activateLink = function(element) {
-      return setTimeout((function(_this) {
-        return function() {
-          return _this.repositionWithActiveImage();
-        };
-      })(this), 20);
-    };
-
-    ImageTooltip.prototype.repositionWithActiveImage = function() {
-      return this.positionPopOver(this.findSelectedImage().find("div"));
-    };
-
-    ImageTooltip.prototype.template = function() {
-      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon icon-image-fill'></span> </li> <li class='dante-menu-button align-center'> <span class='tooltip-icon icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
-    };
-
-    ImageTooltip.prototype.positionPopOver = function(target) {
-      var left_value, pad_top, popover_width, target_height, target_offset, target_position, target_width, top_value;
-      target_offset = target.offset();
-      target_position = target.parent().position();
-      target_width = target.outerWidth();
-      target_height = target.outerHeight();
-      popover_width = this.findElement().outerWidth();
-      pad_top = this.findSelectedImage().hasClass("graf--layoutOutsetLeft") ? 72 : 74;
-      top_value = target_position.top - pad_top;
-      left_value = target_offset.left + (target_width / 2) - (popover_width / 2);
-      this.findElement().css("top", top_value).css("left", left_value).show().addClass("is-active");
-      return this.handleActiveClass();
-    };
-
-    ImageTooltip.prototype.hide = function(ev) {
-      this.cancelHide();
-      return this.hideTimeout = setTimeout((function(_this) {
-        return function() {
-          return _this.findElement().hide().removeClass("is-active");
-        };
-      })(this), this.settings.timeout);
-    };
-
-    ImageTooltip.prototype.findSelectedImage = function() {
-      return $(".graf--figure.is-mediaFocused");
-    };
-
-    ImageTooltip.prototype.render = function() {
-      return $(this.template()).insertAfter(this.editor.$el);
-    };
-
-    return ImageTooltip;
 
   })(Dante.Editor.PopOver);
 
@@ -3809,6 +3952,7 @@
 
 }).call(this);
 //Editor components
+
 
 
 
