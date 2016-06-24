@@ -10,14 +10,13 @@
 
 ##Motivation:
 
-So far I have tried all the Medium.com wysiwyg clones out there, these are really great, and each have their pros and cons. [But none of them has all the features that the real medium editor provides.](http://howtox.com/medium-editor-clones-in-js/)
-so I wonder, How complicated could it be to write my own Medium wysiwyg clone?
+So far we have tried all the Medium.com wysiwyg clones out there, those are really great, and each have their pros and cons. [But none of them has all the features that the real medium editor provides.](http://howtox.com/medium-editor-clones-in-js/) So we wondered, How complicated could be write our own version of Medium's wysiwyg?
 
 ## Demo:
 
 [http://michelson.github.io/Dante/](http://michelson.github.io/Dante/)
 
-Until now I´ve been able to implement the following features:
+Until now We´ve implemented the following features:
 
 ## Features:
 
@@ -91,10 +90,13 @@ Until now I´ve been able to implement the following features:
 + **store_success_handler** default: to none. Option to set a function to handle success response for save operation, works only if store_url is present.
 + **store_interval:** default: 1500 (1.5 secs), used when store_url is present.
 
++ **before_xhr_handler:** default: none, callback for handle beforeSend on **all** ajax calls 
++ **success_xhr_handler:** default: none, callback for handle success event on **all** ajax calls 
+
 #### Uploader:
 
 + **upload_url:**  default: /uploads.json
-+ **upload_callback** default: empty, allows optional way to handle the server response when image is uploaded This is useful when you don't have control on the backend response.
++ **upload_callback:** default: empty, allows optional way to handle the server response when image is uploaded This is useful when you don't have control on the backend response. the callback will return the xhr response , the node and the context. **When this option is empty the default behavior will expect a json response with the url `{url: "path/to/img.jpg"}`** (before 0.1.8 the expected reponse was a  string containing the url)
 + **image_delete_callback**: default: none, returns the image data before deletion. use this if you want to destroy image from the server.
 + **image_caption_placeholder** default: "Type caption for image (optional)"
 
