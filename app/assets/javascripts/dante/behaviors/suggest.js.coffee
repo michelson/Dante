@@ -57,12 +57,17 @@ class Dante.View.Behavior.Suggest extends Dante.View.Behavior
         method: "get"
         dataType: "json"
         #data: { "#{@editor.suggest_query_param}": q }
+      .beforeSend (res)=>
+        @editor.before_xhr_handler(res) if @editor.before_xhr_handler
       .success (data)=>
         if @editor.suggest_handler
           @fetch_results = @editor.suggest_handler(data)
         else
           @fetch_results = data
         cb(e) if cb
+        
+        @editor.success_xhr_handler(data) if @editor.success_xhr_handler
+
       .error (data, err)=>
         console.log "error fetching results"
     , @editor.suggest_query_timeout

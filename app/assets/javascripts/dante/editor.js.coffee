@@ -49,6 +49,8 @@ class Dante.Editor extends Dante.View
     @store_url       = opts.store_url
     @store_method    = opts.store_method || "POST"
     @store_success_handler = opts.store_success_handler
+    @before_xhr_handler = opts.before_xhr_handler
+    @success_xhr_handler = opts.success_xhr_handler
     
     @spell_check     = opts.spellcheck || false
     @disable_title   = opts.disable_title || false

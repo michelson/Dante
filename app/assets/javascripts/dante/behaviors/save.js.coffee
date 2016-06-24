@@ -16,7 +16,9 @@ class Dante.View.Behavior.Save extends Dante.View.Behavior
   store: ()->
     return unless @editor.store_url
     utils.log "HANDLE DATA STORE"
+    
     clearTimeout(@timeout)
+    
     @timeout = setTimeout =>
       @checkforStore()
     , @editor.store_interval
@@ -35,6 +37,9 @@ class Dante.View.Behavior.Save extends Dante.View.Behavior
         dataType: "json"
         data:
           body: @editor.getContent()
+        beforeSend: (res)=>
+          @editor.before_xhr_handler(res) if @editor.before_xhr_handler
         success: (res)=>
           utils.log "STORING CONTENT"
           @editor.store_success_handler(res) if @editor.store_success_handler
+          @editor.success_xhr_handler(res) if @editor.success_xhr_handler
