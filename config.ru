@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'middleman/rack'
+require "sinatra/base"
+require "sinatra/json"
 
 class UploadServer < Sinatra::Base
 
@@ -11,14 +13,15 @@ class UploadServer < Sinatra::Base
 
   # Handle POST-request (Receive and save the uploaded file)
   post "/new.?:format?" do
-
+    content_type :json
+    
     name = [Time.now.to_i , params['file'][:filename]].join("-")
     path = File.join(File.dirname(__FILE__), 'tmp/images', name)
     File.open(path, "wb") do |f|
       f.write(params['file'][:tempfile].read)
     end
 
-    return "/uploads/images/#{name}"
+    json :url=> "/uploads/images/#{name}"
   end
 
 end
