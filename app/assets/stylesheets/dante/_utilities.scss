@@ -29,12 +29,12 @@
     to {-webkit-transform: rotate(360deg);}
 }
 
-.spinner {
+.dante--spinner {
   min-width: 24px;
   min-height: 24px;
 }
 
-.spinner:before {
+.dante--spinner:before {
   content: 'Loading…';
   position: absolute;
   top: 50%;
@@ -45,7 +45,7 @@
   margin-left: -10px;
 }
 
-.spinner:not(:required):before {
+.dante--spinner:not(:required):before {
   content: '';
   border-radius: 50%;
   border: 2px solid rgba(0, 0, 0, .3);
