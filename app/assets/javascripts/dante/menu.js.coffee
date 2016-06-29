@@ -46,7 +46,7 @@ class Dante.Editor.Menu extends Dante.View
       if item == "divider"
         html += "<li class='dante-menu-divider'></li>"
       else
-        html += "<li class='dante-menu-button'><i class=\"dante-icon icon-#{item}\" data-action=\"#{item}\"></i></li>"
+        html += "<li class='dante-menu-button'><i class=\"dante-icon dante-icon-#{item}\" data-action=\"#{item}\"></i></li>"
 
     html += "</ul>"
     html
@@ -202,15 +202,15 @@ class Dante.Editor.Menu extends Dante.View
           utils.log "nothing to select"
 
       if tag.match /(?:h[1-6])/i
-        @toggleMenuButtons(@el, ".icon-bold, .icon-italic")
+        @toggleMenuButtons(@el, ".dante-icon-bold, .dante-icon-italic")
 
       else if tag is "indent"
-        @toggleMenuButtons(@el, ".icon-h3, .icon-h4, .icon-blockquote")
+        @toggleMenuButtons(@el, ".dante-icon-h3, .dante-icon-h4, .dante-icon-blockquote")
 
       @highlight(tag)
 
   highlight: (tag)->
-    $(".icon-#{tag}").parent("li").addClass("active")
+    $(".dante-icon-#{tag}").parent("li").addClass("active")
 
   toggleMenuButtons: (el,buttons)->
     $(el).find(buttons).parent("li").addClass("dante-menu-button--disabled")

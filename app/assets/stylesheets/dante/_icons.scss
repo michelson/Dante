@@ -12,25 +12,25 @@
   }
 }
 
-.icon-h2:before                   { content: ""; }
-.icon-h3:before                   { content: "H1"; }
-.icon-h4:before                   { content: "H2"; }
-.icon-p:before                    { content:  "P"; }
-.icon-code:before                 { content: ""; }
-.icon-insertorderedlist:before    { content: ""; }
-.icon-insertunorderedlist:before  { content: ""; }
-.icon-inserthorizontalrule:before { content: ""; }
-.icon-indent:before               { content: ""; }
-.icon-outdent:before              { content: ""; }
-.icon-bold:before                 { content: ""; }
-.icon-italic:before               { content: ""; }
-.icon-underline:before            { content: ""; }
-.icon-createlink:before           { content: ""; }
-.icon-blockquote:before           { content: ""; }
+.dante-icon-h2:before                   { content: ""; }
+.dante-icon-h3:before                   { content: "H1"; }
+.dante-icon-h4:before                   { content: "H2"; }
+.dante-icon-p:before                    { content:  "P"; }
+.dante-icon-code:before                 { content: ""; }
+.dante-icon-insertorderedlist:before    { content: ""; }
+.dante-icon-insertunorderedlist:before  { content: ""; }
+.dante-icon-inserthorizontalrule:before { content: ""; }
+.dante-icon-indent:before               { content: ""; }
+.dante-icon-outdent:before              { content: ""; }
+.dante-icon-bold:before                 { content: ""; }
+.dante-icon-italic:before               { content: ""; }
+.dante-icon-underline:before            { content: ""; }
+.dante-icon-createlink:before           { content: ""; }
+.dante-icon-blockquote:before           { content: ""; }
 
-.icon-h2:before,
-.icon-h3:before,
-.icon-h4:before {
+.dante-icon-h2:before,
+.dante-icon-h3:before,
+.dante-icon-h4:before {
   font-weight: bold;
 }
 
@@ -50,13 +50,13 @@
   }
 }
 
-.icon-image-center:before { content: "\e900"; }
-.icon-image-fill:before   { content: "\e901"; }
-.icon-image-left:before   { content: "\e902"; }
-.icon-image-wide:before   { content: "\e903"; }
+.dante-icon-image-center:before { content: "\e900"; }
+.dante-icon-image-fill:before   { content: "\e901"; }
+.dante-icon-image-left:before   { content: "\e902"; }
+.dante-icon-image-wide:before   { content: "\e903"; }
 
-.icon-video:before        { content: "\e600"; }
-.icon-image:before        { content: "\e601"; }
-.icon-plus:before         { content: "\e602"; }
-.icon-embed:before        { content: "\e603"; }
+.dante-icon-video:before        { content: "\e600"; }
+.dante-icon-image:before        { content: "\e601"; }
+.dante-icon-plus:before         { content: "\e602"; }
+.dante-icon-embed:before        { content: "\e603"; }
 
