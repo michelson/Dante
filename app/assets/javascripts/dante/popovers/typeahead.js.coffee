@@ -53,7 +53,9 @@ class Dante.Editor.PopOverTypeAhead extends Dante.Editor.PopOver
     data = $(ev.currentTarget).data()
     $(".markup--query").replaceWith(@linkTemplate(data))
     @hide(0)
-    #@setRangeAt(new_paragraph[0])
+    # save content to server
+    @editor.save_behavior.store()
+
 
   linkTemplate: (data)->
     "<a href='#'
