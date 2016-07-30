@@ -136,6 +136,11 @@ in Gemfile
 
 ```gem "dante-editor"```
 
+Sanitize.js and Underscore.js are Dante dependencies- If you don't already have those installed, add those to your gemfile as well.
+
+```gem 'underscore-rails'```
+```gem 'rails-sanitize-js'```
+
 ### stylesheets:
 
 ```@import "dante";```
@@ -144,6 +149,9 @@ in Gemfile
 
 ```//= require 'dante'```
 
+If you just added the Underscore.js and Sanitize.js gems, add this as well:
+```//= require sanitize```
+```//= require underscore```
 
 ## Donate
 
