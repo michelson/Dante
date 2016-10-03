@@ -89,6 +89,7 @@ class DanteEditor extends React.Component
     
     @onChange = (editorState) =>
       @.setState({editorState});
+      console.log "edit", editorState.getSelection().getAnchorKey()
 
       if (!editorState.getSelection().isCollapsed())
         #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
