@@ -1,6 +1,4 @@
-# Emojipicker
-
-<img width="874" alt="captura de pantalla 2016-09-30 a las 22 12 57" src="https://cloud.githubusercontent.com/assets/627694/19010677/1f485b5e-875b-11e6-8c7a-6369e2119c76.png">
+# Dante2
 
 
 ## Brunch + React + Babel
