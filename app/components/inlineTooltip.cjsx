@@ -82,8 +82,6 @@ class DanteInlineTooltip extends React.Component
     if @state.scaled then "124" else "0"    
 
   render: ->
-
-    console.log @props.style
     return (
 
       <div className="inlineTooltip #{@activeClass()} #{@scaledClass()}" 

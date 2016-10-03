@@ -50,7 +50,8 @@ class DanteTooltip extends React.Component
 
   getPosition: ->
     pos = @props.options.position
-    console.log pos
+    #console.log pos
+    pos
     
   componentWillReceiveProps: (newProps)=>
     # console.log "isjsj"

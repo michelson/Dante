@@ -11,9 +11,14 @@ module.exports =
 
     stylesheets:
       joinTo:
-        'application.css': /^app|bower_components/
+        'application.css': /^app|bower_components|fonts/
 
   plugins: 
+    copycat:
+      fonts: ["app/fonts"]
+      verbose: true, #shows each file that is copied to the destination directory 
+      onlyChanged: true #only copy a file if it's modified time has changed (only effective when using brunch watch) 
+
     babel: 
       presets: ['es2015', 'es2016', 'react'], # es2015, es2016 are defaults
       ignore: [

@@ -252,27 +252,31 @@ class DanteEditor extends React.Component
     )
 
   getPositionForCurrent: ->
-    contentState = @state.editorState.getCurrentContent()
-    selectionState = @state.editorState.getSelection()
-    # console.log contentState
-    # console.log selectionState
-    block = contentState.getBlockForKey(selectionState.anchorKey);
-    # console.log block.getText().length, block.getText()
+    if @state.editorState.getSelection().isCollapsed()
+      contentState = @state.editorState.getCurrentContent()
+      selectionState = @state.editorState.getSelection()
+      # console.log contentState
+      # console.log selectionState
+      block = contentState.getBlockForKey(selectionState.anchorKey);
+      # console.log block.getText().length, block.getText()
 
-    @setState
-      display_tooltip: block.getText().length is 0
+      @setState
+        display_tooltip: block.getText().length is 0
 
-    node = utils.getNode()
-    return if node.anchorNode is null
-    # console.log "ANCHOR NODE", node.anchorNode
+      node = utils.getNode()
+      return if node.anchorNode is null
+      # console.log "ANCHOR NODE", node.anchorNode
 
-    coords = utils.getSelectionDimensions(node)
-    # console.log coords
-    
-    @setState
-      position:  
-        top: coords.top + window.scrollY
-        left: coords.left + window.scrollX - 60
+      coords = utils.getSelectionDimensions(node)
+      # console.log coords
+      
+      @setState
+        position:  
+          top: coords.top + window.scrollY
+          left: coords.left + window.scrollX - 60
+    else
+      @setState
+        display_tooltip: false   
 
   render: ->
 
