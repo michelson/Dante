@@ -108,7 +108,7 @@ class DanteEditor extends React.Component
         #setTimeout @relocateTooltipPosition(), 10
       setTimeout ()=>
         @getPositionForCurrent()
-      , 20
+      , 0
       console.log "CHANGED!"
       
   handleOnChange: ->
@@ -213,7 +213,9 @@ class DanteEditor extends React.Component
     #      show: false
     #  return
 
-    top    = position.top + utils.scrollTop( window ) - height
+    #debugger
+    console.log position
+    top    = position.top - position.height - height #+ utils.scrollTop( window ) - (height + 40)
     left   = position.left + (position.width / 2) - padd
     #@editor_menu.$el.offset({ left: left , top: top })
     return if !top or !left
@@ -364,7 +366,5 @@ class DanteEditor extends React.Component
         </button>
       </div>
     ) 
-
-
 
 module.exports = Dante
