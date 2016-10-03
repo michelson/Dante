@@ -282,7 +282,6 @@ class DanteEditor extends React.Component
 
     return (
       <div id="content">
-        <h1>Draft.js Editor</h1>
 
         <article className="postArticle">
           <div className="postContent">
@@ -304,6 +303,8 @@ class DanteEditor extends React.Component
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         updateSelection={@_updateSelection}
+                        readOnly={false}
+                        placeholder="Write something..."
                       />
                     </div> 
                   </div>
