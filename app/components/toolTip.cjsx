@@ -24,16 +24,35 @@ class DanteTooltip extends React.Component
 
   _clickInlineHandler: (ev, style)=>
     ev.preventDefault()
-    @props.stateHandler(
+    #@props.setStateHandler(
+    #  RichUtils.toggleInlineStyle(@props.editorState, style)
+    #)
+    @props.dispatchChanges(
       RichUtils.toggleInlineStyle(@props.editorState, style)
     )
-    @props.relocateMenu()
+
+    setTimeout ()=>
+      @props.relocateMenu()
+    , 0
+    #@props.relocateMenu()
 
 
   _clickBlockHandler: (ev, style)=>
     ev.preventDefault()
-    @props.toggleBlockType(style)
-    @props.relocateMenu()
+    console.log "hoi", style
+    #@props.toggleBlockType(style)
+    #ev.preventDefault()
+    @props.dispatchChanges(
+      RichUtils.toggleBlockType(@props.editorState, style)
+    )
+    #debugger
+    #@props.dispatchChanges(
+    #  RichUtils.toggleInlineStyle(@props.editorState, style)
+    #)
+    #@props.relocateMenu()
+    setTimeout ()=>
+      @props.relocateMenu()
+    , 0
 
   displayLinkMode: =>
     if @props.link_mode then "dante-menu--linkmode" else ""
@@ -55,7 +74,9 @@ class DanteTooltip extends React.Component
     
   componentWillReceiveProps: (newProps)=>
     # console.log "isjsj"
-    # @props.relocateMenu()
+    #setTimeout ()=>
+    #  @props.relocateMenu()
+    #, 0
 
   render: ->
     return (
@@ -77,6 +98,9 @@ class DanteTooltip extends React.Component
                 key={i}
                 item={item}
                 handleClick={@_clickBlockHandler}
+                editorState={@props.editorState}
+                type={"block"}
+                currentStyle={@props.editorState.getCurrentInlineStyle}
               />
           }
           {
@@ -84,6 +108,8 @@ class DanteTooltip extends React.Component
               <DanteTooltipItem 
                 key={i}
                 item={item}
+                type={"inline"}
+                editorState={@props.editorState}
                 handleClick={@_clickInlineHandler}
               />
           }
@@ -96,9 +122,34 @@ class DanteTooltipItem extends React.Component
   handleClick: (ev)=>
     @props.handleClick(ev, @props.item.style)
 
-  render: ->
+  activeClass: =>
+    if @isActive() then "active" else ""
+
+  isActive: =>
+    if @props.type is "block"
+      @activeClassBlock()
+    else
+      @activeClassInline()
+
+  activeClassInline: =>
+    return unless @props.editorState
+    #console.log @props.item
+    @props.editorState.getCurrentInlineStyle().has(@props.item.style)
+
+  activeClassBlock: =>
+    #console.log "EDITOR STATE", @props.editorState
+    return unless @props.editorState
+    selection = @props.editorState.getSelection()
+    blockType = @props.editorState
+                .getCurrentContent()
+                .getBlockForKey(selection.getStartKey())
+                .getType()
+    @props.item.style is blockType
+
+  render: =>
     return (
-      <li className="dante-menu-button" onClick={@handleClick}>
+      <li className="dante-menu-button #{@activeClass()}" 
+        onMouseDown={@handleClick}>
         <i className="dante-icon dante-icon-#{@props.item.label}" 
           data-action="bold"></i>
       </li>

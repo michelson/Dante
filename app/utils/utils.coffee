@@ -24,6 +24,17 @@ utils.getSelectedBlockElement = (range) =>
   
   return null;
 
+utils.getSelectedNode = (range) =>
+  #debugger
+  node = range.startContainer;
+  while (node isnt null)
+    #nodeIsDataBlock = if node.getAttribute then node.getAttribute('data-block') else null;
+    #return node if (nodeIsDataBlock)
+    node = node.parentNode
+    return node
+  
+  return null;
+
 utils.getSelectionCoords = (selectionRange) =>
   editorBounds = document.getElementById('richEditor').getBoundingClientRect();
   rangeBounds = selectionRange.getBoundingClientRect();

@@ -50,6 +50,7 @@ class Dante
 class DanteEditor extends React.Component
   constructor: (props) ->
     super props
+    window.main_editor = @
 
     @state = 
       editorState: EditorState.createEmpty()
@@ -87,43 +88,70 @@ class DanteEditor extends React.Component
       # {label: 'strikethrough', style: 'STRIKETHROUGH'}
     ];
     
-    @onChange = (editorState) =>
-      @.setState({editorState});
-      console.log "edit", editorState.getSelection().getAnchorKey()
+  onChange: (editorState) =>
+    @.setState({editorState});
+    console.log "edit", editorState.getSelection().getAnchorKey()
 
-      if (!editorState.getSelection().isCollapsed())
-        #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
-        #selectionRange = getSelectionRange();
-        #selectionCoords = getSelectionCoords(selectionRange);
-        
-        return if @state.menu.show
-
-        @.setState
-          menu:
-            show: true
-            # top: '0px' #selectionCoords.offsetTop,
-            # left: '200px' #selectionCoords.offsetLeft
-        , @handleOnChange
-      else
-        @.setState({ menu: { show: false } });
-        #setTimeout @relocateTooltipPosition(), 10
-      setTimeout ()=>
-        @getPositionForCurrent()
-      , 0
-      console.log "CHANGED!"
+    if (!editorState.getSelection().isCollapsed())
+      #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
+      #selectionRange = getSelectionRange();
+      #selectionCoords = getSelectionCoords(selectionRange);
       
+      return if @state.menu.show
+
+      @.setState
+        menu:
+          show: true
+          # top: '0px' #selectionCoords.offsetTop,
+          # left: '200px' #selectionCoords.offsetLeft
+      , @handleOnChange
+    else
+      @.setState({ menu: { show: false } });
+      #setTimeout @relocateTooltipPosition(), 10
+    #console.log "CHANGED!"
+
+    setTimeout ()=>
+      @getPositionForCurrent()
+    , 0
+
+    @setState({ editorState });
+    # setTimeout(@updateSelection, 0);
+    console.log "CHANGES!"
+    #@.setState({editorState});
+ 
+  focus: () => 
+    #@.refs.editor.focus()
+    document.getElementById('richEditor').focus()
+
+  updateSelection: ()=>
+    console.log "eoeoe", utils.getSelectionRange()
+    selectionRange = utils.getSelectionRange()
+    selectedBlock;
+    if selectionRange
+      selectedBlock = utils.getSelectedNode(selectionRange)
+    @.setState({
+      selectedBlock,
+      selectionRange
+    })
+    console.log @state
+
   handleOnChange: ->
     @relocateMenu()
 
     #@relocateTooltipPosition()
+
+  # send new blocks to changes
+  dispatchChanges: (body)=>
+    @onChange(body)
 
   stateHandler: (option)=>
     @.setState
       editorState: option
 
   _toggleBlockType: (blockType)=>
+    
     @onChange(
-      RichUtils.toggleBlockType(
+      RichUtils.toggleInlineStyle(
         @state.editorState,
         blockType
       )
@@ -181,7 +209,6 @@ class DanteEditor extends React.Component
     #  #@relocateTooltipPosition()
     #  return 'handled'
     #return 'not-handled'
-
     newState = RichUtils.handleKeyCommand(@state.editorState, command);
     if newState
       @.onChange(newState);
@@ -243,12 +270,13 @@ class DanteEditor extends React.Component
     #debugger
     # true
 
+  # is not working
   _updateSelection: ()=>
     @selectionRange = getSelectionRange();
     @selectedBlock
     if selectionRange
       @selectedBlock = getSelectedBlockElement(@selectionRange);
-    
+    return unless @selectedBlock
     @.setState(
       @selectedBlock,
       @selectionRange
@@ -298,7 +326,7 @@ class DanteEditor extends React.Component
                   </div> 
 
                   <div className="section-content"> 
-                    <div className="section-inner layoutSingleColumn">
+                    <div id="richEditor" className="section-inner layoutSingleColumn" onClick={@.focus}>
                       <Editor 
                         editorState={@state.editorState} 
                         onChange={@onChange}
@@ -320,7 +348,7 @@ class DanteEditor extends React.Component
 
         <DanteTooltip
           editorState={@state.editorState} 
-          stateHandler={@stateHandler}
+          setStateHandler={@stateHandler}
           toggleBlockType={@_toggleBlockType}
           block_types={@BLOCK_TYPES}
           inline_styles={@INLINE_STYLES}
@@ -328,6 +356,7 @@ class DanteEditor extends React.Component
           options={@state.menu}
           disableLinkMode={@disableLinkMode}
           disableMenu={@disableMenu}
+          dispatchChanges={@dispatchChanges}
 
           handleKeyCommand={@.handleKeyCommand}
           keyBindingFn={@KeyBindingFn}
