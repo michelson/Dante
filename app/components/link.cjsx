@@ -4,7 +4,7 @@ React = require('react')
 Link = (props) ->
   data = Entity.get(props.entityKey).getData();
   return (
-    <a href={data.url} className="drafjs-bhe_link">
+    <a href={data.url} className="markup--anchor">
       {props.children}
     </a>
   );
