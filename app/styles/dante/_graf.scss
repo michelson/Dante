@@ -119,7 +119,7 @@
 }
 
 
-.graf--blockquote {
+.graf--blockquote, blockquote {
   font-family: $font-family-serif;
   border-left: 3px solid rgba(0, 0, 0, 0.8);
   font-style: italic;
@@ -129,7 +129,7 @@
   padding-bottom: 3px;
   padding-left: 20px;
 }
-.graf--blockquote + .graf--blockquote {
+.graf--blockquote + .graf--blockquote, blockquote + blockquote {
   margin-top: -30px;
   padding-top: 30px;
 }
