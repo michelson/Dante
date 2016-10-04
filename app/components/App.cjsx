@@ -96,9 +96,7 @@ class DanteEditor extends React.Component
       #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
       #selectionRange = getSelectionRange();
       #selectionCoords = getSelectionCoords(selectionRange);
-      
       return if @state.menu.show
-
       @.setState
         menu:
           show: true

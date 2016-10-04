@@ -104,6 +104,9 @@ class DanteTooltip extends React.Component
               />
           }
           {
+            <DanteTooltipLink />
+          }
+          {
             @props.inline_styles.map (item, i)=>
               <DanteTooltipItem 
                 key={i}
@@ -154,5 +157,15 @@ class DanteTooltipItem extends React.Component
           data-action="bold"></i>
       </li>
     )
+
+class DanteTooltipLink extends React.Component
+  render: ->
+    return (
+      <li className="dante-menu-button">
+        <i className="dante-icon icon-createlink" 
+        data-action="createlink">link</i>
+      </li>
+    )
+
 
 module.exports = DanteTooltip
