@@ -29,6 +29,9 @@ KeyCodes =
 window.utils = require('../utils/utils.coffee')
 DanteInlineTooltip = require('./inlineTooltip.cjsx')
 DanteTooltip = require('./toolTip.cjsx')
+Link = require('./link.cjsx')
+findEntities = require('../utils/find_entities.coffee')
+
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
 
@@ -52,8 +55,15 @@ class DanteEditor extends React.Component
     super props
     window.main_editor = @
 
+    decorator = new CompositeDecorator([
+      {
+        strategy: findEntities.bind(null, 'link'),
+        component: Link
+      }
+    ])
+
     @state = 
-      editorState: EditorState.createEmpty()
+      editorState: EditorState.createEmpty(decorator)
       display_toolbar: false
       showURLInput: false
       
@@ -155,40 +165,6 @@ class DanteEditor extends React.Component
       )
     )
 
-  _promptForLink: (e)=>
-    e.preventDefault();
-    #editorState = @.state;
-    selection = @state.editorState.getSelection()
-    if (!selection.isCollapsed())
-      @.setState
-        menu:
-          display_input: true
-          url: ''
-
-  _confirmLink: (e)=>
-    e.preventDefault()
-    editorState = @.state.editorState
-    urlValue = @.state.urlValue
-    contentState = editorState.getCurrentContent()
-    console.log editorState.getSelection()
-
-    entityKey = Entity.create('LINK', 'MUTABLE', {url: urlValue});
-
-    @.setState
-      editorState: RichUtils.toggleLink(
-        editorState,
-        editorState.getSelection(),
-        entityKey
-      ),
-      menu:
-        display_input: false,
-        url: '',
-
-  disableLinkMode: =>
-    @setState
-      menu:
-        display_input: false
-
   disableMenu: =>
     @setState
       display_toolbar: false
@@ -268,18 +244,6 @@ class DanteEditor extends React.Component
     #debugger
     # true
 
-  # is not working
-  _updateSelection: ()=>
-    @selectionRange = getSelectionRange();
-    @selectedBlock
-    if selectionRange
-      @selectedBlock = getSelectedBlockElement(@selectionRange);
-    return unless @selectedBlock
-    @.setState(
-      @selectedBlock,
-      @selectionRange
-    )
-
   getPositionForCurrent: ->
     if @state.editorState.getSelection().isCollapsed()
       contentState = @state.editorState.getCurrentContent()
@@ -352,7 +316,6 @@ class DanteEditor extends React.Component
           inline_styles={@INLINE_STYLES}
           confirmLink={@_confirmLink}
           options={@state.menu}
-          disableLinkMode={@disableLinkMode}
           disableMenu={@disableMenu}
           dispatchChanges={@dispatchChanges}
 
@@ -372,26 +335,6 @@ class DanteEditor extends React.Component
           display_tooltip={@state.display_tooltip}
         />
 
-        { if @state.showURLInput
-          <div>
-            <input
-              onChange={@.onURLChange}
-              ref="url"
-              type="text"
-              value={"http://sjsjsj.cl"}
-              onKeyDown={@.onLinkInputKeyDown}
-            />
-            <button onMouseDown={@._confirmLink}>
-              Confirm
-            </button>
-          </div>
-        }
-
-        <button
-          onMouseDown={@._promptForLink}
-          style={{marginRight: 10}}>
-          Add Link
-        </button>
       </div>
     ) 
 

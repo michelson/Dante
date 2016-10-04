@@ -21,6 +21,8 @@ class DanteTooltip extends React.Component
   constructor: (props) ->
     super props
     @getVisibleSelectionRect = getVisibleSelectionRect
+    @state = 
+      link_mode: false
 
   _clickInlineHandler: (ev, style)=>
     ev.preventDefault()
@@ -35,7 +37,6 @@ class DanteTooltip extends React.Component
       @props.relocateMenu()
     , 0
     #@props.relocateMenu()
-
 
   _clickBlockHandler: (ev, style)=>
     ev.preventDefault()
@@ -55,17 +56,51 @@ class DanteTooltip extends React.Component
     , 0
 
   displayLinkMode: =>
-    if @props.link_mode then "dante-menu--linkmode" else ""
+    if @state.link_mode then "dante-menu--linkmode" else ""
 
   displayActiveMenu: =>
     if @props.options.show then "dante-menu--active" else ""
 
+  _enableLinkMode: (ev)=>
+    ev.preventDefault()
+    @setState
+      link_mode: true
+
   _disableLinkMode: (ev)=>
     ev.preventDefault()
-    @props.disableLinkMode()
+    @setState
+      link_mode: false
 
   hideMenu: ->
     @props.disableMenu()
+
+  handleInputEnter: (e)=>    
+    if (e.which is 13)
+      #utils.restoreSelection(@savedSel)
+      return @confirmLink(e)
+
+  confirmLink: (e)=>
+    e.preventDefault()
+    editorState = @.props.editorState
+    urlValue = e.currentTarget.value
+    contentState = editorState.getCurrentContent()
+    selection = editorState.getSelection()
+
+    entityKey = Entity.create('link', 'MUTABLE', {url: urlValue});
+
+    if selection.isCollapsed()
+      console.log "COLLAPSED SKIPPN LINK"
+      return
+
+    @props.dispatchChanges(
+      RichUtils.toggleLink(
+        editorState,
+        selection,
+        entityKey
+      )
+    )
+  
+    @_disableLinkMode(e)
 
   getPosition: ->
     pos = @props.options.position
@@ -82,11 +117,13 @@ class DanteTooltip extends React.Component
     return (
       <div id="dante-menu" className="dante-menu #{@displayActiveMenu()} #{@displayLinkMode()}" 
         style={@getPosition()}>
+        
         <div className="dante-menu-linkinput">
           <input className="dante-menu-input" 
-            placeholder="Paste or type a link"
-          />
-          <div className="dante-menu-button" onClick={@_disableLinkMode}>
+            placeholder="Paste or type a link" onKeyPress={@handleInputEnter}/>
+
+          <div className="dante-menu-button" 
+            onMouseDown={@_disableLinkMode}>
             x
           </div>
         </div>
@@ -104,7 +141,10 @@ class DanteTooltip extends React.Component
               />
           }
           {
-            <DanteTooltipLink />
+            <DanteTooltipLink 
+              editorState={@props.editorState}
+              enableLinkMode={@_enableLinkMode}
+            />
           }
           {
             @props.inline_styles.map (item, i)=>
@@ -159,9 +199,16 @@ class DanteTooltipItem extends React.Component
     )
 
 class DanteTooltipLink extends React.Component
+
+  promptForLink: (ev)=>
+    selection = @props.editorState.getSelection()
+    if (!selection.isCollapsed())
+      @props.enableLinkMode(ev)
+
   render: ->
     return (
-      <li className="dante-menu-button">
+      <li className="dante-menu-button" 
+        onMouseDown={@.promptForLink}>
         <i className="dante-icon icon-createlink" 
         data-action="createlink">link</i>
       </li>
