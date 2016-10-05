@@ -120,7 +120,8 @@ class DanteTooltip extends React.Component
         
         <div className="dante-menu-linkinput">
           <input className="dante-menu-input" 
-            placeholder="Paste or type a link" onKeyPress={@handleInputEnter}/>
+            placeholder="Paste or type a link" 
+            onKeyPress={@handleInputEnter}/>
 
           <div className="dante-menu-button" 
             onMouseDown={@_disableLinkMode}>

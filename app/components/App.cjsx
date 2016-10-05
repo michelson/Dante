@@ -31,6 +31,7 @@ DanteInlineTooltip = require('./inlineTooltip.cjsx')
 DanteTooltip = require('./toolTip.cjsx')
 Link = require('./link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
+ImageBlock = require('./image.cjsx')
 
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
@@ -271,6 +272,15 @@ class DanteEditor extends React.Component
       @setState
         display_tooltip: false   
 
+  blockRenderer: (block)=>
+    #debugger
+    if (block.getType() is 'atomic')
+      return (
+        component: ImageBlock
+      )
+      
+    return null;
+
   render: ->
 
     return (
@@ -290,6 +300,7 @@ class DanteEditor extends React.Component
                   <div className="section-content"> 
                     <div id="richEditor" className="section-inner layoutSingleColumn" onClick={@.focus}>
                       <Editor 
+                        blockRendererFn={@.blockRenderer}
                         editorState={@state.editorState} 
                         onChange={@onChange}
                         handleReturn={@handleReturn}
@@ -332,6 +343,7 @@ class DanteEditor extends React.Component
           options={@state.inlineTooltip}
           editorState={@state.editorState}
           style={@state.position}
+          dispatchChanges={@dispatchChanges}
           display_tooltip={@state.display_tooltip}
         />
 

@@ -1,6 +1,12 @@
 React = require('react')
 ReactDOM = require('react-dom')
 
+{
+  Entity,
+  RichUtils
+  AtomicBlockUtils
+} = require('draft-js')
+
 class DanteInlineTooltip extends React.Component
 
   constructor: (props) ->
@@ -10,6 +16,11 @@ class DanteInlineTooltip extends React.Component
       #position: {top: 0, left:0}
       show: true
       scaled: false
+      buttons: [
+        {title: "Add an image", icon: "image" }
+        {title: "Add an video", icon: "video" }
+        {title: "Add an embed", icon: "embed" }
+      ]
 
   _toggleScaled: (ev)=>
     if @state.scaled then @collapse() else @scale()
@@ -79,7 +90,25 @@ class DanteInlineTooltip extends React.Component
     if @state.scaled then "is-scaled" else ""
 
   scaledWidth: ->
-    if @state.scaled then "124" else "0"    
+    if @state.scaled then "124" else "0"   
+
+  clickOnFileUpload: => 
+    #ReactDOM.findDOMNode(@)
+    this.refs.fileInput.click()
+
+  insertImage: (file) =>
+    entityKey = Entity.create('atomic', 'IMMUTABLE', {src: URL.createObjectURL(file)})
+    @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
+        @.props.editorState,
+        entityKey,
+        ' '
+      ));
+
+  handleFileInput: (e)=>
+    #debugger
+    fileList = e.target.files
+    file = fileList[0]
+    @.insertImage(file)
 
   render: ->
     return (
@@ -92,29 +121,47 @@ class DanteInlineTooltip extends React.Component
           data-action="inline-menu"
           onClick={@_toggleScaled}
         > 
-          <span className="tooltip-icon icon-plus"></span> 
+          <span className="tooltip-icon dante-icon-plus"></span> 
         </button> 
         
         <div className="inlineTooltip-menu" style={{width: "#{@scaledWidth()}px"}}> 
           
-          <button className="inlineTooltip-button scale" 
-            title="Add an image" data-action="inline-menu-menu-image"> 
-            <span className="tooltip-icon icon-image"></span> 
-          </button>
-          
-          <button className="inlineTooltip-button scale" 
-            title="Add a video" data-action="inline-menu-embed"> 
-            <span className="tooltip-icon icon-video"></span> 
-          </button>
+          {
+            @state.buttons.map (item, i)=>
+              <InlineTooltipItem
+                item={item}
+                key={i}
+                clickOnFileUpload={@clickOnFileUpload}
+              />
+          }
 
-          <button className="inlineTooltip-button scale" 
-            title="Add an embed" data-action="inline-menu-embed-extract"> 
-            <span className="tooltip-icon icon-embed"></span> 
-          </button> 
+          <input type="file" 
+            style={{display: 'none'}}
+            ref="fileInput" 
+            multiple="multiple"
+            onChange={@.handleFileInput}
+          />
+
         </div>
 
       </div>
 
+    )
+
+class InlineTooltipItem extends React.Component
+
+  uploadImage: (e)=>
+    e.preventDefault()
+    console.log "UPLOAD IMAGE"
+    @props.clickOnFileUpload(e)
+
+  render: ->
+    return (
+      <button className="inlineTooltip-button scale" 
+        title={@props.title} onMouseDown={@uploadImage}> 
+        <span className="tooltip-icon dante-icon-#{@props.item.icon}">
+        </span> 
+      </button>
     )
 
 module.exports = DanteInlineTooltip
