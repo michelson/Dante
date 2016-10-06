@@ -33,6 +33,9 @@ class DanteInlineTooltip extends React.Component
     @setState
       scaled: false
 
+  componentWillReceiveProps: (newProps)=>
+    @collapse()
+
   ###
   componentWillReceiveProps: (newProps)=>
     console.log "RECEIVED PROPS"
@@ -86,6 +89,9 @@ class DanteInlineTooltip extends React.Component
   getPosition: ->
     @state.position
 
+  isActive: ->
+    @props.display_tooltip 
+
   scaledClass: ->
     if @state.scaled then "is-scaled" else ""
 
@@ -94,7 +100,9 @@ class DanteInlineTooltip extends React.Component
 
   clickOnFileUpload: => 
     #ReactDOM.findDOMNode(@)
-    this.refs.fileInput.click()
+    @.refs.fileInput.click()
+    @collapse()
+    @props.closeInlineButton()
 
   insertImage: (file) =>
     entityKey = Entity.create('atomic', 'IMMUTABLE', {src: URL.createObjectURL(file)})

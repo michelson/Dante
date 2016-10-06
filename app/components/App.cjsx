@@ -72,7 +72,7 @@ class DanteEditor extends React.Component
         show: true
         position: {}
 
-      display_toolip: false
+      display_tooltip: false
       position:  
         top: 0
         left: 0
@@ -101,13 +101,14 @@ class DanteEditor extends React.Component
     
   onChange: (editorState) =>
     @.setState({editorState});
-    console.log "edit", editorState.getSelection().getAnchorKey()
+    console.log "changed at", editorState.getSelection().getAnchorKey()
+    console.log "collapsed?", editorState.getSelection().isCollapsed()
 
     if (!editorState.getSelection().isCollapsed())
       #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
       #selectionRange = getSelectionRange();
       #selectionCoords = getSelectionCoords(selectionRange);
-      return if @state.menu.show
+      # return if @state.menu.show
       @.setState
         menu:
           show: true
@@ -121,13 +122,26 @@ class DanteEditor extends React.Component
 
     setTimeout ()=>
       @getPositionForCurrent()
+      # @setActive()
     , 0
 
     @setState({ editorState });
     # setTimeout(@updateSelection, 0);
     console.log "CHANGES!"
     #@.setState({editorState});
- 
+
+  handleClick: =>
+    console.log "oli!!!!"
+  
+  setActive: =>
+    contentState = @state.editorState.getCurrentContent()
+    selectionState = @state.editorState.getSelection()
+    block = contentState.getBlockForKey(selectionState.anchorKey)
+    return unless block
+    debugger 
+    node = Entity.get(block.getEntityAt(0)).getData()
+    debugger
+
   focus: () => 
     #@.refs.editor.focus()
     document.getElementById('richEditor').focus()
@@ -146,7 +160,6 @@ class DanteEditor extends React.Component
 
   handleOnChange: ->
     @relocateMenu()
-
     #@relocateTooltipPosition()
 
   # send new blocks to changes
@@ -177,9 +190,9 @@ class DanteEditor extends React.Component
       console.log "SAVING!!"
       return 'handled'
     if command is 'dante-keyup'
-
       @relocateTooltipPosition()
       return 'not-handled'
+      #return 'not-handled'
     #if command is 'dante-enter'
     #  #@relocateTooltipPosition()
     #  return 'handled'
@@ -191,6 +204,10 @@ class DanteEditor extends React.Component
     
     return false;
 
+  closeInlineButton: =>
+    @setState
+      display_tooltip: true
+
   handleReturn: (e)=>
 
   KeyBindingFn: (e)=>
@@ -198,7 +215,9 @@ class DanteEditor extends React.Component
     if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
       return 'dante-save'
     #if e.keyCode is KeyCodes.ENTER
-    #  return 'dante-enter' 
+    #  @closeInlineButton()
+    #  #return 'dante-enteriji' 
+
     return getDefaultKeyBinding(e)
    
   relocateMenu: =>
@@ -246,6 +265,7 @@ class DanteEditor extends React.Component
     # true
 
   getPositionForCurrent: ->
+
     if @state.editorState.getSelection().isCollapsed()
       contentState = @state.editorState.getCurrentContent()
       selectionState = @state.editorState.getSelection()
@@ -254,9 +274,6 @@ class DanteEditor extends React.Component
       block = contentState.getBlockForKey(selectionState.anchorKey);
       # console.log block.getText().length, block.getText()
 
-      @setState
-        display_tooltip: block.getText().length is 0
-
       node = utils.getNode()
       return if node.anchorNode is null
       # console.log "ANCHOR NODE", node.anchorNode
@@ -264,19 +281,23 @@ class DanteEditor extends React.Component
       coords = utils.getSelectionDimensions(node)
       # console.log coords
       
+      # checkeamos si esta vacio
       @setState
+        display_tooltip: block.getText().length is 0
         position:  
           top: coords.top + window.scrollY
           left: coords.left + window.scrollX - 60
     else
-      @setState
-        display_tooltip: false   
+      @closeInlineButton()
 
   blockRenderer: (block)=>
     #debugger
     if (block.getType() is 'atomic')
       return (
         component: ImageBlock
+        #editable: true
+        props:
+          foo: 'bar'
       )
       
     return null;
@@ -308,6 +329,7 @@ class DanteEditor extends React.Component
                         keyBindingFn={@KeyBindingFn}
                         updateSelection={@_updateSelection}
                         readOnly={false}
+                        onClick={@handleClick}
                         placeholder="Write something..."
                       />
                     </div> 
@@ -345,6 +367,7 @@ class DanteEditor extends React.Component
           style={@state.position}
           dispatchChanges={@dispatchChanges}
           display_tooltip={@state.display_tooltip}
+          closeInlineButton={@closeInlineButton}
         />
 
       </div>
