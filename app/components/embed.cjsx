@@ -10,7 +10,7 @@ ReactDOM = require('react-dom')
 } = require('draft-js')
 
 
-class embedBlock extends React.Component
+class EmbedBlock extends React.Component
 
   render: ->
     return(
@@ -36,3 +36,5 @@ class embedBlock extends React.Component
         </figcaption>
       </figure>
     )
+
+module.exports = EmbedBlock

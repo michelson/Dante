@@ -105,7 +105,7 @@ class DanteInlineTooltip extends React.Component
     @props.closeInlineButton()
 
   insertImage: (file) =>
-    entityKey = Entity.create('image', 'IMMUTABLE', {src: URL.createObjectURL(file)})
+    entityKey = Entity.create('atomic:image', 'IMMUTABLE', {src: URL.createObjectURL(file)})
     @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
         @.props.editorState,
         entityKey,
@@ -113,7 +113,7 @@ class DanteInlineTooltip extends React.Component
       ));
 
   insertEmbed: () =>
-    entityKey = Entity.create('atomic', 'IMMUTABLE', {src: "oli"})
+    entityKey = Entity.create('atomic:embed', 'IMMUTABLE', {src: "oli"})
     @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
         @.props.editorState,
         entityKey,
@@ -125,6 +125,15 @@ class DanteInlineTooltip extends React.Component
     fileList = e.target.files
     file = fileList[0]
     @.insertImage(file)
+
+  clickHandler: (e, type)=>
+    switch type
+      when "image"
+        @clickOnFileUpload(e)
+      when "embed"
+        @insertEmbed()
+      else
+        null
 
   render: ->
     return (
@@ -147,7 +156,7 @@ class DanteInlineTooltip extends React.Component
               <InlineTooltipItem
                 item={item}
                 key={i}
-                clickOnFileUpload={@clickOnFileUpload}
+                clickHandler={@clickHandler}
               />
           }
 
@@ -166,15 +175,15 @@ class DanteInlineTooltip extends React.Component
 
 class InlineTooltipItem extends React.Component
 
-  uploadImage: (e)=>
+  clickHandler: (e)=>
     e.preventDefault()
-    console.log "UPLOAD IMAGE"
-    @props.clickOnFileUpload(e)
+    #console.log "UPLOAD IMAGE"
+    @props.clickHandler(e, @props.item.icon)
 
   render: ->
     return (
       <button className="inlineTooltip-button scale" 
-        title={@props.title} onMouseDown={@uploadImage}> 
+        title={@props.title} onMouseDown={@clickHandler}> 
         <span className="tooltip-icon dante-icon-#{@props.item.icon}">
         </span> 
       </button>

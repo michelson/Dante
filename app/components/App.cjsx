@@ -32,6 +32,7 @@ DanteTooltip = require('./toolTip.cjsx')
 Link = require('./link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./image.cjsx')
+EmbedBlock = require('./embed.cjsx')
 
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
@@ -291,14 +292,25 @@ class DanteEditor extends React.Component
       @closeInlineButton()
 
   blockRenderer: (block)=>
-    #debugger
-    if (block.getType() is 'atomic')
-      return (
-        component: ImageBlock
-        #editable: true
-        props:
-          foo: 'bar'
-      )
+    if block.getType() is 'atomic'
+
+      entity_type = Entity.get(block.getEntityAt(0)).getType()
+      
+      if entity_type is 'atomic:image'
+        return (
+          component: ImageBlock
+          #editable: true
+          props:
+            foo: 'bar'
+        )
+
+      else if entity_type is 'atomic:embed'
+        return (
+          component: EmbedBlock
+          #editable: true
+          props:
+            foo: 'bar'
+        )
       
     return null;
 
