@@ -112,9 +112,7 @@ class ImageBlock extends React.Component
             placeholder="escrive alalal"
           />
         </figcaption>
-
       </figure>
-
     )
     
 module.exports = ImageBlock
