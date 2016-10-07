@@ -33,6 +33,7 @@ Link = require('./link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./image.cjsx')
 EmbedBlock = require('./embed.cjsx')
+ExtractBlock = require('./extract.cjsx')
 
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
@@ -304,14 +305,21 @@ class DanteEditor extends React.Component
             foo: 'bar'
         )
 
-      else if entity_type is 'atomic:embed'
+      else if entity_type is 'atomic:video'
         return (
           component: EmbedBlock
           #editable: true
           props:
             foo: 'bar'
         )
-      
+
+      else if entity_type is 'atomic:embed'
+        return (
+          component: ExtractBlock
+          #editable: true
+          props:
+            foo: 'bar'
+        )
     return null;
 
   render: ->

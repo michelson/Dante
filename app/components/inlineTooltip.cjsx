@@ -112,13 +112,21 @@ class DanteInlineTooltip extends React.Component
         ' '
       ));
 
+  insertVideo: () =>
+    entityKey = Entity.create('atomic:video', 'IMMUTABLE', {src: "oli"})
+    @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
+        @.props.editorState,
+        entityKey,
+        ' '
+      ));    
+
   insertEmbed: () =>
     entityKey = Entity.create('atomic:embed', 'IMMUTABLE', {src: "oli"})
     @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
         @.props.editorState,
         entityKey,
         ' '
-      ));    
+      )); 
 
   handleFileInput: (e)=>
     #debugger
@@ -130,6 +138,8 @@ class DanteInlineTooltip extends React.Component
     switch type
       when "image"
         @clickOnFileUpload(e)
+      when "video"
+        @insertVideo()
       when "embed"
         @insertEmbed()
       else

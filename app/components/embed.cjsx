@@ -17,7 +17,7 @@ class EmbedBlock extends React.Component
     super props
     api_key = "86c28a410a104c8bb58848733c82f840"
     @state = 
-      provisory_text: "http://twitter.com"
+      provisory_text: "https://www.youtube.com/watch?v=XCEN0qQOsIA"
       embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
       embed_data: {}
 
@@ -27,31 +27,25 @@ class EmbedBlock extends React.Component
       (data)=>
         if data.status is 200
           @setState
-            embed_data: JSON.parse(data.responseText)
-        
+            embed_data: JSON.parse(data.responseText)    
 
   classForImage: ->
     if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
 
   render: ->
     return(
-      <div className='graf graf--mixtapeEmbed is-selected'>
-        <a target='_blank'
-          className="js-mixtapeImage mixtapeImage #{@classForImage()}"
-          href={@state.embed_data.url} 
-          style={{backgroundImage: "url('#{@state.embed_data.thumbnail_url}')"}}>
-        </a>
-        <a className='markup--anchor markup--mixtapeEmbed-anchor' 
-          target='_blank' href={@state.embed_data.url}>
-          <strong className='markup--strong markup--mixtapeEmbed-strong'>
-            {@state.embed_data.title}
-          </strong>
-          <em className='markup--em markup--mixtapeEmbed-em'>
-            {@state.embed_data.description}
-          </em>
-        </a>
-        {@state.embed_data.provider_url}
-      </div>
+      <figure contenteditable='false' 
+        className='graf--figure graf--iframe graf--first' tabIndex='0'>
+        <div className='iframeContainer' dangerouslySetInnerHTML={__html: @state.embed_data.html}>
+        </div>
+        <figcaption data-default-value={@state.caption} 
+          className='imageCaption'>
+            <EditorBlock {...@props} 
+              className="imageCaption"
+              placeholder="escrive alalal"
+            />
+        </figcaption>
+      </figure>
     )
 
 module.exports = EmbedBlock
