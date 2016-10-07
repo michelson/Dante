@@ -10,6 +10,19 @@ utils = {}
 
 ## NEW ONES from react-text-editor
 
+utils.ajax = (options, cb)=>
+  xhr = new XMLHttpRequest();
+  xhr.open('GET', options.url);
+  xhr.onload = ()->
+    if xhr.status is 200
+      cb(xhr)
+      #alert('User\'s name is ' + xhr.responseText);
+    else 
+      cb(xhr)
+      #alert('Request failed.  Returned status of ' + xhr.status);
+    
+  xhr.send();
+
 utils.getSelectionRange = () =>
   selection = window.getSelection();
   return null if (selection.rangeCount is 0)
