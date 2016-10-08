@@ -18,6 +18,17 @@ Immutable = require('immutable')
   DefaultDraftBlockRenderMap
 } = require('draft-js')
 
+isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
+
+{ 
+  addNewBlock
+  resetBlockWithType
+  updateDataOfBlock
+  getCurrentBlock
+  addNewBlockAt
+} = require('../model/index.js.es6')
+
+
 KeyCodes = 
   BACKSPACE: 8
   TAB: 9
@@ -36,6 +47,7 @@ findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./blocks/image.cjsx')
 EmbedBlock = require('./blocks/embed.cjsx')
 VideoBlock = require('./blocks/video.cjsx')
+PlaceholderBlock = require('./blocks/placeholder.cjsx')
 
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
@@ -76,25 +88,41 @@ class DanteEditor extends React.Component
           element: 'figure'
         "embed":
           element: 'div'
-        
-    }).merge(DefaultDraftBlockRenderMap);
+        'unstyled':
+          wrapper: null
+          element: 'p'
+        'paragraph': 
+          wrapper: null
+          element: 'p'
+        'placeholder':
+          wrapper: null
+          element: 'div'
+    }) 
+    #.merge(DefaultDraftBlockRenderMap);
 
-    @blockStyleFn = (block)->
+    @extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(@blockRenderMap);
+
+    @blockStyleFn = (block)=>
+      currentBlock = getCurrentBlock(@.state.editorState)
+      is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
+      
       switch block.getType()
         when "image"
-          return 'graf graf--figure is-defaultValue is-selected is-mediaFocused'
+          return "graf graf--figure is-defaultValue is-selected is-mediaFocused #{is_selected}"
         when "video"
-         return 'graf--figure graf--iframe'
+         return "graf--figure graf--iframe #{is_selected}"
         when "embed"
-          return 'graf graf--mixtapeEmbed'
+          return "graf graf--mixtapeEmbed #{is_selected}"
+        when "placeholder"
+          return "is-embedable #{is_selected}"
         else
-          return 'block'
+          return "graf graf--p #{is_selected}"
 
     @state = 
       editorState: EditorState.createEmpty(decorator)
       display_toolbar: false
       showURLInput: false
-      blockRenderMap: @blockRenderMap
+      blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
       current_input: ""
       inlineTooltip:
         show: true
@@ -108,6 +136,16 @@ class DanteEditor extends React.Component
       menu:
         show: false
         position: {}
+
+      embed_url: ""
+
+      continuousBlocks: [
+        "unstyled",
+        "blockquote",
+        "ordered-list",
+        "unordered-list",
+        "code-block"
+      ]
 
     @.BLOCK_TYPES = [
       # {label: 'p', style: 'unstyled'},
@@ -150,25 +188,193 @@ class DanteEditor extends React.Component
 
     setTimeout ()=>
       @getPositionForCurrent()
-      # @setActive()
+      @setActive()
     , 0
 
     @setState({ editorState });
-    # setTimeout(@updateSelection, 0);
     console.log "CHANGES!"
-    #@.setState({editorState});
+
+  blockRenderer: (block)=>
+    switch block.getType()
+
+      when "atomic"
+
+        entity = block.getEntityAt(0)
+
+        #return null unless entity
+        entity_type = Entity.get(entity).getType()
+        
+        ###
+        if entity_type is 'atomic:image'
+          return (
+            component: ImageBlock
+            #editable: true
+            props:
+              foo: 'bar'
+          )
+
+        else if entity_type is 'atomic:video'
+          return (
+            component: EmbedBlock
+            editable: false
+            props:
+              foo: 'bar'
+          )
+
+        else if entity_type is 'atomic:embed'
+          return (
+            component: ExtractBlock
+            editable: true
+            props:
+              foo: 'bar'
+          )
+        ###
+      when 'image'
+        return (
+            component: ImageBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
+
+      when 'embed'
+        return (
+            component: EmbedBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
+
+      when 'video'
+        return (
+            component: VideoBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
+
+      when 'placeholder'
+        return (
+            component: PlaceholderBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
+
+    return null;
+
+  ### from medium-draft
+  By default, it handles return key for inserting soft breaks (BRs in HTML) and
+  also instead of inserting a new empty block after current empty block, it first check
+  whether the current block is of a type other than `unstyled`. If yes, current block is
+  simply converted to an unstyled empty block. If RETURN is pressed on an unstyled block
+  default behavior is executed.
+  ###
+  handleReturn: (e) =>
+    if this.props.handleReturn
+      if this.props.handleReturn()
+        return true;
+
+    editorState = @state.editorState
+    #if (isSoftNewlineEvent(e)) {
+    #  this.onChange(RichUtils.insertSoftNewline(editorState));
+    #  return true;
+    #}
+    if !e.altKey && !e.metaKey && !e.ctrlKey
+      currentBlock = getCurrentBlock(editorState);
+      blockType = currentBlock.getType();
+
+      #console.log "Handle return #{blockType} length #{currentBlock.getLength()}"
+
+      if blockType.indexOf('atomic') is 0
+        @.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
+        return true;
+      
+      if currentBlock.getLength() is 0
+        console.log "Handle return #{blockType} 2"
+        switch (blockType)
+          when "image", "embed", "video"
+            @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+            return true
+          #when "placeholder"
+          #  @.onChange(resetBlockWithType(editorState, "embed"));
+          #  return true
+          when "header-one"
+            @.onChange(resetBlockWithType(editorState, "unstyled"));
+            return true;
+          else
+            return false;
+      
+      if currentBlock.getLength() > 0
+        console.log "Handle return #{blockType} with text"
+        switch (blockType)
+          when "video"
+            @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+            return true       
+          when "placeholder"
+
+            @setState
+              current_input:
+                provisory_text: currentBlock.getText()
+                embed_url: @state.current_input.embed_url
+
+            @.onChange(resetBlockWithType(editorState, @state.current_input.type));
+            return true    
+
+      selection = editorState.getSelection();
+      
+      if selection.isCollapsed() and currentBlock.getLength() is selection.getStartOffset()
+        if @.state.continuousBlocks.indexOf(blockType) < 0
+          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true;
+        
+        return false;
+      if selection.isCollapsed() and currentBlock.getType() is "embed" and currentBlock.getLength() > 0
+        
+        if @.state.continuousBlocks.indexOf(blockType) < 0
+          console.log "adding block on embed inner text enter "
+          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true;
+        
+        return false;
+      return false;
+    
+    return false;
+
+  handleBeforeInput: (chars)=>
+    
+    currentBlock = getCurrentBlock(@state.editorState);
+
+    ###
+    switch currentBlock.getType()
+      when "placeholder"
+        @setState
+          current_input: 
+            placeholder: "aa"
+            embed_url:"http://api.embed.ly/1/oembed?key=86c28a410a104c8bb58848733c82f840&url="
+            provisory_text:"http://twitter.com/michelson"
+        
+        @.onChange(resetBlockWithType(@state.editorState, "placeholder"));
+        return false
+    ###
+    return false
 
   handleClick: =>
     console.log "oli!!!!"
   
+  
   setActive: =>
-    contentState = @state.editorState.getCurrentContent()
-    selectionState = @state.editorState.getSelection()
-    block = contentState.getBlockForKey(selectionState.anchorKey)
-    return unless block
-    debugger 
-    node = Entity.get(block.getEntityAt(0)).getData()
-    debugger
+
+    currentBlock = getCurrentBlock(@state.editorState);
+    blockType = currentBlock.getType();
+    #debugger
+    #contentState = @state.editorState.getCurrentContent()
+    #selectionState = @state.editorState.getSelection()
+    #block = contentState.getBlockForKey(selectionState.anchorKey)
+    #return unless block
+    #debugger 
+    #node = Entity.get(block.getEntityAt(0)).getData()
+    #debugger
 
   focus: () => 
     #@.refs.editor.focus()
@@ -217,11 +423,12 @@ class DanteEditor extends React.Component
       # Perform a request to save your contents, set
       # a new `editorState`, etc.
       console.log "SAVING!!"
-      return 'handled'
+      return 'not-handled'
     if command is 'dante-keyup'
       @relocateTooltipPosition()
       return 'not-handled'
     if command is 'dante-uparrow'
+      debugger
       return 'not-handled'
       #return 'not-handled'
     #if command is 'dante-enter'
@@ -239,12 +446,12 @@ class DanteEditor extends React.Component
     @setState
       display_tooltip: true
 
-  handleReturn: (e)=>
-
   KeyBindingFn: (e)=>
     console.log "KEY CODE: #{e.keyCode}"
     if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
-      return 'dante-save'
+      #return 'dante-save'
+      console.log "TODO: save in this point"
+
     if e.keyCode is KeyCodes.UPARROW
       console.log "UPARROW"
       return 'dante-uparrow'
@@ -324,66 +531,6 @@ class DanteEditor extends React.Component
     else
       @closeInlineButton()
 
-  blockRenderer: (block)=>
-    switch block.getType()
-
-      when "atomic"
-
-        entity = block.getEntityAt(0)
-
-        #return null unless entity
-        entity_type = Entity.get(entity).getType()
-        
-        if entity_type is 'atomic:image'
-          return (
-            component: ImageBlock
-            #editable: true
-            props:
-              foo: 'bar'
-          )
-
-        else if entity_type is 'atomic:video'
-          return (
-            component: EmbedBlock
-            editable: false
-            props:
-              foo: 'bar'
-          )
-
-        else if entity_type is 'atomic:embed'
-          return (
-            component: ExtractBlock
-            editable: true
-            props:
-              foo: 'bar'
-          )
-      
-      when 'image'
-        return (
-            component: ImageBlock
-            #editable: true
-            props:
-              data: @state.current_input
-          )
-
-      when 'embed'
-        return (
-            component: EmbedBlock
-            #editable: true
-            props:
-              data: @state.current_input
-          )
-
-      when 'video'
-        return (
-            component: VideoBlock
-            #editable: true
-            props:
-              data: @state.current_input
-          )
-
-    return null;
-
   setCurrentInput: (data, cb)=>
     #debugger
     @setState
@@ -419,6 +566,7 @@ class DanteEditor extends React.Component
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         updateSelection={@_updateSelection}
+                        handleBeforeInput={@.handleBeforeInput}
                         readOnly={false}
                         onClick={@handleClick}
                         placeholder="Write something..."
@@ -444,10 +592,7 @@ class DanteEditor extends React.Component
           dispatchChanges={@dispatchChanges}
           handleKeyCommand={@.handleKeyCommand}
           keyBindingFn={@KeyBindingFn}
-
           relocateMenu={@relocateMenu}
-
-          handleBeforeInput={@.handleBeforeInput}
           handleDroppedFiles={@.handleDroppedFiles}
         />
 

@@ -17,13 +17,12 @@ class EmbedBlock extends React.Component
     super props
     api_key = "86c28a410a104c8bb58848733c82f840"
     @state = 
-      provisory_text: "http://twitter.com"
-      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
       embed_data: {}
 
-  componentDidMount: ->
+  componentDidMount: =>
+    return unless @.props.blockProps.data
     utils.ajax
-      url: "#{@state.embed_url}#{@state.provisory_text}&scheme=https"
+      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
       (data)=>
         if data.status is 200
           @setState
@@ -48,11 +47,6 @@ class EmbedBlock extends React.Component
           <strong className='markup--strong markup--mixtapeEmbed-strong'>
             {@state.embed_data.title}
           </strong>
-          <EditorBlock {...@props} 
-              className="imageCaption"
-              text={@state.embed_data.description}
-              placeholder="escrive alalal"
-          />
           <em className='markup--em markup--mixtapeEmbed-em'>
             {@state.embed_data.description}
           </em>

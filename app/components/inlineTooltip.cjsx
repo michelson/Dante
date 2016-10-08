@@ -133,14 +133,31 @@ class DanteInlineTooltip extends React.Component
     api_key = "86c28a410a104c8bb58848733c82f840"
 
     opts = 
+      type: "video"
+      placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter" 
+
       provisory_text: "http://twitter.com"
       embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
 
     @props.setCurrentInput opts, ()=>
-      @props.onChange(resetBlockWithType(@props.editorState, 'video'));
+      @props.onChange(resetBlockWithType(@props.editorState, 'placeholder'));
 
+    #@props.setCurrentInput opts, ()=>
+    #  @props.onChange(resetBlockWithType(@props.editorState, 'video'));
 
   insertEmbed: () =>
+    api_key = "86c28a410a104c8bb58848733c82f840"
+
+    opts =
+      type: "embed"
+      placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter" 
+      provisory_text: "http://twitter.com/michelson"
+      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
+
+    @props.setCurrentInput opts, ()=>
+      @props.onChange(resetBlockWithType(@props.editorState, 'placeholder'));
+
+  insertEmbedDIS: () =>
     api_key = "86c28a410a104c8bb58848733c82f840"
 
     opts = 
