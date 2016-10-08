@@ -14,13 +14,13 @@
     "build": "brunch build --production"
   },
   "dependencies": {
-    "babel-brunch": "^6.0.6",
-    "copycat-brunch": "^1.1.0",
     "draft-js": "0.9.1",
     "react": "~15.3.0",
     "react-dom": "~15.3.0"
   },
   "devDependencies": {
+    "babel-brunch": "^6.0.6",
+    "copycat-brunch": "^1.1.0",
     "auto-reload-brunch": "^2.0.0",
     "babel-brunch": "~6.0.0",
     "babel-preset-es2015": "^6.16.0",

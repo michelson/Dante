@@ -9,10 +9,10 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-utils = require("../utils/utils")
+utils = require("../../utils/utils")
 
 
-class EmbedBlock extends React.Component
+class VideoBlock extends React.Component
   constructor: (props) ->
     super props
     api_key = "86c28a410a104c8bb58848733c82f840"
@@ -34,7 +34,7 @@ class EmbedBlock extends React.Component
 
   render: ->
     return(
-      <figure contenteditable='false' 
+      <figure
         className='graf--figure graf--iframe graf--first' tabIndex='0'>
         <div className='iframeContainer' dangerouslySetInnerHTML={__html: @state.embed_data.html}>
         </div>
@@ -48,4 +48,4 @@ class EmbedBlock extends React.Component
       </figure>
     )
 
-module.exports = EmbedBlock
+module.exports = VideoBlock

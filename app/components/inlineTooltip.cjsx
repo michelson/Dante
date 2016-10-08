@@ -2,10 +2,17 @@ React = require('react')
 ReactDOM = require('react-dom')
 
 {
-  Entity,
+  Entity
   RichUtils
   AtomicBlockUtils
+  EditorState
 } = require('draft-js')
+
+{ 
+  addNewBlock
+  resetBlockWithType
+  updateDataOfBlock
+} = require('../model/index.js.es6')
 
 class DanteInlineTooltip extends React.Component
 
@@ -105,28 +112,50 @@ class DanteInlineTooltip extends React.Component
     @props.closeInlineButton()
 
   insertImage: (file) =>
-    entityKey = Entity.create('atomic:image', 'IMMUTABLE', {src: URL.createObjectURL(file)})
-    @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
-        @.props.editorState,
-        entityKey,
-        ' '
-      ));
+    @props.setCurrentInput URL.createObjectURL(file), ()=>
+      @props.onChange(addNewBlock(@props.editorState, 'image'));
+
+    #entityKey = Entity.create('atomic:image', 'IMMUTABLE', {src: URL.createObjectURL(file)})
+    #@.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
+    #    @.props.editorState,
+    #    entityKey,
+    #    ' '
+    #  ));
 
   insertVideo: () =>
-    entityKey = Entity.create('atomic:video', 'IMMUTABLE', {src: "oli"})
-    @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
-        @.props.editorState,
-        entityKey,
-        ' '
-      ));    
+    #entityKey = Entity.create('atomic:video', 'IMMUTABLE', {src: "oli"})
+    #@.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
+    #    @.props.editorState,
+    #    entityKey,
+    #    ' '
+    #  ));  
+
+    api_key = "86c28a410a104c8bb58848733c82f840"
+
+    opts = 
+      provisory_text: "http://twitter.com"
+      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
+
+    @props.setCurrentInput opts, ()=>
+      @props.onChange(resetBlockWithType(@props.editorState, 'video'));
+
 
   insertEmbed: () =>
-    entityKey = Entity.create('atomic:embed', 'IMMUTABLE', {src: "oli"})
-    @.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
-        @.props.editorState,
-        entityKey,
-        ' '
-      )); 
+    api_key = "86c28a410a104c8bb58848733c82f840"
+
+    opts = 
+      provisory_text: "http://twitter.com"
+      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
+
+    @props.setCurrentInput opts, ()=>
+      @props.onChange(resetBlockWithType(@props.editorState, 'embed'));
+
+    #entityKey = Entity.create('atomic:embed', 'IMMUTABLE', {src: "oli"})
+    #@.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
+    #    @.props.editorState,
+    #    entityKey,
+    #    ' '
+    #  )); 
 
   handleFileInput: (e)=>
     #debugger

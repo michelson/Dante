@@ -2,6 +2,7 @@
 React = require('react')
 ReactDOM = require('react-dom')
 Immutable = require('immutable')
+{ Map } = require('immutable')
 {
   convertToRaw,
   CompositeDecorator,
@@ -14,6 +15,7 @@ Immutable = require('immutable')
   EditorState,
   Entity,
   RichUtils
+  DefaultDraftBlockRenderMap
 } = require('draft-js')
 
 KeyCodes = 
@@ -31,21 +33,12 @@ DanteInlineTooltip = require('./inlineTooltip.cjsx')
 DanteTooltip = require('./toolTip.cjsx')
 Link = require('./link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
-ImageBlock = require('./image.cjsx')
-EmbedBlock = require('./embed.cjsx')
-ExtractBlock = require('./extract.cjsx')
+ImageBlock = require('./blocks/image.cjsx')
+EmbedBlock = require('./blocks/embed.cjsx')
+VideoBlock = require('./blocks/video.cjsx')
 
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
-
-blockRenderMap = Immutable.Map({
-  'header-two': {
-   element: 'h2'
-  },
-  'unstyled': {
-    element: 'h2'
-  }
-});
 
 class Dante 
   constructor: ->
@@ -65,11 +58,44 @@ class DanteEditor extends React.Component
       }
     ])
 
+    ###
+    blockRenderMap = Immutable.Map({
+      'header-two': {
+       element: 'h2'
+      },
+      'unstyled': {
+        element: 'h2'
+      }
+    });
+    ###
+
+    @.blockRenderMap = Map({
+        "image":
+          element: 'figure'
+        "video":
+          element: 'figure'
+        "embed":
+          element: 'div'
+        
+    }).merge(DefaultDraftBlockRenderMap);
+
+    @blockStyleFn = (block)->
+      switch block.getType()
+        when "image"
+          return 'graf graf--figure is-defaultValue is-selected is-mediaFocused'
+        when "video"
+         return 'graf--figure graf--iframe'
+        when "embed"
+          return 'graf graf--mixtapeEmbed'
+        else
+          return 'block'
+
     @state = 
       editorState: EditorState.createEmpty(decorator)
       display_toolbar: false
       showURLInput: false
-      
+      blockRenderMap: @blockRenderMap
+      current_input: ""
       inlineTooltip:
         show: true
         position: {}
@@ -103,8 +129,8 @@ class DanteEditor extends React.Component
     
   onChange: (editorState) =>
     @.setState({editorState});
-    console.log "changed at", editorState.getSelection().getAnchorKey()
-    console.log "collapsed?", editorState.getSelection().isCollapsed()
+    #console.log "changed at", editorState.getSelection().getAnchorKey()
+    #console.log "collapsed?", editorState.getSelection().isCollapsed()
 
     if (!editorState.getSelection().isCollapsed())
       #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
@@ -186,6 +212,7 @@ class DanteEditor extends React.Component
       display_toolbar: false
 
   handleKeyCommand: (command)=>
+    console.log "command:",  command
     if command is 'dante-save'
       # Perform a request to save your contents, set
       # a new `editorState`, etc.
@@ -193,6 +220,8 @@ class DanteEditor extends React.Component
       return 'handled'
     if command is 'dante-keyup'
       @relocateTooltipPosition()
+      return 'not-handled'
+    if command is 'dante-uparrow'
       return 'not-handled'
       #return 'not-handled'
     #if command is 'dante-enter'
@@ -216,6 +245,9 @@ class DanteEditor extends React.Component
     console.log "KEY CODE: #{e.keyCode}"
     if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
       return 'dante-save'
+    if e.keyCode is KeyCodes.UPARROW
+      console.log "UPARROW"
+      return 'dante-uparrow'
     #if e.keyCode is KeyCodes.ENTER
     #  @closeInlineButton()
     #  #return 'dante-enteriji' 
@@ -293,34 +325,71 @@ class DanteEditor extends React.Component
       @closeInlineButton()
 
   blockRenderer: (block)=>
-    if block.getType() is 'atomic'
+    switch block.getType()
 
-      entity_type = Entity.get(block.getEntityAt(0)).getType()
+      when "atomic"
+
+        entity = block.getEntityAt(0)
+
+        #return null unless entity
+        entity_type = Entity.get(entity).getType()
+        
+        if entity_type is 'atomic:image'
+          return (
+            component: ImageBlock
+            #editable: true
+            props:
+              foo: 'bar'
+          )
+
+        else if entity_type is 'atomic:video'
+          return (
+            component: EmbedBlock
+            editable: false
+            props:
+              foo: 'bar'
+          )
+
+        else if entity_type is 'atomic:embed'
+          return (
+            component: ExtractBlock
+            editable: true
+            props:
+              foo: 'bar'
+          )
       
-      if entity_type is 'atomic:image'
+      when 'image'
         return (
-          component: ImageBlock
-          #editable: true
-          props:
-            foo: 'bar'
-        )
+            component: ImageBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
 
-      else if entity_type is 'atomic:video'
+      when 'embed'
         return (
-          component: EmbedBlock
-          #editable: true
-          props:
-            foo: 'bar'
-        )
+            component: EmbedBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
 
-      else if entity_type is 'atomic:embed'
+      when 'video'
         return (
-          component: ExtractBlock
-          #editable: true
-          props:
-            foo: 'bar'
-        )
+            component: VideoBlock
+            #editable: true
+            props:
+              data: @state.current_input
+          )
+
     return null;
+
+  setCurrentInput: (data, cb)=>
+    #debugger
+    @setState
+      current_input: data
+    , cb
+    #console.log "current in put" , data
 
   render: ->
 
@@ -345,6 +414,8 @@ class DanteEditor extends React.Component
                         editorState={@state.editorState} 
                         onChange={@onChange}
                         handleReturn={@handleReturn}
+                        blockRenderMap={@state.blockRenderMap}
+                        blockStyleFn={@.blockStyleFn}
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         updateSelection={@_updateSelection}
@@ -371,7 +442,6 @@ class DanteEditor extends React.Component
           options={@state.menu}
           disableMenu={@disableMenu}
           dispatchChanges={@dispatchChanges}
-
           handleKeyCommand={@.handleKeyCommand}
           keyBindingFn={@KeyBindingFn}
 
@@ -385,7 +455,9 @@ class DanteEditor extends React.Component
           options={@state.inlineTooltip}
           editorState={@state.editorState}
           style={@state.position}
+          onChange={@onChange}
           dispatchChanges={@dispatchChanges}
+          setCurrentInput={@setCurrentInput}
           display_tooltip={@state.display_tooltip}
           closeInlineButton={@closeInlineButton}
         />

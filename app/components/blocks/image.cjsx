@@ -6,6 +6,7 @@ ReactDOM = require('react-dom')
   RichUtils
   AtomicBlockUtils
   EditorBlock
+
 } = require('draft-js')
 
 
@@ -19,7 +20,7 @@ class ImageBlock extends React.Component
       caption: "Type caption for image"
       width: 0
       height: 0
-      url: ""
+      url: @props.blockProps.data
       aspect_ratio: 
         width: 0
         height: 0
@@ -90,10 +91,12 @@ class ImageBlock extends React.Component
     # {foo} = this.props.blockProps;
     entity = block.block.getEntityAt(0)
     data = Entity.get(entity).getData().src if entity
-    return (
-      <figure
-        className="graf graf--figure is-defaultValue #{@selectedClass()}" tabIndex='0'>
+    # console.log @state
+    # console.log @props
+    # className="graf graf--figure is-defaultValue #{@selectedClass()}" tabIndex='0'>
 
+    return (
+      <span>
         <div className="aspectRatioPlaceholder is-locked" style={@coords()} onClick={@handleGrafFigureSelectImg}>
           <div style={{paddingBottom: "#{@state.aspect_ratio.ratio}%" }}} className='aspect-ratio-fill'>
           </div>
@@ -112,7 +115,7 @@ class ImageBlock extends React.Component
             placeholder="escrive alalal"
           />
         </figcaption>
-      </figure>
+      </span>
     )
     
 module.exports = ImageBlock
