@@ -38,7 +38,7 @@ class VideoBlock extends React.Component
         className='graf--figure graf--iframe graf--first' tabIndex='0'>
         <div className='iframeContainer' dangerouslySetInnerHTML={__html: @state.embed_data.html}>
         </div>
-        <figcaption data-default-value={@state.caption} 
+        <figcaption
           className='imageCaption'>
             <EditorBlock {...@props} 
               className="imageCaption"

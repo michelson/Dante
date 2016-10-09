@@ -74,9 +74,6 @@ class ImageBlock extends React.Component
     maxHeight: "#{@state.aspect_ratio.height}"
     ratio: "#{@state.aspect_ratio.height}"
 
-  selectedClass: =>
-    if @state.selected then "is-selected is-mediaFocused" else ""
-
   handleGrafFigureSelectImg: (e)=>
     e.preventDefault()
 
@@ -107,9 +104,7 @@ class ImageBlock extends React.Component
             className='graf-image'
           />
         </div>
-        <figcaption
-          data-default-value={@state.caption} 
-          className='imageCaption'>
+        <figcaption className='imageCaption'>
           <EditorBlock {...@props} 
             className="imageCaption"
             placeholder="escrive alalal"

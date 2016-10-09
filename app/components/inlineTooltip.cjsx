@@ -93,8 +93,8 @@ class DanteInlineTooltip extends React.Component
     #if @props.show then "is-active" else ""
     if @props.display_tooltip then "is-active" else ""
 
-  getPosition: ->
-    @state.position
+  #getPosition: ->
+  #  @state.position
 
   isActive: ->
     @props.display_tooltip 

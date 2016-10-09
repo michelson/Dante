@@ -40,6 +40,10 @@ KeyCodes =
   DOWNARROW: 40
 
 window.utils = require('../utils/utils.coffee')
+{ 
+  getSelectionRect
+  getSelection
+} = require("../utils/selection.js.es6")
 DanteInlineTooltip = require('./inlineTooltip.cjsx')
 DanteTooltip = require('./toolTip.cjsx')
 Link = require('./link.cjsx')
@@ -108,10 +112,13 @@ class DanteEditor extends React.Component
       
       switch block.getType()
         when "image"
-          return "graf graf--figure is-defaultValue is-selected is-mediaFocused #{is_selected}"
+          is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
+          return "graf graf--figure #{is_selected}"
         when "video"
-         return "graf--figure graf--iframe #{is_selected}"
+          is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
+          return "graf--figure graf--iframe #{is_selected}"
         when "embed"
+          is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
           return "graf graf--mixtapeEmbed #{is_selected}"
         when "placeholder"
           return "is-embedable #{is_selected}"
@@ -188,7 +195,7 @@ class DanteEditor extends React.Component
 
     setTimeout ()=>
       @getPositionForCurrent()
-      @setActive()
+      #@setActive()
     , 0
 
     @setState({ editorState });
@@ -308,11 +315,10 @@ class DanteEditor extends React.Component
       if currentBlock.getLength() > 0
         console.log "Handle return #{blockType} with text"
         switch (blockType)
-          when "video"
+          when "video", "image"
             @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
             return true       
           when "placeholder"
-
             @setState
               current_input:
                 provisory_text: currentBlock.getText()
@@ -464,31 +470,33 @@ class DanteEditor extends React.Component
   relocateMenu: =>
     return if !@state.menu.show
     el = document.querySelector("#dante-menu")
-    height = utils.outerHeight(el)
     padd   = el.offsetWidth / 2
-    position = getVisibleSelectionRect( window )
+
+    # eslint-disable-next-line no-undef
+    nativeSelection = getSelection(window);
+    if !nativeSelection.rangeCount
+      return;
     
-    if !position 
-      #debugger
+    selectionBoundary = getSelectionRect(nativeSelection);
+
+    # eslint-disable-next-line react/no-find-dom-node
+    toolbarNode = ReactDOM.findDOMNode(@);
+    toolbarBoundary = toolbarNode.getBoundingClientRect();
+
+    # eslint-disable-next-line react/no-find-dom-node
+    parent = ReactDOM.findDOMNode(@);
+    parentBoundary = parent.getBoundingClientRect();
+
+    top    = selectionBoundary.top - parentBoundary.top - -90 - 5
+    left   = selectionBoundary.left + (selectionBoundary.width / 2) - padd
+
+    if !top or !left
       return
-    #  @setState
-    #    menu:
-    #      show: false
-    #  return
 
-    #debugger
-    console.log position
-    top    = position.top - position.height - height #+ utils.scrollTop( window ) - (height + 40)
-    left   = position.left + (position.width / 2) - padd
-    #@editor_menu.$el.offset({ left: left , top: top })
-    return if !top or !left
-
-    coords = { left: left , top: top }
-    console.log coords
     @setState
       menu:
         show: true
-        position: coords
+        position: { left: left , top: top }
    
   relocateTooltipPosition: ->
     contentState = @state.editorState.getCurrentContent()
