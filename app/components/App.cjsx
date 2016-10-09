@@ -147,11 +147,26 @@ class DanteEditor extends React.Component
       embed_url: ""
 
       continuousBlocks: [
-        "unstyled",
-        "blockquote",
-        "ordered-list",
-        "unordered-list",
+        "unstyled"
+        "blockquote"
+        "ordered-list"
+        "unordered-list"
+        "unordered-list-item"
+        "ordered-list-item"
         "code-block"
+      ]
+
+      tooltipables: [
+        "unstyled"
+        "blockquote"
+        "ordered-list"
+        "unordered-list"
+        "unordered-list-item"
+        "ordered-list-item"
+        "code-block"
+        'header-one'
+        'header-two'
+        'header-three'        
       ]
 
     @.BLOCK_TYPES = [
@@ -177,20 +192,29 @@ class DanteEditor extends React.Component
     #console.log "changed at", editorState.getSelection().getAnchorKey()
     #console.log "collapsed?", editorState.getSelection().isCollapsed()
 
+    currentBlock = getCurrentBlock(@state.editorState);
+    blockType = currentBlock.getType()
+
     if (!editorState.getSelection().isCollapsed())
       #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
       #selectionRange = getSelectionRange();
       #selectionCoords = getSelectionCoords(selectionRange);
-      # return if @state.menu.show
+
+      console.log "oijijijiiji ", currentBlock.getType()
+
+      console.log @.state.tooltipables.indexOf(blockType)
+      return if @.state.tooltipables.indexOf(blockType) < 0
+
       @.setState
         menu:
           show: true
-          # top: '0px' #selectionCoords.offsetTop,
-          # left: '200px' #selectionCoords.offsetLeft
+        display_tooltip: false
       , @handleOnChange
     else
-      @.setState({ menu: { show: false } });
-      #setTimeout @relocateTooltipPosition(), 10
+      @.setState
+        menu:
+          show: false
+      console.log currentBlock.getText()
     #console.log "CHANGED!"
 
     setTimeout ()=>
@@ -297,10 +321,12 @@ class DanteEditor extends React.Component
         @.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
         return true;
       
-      if currentBlock.getLength() is 0
+      if currentBlock.getText().length is 0
         console.log "Handle return #{blockType} 2"
         switch (blockType)
           when "image", "embed", "video"
+            @setState
+              display_tooltip: false
             @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
             return true
           #when "placeholder"
@@ -312,14 +338,17 @@ class DanteEditor extends React.Component
           else
             return false;
       
-      if currentBlock.getLength() > 0
+      if currentBlock.getText().length > 0
         console.log "Handle return #{blockType} with text"
         switch (blockType)
           when "video", "image"
+            @setState
+              display_tooltip: false
             @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
             return true       
           when "placeholder"
             @setState
+              display_tooltip: false
               current_input:
                 provisory_text: currentBlock.getText()
                 embed_url: @state.current_input.embed_url
@@ -351,6 +380,10 @@ class DanteEditor extends React.Component
     
     currentBlock = getCurrentBlock(@state.editorState);
 
+    if currentBlock.getText().length isnt 0
+      console.log "APAPAGA"
+      @closeInlineButton()
+
     ###
     switch currentBlock.getType()
       when "placeholder"
@@ -367,7 +400,6 @@ class DanteEditor extends React.Component
 
   handleClick: =>
     console.log "oli!!!!"
-  
   
   setActive: =>
 
@@ -386,21 +418,8 @@ class DanteEditor extends React.Component
     #@.refs.editor.focus()
     document.getElementById('richEditor').focus()
 
-  updateSelection: ()=>
-    console.log "eoeoe", utils.getSelectionRange()
-    selectionRange = utils.getSelectionRange()
-    selectedBlock;
-    if selectionRange
-      selectedBlock = utils.getSelectedNode(selectionRange)
-    @.setState({
-      selectedBlock,
-      selectionRange
-    })
-    console.log @state
-
   handleOnChange: ->
     @relocateMenu()
-    #@relocateTooltipPosition()
 
   # send new blocks to changes
   dispatchChanges: (body)=>
@@ -431,7 +450,6 @@ class DanteEditor extends React.Component
       console.log "SAVING!!"
       return 'not-handled'
     if command is 'dante-keyup'
-      @relocateTooltipPosition()
       return 'not-handled'
     if command is 'dante-uparrow'
       debugger
@@ -450,7 +468,7 @@ class DanteEditor extends React.Component
 
   closeInlineButton: =>
     @setState
-      display_tooltip: true
+      display_tooltip: false
 
   KeyBindingFn: (e)=>
     console.log "KEY CODE: #{e.keyCode}"
@@ -468,6 +486,14 @@ class DanteEditor extends React.Component
     return getDefaultKeyBinding(e)
    
   relocateMenu: =>
+
+    currentBlock = getCurrentBlock(@state.editorState);
+    blockType    = currentBlock.getType()
+    # display tooltip only for unstyled
+    if @.state.tooltipables.indexOf(blockType) < 0
+      @disableMenu()
+      return
+
     return if !@state.menu.show
     el = document.querySelector("#dante-menu")
     padd   = el.offsetWidth / 2
@@ -497,25 +523,16 @@ class DanteEditor extends React.Component
       menu:
         show: true
         position: { left: left , top: top }
-   
-  relocateTooltipPosition: ->
-    contentState = @state.editorState.getCurrentContent()
-    selectionState = @state.editorState.getSelection()
-    #console.log contentState
-    #console.log selectionState
-    if @state.editorState.getSelection().isCollapsed()
-      block = contentState.getBlockForKey(selectionState.anchorKey);
-      console.log block.getText().length, block.getText()
-
-      node = utils.getNode()
-      console.log node.focusNode
-
-    #debugger
-    # true
 
   getPositionForCurrent: ->
-
+    
     if @state.editorState.getSelection().isCollapsed()
+
+      currentBlock = getCurrentBlock(@state.editorState)
+      blockType = currentBlock.getType()
+      
+      #console.log  "POSITION CURRENT BLOCK", currentBlock.getType()
+
       contentState = @state.editorState.getCurrentContent()
       selectionState = @state.editorState.getSelection()
       # console.log contentState
@@ -546,11 +563,12 @@ class DanteEditor extends React.Component
     , cb
     #console.log "current in put" , data
 
-  render: ->
+  render: =>
 
     return (
       <div id="content">
-
+        <p>{@state.display_tooltip}</p>
+        <p>{@state.display_toolbar}</p>
         <article className="postArticle">
           <div className="postContent">
             <div className="notesSource">
@@ -573,7 +591,6 @@ class DanteEditor extends React.Component
                         blockStyleFn={@.blockStyleFn}
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
-                        updateSelection={@_updateSelection}
                         handleBeforeInput={@.handleBeforeInput}
                         readOnly={false}
                         onClick={@handleClick}
