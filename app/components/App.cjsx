@@ -208,12 +208,14 @@ class DanteEditor extends React.Component
       @.setState
         menu:
           show: true
+          position: @state.menu.position
         display_tooltip: false
       , @handleOnChange
     else
       @.setState
         menu:
           show: false
+          position: @state.menu.position
       console.log currentBlock.getText()
     #console.log "CHANGED!"
 
@@ -498,6 +500,8 @@ class DanteEditor extends React.Component
     el = document.querySelector("#dante-menu")
     padd   = el.offsetWidth / 2
 
+    console.log "entro", @state.menu
+
     # eslint-disable-next-line no-undef
     nativeSelection = getSelection(window);
     if !nativeSelection.rangeCount
@@ -518,6 +522,8 @@ class DanteEditor extends React.Component
 
     if !top or !left
       return
+
+    console.log "entro a posicionar", top , left
 
     @setState
       menu:

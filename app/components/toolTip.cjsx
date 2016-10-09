@@ -40,7 +40,7 @@ class DanteTooltip extends React.Component
 
   _clickBlockHandler: (ev, style)=>
     ev.preventDefault()
-    console.log "hoi", style
+    # console.log "hoi", style
     #@props.toggleBlockType(style)
     #ev.preventDefault()
     @props.dispatchChanges(
