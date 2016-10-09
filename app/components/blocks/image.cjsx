@@ -76,14 +76,20 @@ class ImageBlock extends React.Component
 
   handleGrafFigureSelectImg: (e)=>
     e.preventDefault()
-
+    @props.blockProps.setCurrentComponent(@)
     @setState
       selected: true
+
+    main_editor.onChange(main_editor.state.editorState)
 
   coords: ->
     {maxWidth: "#{@state.aspect_ratio.width}px", maxHeight: "#{@state.aspect_ratio.height}px"}
 
-  render: ->
+  #getDirectionClass: ->
+  #  @props.blockProps.image_directions.toJSON()
+  #  "graf--layoutOutsetLeft"
+
+  render: =>
     block = @.props;
     # {foo} = this.props.blockProps;
     entity = block.block.getEntityAt(0)
@@ -92,9 +98,12 @@ class ImageBlock extends React.Component
     # console.log @props
     # className="graf graf--figure is-defaultValue #{@selectedClass()}" tabIndex='0'>
 
+    console.log @props.blockProps.directions
     return (
-      <span>
-        <div className="aspectRatioPlaceholder is-locked" style={@coords()} onClick={@handleGrafFigureSelectImg}>
+      <div ref="image_tag2">
+        <div className="aspectRatioPlaceholder is-locked" 
+          style={@coords()} 
+          onClick={@handleGrafFigureSelectImg}>
           <div style={{paddingBottom: "#{@state.aspect_ratio.ratio}%" }}} className='aspect-ratio-fill'>
           </div>
           <img src={data||@state.url}
@@ -110,7 +119,7 @@ class ImageBlock extends React.Component
             placeholder="escrive alalal"
           />
         </figcaption>
-      </span>
+      </div>
     )
     
 module.exports = ImageBlock
