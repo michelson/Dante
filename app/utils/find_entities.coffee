@@ -1,7 +1,6 @@
 { Entity } = require('draft-js')
 
 findEntities = (entityType, contentBlock, callback)->
-  
   contentBlock.findEntityRanges (character) =>
     entityKey = character.getEntity()
     return (

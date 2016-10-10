@@ -18,6 +18,8 @@ Immutable = require('immutable')
   DefaultDraftBlockRenderMap
 } = require('draft-js')
 
+SimpleDecorator = require("../utils/simple_decorator")
+
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 
 { 
@@ -76,6 +78,28 @@ class DanteEditor extends React.Component
       }
     ])
 
+
+    @decorator2 = new SimpleDecorator(
+      strategy = (contentBlock, callback)=>
+        ed = @state.editorState.getSelection()
+        
+        # providing custom props!
+        customProps = {
+          ala:1, 
+          showPopLinkOver: @showPopLinkOver 
+          hidePopLinkOver: @hidePopLinkOver
+        }
+        callback(ed.getStartOffset(), ed.getEndOffset(), customProps);
+    
+      component = (props)=>
+        return (
+          <Link 
+            {...props}
+          />
+        )
+      
+    )
+
     ###
     blockRenderMap = Immutable.Map({
       'header-two': {
@@ -131,7 +155,7 @@ class DanteEditor extends React.Component
           return "graf graf--p #{is_selected}"
 
     @state = 
-      editorState: EditorState.createEmpty(@decorator)
+      editorState: EditorState.createEmpty(@decorator2)
       display_toolbar: false
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
@@ -153,6 +177,7 @@ class DanteEditor extends React.Component
         top: 0
         left: 0 
 
+      anchor_popover_url: ""
       display_anchor_popover: false 
 
       menu:
@@ -201,12 +226,15 @@ class DanteEditor extends React.Component
       # {label: 'monospace', style: 'CODE'},
       # {label: 'strikethrough', style: 'STRIKETHROUGH'}
     ];
+
+    optionsForDecorator: ()->
+      @state
    
 
   forceRender: ()=>
     editorState     = @.state.editorState
     content         = editorState.getCurrentContent()
-    newEditorState  = EditorState.createWithContent(content, @decorator)
+    newEditorState  = EditorState.createWithContent(content, @decorator2)
     @.setState({editorState: newEditorState})
     setTimeout =>
       @getPositionForCurrent()
@@ -652,12 +680,12 @@ class DanteEditor extends React.Component
     #@onChange(@state.editorState)
     @forceRender()
 
-
-  showPopLinkOver: (e)=>
+  showPopLinkOver: (url)=>
     @setState
+      anchor_popover_url: url
       display_anchor_popover: true
 
-  hidePopLinkOver: (e)=>
+  hidePopLinkOver: ()=>
     @setState
       display_anchor_popover: false
 
@@ -740,8 +768,7 @@ class DanteEditor extends React.Component
 
         <DanteAnchorPopover
           display_anchor_popover={@state.display_anchor_popover}
-          hidePopLinkOver={@hidePopLinkOver}
-          showPopLinkOver={@showPopLinkOver}
+          url={@state.anchor_popover_url}
         />
         
 

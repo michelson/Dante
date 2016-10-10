@@ -15,7 +15,8 @@ class DanteAnchorPopover extends React.Component
         style={{display: "#{if @props.display_anchor_popover then 'block' else 'none'}"}}
         >
         <div className='popover-inner'>
-          <a href='#' target='_blank'>
+          <a href={@props.url} target='_blank'>
+            {@props.url}
           </a>
         </div>
         <div className='popover-arrow'>

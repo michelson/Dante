@@ -150,7 +150,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/App.cjsx", function(exports, require, module) {
-var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, React, ReactDOM, RichUtils, VideoBlock, addNewBlock, addNewBlockAt, convertToRaw, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, resetBlockWithType, updateDataOfBlock,
+var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, React, ReactDOM, RichUtils, SimpleDecorator, VideoBlock, addNewBlock, addNewBlockAt, convertToRaw, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, resetBlockWithType, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -164,6 +164,8 @@ Immutable = require('immutable');
 Map = require('immutable').Map;
 
 ref = require('draft-js'), convertToRaw = ref.convertToRaw, CompositeDecorator = ref.CompositeDecorator, getVisibleSelectionRect = ref.getVisibleSelectionRect, getDefaultKeyBinding = ref.getDefaultKeyBinding, getSelectionOffsetKeyForNode = ref.getSelectionOffsetKeyForNode, KeyBindingUtil = ref.KeyBindingUtil, ContentState = ref.ContentState, Editor = ref.Editor, EditorState = ref.EditorState, Entity = ref.Entity, RichUtils = ref.RichUtils, DefaultDraftBlockRenderMap = ref.DefaultDraftBlockRenderMap;
+
+SimpleDecorator = require("../utils/simple_decorator");
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent');
 
@@ -245,6 +247,7 @@ DanteEditor = (function(superClass) {
     this.onChange = bind(this.onChange, this);
     this.parseDirection = bind(this.parseDirection, this);
     this.forceRender = bind(this.forceRender, this);
+    var component, strategy;
     DanteEditor.__super__.constructor.call(this, props);
     window.main_editor = this;
     this.decorator = new CompositeDecorator([
@@ -253,6 +256,22 @@ DanteEditor = (function(superClass) {
         component: Link
       }
     ]);
+    this.decorator2 = new SimpleDecorator(strategy = (function(_this) {
+      return function(contentBlock, callback) {
+        var customProps, ed;
+        ed = _this.state.editorState.getSelection();
+        customProps = {
+          ala: 1,
+          showPopLinkOver: _this.showPopLinkOver,
+          hidePopLinkOver: _this.hidePopLinkOver
+        };
+        return callback(ed.getStartOffset(), ed.getEndOffset(), customProps);
+      };
+    })(this), component = (function(_this) {
+      return function(props) {
+        return React.createElement(Link, React.__spread({}, props));
+      };
+    })(this));
 
     /*
     blockRenderMap = Immutable.Map({
@@ -312,7 +331,7 @@ DanteEditor = (function(superClass) {
       };
     })(this);
     this.state = {
-      editorState: EditorState.createEmpty(this.decorator),
+      editorState: EditorState.createEmpty(this.decorator2),
       display_toolbar: false,
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
@@ -333,6 +352,7 @@ DanteEditor = (function(superClass) {
         top: 0,
         left: 0
       },
+      anchor_popover_url: "",
       display_anchor_popover: false,
       menu: {
         show: false,
@@ -372,13 +392,18 @@ DanteEditor = (function(superClass) {
         style: 'ITALIC'
       }
     ];
+    ({
+      optionsForDecorator: function() {
+        return this.state;
+      }
+    });
   }
 
   DanteEditor.prototype.forceRender = function() {
     var content, editorState, newEditorState;
     editorState = this.state.editorState;
     content = editorState.getCurrentContent();
-    newEditorState = EditorState.createWithContent(content, this.decorator);
+    newEditorState = EditorState.createWithContent(content, this.decorator2);
     this.setState({
       editorState: newEditorState
     });
@@ -808,13 +833,14 @@ DanteEditor = (function(superClass) {
     return this.forceRender();
   };
 
-  DanteEditor.prototype.showPopLinkOver = function(e) {
+  DanteEditor.prototype.showPopLinkOver = function(url) {
     return this.setState({
+      anchor_popover_url: url,
       display_anchor_popover: true
     });
   };
 
-  DanteEditor.prototype.hidePopLinkOver = function(e) {
+  DanteEditor.prototype.hidePopLinkOver = function() {
     return this.setState({
       display_anchor_popover: false
     });
@@ -888,8 +914,7 @@ DanteEditor = (function(superClass) {
       "setCurrentComponent": this.setCurrentComponent
     }), React.createElement(DanteAnchorPopover, {
       "display_anchor_popover": this.state.display_anchor_popover,
-      "hidePopLinkOver": this.hidePopLinkOver,
-      "showPopLinkOver": this.showPopLinkOver
+      "url": this.state.anchor_popover_url
     }));
   };
 
@@ -1589,20 +1614,62 @@ module.exports = DanteInlineTooltip;
 });
 
 ;require.register("components/link.cjsx", function(exports, require, module) {
-var Entity, Link, React;
+var Entity, Link, React,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
 React = require('react');
 
 Entity = require('draft-js').Entity;
 
-Link = function(props) {
-  var data;
+
+/*
+Link = (props) ->
   data = Entity.get(props.entityKey).getData();
-  return React.createElement("a", {
-    "href": data.url,
-    "className": "markup--anchor"
-  }, props.children);
-};
+  console.log props
+  #onMouseOver={@props.showPopLinkOver}>
+  #onMouseOut={@props.hidePopLinkOver}>
+  return (
+    <a href={data.url} className="markup--anchor">
+      {props.children}
+    </a>
+  );
+ */
+
+Link = (function(superClass) {
+  extend(Link, superClass);
+
+  function Link() {
+    this._hidePopLinkOver = bind(this._hidePopLinkOver, this);
+    this._showPopLinkOver = bind(this._showPopLinkOver, this);
+    return Link.__super__.constructor.apply(this, arguments);
+  }
+
+  Link.prototype._showPopLinkOver = function(e) {
+    return this.props.showPopLinkOver(this.refs.link.href);
+  };
+
+  Link.prototype._hidePopLinkOver = function(e) {
+    return this.props.hidePopLinkOver();
+  };
+
+  Link.prototype.render = function() {
+    var data;
+    data = Entity.get(this.props.entityKey).getData();
+    console.log(this.props);
+    return React.createElement("a", {
+      "ref": "link",
+      "href": data.url,
+      "className": "markup--anchor",
+      "onMouseOver": this._showPopLinkOver,
+      "onMouseOut": this._hidePopLinkOver
+    }, this.props.children);
+  };
+
+  return Link;
+
+})(React.Component);
 
 module.exports = Link;
 });
@@ -1765,9 +1832,9 @@ DanteAnchorPopover = (function(superClass) {
     }, React.createElement("div", {
       "className": 'popover-inner'
     }, React.createElement("a", {
-      "href": '#',
+      "href": this.props.url,
       "target": '_blank'
-    })), React.createElement("div", {
+    }, this.props.url)), React.createElement("div", {
       "className": 'popover-arrow'
     }));
   };
@@ -2395,6 +2462,81 @@ var getSelectedBlockNode = exports.getSelectedBlockNode = function getSelectedBl
   } while (node !== null);
   return null;
 };
+});
+
+require.register("utils/simple_decorator.js", function(exports, require, module) {
+var Immutable = require('immutable');
+
+var KEY_SEPARATOR = '-';
+
+/**
+ * Creates a Draft decorator
+ * @param {Function} strategy function (contentBlock, callback(start, end, props))
+ * @param {Function} getComponent function (props) -> React.Component
+ */
+function SimpleDecorator(strategy, getComponent) {
+    this.decorated = {};
+    this.strategy = strategy;
+    this.getComponent = getComponent;
+}
+
+/**
+ * Return list of decoration IDs per character
+ * @param {ContentBlock} block
+ * @return {List<String>}
+ */
+SimpleDecorator.prototype.getDecorations = function(block) {
+    var decorations = Array(block.getText().length).fill(null);
+    // Apply a decoration to given range, with given props
+    function callback (start, end, props) {
+        if (props === undefined) {
+            props = {};
+        }
+        key = blockKey + KEY_SEPARATOR + decorationId;
+        decorated[blockKey][decorationId] = props;
+        decorateRange(decorations, start, end, key);
+        decorationId++;
+    }
+
+    var blockKey = block.getKey();
+    var key;
+    var decorationId = 0;
+    var decorated = this.decorated;
+    decorated[blockKey] = {};
+
+    this.strategy(block, callback);
+
+    return Immutable.List(decorations);
+};
+
+/**
+ * Return component to render a decoration
+ * @param {String} key
+ * @return {Function}
+ */
+SimpleDecorator.prototype.getComponentForKey = function(key) {
+    return this.getComponent;
+};
+
+/**
+ * Return props to render a decoration
+ * @param {String} key
+ * @return {Object}
+ */
+SimpleDecorator.prototype.getPropsForKey = function(key) {
+    var parts = key.split(KEY_SEPARATOR);
+    var blockKey = parts[0];
+    var decorationId = parts[1];
+    return this.decorated[blockKey][decorationId];
+};
+
+function decorateRange(decorationsArray, start, end, key) {
+    for (var ii = start; ii < end; ii++) {
+        decorationsArray[ii] = key;
+    }
+}
+
+module.exports = SimpleDecorator;
 });
 
 require.register("utils/utils.coffee", function(exports, require, module) {
