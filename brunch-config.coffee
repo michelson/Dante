@@ -1,7 +1,7 @@
 module.exports =
 
   paths:
-    public: 'public'
+    public: 'docs'
 
   files:
     javascripts:

@@ -98,7 +98,7 @@ class ImageBlock extends React.Component
     # console.log @props
     # className="graf graf--figure is-defaultValue #{@selectedClass()}" tabIndex='0'>
 
-    console.log @props.blockProps.directions
+    # console.log "DIDIDIDIDIDI", @props.blockProps.directions
     return (
       <div ref="image_tag2">
         <div className="aspectRatioPlaceholder is-locked" 

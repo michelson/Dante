@@ -21,9 +21,9 @@ class DanteImagePopover extends React.Component
       scaled: false
       buttons: [
         {type: "left" }
-        {type: "wide" }
-        {type: "fill" }
         {type: "center" }
+        {type: "fill" }
+        {type: "wide" }
       ]
 
   _toggleScaled: (ev)=>

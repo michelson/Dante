@@ -35,6 +35,7 @@
 
   // BASE
   & {
+    background-color: white;
     float: left;
     margin-right: $tooltip-button-spacing;
     display: inline-block;
@@ -63,7 +64,7 @@
     line-height: $tooltip-line-height;
     -webkit-transition: 100ms border-color, 100ms color;
     transition: 100ms border-color, 100ms color;
-    background: rgba($tooltip-color, $tooltip-background-opacity);
+    //background: rgba($tooltip-color, $tooltip-background-opacity);
     border: $tooltip-border-width solid;
     border-color: rgba($tooltip-color, $tooltip-color-opacity);
     color: rgba($tooltip-color, $tooltip-color-opacity);

@@ -68,7 +68,7 @@ class DanteEditor extends React.Component
     super props
     window.main_editor = @
 
-    decorator = new CompositeDecorator([
+    @decorator = new CompositeDecorator([
       {
         strategy: findEntities.bind(null, 'link'),
         component: Link
@@ -113,10 +113,9 @@ class DanteEditor extends React.Component
       
       switch block.getType()
         when "image"
-          console.log "AALALALALALAL"
-          console.log @state.image_directions.toJSON()
-          #debugger
-          direction_class = if this.state.image_directions.toJSON()[block.getKey()] then "graf--layoutOutsetLeft" else ""
+          #console.log "IMAGE DIRECTIONS"
+          #console.log @state.image_directions.toJSON()
+          direction_class = if direction = this.state.image_directions.toJSON()[block.getKey()] then "#{@parseDirection(direction)}" else ""
           is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
           return "graf graf--figure #{is_selected} #{direction_class}"
         when "video"
@@ -131,7 +130,7 @@ class DanteEditor extends React.Component
           return "graf graf--p #{is_selected}"
 
     @state = 
-      editorState: EditorState.createEmpty(decorator)
+      editorState: EditorState.createEmpty(@decorator)
       display_toolbar: false
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
@@ -199,7 +198,27 @@ class DanteEditor extends React.Component
       # {label: 'monospace', style: 'CODE'},
       # {label: 'strikethrough', style: 'STRIKETHROUGH'}
     ];
-    
+   
+
+  forceRender: ()=>
+    editorState     = @.state.editorState
+    content         = editorState.getCurrentContent()
+    newEditorState  = EditorState.createWithContent(content, @decorator)
+    @.setState({editorState: newEditorState})
+    setTimeout =>
+      @getPositionForCurrent()
+    , 0
+
+  parseDirection: (direction)=>
+    #console.log(direction)
+    switch direction
+      when "left" then "graf--layoutOutsetLeft"
+      when "center" then ""
+      when "wide" then "sectionLayout--fullWidth"
+      when "fill" then "graf--layoutFillWidth"
+      else
+        ""
+  
   onChange: (editorState) =>
     @.setState({editorState});
     #console.log "changed at", editorState.getSelection().getAnchorKey()
@@ -213,9 +232,9 @@ class DanteEditor extends React.Component
       #selectionRange = getSelectionRange();
       #selectionCoords = getSelectionCoords(selectionRange);
 
-      console.log "oijijijiiji ", currentBlock.getType()
+      #console.log "oijijijiiji ", currentBlock.getType()
 
-      console.log @.state.tooltipables.indexOf(blockType)
+      #console.log @.state.tooltipables.indexOf(blockType)
       return if @.state.tooltipables.indexOf(blockType) < 0
 
       @.setState
@@ -229,7 +248,7 @@ class DanteEditor extends React.Component
         menu:
           show: false
           position: @state.menu.position
-      console.log currentBlock.getText()
+      #console.log currentBlock.getText()
     #console.log "CHANGED!"
 
     setTimeout ()=>
@@ -282,7 +301,7 @@ class DanteEditor extends React.Component
       when 'image'
         return (
             component: ImageBlock
-            #editable: true
+            editable: true
             props:
               data: @state.current_input
               directions: @state.image_directions
@@ -292,7 +311,7 @@ class DanteEditor extends React.Component
       when 'embed'
         return (
             component: EmbedBlock
-            #editable: true
+            editable: true
             props:
               data: @state.current_input
           )
@@ -300,7 +319,7 @@ class DanteEditor extends React.Component
       when 'video'
         return (
             component: VideoBlock
-            #editable: true
+            editable: true
             props:
               data: @state.current_input
           )
@@ -343,7 +362,7 @@ class DanteEditor extends React.Component
         return true;
       
       if currentBlock.getText().length is 0
-        console.log "Handle return #{blockType} 2"
+        #console.log "Handle return #{blockType} 2"
         switch (blockType)
           when "image", "embed", "video"
             @setState
@@ -360,7 +379,7 @@ class DanteEditor extends React.Component
             return false;
       
       if currentBlock.getText().length > 0
-        console.log "Handle return #{blockType} with text"
+        #console.log "Handle return #{blockType} with text"
         switch (blockType)
           when "video", "image"
             @setState
@@ -388,7 +407,7 @@ class DanteEditor extends React.Component
       if selection.isCollapsed() and currentBlock.getType() is "embed" and currentBlock.getLength() > 0
         
         if @.state.continuousBlocks.indexOf(blockType) < 0
-          console.log "adding block on embed inner text enter "
+          #console.log "adding block on embed inner text enter "
           @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
           return true;
         
@@ -402,7 +421,6 @@ class DanteEditor extends React.Component
     currentBlock = getCurrentBlock(@state.editorState);
 
     if currentBlock.getText().length isnt 0
-      console.log "APAPAGA"
       @closeInlineButton()
 
     ###
@@ -464,7 +482,7 @@ class DanteEditor extends React.Component
       display_toolbar: false
 
   handleKeyCommand: (command)=>
-    console.log "command:",  command
+    #console.log "command:",  command
     if command is 'dante-save'
       # Perform a request to save your contents, set
       # a new `editorState`, etc.
@@ -492,7 +510,7 @@ class DanteEditor extends React.Component
       display_tooltip: false
 
   KeyBindingFn: (e)=>
-    console.log "KEY CODE: #{e.keyCode}"
+    #console.log "KEY CODE: #{e.keyCode}"
     if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
       #return 'dante-save'
       console.log "TODO: save in this point"
@@ -552,7 +570,7 @@ class DanteEditor extends React.Component
       currentBlock = getCurrentBlock(@state.editorState)
       blockType = currentBlock.getType()
       
-      console.log  "POSITION CURRENT BLOCK", currentBlock.getType()
+      console.log  "POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
 
       contentState = @state.editorState.getCurrentContent()
       selectionState = @state.editorState.getSelection()
@@ -569,10 +587,8 @@ class DanteEditor extends React.Component
       #debugger
       
       node = utils.getNode()
-      #return if node.anchorNode is null
-      console.log "ANCHOR NODE", node.anchorNode
-      console.log "PARENT ANCHOR", node.anchorNode.parentNode.parentNode.parentNode
-      # console.log coords
+      #console.log "ANCHOR NODE", node.anchorNode
+      #console.log "PARENT ANCHOR", node.anchorNode.parentNode.parentNode.parentNode
 
       selectionBoundary = getSelectionRect(nativeSelection);
       coords = selectionBoundary #utils.getSelectionDimensions(node)
@@ -588,19 +604,21 @@ class DanteEditor extends React.Component
       parent = ReactDOM.findDOMNode(@);
       parentBoundary = parent.getBoundingClientRect();
 
-      console.log "SB", selectionBoundary
-      console.log "PB", parentBoundary
+      #console.log "SB", selectionBoundary
+      #console.log "PB", parentBoundary
       # checkeamos si esta vacio
       @setState
-        display_tooltip: block.getText().length is 0
+        display_tooltip: block.getText().length is 0 and blockType is "unstyled"
         position:  
           top: coords.top + window.scrollY
           left: coords.left + window.scrollX - 60
-
         display_image_popover: blockType is "image"
-        image_popover_position: 
-          top: selectionBoundary.top - parentBoundary.top + 60
-          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+
+      if blockType is "image"
+        @setState
+          image_popover_position: 
+            top: selectionBoundary.top - parentBoundary.top + 60
+            left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
 
     else
       @closeInlineButton()
@@ -622,13 +640,14 @@ class DanteEditor extends React.Component
     selectionState = @state.editorState.getSelection()
     block = contentState.getBlockForKey(selectionState.anchorKey);
     @setState
-      image_directions: Map({ 
-        "#{block.getKey()}": direction_type
-      })
+      image_directions: @state.image_directions.merge(
+        Map({"#{block.getKey()}": direction_type})
+      )
 
     #debugger
     #TODO: reset block
-    @onChange(@state.editorState)
+    #@onChange(@state.editorState)
+    @forceRender()
 
   render: =>
 
