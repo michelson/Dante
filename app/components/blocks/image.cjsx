@@ -27,8 +27,8 @@ class ImageBlock extends React.Component
         ratio: 100
 
   getAspectRatio: (w, h)->
-    maxWidth = 700
-    maxHeight = 700
+    maxWidth = 1000
+    maxHeight = 1000
     ratio = 0
     width = w # Current image width
     height = h # Current image height

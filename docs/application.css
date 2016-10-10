@@ -1482,10 +1482,15 @@ a[rel=token], .markup--query {
   margin-left: -160px; }
 
 /* line 199, /Users/michelson/Documents/brunch-apps/dante2/app/styles/dante/_blame.scss */
+.graf--layoutFillWidth {
+  margin-left: -200px;
+  margin-right: -200px; }
+
+/* line 204, /Users/michelson/Documents/brunch-apps/dante2/app/styles/dante/_blame.scss */
 .graf--layoutOutsetLeft {
   width: 75%; }
 
-/* line 202, /Users/michelson/Documents/brunch-apps/dante2/app/styles/dante/_blame.scss */
+/* line 207, /Users/michelson/Documents/brunch-apps/dante2/app/styles/dante/_blame.scss */
 .graf--layoutInsetLeft, .graf--layoutOutsetLeft {
   float: left;
   margin-right: 30px;

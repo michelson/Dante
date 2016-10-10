@@ -29,6 +29,7 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 } = require('../model/index.js.es6')
 
 DanteImagePopover = require('./popovers/image')
+DanteAnchorPopover = require('./popovers/link')
 
 KeyCodes = 
   BACKSPACE: 8
@@ -150,7 +151,9 @@ class DanteEditor extends React.Component
       display_image_popover: false
       image_popover_position:
         top: 0
-        left: 0  
+        left: 0 
+
+      display_anchor_popover: false 
 
       menu:
         show: false
@@ -649,6 +652,15 @@ class DanteEditor extends React.Component
     #@onChange(@state.editorState)
     @forceRender()
 
+
+  showPopLinkOver: (e)=>
+    @setState
+      display_anchor_popover: true
+
+  hidePopLinkOver: (e)=>
+    @setState
+      display_anchor_popover: false
+
   render: =>
 
     return (
@@ -716,15 +728,22 @@ class DanteEditor extends React.Component
           closeInlineButton={@closeInlineButton}
         />
 
-        {
-          <DanteImagePopover
-            display_image_popover={@state.display_image_popover}
-            relocateImageTooltipPosition={@relocateImageTooltipPosition}
-            position={@state.image_popover_position}
-            setDirection={@setDirection}
-            setCurrentComponent={@setCurrentComponent}
-          />
-        }
+        
+        <DanteImagePopover
+          display_image_popover={@state.display_image_popover}
+          relocateImageTooltipPosition={@relocateImageTooltipPosition}
+          position={@state.image_popover_position}
+          setDirection={@setDirection}
+          setCurrentComponent={@setCurrentComponent}
+        />
+      
+
+        <DanteAnchorPopover
+          display_anchor_popover={@state.display_anchor_popover}
+          hidePopLinkOver={@hidePopLinkOver}
+          showPopLinkOver={@showPopLinkOver}
+        />
+        
 
       </div>
     ) 

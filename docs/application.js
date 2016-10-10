@@ -150,7 +150,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/App.cjsx", function(exports, require, module) {
-var CompositeDecorator, ContentState, Dante, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, React, ReactDOM, RichUtils, VideoBlock, addNewBlock, addNewBlockAt, convertToRaw, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, resetBlockWithType, updateDataOfBlock,
+var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, React, ReactDOM, RichUtils, VideoBlock, addNewBlock, addNewBlockAt, convertToRaw, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, resetBlockWithType, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -170,6 +170,8 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent');
 ref1 = require('../model/index.js.es6'), addNewBlock = ref1.addNewBlock, resetBlockWithType = ref1.resetBlockWithType, updateDataOfBlock = ref1.updateDataOfBlock, getCurrentBlock = ref1.getCurrentBlock, addNewBlockAt = ref1.addNewBlockAt;
 
 DanteImagePopover = require('./popovers/image');
+
+DanteAnchorPopover = require('./popovers/link');
 
 KeyCodes = {
   BACKSPACE: 8,
@@ -220,6 +222,8 @@ DanteEditor = (function(superClass) {
 
   function DanteEditor(props) {
     this.render = bind(this.render, this);
+    this.hidePopLinkOver = bind(this.hidePopLinkOver, this);
+    this.showPopLinkOver = bind(this.showPopLinkOver, this);
     this.setDirection = bind(this.setDirection, this);
     this.relocateImageTooltipPosition = bind(this.relocateImageTooltipPosition, this);
     this.setCurrentInput = bind(this.setCurrentInput, this);
@@ -329,6 +333,7 @@ DanteEditor = (function(superClass) {
         top: 0,
         left: 0
       },
+      display_anchor_popover: false,
       menu: {
         show: false,
         position: {}
@@ -803,6 +808,18 @@ DanteEditor = (function(superClass) {
     return this.forceRender();
   };
 
+  DanteEditor.prototype.showPopLinkOver = function(e) {
+    return this.setState({
+      display_anchor_popover: true
+    });
+  };
+
+  DanteEditor.prototype.hidePopLinkOver = function(e) {
+    return this.setState({
+      display_anchor_popover: false
+    });
+  };
+
   DanteEditor.prototype.render = function() {
     return React.createElement("div", {
       "id": "content"
@@ -869,6 +886,10 @@ DanteEditor = (function(superClass) {
       "position": this.state.image_popover_position,
       "setDirection": this.setDirection,
       "setCurrentComponent": this.setCurrentComponent
+    }), React.createElement(DanteAnchorPopover, {
+      "display_anchor_popover": this.state.display_anchor_popover,
+      "hidePopLinkOver": this.hidePopLinkOver,
+      "showPopLinkOver": this.showPopLinkOver
     }));
   };
 
@@ -994,8 +1015,8 @@ ImageBlock = (function(superClass) {
 
   ImageBlock.prototype.getAspectRatio = function(w, h) {
     var fill_ratio, height, maxHeight, maxWidth, ratio, result, width;
-    maxWidth = 700;
-    maxHeight = 700;
+    maxWidth = 1000;
+    maxHeight = 1000;
     ratio = 0;
     width = w;
     height = h;
@@ -1715,6 +1736,47 @@ DanteImagePopoverItem = (function(superClass) {
 })(React.Component);
 
 module.exports = DanteImagePopover;
+});
+
+;require.register("components/popovers/link.cjsx", function(exports, require, module) {
+var DanteAnchorPopover, React, ReactDOM,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+React = require('react');
+
+ReactDOM = require('react-dom');
+
+DanteAnchorPopover = (function(superClass) {
+  extend(DanteAnchorPopover, superClass);
+
+  function DanteAnchorPopover(props) {
+    this.render = bind(this.render, this);
+    DanteAnchorPopover.__super__.constructor.call(this, props);
+  }
+
+  DanteAnchorPopover.prototype.render = function() {
+    return React.createElement("div", {
+      "className": 'dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active',
+      "style": {
+        display: "" + (this.props.display_anchor_popover ? 'block' : 'none')
+      }
+    }, React.createElement("div", {
+      "className": 'popover-inner'
+    }, React.createElement("a", {
+      "href": '#',
+      "target": '_blank'
+    })), React.createElement("div", {
+      "className": 'popover-arrow'
+    }));
+  };
+
+  return DanteAnchorPopover;
+
+})(React.Component);
+
+module.exports = DanteAnchorPopover;
 });
 
 ;require.register("components/toolTip.cjsx", function(exports, require, module) {
