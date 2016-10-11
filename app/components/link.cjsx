@@ -16,19 +16,24 @@ Link = (props) ->
 
 class Link extends React.Component
 
+  constructor: (props) ->
+    super props
+    @isHover = false
+
   _showPopLinkOver: (e)=>
-   
-    @props.showPopLinkOver(@refs.link.href)
+    @data.showPopLinkOver(@refs.link)
 
   _hidePopLinkOver: (e)=>
-    @props.hidePopLinkOver()
+    @data.hidePopLinkOver()
 
   render: ->
-    data = Entity.get(@props.entityKey).getData();
+    @data = Entity.get(@props.entityKey).getData();
     console.log @props
+    console.log "ENTITY", @data
+
     return (
       <a ref="link" 
-        href={data.url} 
+        href={@data.url} 
         className="markup--anchor"
         onMouseOver={@_showPopLinkOver}
         onMouseOut={@_hidePopLinkOver}>

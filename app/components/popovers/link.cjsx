@@ -9,10 +9,19 @@ class DanteAnchorPopover extends React.Component
     super props
 
   render: =>
-
+    position = @props.position #@props.getPosition() || 
+    console.log "POSITIOM", position
+    style = {
+              left: position.left, 
+              top: position.top, 
+              display: "#{if @props.display_anchor_popover then 'block' else 'none'}"
+            }
     return (
-      <div className='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active'
-        style={{display: "#{if @props.display_anchor_popover then 'block' else 'none'}"}}
+      <div id="dante-popover" 
+        className='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active'
+        style={style}
+        onMouseOver={@props.handleOnMouseOver}
+        onMouseOut={@props.handleOnMouseOut}
         >
         <div className='popover-inner'>
           <a href={@props.url} target='_blank'>

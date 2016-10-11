@@ -79,13 +79,15 @@ class DanteEditor extends React.Component
     ])
 
 
+    # TODO sacar esta guea, dejar decorator normal
+    # intentar pasar estos customProps en la creacion del link entity en toolTip
+    ###
     @decorator2 = new SimpleDecorator(
       strategy = (contentBlock, callback)=>
         ed = @state.editorState.getSelection()
         
         # providing custom props!
         customProps = {
-          ala:1, 
           showPopLinkOver: @showPopLinkOver 
           hidePopLinkOver: @hidePopLinkOver
         }
@@ -97,8 +99,8 @@ class DanteEditor extends React.Component
             {...props}
           />
         )
-      
     )
+    ###
 
     ###
     blockRenderMap = Immutable.Map({
@@ -155,7 +157,7 @@ class DanteEditor extends React.Component
           return "graf graf--p #{is_selected}"
 
     @state = 
-      editorState: EditorState.createEmpty(@decorator2)
+      editorState: EditorState.createEmpty(@decorator)
       display_toolbar: false
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
@@ -179,6 +181,9 @@ class DanteEditor extends React.Component
 
       anchor_popover_url: ""
       display_anchor_popover: false 
+      anchor_popover_position: 
+        left: 0
+        top: 0
 
       menu:
         show: false
@@ -234,7 +239,7 @@ class DanteEditor extends React.Component
   forceRender: ()=>
     editorState     = @.state.editorState
     content         = editorState.getCurrentContent()
-    newEditorState  = EditorState.createWithContent(content, @decorator2)
+    newEditorState  = EditorState.createWithContent(content, @decorator)
     @.setState({editorState: newEditorState})
     setTimeout =>
       @getPositionForCurrent()
@@ -284,7 +289,6 @@ class DanteEditor extends React.Component
 
     setTimeout ()=>
       @getPositionForCurrent()
-      #@setActive()
     , 0
 
     @setState({ editorState });
@@ -470,19 +474,6 @@ class DanteEditor extends React.Component
 
   handleClick: =>
     console.log "oli!!!!"
-  
-  setActive: =>
-
-    currentBlock = getCurrentBlock(@state.editorState);
-    blockType = currentBlock.getType();
-    #debugger
-    #contentState = @state.editorState.getCurrentContent()
-    #selectionState = @state.editorState.getSelection()
-    #block = contentState.getBlockForKey(selectionState.anchorKey)
-    #return unless block
-    #debugger 
-    #node = Entity.get(block.getEntityAt(0)).getData()
-    #debugger
 
   focus: () => 
     #@.refs.editor.focus()
@@ -680,14 +671,67 @@ class DanteEditor extends React.Component
     #@onChange(@state.editorState)
     @forceRender()
 
-  showPopLinkOver: (url)=>
+  handleShowPopLinkOver: (e)=>
+    @showPopLinkOver()
+
+  handleHidePopLinkOver: (e)=>
+    @hidePopLinkOver()
+
+  showPopLinkOver: (el)=>
+    # handles popover display 
+    # using anchor or from popover
+    coords = @positionForTooltip(el) if el
+    @isHover = true
+    @cancelHide()
     @setState
-      anchor_popover_url: url
+      anchor_popover_url: if el then el.href else @state.anchor_popover_url
       display_anchor_popover: true
+      anchor_popover_position: if el then coords else @state.anchor_popover_position
 
   hidePopLinkOver: ()=>
-    @setState
-      display_anchor_popover: false
+    @hideTimeout = setTimeout ()=>
+      @setState
+        display_anchor_popover: false
+    , 300
+
+  cancelHide: ()->
+    console.log "Cancel Hide"
+    clearTimeout @hideTimeout
+
+
+  positionForTooltip: (node)=>
+    #debugger
+    #if !@state.editorState.getSelection().isCollapsed()
+
+    currentBlock = getCurrentBlock(@state.editorState)
+    blockType = currentBlock.getType()
+    
+    # console.log  "ANCHOR POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
+
+    contentState = @state.editorState.getCurrentContent()
+    selectionState = @state.editorState.getSelection()
+
+    selectionBoundary = node.getBoundingClientRect() #getSelectionRect(nativeSelection);
+    coords = selectionBoundary #utils.getSelectionDimensions(node)
+    #if blockType is "image"
+    #selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+    el = document.querySelector("#dante-popover")
+    padd   = el.offsetWidth / 2
+    # eslint-disable-next-line react/no-find-dom-node
+    toolbarNode = ReactDOM.findDOMNode(@)
+    toolbarBoundary = toolbarNode.getBoundingClientRect()
+
+    # eslint-disable-next-line react/no-find-dom-node
+    parent = ReactDOM.findDOMNode(@);
+    parentBoundary = parent.getBoundingClientRect()
+
+
+    # selectionBoundary.left + (selectionBoundary.width / 2) - padd
+    {
+      top: selectionBoundary.top - parentBoundary.top + 160
+      left: selectionBoundary.left - (selectionBoundary.width) #- padd
+    }
+
 
   render: =>
 
@@ -743,6 +787,8 @@ class DanteEditor extends React.Component
           keyBindingFn={@KeyBindingFn}
           relocateMenu={@relocateMenu}
           handleDroppedFiles={@.handleDroppedFiles}
+          showPopLinkOver={@showPopLinkOver} 
+          hidePopLinkOver={@hidePopLinkOver}
         />
 
         <DanteInlineTooltip
@@ -769,6 +815,9 @@ class DanteEditor extends React.Component
         <DanteAnchorPopover
           display_anchor_popover={@state.display_anchor_popover}
           url={@state.anchor_popover_url}
+          position={@state.anchor_popover_position}
+          handleOnMouseOver={@handleShowPopLinkOver}
+          handleOnMouseOut={@handleHidePopLinkOver}
         />
         
 

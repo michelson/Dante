@@ -86,7 +86,15 @@ class DanteTooltip extends React.Component
     contentState = editorState.getCurrentContent()
     selection = editorState.getSelection()
 
-    entityKey = Entity.create('link', 'MUTABLE', {url: urlValue});
+    opts = {
+      url: urlValue
+      showPopLinkOver: @props.showPopLinkOver 
+      hidePopLinkOver: @props.hidePopLinkOver
+    }
+
+    console.log "MAMAMA", opts
+
+    entityKey = Entity.create('link', 'MUTABLE', opts);
 
     if selection.isCollapsed()
       console.log "COLLAPSED SKIPPN LINK"
