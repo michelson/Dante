@@ -736,7 +736,7 @@ class DanteEditor extends React.Component
   render: =>
 
     return (
-      <div id="content">
+      <div id="content" suppressContentEditableWarning={true}>
         <article className="postArticle">
           <div className="postContent">
             <div className="notesSource">
@@ -762,6 +762,7 @@ class DanteEditor extends React.Component
                         handleBeforeInput={@.handleBeforeInput}
                         readOnly={false}
                         onClick={@handleClick}
+                        suppressContentEditableWarning={true}
                         placeholder="Write something..."
                       />
                     </div> 

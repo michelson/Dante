@@ -896,7 +896,8 @@ DanteEditor = (function(superClass) {
 
   DanteEditor.prototype.render = function() {
     return React.createElement("div", {
-      "id": "content"
+      "id": "content",
+      "suppressContentEditableWarning": true
     }, React.createElement("article", {
       "className": "postArticle"
     }, React.createElement("div", {
@@ -930,6 +931,7 @@ DanteEditor = (function(superClass) {
       "handleBeforeInput": this.handleBeforeInput,
       "readOnly": false,
       "onClick": this.handleClick,
+      "suppressContentEditableWarning": true,
       "placeholder": "Write something..."
     })))))))), React.createElement(DanteTooltip, {
       "editorState": this.state.editorState,
@@ -1155,10 +1157,9 @@ ImageBlock = (function(superClass) {
   ImageBlock.prototype.handleGrafFigureSelectImg = function(e) {
     e.preventDefault();
     this.props.blockProps.setCurrentComponent(this);
-    this.setState({
+    return this.setState({
       selected: true
     });
-    return main_editor.onChange(main_editor.state.editorState);
   };
 
   ImageBlock.prototype.coords = function() {
@@ -1176,8 +1177,10 @@ ImageBlock = (function(superClass) {
       data = Entity.get(entity).getData().src;
     }
     return React.createElement("div", {
-      "ref": "image_tag2"
+      "ref": "image_tag2",
+      "suppressContentEditableWarning": true
     }, React.createElement("div", {
+      "contentEditable": "false",
       "className": "aspectRatioPlaceholder is-locked",
       "style": this.coords(),
       "onClick": this.handleGrafFigureSelectImg
@@ -1195,6 +1198,7 @@ ImageBlock = (function(superClass) {
     })), React.createElement("figcaption", {
       "className": 'imageCaption'
     }, React.createElement(EditorBlock, React.__spread({}, this.props, {
+      "editable": true,
       "className": "imageCaption",
       "placeholder": "escrive alalal"
     }))));

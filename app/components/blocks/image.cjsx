@@ -80,7 +80,7 @@ class ImageBlock extends React.Component
     @setState
       selected: true
 
-    main_editor.onChange(main_editor.state.editorState)
+    #main_editor.onChange(main_editor.state.editorState)
 
   coords: ->
     {maxWidth: "#{@state.aspect_ratio.width}px", maxHeight: "#{@state.aspect_ratio.height}px"}
@@ -100,8 +100,9 @@ class ImageBlock extends React.Component
 
     # console.log "DIDIDIDIDIDI", @props.blockProps.directions
     return (
-      <div ref="image_tag2">
-        <div className="aspectRatioPlaceholder is-locked" 
+      <div ref="image_tag2" suppressContentEditableWarning={true}>
+        <div contentEditable="false"
+          className="aspectRatioPlaceholder is-locked" 
           style={@coords()} 
           onClick={@handleGrafFigureSelectImg}>
           <div style={{paddingBottom: "#{@state.aspect_ratio.ratio}%" }}} className='aspect-ratio-fill'>
@@ -115,6 +116,7 @@ class ImageBlock extends React.Component
         </div>
         <figcaption className='imageCaption'>
           <EditorBlock {...@props} 
+            editable=true
             className="imageCaption"
             placeholder="escrive alalal"
           />
