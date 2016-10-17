@@ -9,7 +9,6 @@ ReactDOM = require('react-dom')
   EditorState
 } = require('draft-js')
 
-
 class DanteImagePopover extends React.Component
 
   constructor: (props) ->

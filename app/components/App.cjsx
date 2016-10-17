@@ -77,7 +77,8 @@ class Dante
     console.log "init editor!"
 
   getContent: ->
-    '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"134oi","text":"oijoioij oj oj ","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1bg85","text":"oi oij oij jioij oij","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"c7r7q","text":"oij oij oij oi","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"8tvt5","text":"oij oij oij ","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"2dt6t","text":"oij oij oij ","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"6c0hk","text":"ttp://github.com/michelson","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"89ssk","text":"ijijij","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}'
+    '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"aorns","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"selected":false,"caption":"Type caption for image","width":960,"height":720,"url":"blob:http://localhost:3333/95d035eb-deac-47e5-b9f3-1ecefb610616","aspect_ratio":{"width":960,"height":720,"ratio":75}}}]}'
+
   render: ->
     ReactDOM.render(<DanteEditor content={@getContent()}/>, document.getElementById('app'))
 
@@ -357,10 +358,14 @@ class DanteEditor extends React.Component
 
   emitSerializedOutput: =>
     #s = @state.editorState.getCurrentContent()
+    
     raw = convertToRaw( @state.editorState.getCurrentContent() )
     console.log raw
 
     raw_as_json = JSON.stringify(raw)
+    console.log raw_as_json
+
+    raw_as_json
 
   decodeEditorContent: (raw_as_json)=>
     new_content = convertFromRaw(JSON.parse(raw_as_json))
@@ -431,9 +436,12 @@ class DanteEditor extends React.Component
             component: ImageBlock
             editable: true
             props:
-              data: @state.current_input
+              data:
+                src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
+                file: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
               directions: @state.image_directions
-              setCurrentComponent: @setCurrentComponent
           )
 
       when 'embed'
@@ -442,6 +450,8 @@ class DanteEditor extends React.Component
             editable: true
             props:
               data: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
           )
 
       when 'video'
@@ -450,6 +460,8 @@ class DanteEditor extends React.Component
             editable: true
             props:
               data: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
           )
 
       when 'placeholder'
@@ -571,6 +583,9 @@ class DanteEditor extends React.Component
   focus: () => 
     #@.refs.editor.focus()
     document.getElementById('richEditor').focus()
+
+  getEditorState: =>
+    @state.editorState
 
   handleOnChange: ->
     @relocateMenu()

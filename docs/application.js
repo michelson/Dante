@@ -220,7 +220,7 @@ Dante = (function() {
   }
 
   Dante.prototype.getContent = function() {
-    return '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"134oi","text":"oijoioij oj oj ","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1bg85","text":"oi oij oij jioij oij","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"c7r7q","text":"oij oij oij oi","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"8tvt5","text":"oij oij oij ","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"2dt6t","text":"oij oij oij ","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"6c0hk","text":"ttp://github.com/michelson","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"89ssk","text":"ijijij","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}';
+    return '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"aorns","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"selected":false,"caption":"Type caption for image","width":960,"height":720,"url":"blob:http://localhost:3333/95d035eb-deac-47e5-b9f3-1ecefb610616","aspect_ratio":{"width":960,"height":720,"ratio":75}}}]}';
   };
 
   Dante.prototype.render = function() {
@@ -254,6 +254,7 @@ DanteEditor = (function(superClass) {
     this._toggleBlockType = bind(this._toggleBlockType, this);
     this.stateHandler = bind(this.stateHandler, this);
     this.dispatchChanges = bind(this.dispatchChanges, this);
+    this.getEditorState = bind(this.getEditorState, this);
     this.focus = bind(this.focus, this);
     this.handleClick = bind(this.handleClick, this);
     this.handleBeforeInput = bind(this.handleBeforeInput, this);
@@ -533,7 +534,9 @@ DanteEditor = (function(superClass) {
     var raw, raw_as_json;
     raw = convertToRaw(this.state.editorState.getCurrentContent());
     console.log(raw);
-    return raw_as_json = JSON.stringify(raw);
+    raw_as_json = JSON.stringify(raw);
+    console.log(raw_as_json);
+    return raw_as_json;
   };
 
   DanteEditor.prototype.decodeEditorContent = function(raw_as_json) {
@@ -610,9 +613,13 @@ DanteEditor = (function(superClass) {
           component: ImageBlock,
           editable: true,
           props: {
-            data: this.state.current_input,
-            directions: this.state.image_directions,
-            setCurrentComponent: this.setCurrentComponent
+            data: {
+              src: this.state.current_input !== "" ? URL.createObjectURL(this.state.current_input) : "",
+              file: this.state.current_input
+            },
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange,
+            directions: this.state.image_directions
           }
         };
       case 'embed':
@@ -620,7 +627,9 @@ DanteEditor = (function(superClass) {
           component: EmbedBlock,
           editable: true,
           props: {
-            data: this.state.current_input
+            data: this.state.current_input,
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange
           }
         };
       case 'video':
@@ -628,7 +637,9 @@ DanteEditor = (function(superClass) {
           component: VideoBlock,
           editable: true,
           props: {
-            data: this.state.current_input
+            data: this.state.current_input,
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange
           }
         };
       case 'placeholder':
@@ -752,6 +763,10 @@ DanteEditor = (function(superClass) {
 
   DanteEditor.prototype.focus = function() {
     return document.getElementById('richEditor').focus();
+  };
+
+  DanteEditor.prototype.getEditorState = function() {
+    return this.state.editorState;
   };
 
   DanteEditor.prototype.handleOnChange = function() {
@@ -1155,7 +1170,7 @@ module.exports = EmbedBlock;
 });
 
 ;require.register("components/blocks/image.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, ref,
+var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1166,6 +1181,8 @@ ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
 
+updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
+
 ImageBlock = (function(superClass) {
   extend(ImageBlock, superClass);
 
@@ -1174,20 +1191,50 @@ ImageBlock = (function(superClass) {
     this.handleGrafFigureSelectImg = bind(this.handleGrafFigureSelectImg, this);
     this.aspectRatio = bind(this.aspectRatio, this);
     this.replaceImg = bind(this.replaceImg, this);
+    this.updateData = bind(this.updateData, this);
+    this.defaultAspectRatio = bind(this.defaultAspectRatio, this);
+    this.defaultUrl = bind(this.defaultUrl, this);
+    var existing_data;
     ImageBlock.__super__.constructor.call(this, props);
+    existing_data = this.props.block.getData().toJS();
     this.state = {
       selected: false,
       caption: "Type caption for image",
       width: 0,
       height: 0,
-      url: this.props.blockProps.data,
-      aspect_ratio: {
+      file: null,
+      url: this.defaultUrl(existing_data),
+      aspect_ratio: this.defaultAspectRatio(existing_data)
+    };
+  }
+
+  ImageBlock.prototype.defaultUrl = function(data) {
+    if (data.url) {
+      if (data.file) {
+        return URL.createObjectURL(data.file);
+      } else {
+        return data.url;
+      }
+    } else {
+      return this.props.blockProps.data.src;
+    }
+  };
+
+  ImageBlock.prototype.defaultAspectRatio = function(data) {
+    if (data.aspect_ratio) {
+      return {
+        width: data.aspect_ratio['width'],
+        height: data.aspect_ratio['height'],
+        ratio: data.aspect_ratio['ratio']
+      };
+    } else {
+      return {
         width: 0,
         height: 0,
         ratio: 100
-      }
-    };
-  }
+      };
+    }
+  };
 
   ImageBlock.prototype.getAspectRatio = function(w, h) {
     var fill_ratio, height, maxHeight, maxWidth, ratio, result, width;
@@ -1215,6 +1262,17 @@ ImageBlock = (function(superClass) {
     return result;
   };
 
+  ImageBlock.prototype.updateData = function() {
+    var block, blockProps, data, getEditorState, newData, setEditorState;
+    blockProps = this.props.blockProps;
+    block = this.props.block;
+    getEditorState = this.props.blockProps.getEditorState;
+    setEditorState = this.props.blockProps.setEditorState;
+    data = block.getData();
+    newData = data.merge(this.state);
+    return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
+  };
+
   ImageBlock.prototype.replaceImg = function() {
     var self;
     this.img = new Image();
@@ -1233,7 +1291,7 @@ ImageBlock = (function(superClass) {
           width: _this.img.width,
           height: _this.img.height,
           aspect_ratio: self.getAspectRatio(_this.img.width, _this.img.height)
-        });
+        }, _this.updateData);
       };
     })(this);
   };
@@ -1252,7 +1310,6 @@ ImageBlock = (function(superClass) {
 
   ImageBlock.prototype.handleGrafFigureSelectImg = function(e) {
     e.preventDefault();
-    this.props.blockProps.setCurrentComponent(this);
     return this.setState({
       selected: true
     });
@@ -1624,7 +1681,7 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.insertImage = function(file) {
-    return this.props.setCurrentInput(URL.createObjectURL(file), (function(_this) {
+    return this.props.setCurrentInput(file, (function(_this) {
       return function() {
         return _this.props.onChange(addNewBlock(_this.props.editorState, 'image'));
       };

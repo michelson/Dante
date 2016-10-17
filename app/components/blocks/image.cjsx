@@ -9,22 +9,41 @@ ReactDOM = require('react-dom')
 
 } = require('draft-js')
 
+{ updateDataOfBlock } = require('../../model/index.js.es6')
+
 
 class ImageBlock extends React.Component
 
   constructor: (props) ->
     super props
 
+    existing_data = @.props.block.getData().toJS()
+    #debugger
     @state = 
       selected: false
       caption: "Type caption for image"
       width: 0
       height: 0
-      url: @props.blockProps.data
-      aspect_ratio: 
-        width: 0
-        height: 0
-        ratio: 100
+      file: null
+      url: @defaultUrl(existing_data)
+      aspect_ratio: @defaultAspectRatio(existing_data)
+
+  defaultUrl: (data)=>
+    if data.url
+      if data.file then URL.createObjectURL(data.file) else data.url
+    else
+      @props.blockProps.data.src
+
+
+  defaultAspectRatio: (data)=>
+    if data.aspect_ratio
+      width: data.aspect_ratio['width']
+      height: data.aspect_ratio['height']
+      ratio: data.aspect_ratio['ratio'] 
+    else
+      width:  0
+      height: 0
+      ratio: 100
 
   getAspectRatio: (w, h)->
     maxWidth = 1000
@@ -50,6 +69,16 @@ class ImageBlock extends React.Component
     utils.log result
     result
 
+  # will update block state
+  updateData: =>
+    blockProps = @.props.blockProps
+    block = @.props.block
+    getEditorState = @props.blockProps.getEditorState
+    setEditorState = @props.blockProps.setEditorState
+    data = block.getData();
+    newData = data.merge(@state)
+    setEditorState(updateDataOfBlock(getEditorState(), block, newData))
+
   replaceImg: =>
     @img = new Image();
     @img.src = this.refs.image_tag.src
@@ -65,6 +94,7 @@ class ImageBlock extends React.Component
         width: @img.width
         height: @img.height
         aspect_ratio: self.getAspectRatio(@img.width, @img.height)
+      , @updateData
   
   componentDidMount: ->
     @replaceImg()
@@ -76,7 +106,7 @@ class ImageBlock extends React.Component
 
   handleGrafFigureSelectImg: (e)=>
     e.preventDefault()
-    @props.blockProps.setCurrentComponent(@)
+    #@props.blockProps.setCurrentComponent(@)
     @setState
       selected: true
 
@@ -91,14 +121,9 @@ class ImageBlock extends React.Component
 
   render: =>
     block = @.props;
-    # {foo} = this.props.blockProps;
     entity = block.block.getEntityAt(0)
     data = Entity.get(entity).getData().src if entity
-    # console.log @state
-    # console.log @props
-    # className="graf graf--figure is-defaultValue #{@selectedClass()}" tabIndex='0'>
 
-    # console.log "DIDIDIDIDIDI", @props.blockProps.directions
     return (
       <div ref="image_tag2" suppressContentEditableWarning={true}>
         <div contentEditable="false"
