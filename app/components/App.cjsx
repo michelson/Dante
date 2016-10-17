@@ -4,21 +4,31 @@ ReactDOM = require('react-dom')
 Immutable = require('immutable')
 { Map } = require('immutable')
 {
-  convertToRaw,
-  CompositeDecorator,
-  getVisibleSelectionRect,
-  getDefaultKeyBinding, 
-  getSelectionOffsetKeyForNode,
-  KeyBindingUtil,
-  ContentState,
-  Editor,
-  EditorState,
-  Entity,
+  convertToRaw
+  convertFromRaw
+  CompositeDecorator
+  getVisibleSelectionRect
+  getDefaultKeyBinding
+  getSelectionOffsetKeyForNode
+  KeyBindingUtil
+  ContentState
+  Editor
+  EditorState
+  Entity
   RichUtils
   DefaultDraftBlockRenderMap
+  SelectionState
 } = require('draft-js')
 
-SimpleDecorator = require("../utils/simple_decorator")
+DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor')
+
+{stateToHTML} = require('draft-js-export-html')
+{
+  convertToHTML
+  convertFromHTML
+} = require('draft-convert')
+
+toHTML = require("../utils/convert_html.js.es6")
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 
@@ -29,6 +39,8 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
   getCurrentBlock
   addNewBlockAt
 } = require('../model/index.js.es6')
+
+createEditorState = require('../model/content.js.es6')
 
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
@@ -63,8 +75,11 @@ PlaceholderBlock = require('./blocks/placeholder.cjsx')
 class Dante 
   constructor: ->
     console.log "init editor!"
+
+  getContent: ->
+    '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"134oi","text":"oijoioij oj oj ","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1bg85","text":"oi oij oij jioij oij","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"c7r7q","text":"oij oij oij oi","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"8tvt5","text":"oij oij oij ","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"2dt6t","text":"oij oij oij ","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"6c0hk","text":"ttp://github.com/michelson","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"89ssk","text":"ijijij","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}'
   render: ->
-    ReactDOM.render(<DanteEditor/>, document.getElementById('app'))
+    ReactDOM.render(<DanteEditor content={@getContent()}/>, document.getElementById('app'))
 
 class DanteEditor extends React.Component
   constructor: (props) ->
@@ -77,41 +92,6 @@ class DanteEditor extends React.Component
         component: Link
       }
     ])
-
-
-    # TODO sacar esta guea, dejar decorator normal
-    # intentar pasar estos customProps en la creacion del link entity en toolTip
-    ###
-    @decorator2 = new SimpleDecorator(
-      strategy = (contentBlock, callback)=>
-        ed = @state.editorState.getSelection()
-        
-        # providing custom props!
-        customProps = {
-          showPopLinkOver: @showPopLinkOver 
-          hidePopLinkOver: @hidePopLinkOver
-        }
-        callback(ed.getStartOffset(), ed.getEndOffset(), customProps);
-    
-      component = (props)=>
-        return (
-          <Link 
-            {...props}
-          />
-        )
-    )
-    ###
-
-    ###
-    blockRenderMap = Immutable.Map({
-      'header-two': {
-       element: 'h2'
-      },
-      'unstyled': {
-        element: 'h2'
-      }
-    });
-    ###
 
     @.blockRenderMap = Map({
         "image":
@@ -157,7 +137,7 @@ class DanteEditor extends React.Component
           return "graf graf--p #{is_selected}"
 
     @state = 
-      editorState: EditorState.createEmpty(@decorator)
+      editorState: @initializeState() #EditorState.createEmpty(@decorator)
       display_toolbar: false
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
@@ -234,13 +214,69 @@ class DanteEditor extends React.Component
 
     optionsForDecorator: ()->
       @state
-   
 
+
+  initializeState: ()=>
+    if @.props.content and @.props.content.trim() isnt ""
+      #processedHTML = DraftPasteProcessor.processHTML(@.props.content)
+      #contentState = ContentState.createFromBlockArray(processedHTML)
+      # move focus to the end. 
+      #editorState = EditorState.createWithContent(contentState)
+      #editorState = EditorState.moveFocusToEnd(editorState)
+      
+      ###
+      #TODO: support entities
+      html = convertFromHTML(
+        htmlToEntity: (nodeName, node) =>
+          if nodeName is 'avv'
+            return Entity.create(
+              'LINK',
+              'MUTABLE',
+              {url: node.href}
+            )
+      )(@.props.content)
+      ###
+
+
+      #editorState = EditorState.createWithContent(html, @decorator)
+
+      @decodeEditorContent(@props.content)
+            
+      #debugger
+      #createEditorState.default(@props.content, @decorator)
+    else 
+      EditorState.createEmpty(@decorator)
+
+  refreshSelection: (newEditorState)=>
+    editorState     = @.state.editorState
+    # Setting cursor position after inserting to content
+    s = @.state.editorState.getSelection()
+    c = editorState.getCurrentContent()
+
+    selectionState = SelectionState.createEmpty(s.getAnchorKey())
+    focusOffset = s.getFocusOffset()
+    anchorKey = s.getAnchorKey()
+    console.log anchorKey, focusOffset
+    selectionState = selectionState.merge({
+      anchorOffset: focusOffset,
+      focusKey: anchorKey,
+      focusOffset: focusOffset,
+    })
+
+    newState = EditorState.forceSelection(newEditorState, selectionState)
+    
+    @onChange(newState)
+  
   forceRender: ()=>
     editorState     = @.state.editorState
+    selection       = @.state.editorState.getSelection()
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
-    @.setState({editorState: newEditorState})
+
+    @onChange(newEditorState)
+
+    @refreshSelection(newEditorState)
+    
     setTimeout =>
       @getPositionForCurrent()
     , 0
@@ -293,6 +329,63 @@ class DanteEditor extends React.Component
 
     @setState({ editorState });
     console.log "CHANGES!"
+
+  emitHTML: (editorState)=>
+
+    options =
+      blockRenderers:
+        #TODO: ver como funciona con los blocks
+        ATOMIC: (block) =>
+          data = block.getData();
+          if data.foo is 'bar'
+            return '<div>' + escape(block.getText()) + '</div>'
+        image: (block) =>
+          debugger
+          return "<div>aca va tu foto oe</div>"
+
+    #.state.editorState.getCurrentContent()
+    #raw = convertToRaw( @state.editorState.getCurrentContent() )
+    #html = stateToHTML(this.state.editorState.getCurrentContent(), options)
+    #html = stateToHTML(@state.editorState);
+    #html = draftRawToHtml(raw);
+    #this.props.onChange(html);
+
+    html = toHTML(@state.editorState.getCurrentContent())
+
+    console.log html
+    return false
+
+  emitSerializedOutput: =>
+    #s = @state.editorState.getCurrentContent()
+    raw = convertToRaw( @state.editorState.getCurrentContent() )
+    console.log raw
+
+    raw_as_json = JSON.stringify(raw)
+
+  decodeEditorContent: (raw_as_json)=>
+    new_content = convertFromRaw(JSON.parse(raw_as_json))
+    editorState = EditorState.createWithContent(new_content, @decorator)
+
+  testEmitAndDecode: =>
+
+    raw_as_json = @emitSerializedOutput()
+
+    @setState
+      editorState: @decodeEditorContent(raw_as_json)
+
+    false
+
+  emitHTML2: ()->
+
+    html = convertToHTML(
+      entityToHTML: (entity, originalText) => 
+        if entity.type is 'LINK'
+          return "<a href=\"#{entity.data.url}\">#{originalText}</a>"
+        else
+          return originalText
+ 
+    )(@.state.editorState.getCurrentContent())
+    #html = convertToHTML(@.state.editorState.getCurrentContent())
 
   setCurrentComponent: (component)=>
     @setState
@@ -669,7 +762,10 @@ class DanteEditor extends React.Component
     #debugger
     #TODO: reset block
     #@onChange(@state.editorState)
+
     @forceRender()
+
+
 
   handleShowPopLinkOver: (e)=>
     @showPopLinkOver()
@@ -737,6 +833,7 @@ class DanteEditor extends React.Component
 
     return (
       <div id="content" suppressContentEditableWarning={true}>
+
         <article className="postArticle">
           <div className="postContent">
             <div className="notesSource">
@@ -772,7 +869,7 @@ class DanteEditor extends React.Component
               </div>
             </div>
           </div>
-        </article>  
+        </article>
 
         <DanteTooltip
           editorState={@state.editorState} 
@@ -822,6 +919,18 @@ class DanteEditor extends React.Component
         />
         
 
+        <ul>
+          <li>
+            <a href="#" onClick={@emitHTML}>
+              get content
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={@testEmitAndDecode}>
+              serialize and set content
+            </a>
+          </li>
+        </ul>
       </div>
     ) 
 
