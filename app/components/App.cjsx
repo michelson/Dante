@@ -69,6 +69,7 @@ EmbedBlock = require('./blocks/embed.cjsx')
 VideoBlock = require('./blocks/video.cjsx')
 PlaceholderBlock = require('./blocks/placeholder.cjsx')
 
+PocData = require('../data/poc.js')
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
 
@@ -77,8 +78,10 @@ class Dante
     console.log "init editor!"
 
   getContent: ->
-    '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"aorns","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"selected":false,"caption":"Type caption for image","width":960,"height":720,"url":"blob:http://localhost:3333/95d035eb-deac-47e5-b9f3-1ecefb610616","aspect_ratio":{"width":960,"height":720,"ratio":75}}}]}'
-
+    # '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"aorns","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"selected":false,"caption":"Type caption for image","width":960,"height":720,"url":"blob:http://localhost:3333/95d035eb-deac-47e5-b9f3-1ecefb610616","aspect_ratio":{"width":960,"height":720,"ratio":75}}}]}'
+    # '{"entityMap":{},"blocks":[{"key":"eecu1","text":"ttp://google.com","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"http://www.google.com","url":"http://www.google.com/","thumbnail_width":272,"version":"1.0","title":"Google","provider_name":"Google","type":"link","thumbnail_height":92,"thumbnail_url":"http://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png","description":"Search the world\'s information, including webpages, images, videos and more. Google has many special features to help you find exactly what you\'re looking for."}}}]}'
+    # {"entityMap":{},"blocks":[{"key":"eecu1","text":"ttp://google.com","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"http://www.google.com","url":"http://www.google.com/","thumbnail_width":272,"version":"1.0","title":"Google","provider_name":"Google","type":"link","thumbnail_height":92,"thumbnail_url":"http://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png","description":"Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking for."}}},{"key":"f9mnf","text":"ttps://www.youtube.com/watch?v=KPJgtQwtVVA&feature=youtu.be","type":"video","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"https://www.youtube.com/","width":854,"height":480,"html":"<iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.co….jpg&key=d42b91026ea041c0875fd61ff736cb79&type=text%2Fhtml&schema=youtube\" width=\"854\" height=\"480\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>","url":"http://www.youtube.com/watch?v=KPJgtQwtVVA","thumbnail_width":480,"version":"1.0","title":"When Eric Clapton met Jimi Hendrix","provider_name":"YouTube","type":"video","thumbnail_height":360,"author_url":"https://www.youtube.com/user/Mrjamesanonymous","thumbnail_url":"https://i.ytimg.com/vi/KPJgtQwtVVA/hqdefault.jpg","description":"An excerpt from the bbc documentary 'the seven ages of rock - Episode 1 the birth of rock'.","author_name":"Mrjamesanonymous"}}}]}
+    PocData
   render: ->
     ReactDOM.render(<DanteEditor content={@getContent()}/>, document.getElementById('app'))
 
@@ -218,7 +221,7 @@ class DanteEditor extends React.Component
 
 
   initializeState: ()=>
-    if @.props.content and @.props.content.trim() isnt ""
+    if @.props.content #and @.props.content.trim() isnt ""
       #processedHTML = DraftPasteProcessor.processHTML(@.props.content)
       #contentState = ContentState.createFromBlockArray(processedHTML)
       # move focus to the end. 
@@ -362,13 +365,14 @@ class DanteEditor extends React.Component
     raw = convertToRaw( @state.editorState.getCurrentContent() )
     console.log raw
 
-    raw_as_json = JSON.stringify(raw)
-    console.log raw_as_json
-
-    raw_as_json
+    #raw_as_json = JSON.stringify(raw)
+    #console.log raw_as_json
+    #raw_as_json
+    raw
 
   decodeEditorContent: (raw_as_json)=>
-    new_content = convertFromRaw(JSON.parse(raw_as_json))
+    #new_content = convertFromRaw(JSON.parse(raw_as_json))
+    new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)
 
   testEmitAndDecode: =>
@@ -405,32 +409,7 @@ class DanteEditor extends React.Component
 
         #return null unless entity
         entity_type = Entity.get(entity).getType()
-        
-        ###
-        if entity_type is 'atomic:image'
-          return (
-            component: ImageBlock
-            #editable: true
-            props:
-              foo: 'bar'
-          )
 
-        else if entity_type is 'atomic:video'
-          return (
-            component: EmbedBlock
-            editable: false
-            props:
-              foo: 'bar'
-          )
-
-        else if entity_type is 'atomic:embed'
-          return (
-            component: ExtractBlock
-            editable: true
-            props:
-              foo: 'bar'
-          )
-        ###
       when 'image'
         return (
             component: ImageBlock
