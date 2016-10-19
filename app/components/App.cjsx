@@ -41,6 +41,7 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 } = require('../model/index.js.es6')
 
 createEditorState = require('../model/content.js.es6')
+{ updateDataOfBlock } = require('../model/index.js.es6')
 
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
@@ -74,16 +75,17 @@ PocData = require('../data/poc.js')
 #window.getVisibleSelectionRect = getVisibleSelectionRect
 
 class Dante 
-  constructor: ->
+  constructor: (options={})->
     console.log "init editor!"
+    @options = options
+    @options.el = options.el || 'app'
+    @options.spellcheck = options.spellcheck || false
 
   getContent: ->
-    # '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"aorns","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"selected":false,"caption":"Type caption for image","width":960,"height":720,"url":"blob:http://localhost:3333/95d035eb-deac-47e5-b9f3-1ecefb610616","aspect_ratio":{"width":960,"height":720,"ratio":75}}}]}'
-    # '{"entityMap":{},"blocks":[{"key":"eecu1","text":"ttp://google.com","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"http://www.google.com","url":"http://www.google.com/","thumbnail_width":272,"version":"1.0","title":"Google","provider_name":"Google","type":"link","thumbnail_height":92,"thumbnail_url":"http://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png","description":"Search the world\'s information, including webpages, images, videos and more. Google has many special features to help you find exactly what you\'re looking for."}}}]}'
-    # {"entityMap":{},"blocks":[{"key":"eecu1","text":"ttp://google.com","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"http://www.google.com","url":"http://www.google.com/","thumbnail_width":272,"version":"1.0","title":"Google","provider_name":"Google","type":"link","thumbnail_height":92,"thumbnail_url":"http://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png","description":"Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking for."}}},{"key":"f9mnf","text":"ttps://www.youtube.com/watch?v=KPJgtQwtVVA&feature=youtu.be","type":"video","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"https://www.youtube.com/","width":854,"height":480,"html":"<iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.co….jpg&key=d42b91026ea041c0875fd61ff736cb79&type=text%2Fhtml&schema=youtube\" width=\"854\" height=\"480\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>","url":"http://www.youtube.com/watch?v=KPJgtQwtVVA","thumbnail_width":480,"version":"1.0","title":"When Eric Clapton met Jimi Hendrix","provider_name":"YouTube","type":"video","thumbnail_height":360,"author_url":"https://www.youtube.com/user/Mrjamesanonymous","thumbnail_url":"https://i.ytimg.com/vi/KPJgtQwtVVA/hqdefault.jpg","description":"An excerpt from the bbc documentary 'the seven ages of rock - Episode 1 the birth of rock'.","author_name":"Mrjamesanonymous"}}}]}
     PocData
+
   render: ->
-    ReactDOM.render(<DanteEditor content={@getContent()}/>, document.getElementById('app'))
+    ReactDOM.render(<DanteEditor content={@getContent()} options={@options}/>, document.getElementById(@options.el))
 
 class DanteEditor extends React.Component
   constructor: (props) ->
@@ -124,9 +126,8 @@ class DanteEditor extends React.Component
       
       switch block.getType()
         when "image"
-          #console.log "IMAGE DIRECTIONS"
-          #console.log @state.image_directions.toJSON()
-          direction_class = if direction = this.state.image_directions.toJSON()[block.getKey()] then "#{@parseDirection(direction)}" else ""
+          direction_class = @parseDirection(block.getData().toJS().direction)
+          console.log "direction_class: ", direction_class 
           is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
           return "graf graf--figure #{is_selected} #{direction_class}"
         when "video"
@@ -157,7 +158,6 @@ class DanteEditor extends React.Component
         top: 0
         left: 0
 
-      image_directions: Map({})
       display_image_popover: false
       image_popover_position:
         top: 0
@@ -271,19 +271,19 @@ class DanteEditor extends React.Component
     
     @onChange(newState)
   
-  forceRender: ()=>
-    editorState     = @.state.editorState
+  forceRender: (editorState)=>
+    #editorState     = @.state.editorState
     selection       = @.state.editorState.getSelection()
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
 
-    @onChange(newEditorState)
+    # @onChange(newEditorState)
 
     @refreshSelection(newEditorState)
     
-    setTimeout =>
-      @getPositionForCurrent()
-    , 0
+    #setTimeout =>
+    #  @getPositionForCurrent()
+    #, 0
 
   parseDirection: (direction)=>
     #console.log(direction)
@@ -296,21 +296,18 @@ class DanteEditor extends React.Component
         ""
   
   onChange: (editorState) =>
-    @.setState({editorState});
+    # debugger
+    # console.log "BB", editorState.toJS()
+    @.setState({editorState})
     #console.log "changed at", editorState.getSelection().getAnchorKey()
     #console.log "collapsed?", editorState.getSelection().isCollapsed()
 
+    
     currentBlock = getCurrentBlock(@state.editorState);
     blockType = currentBlock.getType()
 
     if (!editorState.getSelection().isCollapsed())
-      #https://github.com/andrewcoelho/react-text-editor/blob/master/src/utils/selection.js
-      #selectionRange = getSelectionRange();
-      #selectionCoords = getSelectionCoords(selectionRange);
 
-      #console.log "oijijijiiji ", currentBlock.getType()
-
-      #console.log @.state.tooltipables.indexOf(blockType)
       return if @.state.tooltipables.indexOf(blockType) < 0
 
       @.setState
@@ -324,14 +321,13 @@ class DanteEditor extends React.Component
         menu:
           show: false
           position: @state.menu.position
-      #console.log currentBlock.getText()
-    #console.log "CHANGED!"
 
     setTimeout ()=>
       @getPositionForCurrent()
     , 0
+    
 
-    @setState({ editorState });
+    # @setState({ editorState });
     console.log "CHANGES!"
 
   emitHTML: (editorState)=>
@@ -420,7 +416,6 @@ class DanteEditor extends React.Component
                 file: @state.current_input
               getEditorState: @getEditorState
               setEditorState: @onChange
-              directions: @state.image_directions
           )
 
       when 'embed'
@@ -679,7 +674,7 @@ class DanteEditor extends React.Component
       currentBlock = getCurrentBlock(@state.editorState)
       blockType = currentBlock.getType()
       
-      console.log  "POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
+      # console.log  "POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
 
       contentState = @state.editorState.getCurrentContent()
       selectionState = @state.editorState.getSelection()
@@ -743,23 +738,23 @@ class DanteEditor extends React.Component
     @setState
       display_image_popover: true
 
+
+  # will update block state
+  updateBlockData: (block, options)=>
+    data = block.getData()
+    newData = data.merge(options)
+    newState = updateDataOfBlock(@state.editorState, block, newData)
+    # @onChange(newState)
+    # this fixes enter from image caption
+    @forceRender(newState)
+
   setDirection: (direction_type)=>
     
     contentState = @state.editorState.getCurrentContent()
     selectionState = @state.editorState.getSelection()
     block = contentState.getBlockForKey(selectionState.anchorKey);
-    @setState
-      image_directions: @state.image_directions.merge(
-        Map({"#{block.getKey()}": direction_type})
-      )
 
-    #debugger
-    #TODO: reset block
-    #@onChange(@state.editorState)
-
-    @forceRender()
-
-
+    @updateBlockData(block, {direction: direction_type})
 
   handleShowPopLinkOver: (e)=>
     @showPopLinkOver()
@@ -787,7 +782,6 @@ class DanteEditor extends React.Component
   cancelHide: ()->
     console.log "Cancel Hide"
     clearTimeout @hideTimeout
-
 
   positionForTooltip: (node)=>
     #debugger
@@ -821,7 +815,6 @@ class DanteEditor extends React.Component
       top: selectionBoundary.top - parentBoundary.top + 160
       left: selectionBoundary.left - (selectionBoundary.width) #- padd
     }
-
 
   render: =>
 

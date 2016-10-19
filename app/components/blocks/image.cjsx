@@ -18,10 +18,11 @@ class ImageBlock extends React.Component
     super props
 
     existing_data = @.props.block.getData().toJS()
-    #debugger
+    
     @state = 
       selected: false
       caption: "Type caption for image"
+      direction: existing_data.direction || "center"
       width: 0
       height: 0
       file: null

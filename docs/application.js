@@ -179,6 +179,8 @@ ref2 = require('../model/index.js.es6'), addNewBlock = ref2.addNewBlock, resetBl
 
 createEditorState = require('../model/content.js.es6');
 
+updateDataOfBlock = require('../model/index.js.es6').updateDataOfBlock;
+
 DanteImagePopover = require('./popovers/image');
 
 DanteAnchorPopover = require('./popovers/link');
@@ -217,8 +219,14 @@ PlaceholderBlock = require('./blocks/placeholder.cjsx');
 PocData = require('../data/poc.js');
 
 Dante = (function() {
-  function Dante() {
+  function Dante(options) {
+    if (options == null) {
+      options = {};
+    }
     console.log("init editor!");
+    this.options = options;
+    this.options.el = options.el || 'app';
+    this.options.spellcheck = options.spellcheck || false;
   }
 
   Dante.prototype.getContent = function() {
@@ -227,8 +235,9 @@ Dante = (function() {
 
   Dante.prototype.render = function() {
     return ReactDOM.render(React.createElement(DanteEditor, {
-      "content": this.getContent()
-    }), document.getElementById('app'));
+      "content": this.getContent(),
+      "options": this.options
+    }), document.getElementById(this.options.el));
   };
 
   return Dante;
@@ -246,6 +255,7 @@ DanteEditor = (function(superClass) {
     this.handleHidePopLinkOver = bind(this.handleHidePopLinkOver, this);
     this.handleShowPopLinkOver = bind(this.handleShowPopLinkOver, this);
     this.setDirection = bind(this.setDirection, this);
+    this.updateBlockData = bind(this.updateBlockData, this);
     this.relocateImageTooltipPosition = bind(this.relocateImageTooltipPosition, this);
     this.setCurrentInput = bind(this.setCurrentInput, this);
     this.relocateMenu = bind(this.relocateMenu, this);
@@ -306,12 +316,13 @@ DanteEditor = (function(superClass) {
     this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap);
     this.blockStyleFn = (function(_this) {
       return function(block) {
-        var currentBlock, direction, direction_class, is_selected;
+        var currentBlock, direction_class, is_selected;
         currentBlock = getCurrentBlock(_this.state.editorState);
         is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : "";
         switch (block.getType()) {
           case "image":
-            direction_class = (direction = _this.state.image_directions.toJSON()[block.getKey()]) ? "" + (_this.parseDirection(direction)) : "";
+            direction_class = _this.parseDirection(block.getData().toJS().direction);
+            console.log("direction_class: ", direction_class);
             is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
             return "graf graf--figure " + is_selected + " " + direction_class;
           case "video":
@@ -343,7 +354,6 @@ DanteEditor = (function(superClass) {
         top: 0,
         left: 0
       },
-      image_directions: Map({}),
       display_image_popover: false,
       image_popover_position: {
         top: 0,
@@ -439,19 +449,12 @@ DanteEditor = (function(superClass) {
     return this.onChange(newState);
   };
 
-  DanteEditor.prototype.forceRender = function() {
-    var content, editorState, newEditorState, selection;
-    editorState = this.state.editorState;
+  DanteEditor.prototype.forceRender = function(editorState) {
+    var content, newEditorState, selection;
     selection = this.state.editorState.getSelection();
     content = editorState.getCurrentContent();
     newEditorState = EditorState.createWithContent(content, this.decorator);
-    this.onChange(newEditorState);
-    this.refreshSelection(newEditorState);
-    return setTimeout((function(_this) {
-      return function() {
-        return _this.getPositionForCurrent();
-      };
-    })(this), 0);
+    return this.refreshSelection(newEditorState);
   };
 
   DanteEditor.prototype.parseDirection = function(direction) {
@@ -500,9 +503,6 @@ DanteEditor = (function(superClass) {
         return _this.getPositionForCurrent();
       };
     })(this), 0);
-    this.setState({
-      editorState: editorState
-    });
     return console.log("CHANGES!");
   };
 
@@ -592,8 +592,7 @@ DanteEditor = (function(superClass) {
               file: this.state.current_input
             },
             getEditorState: this.getEditorState,
-            setEditorState: this.onChange,
-            directions: this.state.image_directions
+            setEditorState: this.onChange
           }
         };
       case 'embed':
@@ -848,7 +847,6 @@ DanteEditor = (function(superClass) {
     if (this.state.editorState.getSelection().isCollapsed()) {
       currentBlock = getCurrentBlock(this.state.editorState);
       blockType = currentBlock.getType();
-      console.log("POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey());
       contentState = this.state.editorState.getCurrentContent();
       selectionState = this.state.editorState.getSelection();
       block = contentState.getBlockForKey(selectionState.anchorKey);
@@ -901,19 +899,22 @@ DanteEditor = (function(superClass) {
     });
   };
 
+  DanteEditor.prototype.updateBlockData = function(block, options) {
+    var data, newData, newState;
+    data = block.getData();
+    newData = data.merge(options);
+    newState = updateDataOfBlock(this.state.editorState, block, newData);
+    return this.forceRender(newState);
+  };
+
   DanteEditor.prototype.setDirection = function(direction_type) {
-    var block, contentState, obj, selectionState;
+    var block, contentState, selectionState;
     contentState = this.state.editorState.getCurrentContent();
     selectionState = this.state.editorState.getSelection();
     block = contentState.getBlockForKey(selectionState.anchorKey);
-    this.setState({
-      image_directions: this.state.image_directions.merge(Map((
-        obj = {},
-        obj["" + (block.getKey())] = direction_type,
-        obj
-      )))
+    return this.updateBlockData(block, {
+      direction: direction_type
     });
-    return this.forceRender();
   };
 
   DanteEditor.prototype.handleShowPopLinkOver = function(e) {
@@ -1194,6 +1195,7 @@ ImageBlock = (function(superClass) {
     this.state = {
       selected: false,
       caption: "Type caption for image",
+      direction: existing_data.direction || "center",
       width: 0,
       height: 0,
       file: null,
@@ -2053,7 +2055,6 @@ DanteAnchorPopover = (function(superClass) {
   DanteAnchorPopover.prototype.render = function() {
     var position, style;
     position = this.props.position;
-    console.log("POSITIOM", position);
     style = {
       left: position.left,
       top: position.top,
@@ -2926,6 +2927,81 @@ var getSelectedBlockNode = exports.getSelectedBlockNode = function getSelectedBl
   } while (node !== null);
   return null;
 };
+});
+
+require.register("utils/simple_decorator.js", function(exports, require, module) {
+var Immutable = require('immutable');
+
+var KEY_SEPARATOR = '-';
+
+/**
+ * Creates a Draft decorator
+ * @param {Function} strategy function (contentBlock, callback(start, end, props))
+ * @param {Function} getComponent function (props) -> React.Component
+ */
+function SimpleDecorator(strategy, getComponent) {
+    this.decorated = {};
+    this.strategy = strategy;
+    this.getComponent = getComponent;
+}
+
+/**
+ * Return list of decoration IDs per character
+ * @param {ContentBlock} block
+ * @return {List<String>}
+ */
+SimpleDecorator.prototype.getDecorations = function(block) {
+    var decorations = Array(block.getText().length).fill(null);
+    // Apply a decoration to given range, with given props
+    function callback (start, end, props) {
+        if (props === undefined) {
+            props = {};
+        }
+        key = blockKey + KEY_SEPARATOR + decorationId;
+        decorated[blockKey][decorationId] = props;
+        decorateRange(decorations, start, end, key);
+        decorationId++;
+    }
+
+    var blockKey = block.getKey();
+    var key;
+    var decorationId = 0;
+    var decorated = this.decorated;
+    decorated[blockKey] = {};
+
+    this.strategy(block, callback);
+
+    return Immutable.List(decorations);
+};
+
+/**
+ * Return component to render a decoration
+ * @param {String} key
+ * @return {Function}
+ */
+SimpleDecorator.prototype.getComponentForKey = function(key) {
+    return this.getComponent;
+};
+
+/**
+ * Return props to render a decoration
+ * @param {String} key
+ * @return {Object}
+ */
+SimpleDecorator.prototype.getPropsForKey = function(key) {
+    var parts = key.split(KEY_SEPARATOR);
+    var blockKey = parts[0];
+    var decorationId = parts[1];
+    return this.decorated[blockKey][decorationId];
+};
+
+function decorateRange(decorationsArray, start, end, key) {
+    for (var ii = start; ii < end; ii++) {
+        decorationsArray[ii] = key;
+    }
+}
+
+module.exports = SimpleDecorator;
 });
 
 require.register("utils/utils.coffee", function(exports, require, module) {
