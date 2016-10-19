@@ -150,7 +150,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/App.cjsx", function(exports, require, module) {
-var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, React, ReactDOM, RichUtils, SimpleDecorator, VideoBlock, addNewBlock, addNewBlockAt, convertToRaw, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, resetBlockWithType, updateDataOfBlock,
+var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -163,13 +163,21 @@ Immutable = require('immutable');
 
 Map = require('immutable').Map;
 
-ref = require('draft-js'), convertToRaw = ref.convertToRaw, CompositeDecorator = ref.CompositeDecorator, getVisibleSelectionRect = ref.getVisibleSelectionRect, getDefaultKeyBinding = ref.getDefaultKeyBinding, getSelectionOffsetKeyForNode = ref.getSelectionOffsetKeyForNode, KeyBindingUtil = ref.KeyBindingUtil, ContentState = ref.ContentState, Editor = ref.Editor, EditorState = ref.EditorState, Entity = ref.Entity, RichUtils = ref.RichUtils, DefaultDraftBlockRenderMap = ref.DefaultDraftBlockRenderMap;
+ref = require('draft-js'), convertToRaw = ref.convertToRaw, convertFromRaw = ref.convertFromRaw, CompositeDecorator = ref.CompositeDecorator, getVisibleSelectionRect = ref.getVisibleSelectionRect, getDefaultKeyBinding = ref.getDefaultKeyBinding, getSelectionOffsetKeyForNode = ref.getSelectionOffsetKeyForNode, KeyBindingUtil = ref.KeyBindingUtil, ContentState = ref.ContentState, Editor = ref.Editor, EditorState = ref.EditorState, Entity = ref.Entity, RichUtils = ref.RichUtils, DefaultDraftBlockRenderMap = ref.DefaultDraftBlockRenderMap, SelectionState = ref.SelectionState;
 
-SimpleDecorator = require("../utils/simple_decorator");
+DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor');
+
+stateToHTML = require('draft-js-export-html').stateToHTML;
+
+ref1 = require('draft-convert'), convertToHTML = ref1.convertToHTML, convertFromHTML = ref1.convertFromHTML;
+
+toHTML = require("../utils/convert_html.js.es6");
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent');
 
-ref1 = require('../model/index.js.es6'), addNewBlock = ref1.addNewBlock, resetBlockWithType = ref1.resetBlockWithType, updateDataOfBlock = ref1.updateDataOfBlock, getCurrentBlock = ref1.getCurrentBlock, addNewBlockAt = ref1.addNewBlockAt;
+ref2 = require('../model/index.js.es6'), addNewBlock = ref2.addNewBlock, resetBlockWithType = ref2.resetBlockWithType, updateDataOfBlock = ref2.updateDataOfBlock, getCurrentBlock = ref2.getCurrentBlock, addNewBlockAt = ref2.addNewBlockAt;
+
+createEditorState = require('../model/content.js.es6');
 
 DanteImagePopover = require('./popovers/image');
 
@@ -188,7 +196,7 @@ KeyCodes = {
 
 window.utils = require('../utils/utils.coffee');
 
-ref2 = require("../utils/selection.js.es6"), getSelectionRect = ref2.getSelectionRect, getSelection = ref2.getSelection;
+ref3 = require("../utils/selection.js.es6"), getSelectionRect = ref3.getSelectionRect, getSelection = ref3.getSelection;
 
 DanteInlineTooltip = require('./inlineTooltip.cjsx');
 
@@ -206,13 +214,21 @@ VideoBlock = require('./blocks/video.cjsx');
 
 PlaceholderBlock = require('./blocks/placeholder.cjsx');
 
+PocData = require('../data/poc.js');
+
 Dante = (function() {
   function Dante() {
     console.log("init editor!");
   }
 
+  Dante.prototype.getContent = function() {
+    return PocData;
+  };
+
   Dante.prototype.render = function() {
-    return ReactDOM.render(React.createElement(DanteEditor, null), document.getElementById('app'));
+    return ReactDOM.render(React.createElement(DanteEditor, {
+      "content": this.getContent()
+    }), document.getElementById('app'));
   };
 
   return Dante;
@@ -240,15 +256,22 @@ DanteEditor = (function(superClass) {
     this._toggleBlockType = bind(this._toggleBlockType, this);
     this.stateHandler = bind(this.stateHandler, this);
     this.dispatchChanges = bind(this.dispatchChanges, this);
+    this.getEditorState = bind(this.getEditorState, this);
     this.focus = bind(this.focus, this);
     this.handleClick = bind(this.handleClick, this);
     this.handleBeforeInput = bind(this.handleBeforeInput, this);
     this.handleReturn = bind(this.handleReturn, this);
     this.blockRenderer = bind(this.blockRenderer, this);
     this.setCurrentComponent = bind(this.setCurrentComponent, this);
+    this.testEmitAndDecode = bind(this.testEmitAndDecode, this);
+    this.decodeEditorContent = bind(this.decodeEditorContent, this);
+    this.emitSerializedOutput = bind(this.emitSerializedOutput, this);
+    this.emitHTML = bind(this.emitHTML, this);
     this.onChange = bind(this.onChange, this);
     this.parseDirection = bind(this.parseDirection, this);
     this.forceRender = bind(this.forceRender, this);
+    this.refreshSelection = bind(this.refreshSelection, this);
+    this.initializeState = bind(this.initializeState, this);
     DanteEditor.__super__.constructor.call(this, props);
     window.main_editor = this;
     this.decorator = new CompositeDecorator([
@@ -257,38 +280,6 @@ DanteEditor = (function(superClass) {
         component: Link
       }
     ]);
-
-    /*
-    @decorator2 = new SimpleDecorator(
-      strategy = (contentBlock, callback)=>
-        ed = @state.editorState.getSelection()
-        
-         * providing custom props!
-        customProps = {
-          showPopLinkOver: @showPopLinkOver 
-          hidePopLinkOver: @hidePopLinkOver
-        }
-        callback(ed.getStartOffset(), ed.getEndOffset(), customProps);
-    
-      component = (props)=>
-        return (
-          <Link 
-            {...props}
-          />
-        )
-    )
-     */
-
-    /*
-    blockRenderMap = Immutable.Map({
-      'header-two': {
-       element: 'h2'
-      },
-      'unstyled': {
-        element: 'h2'
-      }
-    });
-     */
     this.blockRenderMap = Map({
       "image": {
         element: 'figure'
@@ -337,7 +328,7 @@ DanteEditor = (function(superClass) {
       };
     })(this);
     this.state = {
-      editorState: EditorState.createEmpty(this.decorator),
+      editorState: this.initializeState(),
       display_toolbar: false,
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
@@ -409,14 +400,53 @@ DanteEditor = (function(superClass) {
     });
   }
 
-  DanteEditor.prototype.forceRender = function() {
-    var content, editorState, newEditorState;
+  DanteEditor.prototype.initializeState = function() {
+    if (this.props.content) {
+
+      /*
+      #TODO: support entities
+      html = convertFromHTML(
+        htmlToEntity: (nodeName, node) =>
+          if nodeName is 'avv'
+            return Entity.create(
+              'LINK',
+              'MUTABLE',
+              {url: node.href}
+            )
+      )(@.props.content)
+       */
+      return this.decodeEditorContent(this.props.content);
+    } else {
+      return EditorState.createEmpty(this.decorator);
+    }
+  };
+
+  DanteEditor.prototype.refreshSelection = function(newEditorState) {
+    var anchorKey, c, editorState, focusOffset, newState, s, selectionState;
     editorState = this.state.editorState;
+    s = this.state.editorState.getSelection();
+    c = editorState.getCurrentContent();
+    selectionState = SelectionState.createEmpty(s.getAnchorKey());
+    focusOffset = s.getFocusOffset();
+    anchorKey = s.getAnchorKey();
+    console.log(anchorKey, focusOffset);
+    selectionState = selectionState.merge({
+      anchorOffset: focusOffset,
+      focusKey: anchorKey,
+      focusOffset: focusOffset
+    });
+    newState = EditorState.forceSelection(newEditorState, selectionState);
+    return this.onChange(newState);
+  };
+
+  DanteEditor.prototype.forceRender = function() {
+    var content, editorState, newEditorState, selection;
+    editorState = this.state.editorState;
+    selection = this.state.editorState.getSelection();
     content = editorState.getCurrentContent();
     newEditorState = EditorState.createWithContent(content, this.decorator);
-    this.setState({
-      editorState: newEditorState
-    });
+    this.onChange(newEditorState);
+    this.refreshSelection(newEditorState);
     return setTimeout((function(_this) {
       return function() {
         return _this.getPositionForCurrent();
@@ -476,6 +506,69 @@ DanteEditor = (function(superClass) {
     return console.log("CHANGES!");
   };
 
+  DanteEditor.prototype.emitHTML = function(editorState) {
+    var html, options;
+    options = {
+      blockRenderers: {
+        ATOMIC: (function(_this) {
+          return function(block) {
+            var data;
+            data = block.getData();
+            if (data.foo === 'bar') {
+              return '<div>' + escape(block.getText()) + '</div>';
+            }
+          };
+        })(this),
+        image: (function(_this) {
+          return function(block) {
+            debugger;
+            return "<div>aca va tu foto oe</div>";
+          };
+        })(this)
+      }
+    };
+    html = toHTML(this.state.editorState.getCurrentContent());
+    console.log(html);
+    return false;
+  };
+
+  DanteEditor.prototype.emitSerializedOutput = function() {
+    var raw;
+    raw = convertToRaw(this.state.editorState.getCurrentContent());
+    console.log(raw);
+    return raw;
+  };
+
+  DanteEditor.prototype.decodeEditorContent = function(raw_as_json) {
+    var editorState, new_content;
+    new_content = convertFromRaw(raw_as_json);
+    return editorState = EditorState.createWithContent(new_content, this.decorator);
+  };
+
+  DanteEditor.prototype.testEmitAndDecode = function() {
+    var raw_as_json;
+    raw_as_json = this.emitSerializedOutput();
+    this.setState({
+      editorState: this.decodeEditorContent(raw_as_json)
+    });
+    return false;
+  };
+
+  DanteEditor.prototype.emitHTML2 = function() {
+    var html;
+    return html = convertToHTML({
+      entityToHTML: (function(_this) {
+        return function(entity, originalText) {
+          if (entity.type === 'LINK') {
+            return "<a href=\"" + entity.data.url + "\">" + originalText + "</a>";
+          } else {
+            return originalText;
+          }
+        };
+      })(this)
+    })(this.state.editorState.getCurrentContent());
+  };
+
   DanteEditor.prototype.setCurrentComponent = function(component) {
     return this.setState({
       current_component: component
@@ -488,41 +581,19 @@ DanteEditor = (function(superClass) {
       case "atomic":
         entity = block.getEntityAt(0);
         entity_type = Entity.get(entity).getType();
-
-        /*
-        if entity_type is 'atomic:image'
-          return (
-            component: ImageBlock
-            #editable: true
-            props:
-              foo: 'bar'
-          )
-        
-        else if entity_type is 'atomic:video'
-          return (
-            component: EmbedBlock
-            editable: false
-            props:
-              foo: 'bar'
-          )
-        
-        else if entity_type is 'atomic:embed'
-          return (
-            component: ExtractBlock
-            editable: true
-            props:
-              foo: 'bar'
-          )
-         */
         break;
       case 'image':
         return {
           component: ImageBlock,
           editable: true,
           props: {
-            data: this.state.current_input,
-            directions: this.state.image_directions,
-            setCurrentComponent: this.setCurrentComponent
+            data: {
+              src: this.state.current_input !== "" ? URL.createObjectURL(this.state.current_input) : "",
+              file: this.state.current_input
+            },
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange,
+            directions: this.state.image_directions
           }
         };
       case 'embed':
@@ -530,7 +601,9 @@ DanteEditor = (function(superClass) {
           component: EmbedBlock,
           editable: true,
           props: {
-            data: this.state.current_input
+            data: this.state.current_input,
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange
           }
         };
       case 'video':
@@ -538,7 +611,9 @@ DanteEditor = (function(superClass) {
           component: VideoBlock,
           editable: true,
           props: {
-            data: this.state.current_input
+            data: this.state.current_input,
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange
           }
         };
       case 'placeholder':
@@ -662,6 +737,10 @@ DanteEditor = (function(superClass) {
 
   DanteEditor.prototype.focus = function() {
     return document.getElementById('richEditor').focus();
+  };
+
+  DanteEditor.prototype.getEditorState = function() {
+    return this.state.editorState;
   };
 
   DanteEditor.prototype.handleOnChange = function() {
@@ -970,7 +1049,13 @@ DanteEditor = (function(superClass) {
       "position": this.state.anchor_popover_position,
       "handleOnMouseOver": this.handleShowPopLinkOver,
       "handleOnMouseOut": this.handleHidePopLinkOver
-    }));
+    }), React.createElement("ul", null, React.createElement("li", null, React.createElement("a", {
+      "href": "#",
+      "onClick": this.emitHTML
+    }, "get content")), React.createElement("li", null, React.createElement("a", {
+      "href": "#",
+      "onClick": this.testEmitAndDecode
+    }, "serialize and set content"))));
   };
 
   return DanteEditor;
@@ -981,7 +1066,7 @@ module.exports = Dante;
 });
 
 ;require.register("components/blocks/embed.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, EmbedBlock, Entity, React, ReactDOM, RichUtils, ref, utils,
+var AtomicBlockUtils, EditorBlock, EmbedBlock, Entity, React, ReactDOM, RichUtils, ref, updateDataOfBlock, utils,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -994,18 +1079,38 @@ ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, Atomi
 
 utils = require("../../utils/utils");
 
+updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
+
 EmbedBlock = (function(superClass) {
   extend(EmbedBlock, superClass);
 
   function EmbedBlock(props) {
     this.componentDidMount = bind(this.componentDidMount, this);
+    this.updateData = bind(this.updateData, this);
     var api_key;
     EmbedBlock.__super__.constructor.call(this, props);
     api_key = "86c28a410a104c8bb58848733c82f840";
     this.state = {
-      embed_data: {}
+      embed_data: this.defaultData()
     };
   }
+
+  EmbedBlock.prototype.defaultData = function() {
+    var existing_data;
+    existing_data = this.props.block.getData().toJS();
+    return existing_data.embed_data || {};
+  };
+
+  EmbedBlock.prototype.updateData = function() {
+    var block, blockProps, data, getEditorState, newData, setEditorState;
+    blockProps = this.props.blockProps;
+    block = this.props.block;
+    getEditorState = this.props.blockProps.getEditorState;
+    setEditorState = this.props.blockProps.setEditorState;
+    data = block.getData();
+    newData = data.merge(this.state);
+    return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
+  };
 
   EmbedBlock.prototype.componentDidMount = function() {
     if (!this.props.blockProps.data) {
@@ -1018,7 +1123,7 @@ EmbedBlock = (function(superClass) {
         if (data.status === 200) {
           return _this.setState({
             embed_data: JSON.parse(data.responseText)
-          });
+          }, _this.updateData);
         }
       };
     })(this));
@@ -1059,7 +1164,7 @@ module.exports = EmbedBlock;
 });
 
 ;require.register("components/blocks/image.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, ref,
+var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1070,6 +1175,8 @@ ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
 
+updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
+
 ImageBlock = (function(superClass) {
   extend(ImageBlock, superClass);
 
@@ -1078,20 +1185,50 @@ ImageBlock = (function(superClass) {
     this.handleGrafFigureSelectImg = bind(this.handleGrafFigureSelectImg, this);
     this.aspectRatio = bind(this.aspectRatio, this);
     this.replaceImg = bind(this.replaceImg, this);
+    this.updateData = bind(this.updateData, this);
+    this.defaultAspectRatio = bind(this.defaultAspectRatio, this);
+    this.defaultUrl = bind(this.defaultUrl, this);
+    var existing_data;
     ImageBlock.__super__.constructor.call(this, props);
+    existing_data = this.props.block.getData().toJS();
     this.state = {
       selected: false,
       caption: "Type caption for image",
       width: 0,
       height: 0,
-      url: this.props.blockProps.data,
-      aspect_ratio: {
+      file: null,
+      url: this.defaultUrl(existing_data),
+      aspect_ratio: this.defaultAspectRatio(existing_data)
+    };
+  }
+
+  ImageBlock.prototype.defaultUrl = function(data) {
+    if (data.url) {
+      if (data.file) {
+        return URL.createObjectURL(data.file);
+      } else {
+        return data.url;
+      }
+    } else {
+      return this.props.blockProps.data.src;
+    }
+  };
+
+  ImageBlock.prototype.defaultAspectRatio = function(data) {
+    if (data.aspect_ratio) {
+      return {
+        width: data.aspect_ratio['width'],
+        height: data.aspect_ratio['height'],
+        ratio: data.aspect_ratio['ratio']
+      };
+    } else {
+      return {
         width: 0,
         height: 0,
         ratio: 100
-      }
-    };
-  }
+      };
+    }
+  };
 
   ImageBlock.prototype.getAspectRatio = function(w, h) {
     var fill_ratio, height, maxHeight, maxWidth, ratio, result, width;
@@ -1119,6 +1256,17 @@ ImageBlock = (function(superClass) {
     return result;
   };
 
+  ImageBlock.prototype.updateData = function() {
+    var block, blockProps, data, getEditorState, newData, setEditorState;
+    blockProps = this.props.blockProps;
+    block = this.props.block;
+    getEditorState = this.props.blockProps.getEditorState;
+    setEditorState = this.props.blockProps.setEditorState;
+    data = block.getData();
+    newData = data.merge(this.state);
+    return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
+  };
+
   ImageBlock.prototype.replaceImg = function() {
     var self;
     this.img = new Image();
@@ -1137,7 +1285,7 @@ ImageBlock = (function(superClass) {
           width: _this.img.width,
           height: _this.img.height,
           aspect_ratio: self.getAspectRatio(_this.img.width, _this.img.height)
-        });
+        }, _this.updateData);
       };
     })(this);
   };
@@ -1156,7 +1304,6 @@ ImageBlock = (function(superClass) {
 
   ImageBlock.prototype.handleGrafFigureSelectImg = function(e) {
     e.preventDefault();
-    this.props.blockProps.setCurrentComponent(this);
     return this.setState({
       selected: true
     });
@@ -1302,7 +1449,8 @@ module.exports = PlaceholderBlock;
 });
 
 ;require.register("components/blocks/video.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, React, ReactDOM, RichUtils, VideoBlock, ref, utils,
+var AtomicBlockUtils, EditorBlock, Entity, React, ReactDOM, RichUtils, VideoBlock, ref, updateDataOfBlock, utils,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -1314,29 +1462,50 @@ ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, Atomi
 
 utils = require("../../utils/utils");
 
+updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
+
 VideoBlock = (function(superClass) {
   extend(VideoBlock, superClass);
 
   function VideoBlock(props) {
+    this.updateData = bind(this.updateData, this);
     var api_key;
     VideoBlock.__super__.constructor.call(this, props);
     api_key = "86c28a410a104c8bb58848733c82f840";
     this.state = {
-      provisory_text: "https://www.youtube.com/watch?v=XCEN0qQOsIA",
-      embed_url: "http://api.embed.ly/1/oembed?key=" + api_key + "&url=",
-      embed_data: {}
+      embed_data: this.defaultData()
     };
   }
 
+  VideoBlock.prototype.defaultData = function() {
+    var existing_data;
+    existing_data = this.props.block.getData().toJS();
+    return existing_data.embed_data || {};
+  };
+
+  VideoBlock.prototype.updateData = function() {
+    var block, blockProps, data, getEditorState, newData, setEditorState;
+    blockProps = this.props.blockProps;
+    block = this.props.block;
+    getEditorState = this.props.blockProps.getEditorState;
+    setEditorState = this.props.blockProps.setEditorState;
+    data = block.getData();
+    newData = data.merge(this.state);
+    return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
+  };
+
   VideoBlock.prototype.componentDidMount = function() {
+    if (!this.props.blockProps.data) {
+      return;
+    }
     return utils.ajax({
-      url: "" + this.state.embed_url + this.state.provisory_text + "&scheme=https"
+      url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
     }, (function(_this) {
       return function(data) {
         if (data.status === 200) {
           return _this.setState({
             embed_data: JSON.parse(data.responseText)
-          });
+          }, _this.updateData);
         }
       };
     })(this));
@@ -1528,7 +1697,7 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.insertImage = function(file) {
-    return this.props.setCurrentInput(URL.createObjectURL(file), (function(_this) {
+    return this.props.setCurrentInput(file, (function(_this) {
       return function() {
         return _this.props.onChange(addNewBlock(_this.props.editorState, 'image'));
       };
@@ -2181,6 +2350,162 @@ DanteTooltipLink = (function(superClass) {
 module.exports = DanteTooltip;
 });
 
+;require.register("data/poc.js", function(exports, require, module) {
+
+data = {
+  "entityMap": {},
+  "blocks": [
+    {
+      "key": "5i64m",
+      "text": "ttps://www.youtube.com/watch?v=KPJgtQwtVVA&feature=youtu.be",
+      "type": "video",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {
+        "embed_data": {
+          "provider_url": "https://www.youtube.com/",
+          "width": 854,
+          "height": 480,
+          "html": "<iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.com%2Fembed%2FKPJgtQwtVVA%3Ffeature%3Doembed&url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DKPJgtQwtVVA&image=https%3A%2F%2Fi.ytimg.com%2Fvi%2FKPJgtQwtVVA%2Fhqdefault.jpg&key=d42b91026ea041c0875fd61ff736cb79&type=text%2Fhtml&schema=youtube\" width=\"854\" height=\"480\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>",
+          "url": "http://www.youtube.com/watch?v=KPJgtQwtVVA",
+          "thumbnail_width": 480,
+          "version": "1.0",
+          "title": "When Eric Clapton met Jimi Hendrix",
+          "provider_name": "YouTube",
+          "type": "video",
+          "thumbnail_height": 360,
+          "author_url": "https://www.youtube.com/user/Mrjamesanonymous",
+          "thumbnail_url": "https://i.ytimg.com/vi/KPJgtQwtVVA/hqdefault.jpg",
+          "description": "An excerpt from the bbc documentary 'the seven ages of rock - Episode 1 the birth of rock'.",
+          "author_name": "Mrjamesanonymous"
+        }
+      }
+    },
+    {
+      "key": "347m6",
+      "text": "ttp://news.ycombinator.com",
+      "type": "embed",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {
+        "embed_data": {
+          "provider_url": "https://news.ycombinator.com",
+          "description": "Air India Taking Advantage of Tailwinds",
+          "title": "Hacker News",
+          "url": "https://news.ycombinator.com/",
+          "version": "1.0",
+          "provider_name": "Ycombinator",
+          "type": "link"
+        }
+      }
+    },
+    {
+      "key": "t0sk",
+      "text": "sdcoidjco sidjcioj",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "3o1e9",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "gomb",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "3gb8l",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "5al5t",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "9n7jn",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "688cu",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "edbt8",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "6gcd3",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "2kv9k",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "fkp0i",
+      "text": "",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    }
+  ]
+}
+
+module.exports = data
+});
+
 ;require.register("initialize.cjsx", function(exports, require, module) {
 var Dante, React, ReactDOM;
 
@@ -2213,6 +2538,7 @@ var _link2 = _interopRequireDefault(_link);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+//https://gist.github.com/benbriggs/d946a7cf4f7d90545779aeb79ccbd292
 var decorator = new _draftJs.CompositeDecorator([{
   strategy: _link.findLinkEntities,
   component: _link2.default
@@ -2456,7 +2782,74 @@ exports.default = {
 };
 });
 
-require.register("utils/find_entities.coffee", function(exports, require, module) {
+require.register("utils/convert_html.js.es6", function(exports, require, module) {
+'use strict';
+
+var _draftJs = require('draft-js');
+
+var _draftConvert = require('draft-convert');
+
+var toHTML = (0, _draftConvert.convertToHTML)({
+  blockToHTML: function blockToHTML(block) {
+    if (block.type === 'atomic') {
+      // inspect metadata inside atomic block. if you're using block metadata,
+      // you can just inspect `block.data`, if not though we must inspect the
+      // entity range inside of the block.
+      if (block.entityRanges.length > 0) {
+        var entityKey = block.entityRanges[0].key;
+        var entity = _draftJs.Entity.get(entityKey);
+
+        // once you get here it depends on your app and what your entity data
+        // look like - in this example i'll pretend it uses the type to define
+        // if it's an image, a video, etc
+        var entityType = entity.getData().type;
+        // return unique wrapping block elements for each type of atomic block
+        if (entityType === 'ATOMIC-IMAGE') {
+          return {
+            start: '<div class="image-block">',
+            end: '</div>'
+          };
+        } else if (entityType === 'ATOMIC-VIDEO') {
+          return {
+            start: '<div class="video-block">',
+            end: '</div>'
+          };
+        }
+      }
+    }
+    if (block.type === 'image') {
+      debugger;
+      return {
+        start: '<div class="image-block">',
+        end: '</div>'
+      };
+    }
+  },
+  entityToHTML: function entityToHTML(entity, originalText) {
+    if (entity.type === 'LINK') {
+      var href = entity.data.href;
+      return '<a href=' + href + '>' + originalText + '</a>';
+    }
+    if (entity.type === 'ATOMIC-IMAGE') {
+      var src = entity.data.src;
+      return '<img src="' + src + '" />';
+    }
+    if (entity.type === 'ATOMIC-VIDEO') {
+      var _src = entity.data.src;
+      var type = entity.data.type;
+      return '<video controls><source src="' + _src + '" type="' + type + '"></video>';
+    }
+    return originalText;
+  }
+});
+
+//const html = toHTML(contentState);
+
+//export default toHTML;
+module.exports = toHTML;
+});
+
+;require.register("utils/find_entities.coffee", function(exports, require, module) {
 var Entity, findEntities;
 
 Entity = require('draft-js').Entity;
@@ -2533,81 +2926,6 @@ var getSelectedBlockNode = exports.getSelectedBlockNode = function getSelectedBl
   } while (node !== null);
   return null;
 };
-});
-
-require.register("utils/simple_decorator.js", function(exports, require, module) {
-var Immutable = require('immutable');
-
-var KEY_SEPARATOR = '-';
-
-/**
- * Creates a Draft decorator
- * @param {Function} strategy function (contentBlock, callback(start, end, props))
- * @param {Function} getComponent function (props) -> React.Component
- */
-function SimpleDecorator(strategy, getComponent) {
-    this.decorated = {};
-    this.strategy = strategy;
-    this.getComponent = getComponent;
-}
-
-/**
- * Return list of decoration IDs per character
- * @param {ContentBlock} block
- * @return {List<String>}
- */
-SimpleDecorator.prototype.getDecorations = function(block) {
-    var decorations = Array(block.getText().length).fill(null);
-    // Apply a decoration to given range, with given props
-    function callback (start, end, props) {
-        if (props === undefined) {
-            props = {};
-        }
-        key = blockKey + KEY_SEPARATOR + decorationId;
-        decorated[blockKey][decorationId] = props;
-        decorateRange(decorations, start, end, key);
-        decorationId++;
-    }
-
-    var blockKey = block.getKey();
-    var key;
-    var decorationId = 0;
-    var decorated = this.decorated;
-    decorated[blockKey] = {};
-
-    this.strategy(block, callback);
-
-    return Immutable.List(decorations);
-};
-
-/**
- * Return component to render a decoration
- * @param {String} key
- * @return {Function}
- */
-SimpleDecorator.prototype.getComponentForKey = function(key) {
-    return this.getComponent;
-};
-
-/**
- * Return props to render a decoration
- * @param {String} key
- * @return {Object}
- */
-SimpleDecorator.prototype.getPropsForKey = function(key) {
-    var parts = key.split(KEY_SEPARATOR);
-    var blockKey = parts[0];
-    var decorationId = parts[1];
-    return this.decorated[blockKey][decorationId];
-};
-
-function decorateRange(decorationsArray, start, end, key) {
-    for (var ii = start; ii < end; ii++) {
-        decorationsArray[ii] = key;
-    }
-}
-
-module.exports = SimpleDecorator;
 });
 
 require.register("utils/utils.coffee", function(exports, require, module) {

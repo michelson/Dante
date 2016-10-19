@@ -4,21 +4,31 @@ ReactDOM = require('react-dom')
 Immutable = require('immutable')
 { Map } = require('immutable')
 {
-  convertToRaw,
-  CompositeDecorator,
-  getVisibleSelectionRect,
-  getDefaultKeyBinding, 
-  getSelectionOffsetKeyForNode,
-  KeyBindingUtil,
-  ContentState,
-  Editor,
-  EditorState,
-  Entity,
+  convertToRaw
+  convertFromRaw
+  CompositeDecorator
+  getVisibleSelectionRect
+  getDefaultKeyBinding
+  getSelectionOffsetKeyForNode
+  KeyBindingUtil
+  ContentState
+  Editor
+  EditorState
+  Entity
   RichUtils
   DefaultDraftBlockRenderMap
+  SelectionState
 } = require('draft-js')
 
-SimpleDecorator = require("../utils/simple_decorator")
+DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor')
+
+{stateToHTML} = require('draft-js-export-html')
+{
+  convertToHTML
+  convertFromHTML
+} = require('draft-convert')
+
+toHTML = require("../utils/convert_html.js.es6")
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 
@@ -29,6 +39,8 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
   getCurrentBlock
   addNewBlockAt
 } = require('../model/index.js.es6')
+
+createEditorState = require('../model/content.js.es6')
 
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
@@ -57,14 +69,21 @@ EmbedBlock = require('./blocks/embed.cjsx')
 VideoBlock = require('./blocks/video.cjsx')
 PlaceholderBlock = require('./blocks/placeholder.cjsx')
 
+PocData = require('../data/poc.js')
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
 
 class Dante 
   constructor: ->
     console.log "init editor!"
+
+  getContent: ->
+    # '{"entityMap":{},"blocks":[{"key":"6aii0","text":"demo content link ","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":5,"length":7,"style":"BOLD"}],"entityRanges":[],"data":{}},{"key":"aorns","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"selected":false,"caption":"Type caption for image","width":960,"height":720,"url":"blob:http://localhost:3333/95d035eb-deac-47e5-b9f3-1ecefb610616","aspect_ratio":{"width":960,"height":720,"ratio":75}}}]}'
+    # '{"entityMap":{},"blocks":[{"key":"eecu1","text":"ttp://google.com","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"http://www.google.com","url":"http://www.google.com/","thumbnail_width":272,"version":"1.0","title":"Google","provider_name":"Google","type":"link","thumbnail_height":92,"thumbnail_url":"http://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png","description":"Search the world\'s information, including webpages, images, videos and more. Google has many special features to help you find exactly what you\'re looking for."}}}]}'
+    # {"entityMap":{},"blocks":[{"key":"eecu1","text":"ttp://google.com","type":"embed","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"http://www.google.com","url":"http://www.google.com/","thumbnail_width":272,"version":"1.0","title":"Google","provider_name":"Google","type":"link","thumbnail_height":92,"thumbnail_url":"http://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png","description":"Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking for."}}},{"key":"f9mnf","text":"ttps://www.youtube.com/watch?v=KPJgtQwtVVA&feature=youtu.be","type":"video","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"embed_data":{"provider_url":"https://www.youtube.com/","width":854,"height":480,"html":"<iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.co….jpg&key=d42b91026ea041c0875fd61ff736cb79&type=text%2Fhtml&schema=youtube\" width=\"854\" height=\"480\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>","url":"http://www.youtube.com/watch?v=KPJgtQwtVVA","thumbnail_width":480,"version":"1.0","title":"When Eric Clapton met Jimi Hendrix","provider_name":"YouTube","type":"video","thumbnail_height":360,"author_url":"https://www.youtube.com/user/Mrjamesanonymous","thumbnail_url":"https://i.ytimg.com/vi/KPJgtQwtVVA/hqdefault.jpg","description":"An excerpt from the bbc documentary 'the seven ages of rock - Episode 1 the birth of rock'.","author_name":"Mrjamesanonymous"}}}]}
+    PocData
   render: ->
-    ReactDOM.render(<DanteEditor/>, document.getElementById('app'))
+    ReactDOM.render(<DanteEditor content={@getContent()}/>, document.getElementById('app'))
 
 class DanteEditor extends React.Component
   constructor: (props) ->
@@ -77,41 +96,6 @@ class DanteEditor extends React.Component
         component: Link
       }
     ])
-
-
-    # TODO sacar esta guea, dejar decorator normal
-    # intentar pasar estos customProps en la creacion del link entity en toolTip
-    ###
-    @decorator2 = new SimpleDecorator(
-      strategy = (contentBlock, callback)=>
-        ed = @state.editorState.getSelection()
-        
-        # providing custom props!
-        customProps = {
-          showPopLinkOver: @showPopLinkOver 
-          hidePopLinkOver: @hidePopLinkOver
-        }
-        callback(ed.getStartOffset(), ed.getEndOffset(), customProps);
-    
-      component = (props)=>
-        return (
-          <Link 
-            {...props}
-          />
-        )
-    )
-    ###
-
-    ###
-    blockRenderMap = Immutable.Map({
-      'header-two': {
-       element: 'h2'
-      },
-      'unstyled': {
-        element: 'h2'
-      }
-    });
-    ###
 
     @.blockRenderMap = Map({
         "image":
@@ -157,7 +141,7 @@ class DanteEditor extends React.Component
           return "graf graf--p #{is_selected}"
 
     @state = 
-      editorState: EditorState.createEmpty(@decorator)
+      editorState: @initializeState() #EditorState.createEmpty(@decorator)
       display_toolbar: false
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
@@ -234,13 +218,69 @@ class DanteEditor extends React.Component
 
     optionsForDecorator: ()->
       @state
-   
 
+
+  initializeState: ()=>
+    if @.props.content #and @.props.content.trim() isnt ""
+      #processedHTML = DraftPasteProcessor.processHTML(@.props.content)
+      #contentState = ContentState.createFromBlockArray(processedHTML)
+      # move focus to the end. 
+      #editorState = EditorState.createWithContent(contentState)
+      #editorState = EditorState.moveFocusToEnd(editorState)
+      
+      ###
+      #TODO: support entities
+      html = convertFromHTML(
+        htmlToEntity: (nodeName, node) =>
+          if nodeName is 'avv'
+            return Entity.create(
+              'LINK',
+              'MUTABLE',
+              {url: node.href}
+            )
+      )(@.props.content)
+      ###
+
+
+      #editorState = EditorState.createWithContent(html, @decorator)
+
+      @decodeEditorContent(@props.content)
+            
+      #debugger
+      #createEditorState.default(@props.content, @decorator)
+    else 
+      EditorState.createEmpty(@decorator)
+
+  refreshSelection: (newEditorState)=>
+    editorState     = @.state.editorState
+    # Setting cursor position after inserting to content
+    s = @.state.editorState.getSelection()
+    c = editorState.getCurrentContent()
+
+    selectionState = SelectionState.createEmpty(s.getAnchorKey())
+    focusOffset = s.getFocusOffset()
+    anchorKey = s.getAnchorKey()
+    console.log anchorKey, focusOffset
+    selectionState = selectionState.merge({
+      anchorOffset: focusOffset,
+      focusKey: anchorKey,
+      focusOffset: focusOffset,
+    })
+
+    newState = EditorState.forceSelection(newEditorState, selectionState)
+    
+    @onChange(newState)
+  
   forceRender: ()=>
     editorState     = @.state.editorState
+    selection       = @.state.editorState.getSelection()
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
-    @.setState({editorState: newEditorState})
+
+    @onChange(newEditorState)
+
+    @refreshSelection(newEditorState)
+    
     setTimeout =>
       @getPositionForCurrent()
     , 0
@@ -294,6 +334,68 @@ class DanteEditor extends React.Component
     @setState({ editorState });
     console.log "CHANGES!"
 
+  emitHTML: (editorState)=>
+
+    options =
+      blockRenderers:
+        #TODO: ver como funciona con los blocks
+        ATOMIC: (block) =>
+          data = block.getData();
+          if data.foo is 'bar'
+            return '<div>' + escape(block.getText()) + '</div>'
+        image: (block) =>
+          debugger
+          return "<div>aca va tu foto oe</div>"
+
+    #.state.editorState.getCurrentContent()
+    #raw = convertToRaw( @state.editorState.getCurrentContent() )
+    #html = stateToHTML(this.state.editorState.getCurrentContent(), options)
+    #html = stateToHTML(@state.editorState);
+    #html = draftRawToHtml(raw);
+    #this.props.onChange(html);
+
+    html = toHTML(@state.editorState.getCurrentContent())
+
+    console.log html
+    return false
+
+  emitSerializedOutput: =>
+    #s = @state.editorState.getCurrentContent()
+    
+    raw = convertToRaw( @state.editorState.getCurrentContent() )
+    console.log raw
+
+    #raw_as_json = JSON.stringify(raw)
+    #console.log raw_as_json
+    #raw_as_json
+    raw
+
+  decodeEditorContent: (raw_as_json)=>
+    #new_content = convertFromRaw(JSON.parse(raw_as_json))
+    new_content = convertFromRaw(raw_as_json)
+    editorState = EditorState.createWithContent(new_content, @decorator)
+
+  testEmitAndDecode: =>
+
+    raw_as_json = @emitSerializedOutput()
+
+    @setState
+      editorState: @decodeEditorContent(raw_as_json)
+
+    false
+
+  emitHTML2: ()->
+
+    html = convertToHTML(
+      entityToHTML: (entity, originalText) => 
+        if entity.type is 'LINK'
+          return "<a href=\"#{entity.data.url}\">#{originalText}</a>"
+        else
+          return originalText
+ 
+    )(@.state.editorState.getCurrentContent())
+    #html = convertToHTML(@.state.editorState.getCurrentContent())
+
   setCurrentComponent: (component)=>
     @setState
       current_component: component
@@ -307,40 +409,18 @@ class DanteEditor extends React.Component
 
         #return null unless entity
         entity_type = Entity.get(entity).getType()
-        
-        ###
-        if entity_type is 'atomic:image'
-          return (
-            component: ImageBlock
-            #editable: true
-            props:
-              foo: 'bar'
-          )
 
-        else if entity_type is 'atomic:video'
-          return (
-            component: EmbedBlock
-            editable: false
-            props:
-              foo: 'bar'
-          )
-
-        else if entity_type is 'atomic:embed'
-          return (
-            component: ExtractBlock
-            editable: true
-            props:
-              foo: 'bar'
-          )
-        ###
       when 'image'
         return (
             component: ImageBlock
             editable: true
             props:
-              data: @state.current_input
+              data:
+                src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
+                file: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
               directions: @state.image_directions
-              setCurrentComponent: @setCurrentComponent
           )
 
       when 'embed'
@@ -349,6 +429,8 @@ class DanteEditor extends React.Component
             editable: true
             props:
               data: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
           )
 
       when 'video'
@@ -357,6 +439,8 @@ class DanteEditor extends React.Component
             editable: true
             props:
               data: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
           )
 
       when 'placeholder'
@@ -478,6 +562,9 @@ class DanteEditor extends React.Component
   focus: () => 
     #@.refs.editor.focus()
     document.getElementById('richEditor').focus()
+
+  getEditorState: =>
+    @state.editorState
 
   handleOnChange: ->
     @relocateMenu()
@@ -669,7 +756,10 @@ class DanteEditor extends React.Component
     #debugger
     #TODO: reset block
     #@onChange(@state.editorState)
+
     @forceRender()
+
+
 
   handleShowPopLinkOver: (e)=>
     @showPopLinkOver()
@@ -737,6 +827,7 @@ class DanteEditor extends React.Component
 
     return (
       <div id="content" suppressContentEditableWarning={true}>
+
         <article className="postArticle">
           <div className="postContent">
             <div className="notesSource">
@@ -772,7 +863,7 @@ class DanteEditor extends React.Component
               </div>
             </div>
           </div>
-        </article>  
+        </article>
 
         <DanteTooltip
           editorState={@state.editorState} 
@@ -822,6 +913,18 @@ class DanteEditor extends React.Component
         />
         
 
+        <ul>
+          <li>
+            <a href="#" onClick={@emitHTML}>
+              get content
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={@testEmitAndDecode}>
+              serialize and set content
+            </a>
+          </li>
+        </ul>
       </div>
     ) 
 

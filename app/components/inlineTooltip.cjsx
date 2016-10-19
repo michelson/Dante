@@ -112,7 +112,7 @@ class DanteInlineTooltip extends React.Component
     @props.closeInlineButton()
 
   insertImage: (file) =>
-    @props.setCurrentInput URL.createObjectURL(file), ()=>
+    @props.setCurrentInput file, ()=>
       @props.onChange(addNewBlock(@props.editorState, 'image'));
 
     #entityKey = Entity.create('atomic:image', 'IMMUTABLE', {src: URL.createObjectURL(file)})

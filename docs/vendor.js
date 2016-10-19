@@ -150,6 +150,2312 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 
+require.register("draft-convert/lib/blockEntities.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _updateMutation = require('./util/updateMutation');
+
+var _updateMutation2 = _interopRequireDefault(_updateMutation);
+
+var _rangeSort = require('./util/rangeSort');
+
+var _rangeSort2 = _interopRequireDefault(_rangeSort);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var converter = function converter() {
+  var entity = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var originalText = arguments[1];
+
+  switch (entity.type) {
+    case 'mergeTag':
+      return '{{ ' + entity.data.prefix + '.' + entity.data.property + ' }}';
+    case 'LINK':
+      return '<a href="' + entity.data.url + '">' + originalText + '</a>';
+    default:
+      return originalText;
+  }
+};
+
+exports.default = function (block, entityMap) {
+  var entityConverter = arguments.length <= 2 || arguments[2] === undefined ? converter : arguments[2];
+
+  var resultText = block.text;
+
+  if (block.hasOwnProperty('entityRanges') && block.entityRanges.length > 0) {
+    var entities = block.entityRanges.sort(_rangeSort2.default);
+
+    var styles = block.inlineStyleRanges;
+
+    var _loop = function _loop(index) {
+      var entityRange = entities[index];
+      var entity = entityMap[entityRange.key];
+
+      var originalText = resultText.substr(entityRange.offset, entityRange.length);
+
+      var converted = entityConverter(entity, originalText) || originalText;
+
+      var updateLaterMutation = function updateLaterMutation(mutation, mutationIndex) {
+        if (mutationIndex >= index || mutation.hasOwnProperty('style')) {
+          return (0, _updateMutation2.default)(mutation, entityRange.offset, entityRange.length, converted.length);
+        }
+        return mutation;
+      };
+
+      entities = entities.map(updateLaterMutation);
+      styles = styles.map(updateLaterMutation);
+
+      resultText = resultText.substring(0, entityRange.offset) + converted + resultText.substring(entityRange.offset + entityRange.length);
+    };
+
+    for (var index = 0; index < entities.length; index++) {
+      _loop(index);
+    }
+
+    return Object.assign({}, block, {
+      text: resultText,
+      inlineStyleRanges: styles,
+      entityRanges: entities
+    });
+  }
+
+  return block;
+};
+  })();
+});
+
+require.register("draft-convert/lib/blockInlineStyles.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _defaultInlineHTML = require('./default/defaultInlineHTML');
+
+var _defaultInlineHTML2 = _interopRequireDefault(_defaultInlineHTML);
+
+var _rangeSort = require('./util/rangeSort');
+
+var _rangeSort2 = _interopRequireDefault(_rangeSort);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var subtractStyles = function subtractStyles(original, toRemove) {
+  return original.filter(function (el) {
+    return !toRemove.some(function (elToRemove) {
+      return elToRemove.style === el.style;
+    });
+  });
+};
+
+var popEndingStyles = function popEndingStyles(styleStack, endingStyles) {
+  return endingStyles.reduceRight(function (stack, style) {
+    var styleToRemove = stack[stack.length - 1];
+
+    (0, _invariant2.default)(styleToRemove.style === style.style, 'Style ' + styleToRemove.style + ' to be removed doesn\'t match expected ' + style.style);
+
+    return stack.slice(0, -1);
+  }, styleStack);
+};
+
+var characterStyles = function characterStyles(offset, ranges) {
+  return ranges.filter(function (range) {
+    return offset >= range.offset && offset < range.offset + range.length;
+  });
+};
+
+var rangeIsSubset = function rangeIsSubset(firstRange, secondRange) {
+  // returns true if the second range is a subset of the first
+  var secondStartWithinFirst = firstRange.offset <= secondRange.offset;
+  var secondEndWithinFirst = firstRange.offset + firstRange.length >= secondRange.offset + secondRange.length;
+
+  return secondStartWithinFirst && secondEndWithinFirst;
+};
+
+var latestStyleLast = function latestStyleLast(s1, s2) {
+  // make sure longer-lasting styles are added first
+  var s2endIndex = s2.offset + s2.length;
+  var s1endIndex = s1.offset + s1.length;
+  return s2endIndex - s1endIndex;
+};
+
+var getStylesToReset = function getStylesToReset(remainingStyles, newStyles) {
+  var i = 0;
+  while (i < remainingStyles.length) {
+    if (newStyles.every(rangeIsSubset.bind(null, remainingStyles[i]))) {
+      i++;
+    } else {
+      return remainingStyles.slice(i);
+    }
+  }
+  return [];
+};
+
+var appendStartMarkup = function appendStartMarkup(inlineMarkup, string, styleRange) {
+  return string + inlineMarkup[styleRange.style].start;
+};
+
+var prependEndMarkup = function prependEndMarkup(inlineMarkup, string, styleRange) {
+  return inlineMarkup[styleRange.style].end + string;
+};
+
+exports.default = function (rawBlock) {
+  var customInlineMarkup = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  (0, _invariant2.default)(rawBlock !== null && rawBlock !== undefined, 'Expected raw block to be non-null');
+
+  var inlineMarkup = Object.assign({}, _defaultInlineHTML2.default, customInlineMarkup);
+
+  var result = '';
+  var styleStack = [];
+
+  var sortedRanges = rawBlock.inlineStyleRanges.sort(_rangeSort2.default);
+
+  for (var i = 0; i < rawBlock.text.length; i++) {
+    var styles = characterStyles(i, sortedRanges);
+
+    var endingStyles = subtractStyles(styleStack, styles);
+    var newStyles = subtractStyles(styles, styleStack);
+    var remainingStyles = subtractStyles(styleStack, endingStyles);
+
+    // reset styles: look for any already existing styles that will need to
+    // end before styles that are being added on this character. to solve this
+    // close out those current tags and all nested children,
+    // then open new ones nested within the new styles.
+    var resetStyles = getStylesToReset(remainingStyles, newStyles);
+
+    var openingStyles = resetStyles.concat(newStyles).sort(latestStyleLast);
+
+    var openingStyleTags = openingStyles.reduce(appendStartMarkup.bind(null, inlineMarkup), '');
+    var endingStyleTags = endingStyles.concat(resetStyles).reduce(prependEndMarkup.bind(null, inlineMarkup), '');
+
+    result += endingStyleTags + openingStyleTags + rawBlock.text[i];
+
+    styleStack = popEndingStyles(styleStack, resetStyles.concat(endingStyles));
+    styleStack = styleStack.concat(openingStyles);
+
+    (0, _invariant2.default)(styleStack.length === styles.length, 'Character ' + i + ': ' + (styleStack.length - styles.length) + ' styles left on stack that should no longer be there');
+  }
+
+  result = styleStack.reduceRight(function (res, openStyle) {
+    return res + inlineMarkup[openStyle.style].end;
+  }, result);
+
+  return result;
+};
+  })();
+});
+
+require.register("draft-convert/lib/convertFromHTML.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; }; /**
+                                                                                                                                                                                                                                                   * Copyright (c) 2013-present, Facebook, Inc.
+                                                                                                                                                                                                                                                   * All rights reserved.
+                                                                                                                                                                                                                                                   *
+                                                                                                                                                                                                                                                   * Copyright (c) 2013-present, Facebook, Inc.
+                                                                                                                                                                                                                                                   * All rights reserved.
+                                                                                                                                                                                                                                                   *
+                                                                                                                                                                                                                                                   * This source code is licensed under the BSD-style license found in the
+                                                                                                                                                                                                                                                   * LICENSE file in the /src directory of this source tree. An additional grant
+                                                                                                                                                                                                                                                   * of patent rights can be found in the PATENTS file in the same directory.
+                                                                                                                                                                                                                                                   */
+
+var _immutable = require('immutable');
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _draftJs = require('draft-js');
+
+var _parseHTML = require('./util/parseHTML');
+
+var _parseHTML2 = _interopRequireDefault(_parseHTML);
+
+var _rangeSort = require('./util/rangeSort');
+
+var _rangeSort2 = _interopRequireDefault(_rangeSort);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var NBSP = '&nbsp;';
+var SPACE = ' ';
+
+// Arbitrary max indent
+var MAX_DEPTH = 4;
+
+// used for replacing characters in HTML
+/* eslint-disable no-control-regex */
+var REGEX_CR = new RegExp('\r', 'g');
+var REGEX_LF = new RegExp('\n', 'g');
+var REGEX_NBSP = new RegExp(NBSP, 'g');
+var REGEX_BLOCK_DELIMITER = new RegExp('\r', 'g');
+/* eslint-enable no-control-regex */
+
+// Block tag flow is different because LIs do not have
+// a deterministic style ;_;
+var blockTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'pre'];
+var inlineTags = {
+  b: 'BOLD',
+  code: 'CODE',
+  del: 'STRIKETHROUGH',
+  em: 'ITALIC',
+  i: 'ITALIC',
+  s: 'STRIKETHROUGH',
+  strike: 'STRIKETHROUGH',
+  strong: 'BOLD',
+  u: 'UNDERLINE'
+};
+
+var lastBlock = void 0;
+
+var defaultHTMLToBlock = function defaultHTMLToBlock(nodeName, node, lastList) {
+  return undefined;
+};
+
+var defaultHTMLToStyle = function defaultHTMLToStyle(nodeName, node, currentStyle) {
+  return currentStyle;
+};
+
+var defaultHTMLToEntity = function defaultHTMLToEntity(nodeName, node) {
+  return undefined;
+};
+
+var defaultTextToEntity = function defaultTextToEntity(text) {
+  return [];
+};
+
+var nullthrows = function nullthrows(x) {
+  if (x != null) {
+    return x;
+  }
+  throw new Error('Got unexpected null or undefined');
+};
+
+var sanitizeDraftText = function sanitizeDraftText(input) {
+  return input.replace(REGEX_BLOCK_DELIMITER, '');
+};
+
+function getEmptyChunk() {
+  return {
+    text: '',
+    inlines: [],
+    entities: [],
+    blocks: []
+  };
+}
+
+function getWhitespaceChunk(inEntity) {
+  var entities = new Array(1);
+  if (inEntity) {
+    entities[0] = inEntity;
+  }
+  return {
+    text: SPACE,
+    inlines: [(0, _immutable.OrderedSet)()],
+    entities: entities,
+    blocks: []
+  };
+}
+
+function getSoftNewlineChunk(block, depth) {
+  var data = arguments.length <= 2 || arguments[2] === undefined ? (0, _immutable.Map)() : arguments[2];
+
+  return {
+    text: '\r',
+    inlines: [(0, _immutable.OrderedSet)()],
+    entities: new Array(1),
+    blocks: [{
+      type: block,
+      data: data,
+      depth: Math.max(0, Math.min(MAX_DEPTH, depth))
+    }],
+    isNewline: true
+  };
+}
+
+function getBlockDividerChunk(block, depth) {
+  var data = arguments.length <= 2 || arguments[2] === undefined ? (0, _immutable.Map)() : arguments[2];
+
+  return {
+    text: '\r',
+    inlines: [(0, _immutable.OrderedSet)()],
+    entities: new Array(1),
+    blocks: [{
+      type: block,
+      data: data,
+      depth: Math.max(0, Math.min(MAX_DEPTH, depth))
+    }]
+  };
+}
+
+function getBlockTypeForTag(tag, lastList) {
+  switch (tag) {
+    case 'h1':
+      return 'header-one';
+    case 'h2':
+      return 'header-two';
+    case 'h3':
+      return 'header-three';
+    case 'h4':
+      return 'header-four';
+    case 'h5':
+      return 'header-five';
+    case 'h6':
+      return 'header-six';
+    case 'li':
+      if (lastList === 'ol') {
+        return 'ordered-list-item';
+      }
+      return 'unordered-list-item';
+    case 'blockquote':
+      return 'blockquote';
+    case 'pre':
+      return 'code-block';
+    default:
+      return 'unstyled';
+  }
+}
+
+function processInlineTag(tag, node, currentStyle) {
+  var styleToCheck = inlineTags[tag];
+  if (styleToCheck) {
+    currentStyle = currentStyle.add(styleToCheck).toOrderedSet();
+  } else if (node instanceof HTMLElement) {
+    (function () {
+      var htmlElement = node;
+      currentStyle = currentStyle.withMutations(function (style) {
+        if (htmlElement.style.fontWeight === 'bold') {
+          style.add('BOLD');
+        }
+
+        if (htmlElement.style.fontStyle === 'italic') {
+          style.add('ITALIC');
+        }
+
+        if (htmlElement.style.textDecoration === 'underline') {
+          style.add('UNDERLINE');
+        }
+
+        if (htmlElement.style.textDecoration === 'line-through') {
+          style.add('STRIKETHROUGH');
+        }
+      }).toOrderedSet();
+    })();
+  }
+  return currentStyle;
+}
+
+function joinChunks(A, B) {
+  // Sometimes two blocks will touch in the DOM and we need to strip the
+  // extra delimiter to preserve niceness.
+  var firstInB = B.text.slice(0, 1);
+  var lastInA = A.text.slice(-1);
+
+  var adjacentDividers = lastInA === '\r' && firstInB === '\r';
+  var isJoiningBlocks = A.text !== '\r' && B.text !== '\r'; // when joining two full blocks like this we want to pop one divider
+  var addingNewlineToEmptyBlock = A.text === '\r' && !A.isNewline && B.isNewline; // when joining a newline to an empty block we want to remove the newline
+
+  if (adjacentDividers && (isJoiningBlocks || addingNewlineToEmptyBlock)) {
+    A.text = A.text.slice(0, -1);
+    A.inlines.pop();
+    A.entities.pop();
+    A.blocks.pop();
+  }
+
+  // Kill whitespace after blocks
+  if (A.text.slice(-1) === '\r') {
+    if (B.text === SPACE || B.text === '\n') {
+      return A;
+    } else if (firstInB === SPACE || firstInB === '\n') {
+      B.text = B.text.slice(1);
+      B.inlines.shift();
+      B.entities.shift();
+    }
+  }
+
+  var isNewline = A.text.length === 0 && B.isNewline;
+
+  return {
+    text: A.text + B.text,
+    inlines: A.inlines.concat(B.inlines),
+    entities: A.entities.concat(B.entities),
+    blocks: A.blocks.concat(B.blocks),
+    isNewline: isNewline
+  };
+}
+
+/**
+ * Check to see if we have anything like <p> <blockquote> <h1>... to create
+ * block tags from. If we do, we can use those and ignore <div> tags. If we
+ * don't, we can treat <div> tags as meaningful (unstyled) blocks.
+ */
+function containsSemanticBlockMarkup(html) {
+  return blockTags.some(function (tag) {
+    return html.indexOf('<' + tag) !== -1;
+  });
+}
+
+function genFragment(node, inlineStyle, lastList, inBlock, blockTags, depth, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, inEntity) {
+  var nodeName = node.nodeName.toLowerCase();
+  var newBlock = false;
+  var nextBlockType = 'unstyled';
+  var lastLastBlock = lastBlock;
+
+  // Base Case
+  if (nodeName === '#text') {
+    var _ret2 = function () {
+      var text = node.textContent;
+      if (text.trim() === '' && inBlock !== 'code-block') {
+        return {
+          v: getWhitespaceChunk(inEntity)
+        };
+      }
+      if (inBlock !== 'code-block') {
+        // Can't use empty string because MSWord
+        text = text.replace(REGEX_LF, SPACE);
+      }
+
+      // save the last block so we can use it later
+      lastBlock = nodeName;
+
+      var entities = Array(text.length).fill(inEntity);
+
+      var offsetChange = 0;
+      var textEntities = checkEntityText(text).sort(_rangeSort2.default);
+      textEntities.forEach(function (_ref) {
+        var entity = _ref.entity;
+        var offset = _ref.offset;
+        var length = _ref.length;
+        var result = _ref.result;
+
+        var adjustedOffset = offset + offsetChange;
+
+        if (result === null || result === undefined) {
+          result = text.substr(adjustedOffset, length);
+        }
+
+        var textArray = text.split('');
+        textArray.splice.bind(textArray, adjustedOffset, length).apply(textArray, result.split(''));
+        text = textArray.join('');
+
+        entities.splice.bind(entities, adjustedOffset, length).apply(entities, Array(result.length).fill(entity));
+        offsetChange += result.length - length;
+      });
+
+      return {
+        v: {
+          text: text,
+          inlines: Array(text.length).fill(inlineStyle),
+          entities: entities,
+          blocks: []
+        }
+      };
+    }();
+
+    if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+  }
+
+  // save the last block so we can use it later
+  lastBlock = nodeName;
+
+  // BR tags
+  if (nodeName === 'br') {
+    var _blockType = inBlock;
+    return getSoftNewlineChunk(_blockType || 'unstyled', depth);
+  }
+
+  var chunk = getEmptyChunk();
+  var newChunk = null;
+
+  // Inline tags
+  inlineStyle = processInlineTag(nodeName, node, inlineStyle);
+  inlineStyle = processCustomInlineStyles(nodeName, node, inlineStyle);
+
+  // Handle lists
+  if (nodeName === 'ul' || nodeName === 'ol') {
+    if (lastList) {
+      depth += 1;
+    }
+    lastList = nodeName;
+    inBlock = null;
+  }
+
+  // Block Tags
+  var blockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
+  var blockType = void 0;
+  var blockDataMap = void 0;
+  if (typeof blockInfo === 'string') {
+    blockType = blockInfo;
+    blockDataMap = (0, _immutable.Map)();
+  } else {
+    blockType = typeof blockInfo === 'string' ? blockInfo : blockInfo.type;
+    blockDataMap = blockInfo.data ? (0, _immutable.Map)(blockInfo.data) : (0, _immutable.Map)();
+  }
+  if (!inBlock && (blockTags.indexOf(nodeName) !== -1 || blockType)) {
+    chunk = getBlockDividerChunk(blockType || getBlockTypeForTag(nodeName, lastList), depth, blockDataMap);
+    inBlock = blockType || getBlockTypeForTag(nodeName, lastList);
+    newBlock = true;
+  } else if (lastList && (inBlock === 'ordered-list-item' || inBlock === 'unordered-list-item') && nodeName === 'li') {
+    var listItemBlockType = getBlockTypeForTag(nodeName, lastList);
+    chunk = getBlockDividerChunk(listItemBlockType, depth);
+    inBlock = listItemBlockType;
+    newBlock = true;
+    nextBlockType = lastList === 'ul' ? 'unordered-list-item' : 'ordered-list-item';
+  } else if (inBlock && inBlock !== 'atomic' && blockType === 'atomic') {
+    inBlock = blockType;
+    newBlock = true;
+    chunk = getSoftNewlineChunk(blockType, depth, blockDataMap);
+  }
+
+  // Recurse through children
+  var child = node.firstChild;
+
+  // hack to allow conversion of atomic blocks from HTML (e.g. <figure><img
+  // src="..." /></figure>). since metadata must be stored on an entity text
+  // must exist for the entity to apply to. the way chunks are joined strips
+  // whitespace at the end so it cannot be a space character.
+
+  if (child == null && inEntity && (blockType === 'atomic' || inBlock === 'atomic')) {
+    child = document.createTextNode('a');
+  }
+
+  if (child != null) {
+    nodeName = child.nodeName.toLowerCase();
+  }
+
+  var entityId = null;
+  var href = null;
+
+  while (child) {
+    entityId = checkEntityNode(nodeName, child);
+
+    newChunk = genFragment(child, inlineStyle, lastList, inBlock, blockTags, depth, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, entityId || inEntity);
+
+    chunk = joinChunks(chunk, newChunk);
+    var sibling = child.nextSibling;
+
+    // Put in a newline to break up blocks inside blocks
+    if (sibling && blockTags.indexOf(nodeName) >= 0 && inBlock) {
+      var newBlockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
+
+      var newBlockType = void 0;
+      var newBlockData = void 0;
+
+      if (typeof newBlockInfo === 'string') {
+        newBlockType = newBlockInfo;
+        newBlockData = (0, _immutable.Map)();
+      } else {
+        newBlockType = newBlockInfo.type || getBlockTypeForTag(nodeName, lastList);
+        newBlockData = newBlockInfo.data ? (0, _immutable.Map)(newBlockInfo.data) : (0, _immutable.Map)();
+      }
+
+      chunk = joinChunks(chunk, getSoftNewlineChunk(newBlockType, depth, newBlockData));
+    }
+    if (sibling) {
+      nodeName = sibling.nodeName.toLowerCase();
+    }
+    child = sibling;
+  }
+
+  if (newBlock) {
+    chunk = joinChunks(chunk, getBlockDividerChunk(nextBlockType, depth, (0, _immutable.Map)()));
+  }
+
+  return chunk;
+}
+
+function getChunkForHTML(html, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, DOMBuilder) {
+  html = html.trim().replace(REGEX_CR, '').replace(REGEX_NBSP, SPACE);
+
+  var safeBody = DOMBuilder(html);
+  if (!safeBody) {
+    return null;
+  }
+  lastBlock = null;
+
+  // Sometimes we aren't dealing with content that contains nice semantic
+  // tags. In this case, use divs to separate everything out into paragraphs
+  // and hope for the best.
+  var workingBlocks = containsSemanticBlockMarkup(html) ? blockTags.concat(['div']) : ['div'];
+
+  // Start with -1 block depth to offset the fact that we are passing in a fake
+  // UL block to sta rt with.
+  var chunk = genFragment(safeBody, (0, _immutable.OrderedSet)(), 'ul', null, workingBlocks, -1, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType);
+
+  // join with previous block to prevent weirdness on paste
+  if (chunk.text.indexOf('\r') === 0) {
+    chunk = {
+      text: chunk.text.slice(1),
+      inlines: chunk.inlines.slice(1),
+      entities: chunk.entities.slice(1),
+      blocks: chunk.blocks
+    };
+  }
+
+  // Kill block delimiter at the end
+  if (chunk.text.slice(-1) === '\r') {
+    chunk.text = chunk.text.slice(0, -1);
+    chunk.inlines = chunk.inlines.slice(0, -1);
+    chunk.entities = chunk.entities.slice(0, -1);
+    chunk.blocks.pop();
+  }
+
+  // If we saw no block tags, put an unstyled one in
+  if (chunk.blocks.length === 0) {
+    chunk.blocks.push({ type: 'unstyled', data: (0, _immutable.Map)(), depth: 0 });
+  }
+
+  // Sometimes we start with text that isn't in a block, which is then
+  // followed by blocks. Need to fix up the blocks to add in
+  // an unstyled block for this content
+  if (chunk.text.split('\r').length === chunk.blocks.length + 1) {
+    chunk.blocks.unshift({ type: 'unstyled', data: (0, _immutable.Map)(), depth: 0 });
+  }
+
+  return chunk;
+}
+
+function convertFromHTMLtoContentBlocks(html, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, DOMBuilder) {
+  // Be ABSOLUTELY SURE that the dom builder you pass hare won't execute
+  // arbitrary code in whatever environment you're running this in. For an
+  // example of how we try to do this in-browser, see getSafeBodyFromHTML.
+
+  var chunk = getChunkForHTML(html, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, DOMBuilder);
+  if (chunk == null) {
+    return [];
+  }
+  var start = 0;
+  return chunk.text.split('\r').map(function (textBlock, ii) {
+    // Make absolutely certain that our text is acceptable.
+    textBlock = sanitizeDraftText(textBlock);
+    var end = start + textBlock.length;
+    var inlines = nullthrows(chunk).inlines.slice(start, end);
+    var entities = nullthrows(chunk).entities.slice(start, end);
+    var characterList = (0, _immutable.List)(inlines.map(function (style, ii) {
+      var data = { style: style, entity: null };
+      if (entities[ii]) {
+        data.entity = entities[ii];
+      }
+      return _draftJs.CharacterMetadata.create(data);
+    }));
+    start = end + 1;
+
+    return new _draftJs.ContentBlock({
+      key: (0, _draftJs.genKey)(),
+      type: nullthrows(chunk).blocks[ii].type,
+      data: nullthrows(chunk).blocks[ii].data,
+      depth: nullthrows(chunk).blocks[ii].depth,
+      text: textBlock,
+      characterList: characterList
+    });
+  });
+}
+
+var convertFromHTML = function convertFromHTML(_ref2) {
+  var _ref2$htmlToStyle = _ref2.htmlToStyle;
+  var htmlToStyle = _ref2$htmlToStyle === undefined ? defaultHTMLToStyle : _ref2$htmlToStyle;
+  var _ref2$htmlToEntity = _ref2.htmlToEntity;
+  var htmlToEntity = _ref2$htmlToEntity === undefined ? defaultHTMLToEntity : _ref2$htmlToEntity;
+  var _ref2$textToEntity = _ref2.textToEntity;
+  var textToEntity = _ref2$textToEntity === undefined ? defaultTextToEntity : _ref2$textToEntity;
+  var _ref2$htmlToBlock = _ref2.htmlToBlock;
+  var htmlToBlock = _ref2$htmlToBlock === undefined ? defaultHTMLToBlock : _ref2$htmlToBlock;
+  return function (html) {
+    var DOMBuilder = arguments.length <= 1 || arguments[1] === undefined ? _parseHTML2.default : arguments[1];
+
+    return _draftJs.ContentState.createFromBlockArray(convertFromHTMLtoContentBlocks(html, htmlToStyle, htmlToEntity, textToEntity, htmlToBlock, DOMBuilder));
+  };
+};
+
+exports.default = function () {
+  if (arguments.length >= 1 && typeof (arguments.length <= 0 ? undefined : arguments[0]) === 'string') {
+    return convertFromHTML({}).apply(undefined, arguments);
+  } else {
+    return convertFromHTML.apply(undefined, arguments);
+  }
+};
+  })();
+});
+
+require.register("draft-convert/lib/convertToHTML.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _draftJs = require('draft-js');
+
+var _encodeBlock = require('./encodeBlock');
+
+var _encodeBlock2 = _interopRequireDefault(_encodeBlock);
+
+var _blockEntities = require('./blockEntities');
+
+var _blockEntities2 = _interopRequireDefault(_blockEntities);
+
+var _blockInlineStyles = require('./blockInlineStyles');
+
+var _blockInlineStyles2 = _interopRequireDefault(_blockInlineStyles);
+
+var _defaultBlockHTML = require('./default/defaultBlockHTML');
+
+var _defaultBlockHTML2 = _interopRequireDefault(_defaultBlockHTML);
+
+var _accumulateFunction = require('./util/accumulateFunction');
+
+var _accumulateFunction2 = _interopRequireDefault(_accumulateFunction);
+
+var _blockTypeObjectFunction = require('./util/blockTypeObjectFunction');
+
+var _blockTypeObjectFunction2 = _interopRequireDefault(_blockTypeObjectFunction);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// import Immutable from 'immutable'; // eslint-disable-line no-unused-vars
+var NESTED_BLOCK_TYPES = ['ordered-list-item', 'unordered-list-item'];
+
+var defaultEntityToHTML = function defaultEntityToHTML(entity, originalText) {
+  return originalText;
+};
+
+var convertToHTML = function convertToHTML(_ref) {
+  var _ref$styleToHTML = _ref.styleToHTML;
+  var styleToHTML = _ref$styleToHTML === undefined ? {} : _ref$styleToHTML;
+  var _ref$blockToHTML = _ref.blockToHTML;
+  var blockToHTML = _ref$blockToHTML === undefined ? {} : _ref$blockToHTML;
+  var _ref$entityToHTML = _ref.entityToHTML;
+  var entityToHTML = _ref$entityToHTML === undefined ? defaultEntityToHTML : _ref$entityToHTML;
+  return function (contentState) {
+    (0, _invariant2.default)(contentState !== null && contentState !== undefined, 'Expected contentState to be non-null');
+
+    var blockHTML = (0, _accumulateFunction2.default)((0, _blockTypeObjectFunction2.default)(blockToHTML), (0, _blockTypeObjectFunction2.default)(_defaultBlockHTML2.default));
+
+    var rawState = (0, _draftJs.convertToRaw)(contentState);
+
+    var listStack = [];
+
+    var result = rawState.blocks.map(function (block) {
+      var type = block.type;
+      var depth = block.depth;
+
+
+      var closeNestTags = '';
+      var openNestTags = '';
+
+      if (NESTED_BLOCK_TYPES.indexOf(type) === -1) {
+        // this block can't be nested, so reset all nesting if necessary
+        closeNestTags = listStack.reduceRight(function (string, nestedBlock) {
+          return string + blockHTML(nestedBlock).nestEnd;
+        }, '');
+        listStack = [];
+      } else {
+        while (depth + 1 !== listStack.length || type !== listStack[depth].type) {
+          if (depth + 1 === listStack.length) {
+            // depth is right but doesn't match type
+            var blockToClose = listStack[depth];
+            closeNestTags += blockHTML(blockToClose).nestEnd;
+            openNestTags += blockHTML(block).nestStart;
+            listStack[depth] = block;
+          } else {
+            if (depth + 1 < listStack.length) {
+              var _blockToClose = listStack[listStack.length - 1];
+              closeNestTags += blockHTML(_blockToClose).nestEnd;
+              listStack = listStack.slice(0, -1);
+            } else {
+              openNestTags += blockHTML(block).nestStart;
+              listStack.push(block);
+            }
+          }
+        }
+      }
+
+      var innerHTML = (0, _blockInlineStyles2.default)((0, _blockEntities2.default)((0, _encodeBlock2.default)(block), rawState.entityMap, entityToHTML), styleToHTML);
+
+      var html = blockHTML(block).start + innerHTML + blockHTML(block).end;
+      if (innerHTML.length === 0 && blockHTML(block).hasOwnProperty('empty')) {
+        html = blockHTML(block).empty;
+      }
+
+      return closeNestTags + openNestTags + html;
+    }).join('');
+
+    result = listStack.reduce(function (res, nestBlock) {
+      return res + blockHTML(nestBlock).nestEnd;
+    }, result);
+
+    return result;
+  };
+};
+
+exports.default = function () {
+  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
+  if (args.length === 1 && args[0].hasOwnProperty('_map') && args[0].getBlockMap != null) {
+    // skip higher-order function and use defaults
+    return convertToHTML({}).apply(undefined, args);
+  }
+
+  return convertToHTML.apply(undefined, args);
+};
+  })();
+});
+
+require.register("draft-convert/lib/default/defaultBlockHTML.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  'unstyled': {
+    start: '<p>',
+    end: '</p>'
+  },
+  'paragraph': {
+    start: '<p>',
+    end: '</p>'
+  },
+  'header-one': {
+    start: '<h1>',
+    end: '</h1>'
+  },
+  'header-two': {
+    start: '<h2>',
+    end: '</h2>'
+  },
+  'header-three': {
+    start: '<h3>',
+    end: '</h3>'
+  },
+  'header-four': {
+    start: '<h4>',
+    end: '</h4>'
+  },
+  'header-five': {
+    start: '<h5>',
+    end: '</h5>'
+  },
+  'header-six': {
+    start: '<h6>',
+    end: '</h6>'
+  },
+  'unordered-list-item': {
+    start: '<li>',
+    end: '</li>',
+    nestStart: '<ul>',
+    nestEnd: '</ul>'
+  },
+  'ordered-list-item': {
+    start: '<li>',
+    end: '</li>',
+    nestStart: '<ol>',
+    nestEnd: '</ol>'
+  },
+  'media': {
+    start: '<figure>',
+    end: '</figure>'
+  }
+};
+  })();
+});
+
+require.register("draft-convert/lib/default/defaultInlineHTML.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  'BOLD': {
+    start: '<strong>',
+    end: '</strong>'
+  },
+  'ITALIC': {
+    start: '<em>',
+    end: '</em>'
+  },
+  'UNDERLINE': {
+    start: '<u>',
+    end: '</u>'
+  },
+  'CODE': {
+    start: '<code>',
+    end: '</code>'
+  }
+};
+  })();
+});
+
+require.register("draft-convert/lib/encodeBlock.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _updateMutation = require('./util/updateMutation');
+
+var _updateMutation2 = _interopRequireDefault(_updateMutation);
+
+var _rangeSort = require('./util/rangeSort');
+
+var _rangeSort2 = _interopRequireDefault(_rangeSort);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ENTITY_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#x27;',
+  '`': '&#x60;'
+};
+
+exports.default = function (block) {
+  var blockText = block.text;
+
+  var entities = block.entityRanges.sort(_rangeSort2.default);
+  var styles = block.inlineStyleRanges.sort(_rangeSort2.default);
+  var resultText = '';
+
+  var _loop = function _loop(index) {
+    var char = blockText[index];
+
+    if (ENTITY_MAP[char] !== undefined) {
+      (function () {
+        var encoded = ENTITY_MAP[char];
+        var resultIndex = resultText.length;
+        resultText += encoded;
+
+        var updateForChar = function updateForChar(mutation) {
+          return (0, _updateMutation2.default)(mutation, resultIndex, char.length, encoded.length);
+        };
+
+        entities = entities.map(updateForChar);
+        styles = styles.map(updateForChar);
+      })();
+    } else {
+      resultText += char;
+    }
+  };
+
+  for (var index = 0; index < blockText.length; index++) {
+    _loop(index);
+  }
+
+  return Object.assign({}, block, {
+    text: resultText,
+    inlineStyleRanges: styles,
+    entityRanges: entities
+  });
+};
+  })();
+});
+
+require.register("draft-convert/lib/index.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.parseHTML = exports.convertFromHTML = exports.convertToHTML = undefined;
+
+var _convertToHTML = require('./convertToHTML');
+
+var _convertToHTML2 = _interopRequireDefault(_convertToHTML);
+
+var _convertFromHTML = require('./convertFromHTML');
+
+var _convertFromHTML2 = _interopRequireDefault(_convertFromHTML);
+
+var _parseHTML = require('./util/parseHTML');
+
+var _parseHTML2 = _interopRequireDefault(_parseHTML);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.convertToHTML = _convertToHTML2.default;
+exports.convertFromHTML = _convertFromHTML2.default;
+exports.parseHTML = _parseHTML2.default;
+  })();
+});
+
+require.register("draft-convert/lib/util/accumulateFunction.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (newFn, rest) {
+  return function () {
+    var newResult = newFn.apply(undefined, arguments);
+    if (newResult !== undefined && newResult !== null) {
+      return newResult;
+    }
+
+    return rest.apply(undefined, arguments);
+  };
+};
+  })();
+});
+
+require.register("draft-convert/lib/util/blockTypeObjectFunction.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (typeObject) {
+  return function (block) {
+    if (typeof typeObject === 'function') {
+      // handle case where typeObject is already a function
+      return typeObject(block);
+    }
+
+    return typeObject[block.type];
+  };
+};
+  })();
+});
+
+require.register("draft-convert/lib/util/parseHTML.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = parseHTML;
+var fallback = function fallback(html) {
+  var doc = document.implementation.createHTMLDocument('');
+  doc.documentElement.innerHTML = html;
+  return doc;
+};
+
+function parseHTML(html) {
+  var doc = void 0;
+  if (typeof DOMParser !== 'undefined') {
+    var parser = new DOMParser();
+    doc = parser.parseFromString(html, 'text/html');
+    if (doc === null || doc.body === null) {
+      doc = fallback(html);
+    }
+  } else {
+    doc = fallback(html);
+  }
+  return doc.body;
+}
+  })();
+});
+
+require.register("draft-convert/lib/util/rangeSort.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (r1, r2) {
+  if (r1.offset === r2.offset) {
+    return r2.length - r1.length;
+  }
+  return r1.offset - r2.offset;
+};
+  })();
+});
+
+require.register("draft-convert/lib/util/updateMutation.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-convert");
+  (function() {
+    "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = updateMutation;
+function updateMutation(mutation, originalOffset, originalLength, newLength) {
+  // two cases we can reasonably adjust - disjoint mutations that
+  // happen later on where the offset will need to be changed, and
+  // mutations that completely contain the new one where we can adjust
+  // the length.
+  var lengthDiff = newLength - originalLength;
+
+  if (originalOffset + originalLength <= mutation.offset) {
+    return Object.assign({}, mutation, {
+      offset: mutation.offset + lengthDiff
+    });
+  }
+  if (originalOffset >= mutation.offset && originalOffset + originalLength <= mutation.offset + mutation.length) {
+    return Object.assign({}, mutation, {
+      length: mutation.length + lengthDiff
+    });
+  }
+
+  return mutation;
+}
+  })();
+});
+
+require.register("draft-js-export-html/lib/helpers/combineOrderedStyles.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-export-html");
+  (function() {
+    "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function combineOrderedStyles(customMap, defaults) {
+  if (customMap == null) {
+    return defaults;
+  }
+
+  var _defaults = _slicedToArray(defaults, 2);
+
+  var defaultStyleMap = _defaults[0];
+  var defaultStyleOrder = _defaults[1];
+
+  var styleMap = _extends({}, defaultStyleMap);
+  var styleOrder = [].concat(_toConsumableArray(defaultStyleOrder));
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = Object.keys(customMap)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var _styleName = _step.value;
+
+      if (defaultStyleMap.hasOwnProperty(_styleName)) {
+        var defaultStyles = defaultStyleMap[_styleName];
+        styleMap[_styleName] = _extends({}, defaultStyles, customMap[_styleName]);
+      } else {
+        styleMap[_styleName] = customMap[_styleName];
+        styleOrder.push(_styleName);
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return [styleMap, styleOrder];
+}
+
+exports.default = combineOrderedStyles;
+  })();
+});
+
+require.register("draft-js-export-html/lib/helpers/normalizeAttributes.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-export-html");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+
+// Lifted from: https://github.com/facebook/react/blob/master/src/renderers/dom/shared/HTMLDOMPropertyConfig.js
+var ATTR_NAME_MAP = {
+  acceptCharset: 'accept-charset',
+  className: 'class',
+  htmlFor: 'for',
+  httpEquiv: 'http-equiv'
+};
+
+function normalizeAttributes(attributes) {
+  if (attributes == null) {
+    return attributes;
+  }
+  var normalized = {};
+  var didNormalize = false;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = Object.keys(attributes)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var name = _step.value;
+
+      var newName = name;
+      if (ATTR_NAME_MAP.hasOwnProperty(name)) {
+        newName = ATTR_NAME_MAP[name];
+        didNormalize = true;
+      }
+      normalized[newName] = attributes[name];
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return didNormalize ? normalized : attributes;
+}
+
+exports.default = normalizeAttributes;
+  })();
+});
+
+require.register("draft-js-export-html/lib/helpers/styleToCSS.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-export-html");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _CSSProperty = require('react/lib/CSSProperty');
+
+var VENDOR_PREFIX = /^(moz|ms|o|webkit)-/;
+
+var NUMERIC_STRING = /^\d+$/;
+var UPPERCASE_PATTERN = /([A-Z])/g;
+
+// Lifted from: https://github.com/facebook/react/blob/master/src/renderers/dom/shared/CSSPropertyOperations.js
+function processStyleName(name) {
+  return name.replace(UPPERCASE_PATTERN, '-$1').toLowerCase().replace(VENDOR_PREFIX, '-$1-');
+}
+
+// Lifted from: https://github.com/facebook/react/blob/master/src/renderers/dom/shared/dangerousStyleValue.js
+function processStyleValue(name, value) {
+  var isNumeric = void 0;
+  if (typeof value === 'string') {
+    isNumeric = NUMERIC_STRING.test(value);
+  } else {
+    isNumeric = true;
+    value = String(value);
+  }
+  if (!isNumeric || value === '0' || _CSSProperty.isUnitlessNumber[name] === true) {
+    return value;
+  } else {
+    return value + 'px';
+  }
+}
+
+function styleToCSS(styleDescr) {
+  return Object.keys(styleDescr).map(function (name) {
+    var styleValue = processStyleValue(name, styleDescr[name]);
+    var styleName = processStyleName(name);
+    return styleName + ': ' + styleValue;
+  }).join('; ');
+}
+
+exports.default = styleToCSS;
+  })();
+});
+
+require.register("draft-js-export-html/lib/main.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-export-html");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _stateToHTML = require('./stateToHTML');
+
+Object.defineProperty(exports, 'stateToHTML', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_stateToHTML).default;
+  }
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+  })();
+});
+
+require.register("draft-js-export-html/lib/stateToHTML.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-export-html");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _DEFAULT_STYLE_MAP, _ENTITY_ATTR_MAP, _DATA_TO_ATTR;
+
+exports.default = stateToHTML;
+
+var _combineOrderedStyles3 = require('./helpers/combineOrderedStyles');
+
+var _combineOrderedStyles4 = _interopRequireDefault(_combineOrderedStyles3);
+
+var _normalizeAttributes = require('./helpers/normalizeAttributes');
+
+var _normalizeAttributes2 = _interopRequireDefault(_normalizeAttributes);
+
+var _styleToCSS = require('./helpers/styleToCSS');
+
+var _styleToCSS2 = _interopRequireDefault(_styleToCSS);
+
+var _draftJs = require('draft-js');
+
+var _draftJsUtils = require('draft-js-utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var BOLD = _draftJsUtils.INLINE_STYLE.BOLD;
+var CODE = _draftJsUtils.INLINE_STYLE.CODE;
+var ITALIC = _draftJsUtils.INLINE_STYLE.ITALIC;
+var STRIKETHROUGH = _draftJsUtils.INLINE_STYLE.STRIKETHROUGH;
+var UNDERLINE = _draftJsUtils.INLINE_STYLE.UNDERLINE;
+
+
+var INDENT = '  ';
+var BREAK = '<br>';
+var DATA_ATTRIBUTE = /^data-([a-z0-9-]+)$/;
+
+var DEFAULT_STYLE_MAP = (_DEFAULT_STYLE_MAP = {}, _defineProperty(_DEFAULT_STYLE_MAP, BOLD, { element: 'strong' }), _defineProperty(_DEFAULT_STYLE_MAP, CODE, { element: 'code' }), _defineProperty(_DEFAULT_STYLE_MAP, ITALIC, { element: 'em' }), _defineProperty(_DEFAULT_STYLE_MAP, STRIKETHROUGH, { element: 'del' }), _defineProperty(_DEFAULT_STYLE_MAP, UNDERLINE, { element: 'ins' }), _DEFAULT_STYLE_MAP);
+
+// Order: inner-most style to outer-most.
+// Examle: <em><strong>foo</strong></em>
+var DEFAULT_STYLE_ORDER = [BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, CODE];
+
+// Map entity data to element attributes.
+var ENTITY_ATTR_MAP = (_ENTITY_ATTR_MAP = {}, _defineProperty(_ENTITY_ATTR_MAP, _draftJsUtils.ENTITY_TYPE.LINK, { url: 'href', rel: 'rel', target: 'target', title: 'title', className: 'class' }), _defineProperty(_ENTITY_ATTR_MAP, _draftJsUtils.ENTITY_TYPE.IMAGE, { src: 'src', height: 'height', width: 'width', alt: 'alt', className: 'class' }), _ENTITY_ATTR_MAP);
+
+// Map entity data to element attributes.
+var DATA_TO_ATTR = (_DATA_TO_ATTR = {}, _defineProperty(_DATA_TO_ATTR, _draftJsUtils.ENTITY_TYPE.LINK, function (entityType, entity) {
+  var attrMap = ENTITY_ATTR_MAP.hasOwnProperty(entityType) ? ENTITY_ATTR_MAP[entityType] : {};
+  var data = entity.getData();
+  var attrs = {};
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = Object.keys(data)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var dataKey = _step.value;
+
+      var dataValue = data[dataKey];
+      if (attrMap.hasOwnProperty(dataKey)) {
+        var attrKey = attrMap[dataKey];
+        attrs[attrKey] = dataValue;
+      } else if (DATA_ATTRIBUTE.test(dataKey)) {
+        attrs[dataKey] = dataValue;
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return attrs;
+}), _defineProperty(_DATA_TO_ATTR, _draftJsUtils.ENTITY_TYPE.IMAGE, function (entityType, entity) {
+  var attrMap = ENTITY_ATTR_MAP.hasOwnProperty(entityType) ? ENTITY_ATTR_MAP[entityType] : {};
+  var data = entity.getData();
+  var attrs = {};
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
+
+  try {
+    for (var _iterator2 = Object.keys(data)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var dataKey = _step2.value;
+
+      var dataValue = data[dataKey];
+      if (attrMap.hasOwnProperty(dataKey)) {
+        var attrKey = attrMap[dataKey];
+        attrs[attrKey] = dataValue;
+      } else if (DATA_ATTRIBUTE.test(dataKey)) {
+        attrs[dataKey] = dataValue;
+      }
+    }
+  } catch (err) {
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+        _iterator2.return();
+      }
+    } finally {
+      if (_didIteratorError2) {
+        throw _iteratorError2;
+      }
+    }
+  }
+
+  return attrs;
+}), _DATA_TO_ATTR);
+
+// The reason this returns an array is because a single block might get wrapped
+// in two tags.
+function getTags(blockType) {
+  switch (blockType) {
+    case _draftJsUtils.BLOCK_TYPE.HEADER_ONE:
+      return ['h1'];
+    case _draftJsUtils.BLOCK_TYPE.HEADER_TWO:
+      return ['h2'];
+    case _draftJsUtils.BLOCK_TYPE.HEADER_THREE:
+      return ['h3'];
+    case _draftJsUtils.BLOCK_TYPE.HEADER_FOUR:
+      return ['h4'];
+    case _draftJsUtils.BLOCK_TYPE.HEADER_FIVE:
+      return ['h5'];
+    case _draftJsUtils.BLOCK_TYPE.HEADER_SIX:
+      return ['h6'];
+    case _draftJsUtils.BLOCK_TYPE.UNORDERED_LIST_ITEM:
+    case _draftJsUtils.BLOCK_TYPE.ORDERED_LIST_ITEM:
+      return ['li'];
+    case _draftJsUtils.BLOCK_TYPE.BLOCKQUOTE:
+      return ['blockquote'];
+    case _draftJsUtils.BLOCK_TYPE.CODE:
+      return ['pre', 'code'];
+    case _draftJsUtils.BLOCK_TYPE.ATOMIC:
+      return ['figure'];
+    default:
+      return ['p'];
+  }
+}
+
+function getWrapperTag(blockType) {
+  switch (blockType) {
+    case _draftJsUtils.BLOCK_TYPE.UNORDERED_LIST_ITEM:
+      return 'ul';
+    case _draftJsUtils.BLOCK_TYPE.ORDERED_LIST_ITEM:
+      return 'ol';
+    default:
+      return null;
+  }
+}
+
+var MarkupGenerator = function () {
+  // These are related to state.
+  function MarkupGenerator(contentState, options) {
+    _classCallCheck(this, MarkupGenerator);
+
+    if (options == null) {
+      options = {};
+    }
+    this.contentState = contentState;
+    this.options = options;
+
+    var _combineOrderedStyles = (0, _combineOrderedStyles4.default)(options.inlineStyles, [DEFAULT_STYLE_MAP, DEFAULT_STYLE_ORDER]);
+
+    var _combineOrderedStyles2 = _slicedToArray(_combineOrderedStyles, 2);
+
+    var inlineStyles = _combineOrderedStyles2[0];
+    var styleOrder = _combineOrderedStyles2[1];
+
+    this.inlineStyles = inlineStyles;
+    this.styleOrder = styleOrder;
+  }
+  // These are related to user-defined options.
+
+
+  _createClass(MarkupGenerator, [{
+    key: 'generate',
+    value: function generate() {
+      this.output = [];
+      this.blocks = this.contentState.getBlocksAsArray();
+      this.totalBlocks = this.blocks.length;
+      this.currentBlock = 0;
+      this.indentLevel = 0;
+      this.wrapperTag = null;
+      while (this.currentBlock < this.totalBlocks) {
+        this.processBlock();
+      }
+      this.closeWrapperTag();
+      return this.output.join('').trim();
+    }
+  }, {
+    key: 'processBlock',
+    value: function processBlock() {
+
+      var blockRenderers = this.options.blockRenderers;
+
+      var block = this.blocks[this.currentBlock];
+      var blockType = block.getType();
+      var newWrapperTag = getWrapperTag(blockType);
+      if (this.wrapperTag !== newWrapperTag) {
+        if (this.wrapperTag) {
+          this.closeWrapperTag();
+        }
+        if (newWrapperTag) {
+          this.openWrapperTag(newWrapperTag);
+        }
+      }
+      this.indent();
+      // Allow blocks to be rendered using a custom renderer.
+      var customRenderer = blockRenderers != null && blockRenderers.hasOwnProperty(blockType) ? blockRenderers[blockType] : null;
+      var customRendererOutput = customRenderer ? customRenderer(block) : null;
+      // Renderer can return null, which will cause processing to continue as normal.
+      if (customRendererOutput != null) {
+        this.output.push(customRendererOutput);
+        this.output.push('\n');
+        this.currentBlock += 1;
+        return;
+      }
+      this.writeStartTag(block);
+      this.output.push(this.renderBlockContent(block));
+      // Look ahead and see if we will nest list.
+      var nextBlock = this.getNextBlock();
+      if (canHaveDepth(blockType) && nextBlock && nextBlock.getDepth() === block.getDepth() + 1) {
+        this.output.push('\n');
+        // This is a litle hacky: temporarily stash our current wrapperTag and
+        // render child list(s).
+        var thisWrapperTag = this.wrapperTag;
+        this.wrapperTag = null;
+        this.indentLevel += 1;
+        this.currentBlock += 1;
+        this.processBlocksAtDepth(nextBlock.getDepth());
+        this.wrapperTag = thisWrapperTag;
+        this.indentLevel -= 1;
+        this.indent();
+      } else {
+        this.currentBlock += 1;
+      }
+      this.writeEndTag(block);
+    }
+  }, {
+    key: 'processBlocksAtDepth',
+    value: function processBlocksAtDepth(depth) {
+      var block = this.blocks[this.currentBlock];
+      while (block && block.getDepth() === depth) {
+        this.processBlock();
+        block = this.blocks[this.currentBlock];
+      }
+      this.closeWrapperTag();
+    }
+  }, {
+    key: 'getNextBlock',
+    value: function getNextBlock() {
+      return this.blocks[this.currentBlock + 1];
+    }
+  }, {
+    key: 'writeStartTag',
+    value: function writeStartTag(block) {
+      var tags = getTags(block.getType());
+
+      var attrString = void 0;
+      if (this.options.blockStyleFn) {
+        var _ref = this.options.blockStyleFn(block) || {};
+
+        var _attributes = _ref.attributes;
+        var _style = _ref.style;
+        // Normalize `className` -> `class`, etc.
+
+        _attributes = (0, _normalizeAttributes2.default)(_attributes);
+        if (_style != null) {
+          var styleAttr = (0, _styleToCSS2.default)(_style);
+          _attributes = _attributes == null ? { style: styleAttr } : _extends({}, _attributes, { style: styleAttr });
+        }
+        attrString = stringifyAttrs(_attributes);
+      } else {
+        attrString = '';
+      }
+
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = tags[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var tag = _step3.value;
+
+          this.output.push('<' + tag + attrString + '>');
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'writeEndTag',
+    value: function writeEndTag(block) {
+      var tags = getTags(block.getType());
+      if (tags.length === 1) {
+        this.output.push('</' + tags[0] + '>\n');
+      } else {
+        var output = [];
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+          for (var _iterator4 = tags[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var tag = _step4.value;
+
+            output.unshift('</' + tag + '>');
+          }
+        } catch (err) {
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+              _iterator4.return();
+            }
+          } finally {
+            if (_didIteratorError4) {
+              throw _iteratorError4;
+            }
+          }
+        }
+
+        this.output.push(output.join('') + '\n');
+      }
+    }
+  }, {
+    key: 'openWrapperTag',
+    value: function openWrapperTag(wrapperTag) {
+      this.wrapperTag = wrapperTag;
+      this.indent();
+      this.output.push('<' + wrapperTag + '>\n');
+      this.indentLevel += 1;
+    }
+  }, {
+    key: 'closeWrapperTag',
+    value: function closeWrapperTag() {
+      var wrapperTag = this.wrapperTag;
+
+      if (wrapperTag) {
+        this.indentLevel -= 1;
+        this.indent();
+        this.output.push('</' + wrapperTag + '>\n');
+        this.wrapperTag = null;
+      }
+    }
+  }, {
+    key: 'indent',
+    value: function indent() {
+      this.output.push(INDENT.repeat(this.indentLevel));
+    }
+  }, {
+    key: 'renderBlockContent',
+    value: function renderBlockContent(block) {
+      var _this = this;
+
+      var blockType = block.getType();
+      var text = block.getText();
+      if (text === '') {
+        // Prevent element collapse if completely empty.
+        return BREAK;
+      }
+      text = this.preserveWhitespace(text);
+      var charMetaList = block.getCharacterList();
+      var entityPieces = (0, _draftJsUtils.getEntityRanges)(text, charMetaList);
+      return entityPieces.map(function (_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 2);
+
+        var entityKey = _ref3[0];
+        var stylePieces = _ref3[1];
+
+        var content = stylePieces.map(function (_ref4) {
+          var _ref5 = _slicedToArray(_ref4, 2);
+
+          var text = _ref5[0];
+          var styleSet = _ref5[1];
+
+          var content = encodeContent(text);
+          var _iteratorNormalCompletion5 = true;
+          var _didIteratorError5 = false;
+          var _iteratorError5 = undefined;
+
+          try {
+            for (var _iterator5 = _this.styleOrder[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+              var _styleName = _step5.value;
+
+              // If our block type is CODE then don't wrap inline code elements.
+              if (_styleName === CODE && blockType === _draftJsUtils.BLOCK_TYPE.CODE) {
+                continue;
+              }
+              if (styleSet.has(_styleName)) {
+                var _inlineStyles$_styleN = _this.inlineStyles[_styleName];
+                var _element = _inlineStyles$_styleN.element;
+                var _attributes2 = _inlineStyles$_styleN.attributes;
+                var _style2 = _inlineStyles$_styleN.style;
+
+                if (_element == null) {
+                  _element = 'span';
+                }
+                // Normalize `className` -> `class`, etc.
+                _attributes2 = (0, _normalizeAttributes2.default)(_attributes2);
+                if (_style2 != null) {
+                  var styleAttr = (0, _styleToCSS2.default)(_style2);
+                  _attributes2 = _attributes2 == null ? { style: styleAttr } : _extends({}, _attributes2, { style: styleAttr });
+                }
+                var attrString = stringifyAttrs(_attributes2);
+                content = '<' + _element + attrString + '>' + content + '</' + _element + '>';
+              }
+            }
+          } catch (err) {
+            _didIteratorError5 = true;
+            _iteratorError5 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                _iterator5.return();
+              }
+            } finally {
+              if (_didIteratorError5) {
+                throw _iteratorError5;
+              }
+            }
+          }
+
+          return content;
+        }).join('');
+        var entity = entityKey ? _draftJs.Entity.get(entityKey) : null;
+        // Note: The `toUpperCase` below is for compatability with some libraries that use lower-case for image blocks.
+        var entityType = entity == null ? null : entity.getType().toUpperCase();
+        if (entityType != null && entityType === _draftJsUtils.ENTITY_TYPE.LINK) {
+          var attrs = DATA_TO_ATTR.hasOwnProperty(entityType) ? DATA_TO_ATTR[entityType](entityType, entity) : null;
+          var attrString = stringifyAttrs(attrs);
+          return '<a' + attrString + '>' + content + '</a>';
+        } else if (entityType != null && entityType === _draftJsUtils.ENTITY_TYPE.IMAGE) {
+          var _attrs = DATA_TO_ATTR.hasOwnProperty(entityType) ? DATA_TO_ATTR[entityType](entityType, entity) : null;
+          var _attrString = stringifyAttrs(_attrs);
+          return '<img' + _attrString + '/>';
+        } else {
+          return content;
+        }
+      }).join('');
+    }
+  }, {
+    key: 'preserveWhitespace',
+    value: function preserveWhitespace(text) {
+      var length = text.length;
+      // Prevent leading/trailing/consecutive whitespace collapse.
+      var newText = new Array(length);
+      for (var i = 0; i < length; i++) {
+        if (text[i] === ' ' && (i === 0 || i === length - 1 || text[i - 1] === ' ')) {
+          newText[i] = '\xA0';
+        } else {
+          newText[i] = text[i];
+        }
+      }
+      return newText.join('');
+    }
+  }]);
+
+  return MarkupGenerator;
+}();
+
+function stringifyAttrs(attrs) {
+  if (attrs == null) {
+    return '';
+  }
+  var parts = [];
+  var _iteratorNormalCompletion6 = true;
+  var _didIteratorError6 = false;
+  var _iteratorError6 = undefined;
+
+  try {
+    for (var _iterator6 = Object.keys(attrs)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+      var name = _step6.value;
+
+      var value = attrs[name];
+      if (value != null) {
+        parts.push(' ' + name + '="' + encodeAttr(value + '') + '"');
+      }
+    }
+  } catch (err) {
+    _didIteratorError6 = true;
+    _iteratorError6 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion6 && _iterator6.return) {
+        _iterator6.return();
+      }
+    } finally {
+      if (_didIteratorError6) {
+        throw _iteratorError6;
+      }
+    }
+  }
+
+  return parts.join('');
+}
+
+function canHaveDepth(blockType) {
+  switch (blockType) {
+    case _draftJsUtils.BLOCK_TYPE.UNORDERED_LIST_ITEM:
+    case _draftJsUtils.BLOCK_TYPE.ORDERED_LIST_ITEM:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function encodeContent(text) {
+  return text.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('\xA0').join('&nbsp;').split('\n').join(BREAK + '\n');
+}
+
+function encodeAttr(text) {
+  return text.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
+}
+
+function stateToHTML(content, options) {
+  return new MarkupGenerator(content, options).generate();
+}
+  })();
+});
+
+require.register("draft-js-utils/lib/Constants.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-utils");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var BLOCK_TYPE = exports.BLOCK_TYPE = {
+  // This is used to represent a normal text block (paragraph).
+  UNSTYLED: 'unstyled',
+  HEADER_ONE: 'header-one',
+  HEADER_TWO: 'header-two',
+  HEADER_THREE: 'header-three',
+  HEADER_FOUR: 'header-four',
+  HEADER_FIVE: 'header-five',
+  HEADER_SIX: 'header-six',
+  UNORDERED_LIST_ITEM: 'unordered-list-item',
+  ORDERED_LIST_ITEM: 'ordered-list-item',
+  BLOCKQUOTE: 'blockquote',
+  PULLQUOTE: 'pullquote',
+  CODE: 'code-block',
+  ATOMIC: 'atomic'
+};
+
+var ENTITY_TYPE = exports.ENTITY_TYPE = {
+  LINK: 'LINK',
+  IMAGE: 'IMAGE'
+};
+
+var INLINE_STYLE = exports.INLINE_STYLE = {
+  BOLD: 'BOLD',
+  CODE: 'CODE',
+  ITALIC: 'ITALIC',
+  STRIKETHROUGH: 'STRIKETHROUGH',
+  UNDERLINE: 'UNDERLINE'
+};
+
+exports.default = {
+  BLOCK_TYPE: BLOCK_TYPE,
+  ENTITY_TYPE: ENTITY_TYPE,
+  INLINE_STYLE: INLINE_STYLE
+};
+  })();
+});
+
+require.register("draft-js-utils/lib/callModifierForSelectedBlocks.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-utils");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _draftJs = require('draft-js');
+
+var _getSelectedBlocks = require('./getSelectedBlocks');
+
+var _getSelectedBlocks2 = _interopRequireDefault(_getSelectedBlocks);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Calls a provided `modifier` function with a selection for each
+ * selected block in the current editor selection. Passes through additional
+ * arguments to the modifier.
+ *
+ * Note: At the moment it will retain the original selection and override
+ * possible selection changes from modifiers
+ *
+ * @param  {object} editorState The current draft.js editor state object
+ *
+ * @param  {function} modifier  A modifier function to be executed.
+ *                              Must have the signature (editorState, selection, ...)
+ *
+ * @param  {mixed} ...args      Additional arguments to be passed through to the modifier
+ *
+ * @return {object} The new editor state
+ */
+exports.default = function (editorState, modifier) {
+  for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    args[_key - 2] = arguments[_key];
+  }
+
+  var contentState = editorState.getCurrentContent();
+  var currentSelection = editorState.getSelection();
+
+  var startKey = currentSelection.getStartKey();
+  var endKey = currentSelection.getEndKey();
+  var startOffset = currentSelection.getStartOffset();
+  var endOffset = currentSelection.getEndOffset();
+
+  var isSameBlock = startKey === endKey;
+  var selectedBlocks = (0, _getSelectedBlocks2.default)(contentState, startKey, endKey);
+
+  var finalEditorState = editorState;
+  selectedBlocks.forEach(function (block) {
+    var currentBlockKey = block.getKey();
+    var selectionStart = startOffset;
+    var selectionEnd = endOffset;
+
+    if (currentBlockKey === startKey) {
+      selectionStart = startOffset;
+      selectionEnd = isSameBlock ? endOffset : block.getText().length;
+    } else if (currentBlockKey === endKey) {
+      selectionStart = isSameBlock ? startOffset : 0;
+      selectionEnd = endOffset;
+    } else {
+      selectionStart = 0;
+      selectionEnd = block.getText().length;
+    }
+
+    var selection = new _draftJs.SelectionState({
+      anchorKey: currentBlockKey,
+      anchorOffset: selectionStart,
+      focusKey: currentBlockKey,
+      focusOffset: selectionEnd
+    });
+
+    finalEditorState = modifier.apply(undefined, [finalEditorState, selection].concat(args));
+  });
+
+  return _draftJs.EditorState.forceSelection(finalEditorState, currentSelection);
+};
+  })();
+});
+
+require.register("draft-js-utils/lib/getEntityRanges.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-utils");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.EMPTY_SET = undefined;
+exports.default = getEntityRanges;
+
+var _immutable = require('immutable');
+
+var EMPTY_SET = exports.EMPTY_SET = new _immutable.OrderedSet();
+function getEntityRanges(text, charMetaList) {
+  var charEntity = null;
+  var prevCharEntity = null;
+  var ranges = [];
+  var rangeStart = 0;
+  for (var i = 0, len = text.length; i < len; i++) {
+    prevCharEntity = charEntity;
+    var meta = charMetaList.get(i);
+    charEntity = meta ? meta.getEntity() : null;
+    if (i > 0 && charEntity !== prevCharEntity) {
+      ranges.push([prevCharEntity, getStyleRanges(text.slice(rangeStart, i), charMetaList.slice(rangeStart, i))]);
+      rangeStart = i;
+    }
+  }
+  ranges.push([charEntity, getStyleRanges(text.slice(rangeStart), charMetaList.slice(rangeStart))]);
+  return ranges;
+}
+
+function getStyleRanges(text, charMetaList) {
+  var charStyle = EMPTY_SET;
+  var prevCharStyle = EMPTY_SET;
+  var ranges = [];
+  var rangeStart = 0;
+  for (var i = 0, len = text.length; i < len; i++) {
+    prevCharStyle = charStyle;
+    var meta = charMetaList.get(i);
+    charStyle = meta ? meta.getStyle() : EMPTY_SET;
+    if (i > 0 && !(0, _immutable.is)(charStyle, prevCharStyle)) {
+      ranges.push([text.slice(rangeStart, i), prevCharStyle]);
+      rangeStart = i;
+    }
+  }
+  ranges.push([text.slice(rangeStart), charStyle]);
+  return ranges;
+}
+  })();
+});
+
+require.register("draft-js-utils/lib/getSelectedBlocks.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-utils");
+  (function() {
+    "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+/**
+ * Returns an array of all `ContentBlock` instances within two block keys
+ *
+ * @param  {object} contentState A draft.js `ContentState` instance
+ * @param  {string} anchorKey    The block key to start searching from
+ * @param  {string} focusKey     The block key until which to search
+ *
+ * @return {array} An array containing the found content blocks
+ */
+exports.default = function (contentState, anchorKey, focusKey) {
+  var isSameBlock = anchorKey === focusKey;
+  var startingBlock = contentState.getBlockForKey(anchorKey);
+
+  if (!startingBlock) {
+    return [];
+  }
+
+  var selectedBlocks = [startingBlock];
+
+  if (!isSameBlock) {
+    var blockKey = anchorKey;
+
+    while (blockKey !== focusKey) {
+      var nextBlock = contentState.getBlockAfter(blockKey);
+
+      if (!nextBlock) {
+        selectedBlocks = [];
+        break;
+      }
+
+      selectedBlocks.push(nextBlock);
+      blockKey = nextBlock.getKey();
+    }
+  }
+
+  return selectedBlocks;
+};
+  })();
+});
+
+require.register("draft-js-utils/lib/main.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-utils");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _Constants = require('./Constants');
+
+Object.keys(_Constants).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _Constants[key];
+    }
+  });
+});
+Object.defineProperty(exports, 'Constants', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_Constants).default;
+  }
+});
+
+var _getEntityRanges = require('./getEntityRanges');
+
+Object.defineProperty(exports, 'getEntityRanges', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_getEntityRanges).default;
+  }
+});
+
+var _getSelectedBlocks = require('./getSelectedBlocks');
+
+Object.defineProperty(exports, 'getSelectedBlocks', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_getSelectedBlocks).default;
+  }
+});
+
+var _selectionContainsEntity = require('./selectionContainsEntity');
+
+Object.defineProperty(exports, 'selectionContainsEntity', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_selectionContainsEntity).default;
+  }
+});
+
+var _callModifierForSelectedBlocks = require('./callModifierForSelectedBlocks');
+
+Object.defineProperty(exports, 'callModifierForSelectedBlocks', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_callModifierForSelectedBlocks).default;
+  }
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+  })();
+});
+
+require.register("draft-js-utils/lib/selectionContainsEntity.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "draft-js-utils");
+  (function() {
+    'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getSelectedBlocks = require('./getSelectedBlocks');
+
+var _getSelectedBlocks2 = _interopRequireDefault(_getSelectedBlocks);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (strategy) {
+  return function (editorState, selection) {
+    var contentState = editorState.getCurrentContent();
+    var currentSelection = selection || editorState.getSelection();
+    var startKey = currentSelection.getStartKey();
+    var endKey = currentSelection.getEndKey();
+    var startOffset = currentSelection.getStartOffset();
+    var endOffset = currentSelection.getEndOffset();
+
+    var isSameBlock = startKey === endKey;
+    var selectedBlocks = (0, _getSelectedBlocks2.default)(contentState, startKey, endKey);
+    var entityFound = false;
+
+    // We have to shift the offset to not get false positives when selecting
+    // a character just before or after an entity
+    var finalStartOffset = startOffset + 1;
+    var finalEndOffset = endOffset - 1;
+
+    selectedBlocks.forEach(function (block) {
+      strategy(block, function (start, end) {
+        if (entityFound) {
+          return;
+        }
+
+        var blockKey = block.getKey();
+
+        if (isSameBlock && (end < finalStartOffset || start > finalEndOffset)) {
+          return;
+        } else if (blockKey === startKey && end < finalStartOffset) {
+          return;
+        } else if (blockKey === endKey && start > finalEndOffset) {
+          return;
+        }
+
+        entityFound = true;
+      });
+    });
+
+    return entityFound;
+  };
+};
+  })();
+});
+
 require.register("draft-js/lib/AtomicBlockUtils.js", function(exports, require, module) {
   require = __makeRelativeRequire(require, {}, "draft-js");
   (function() {
@@ -23078,6 +25384,63 @@ require.register("immutable/dist/immutable.js", function(exports, require, modul
   })();
 });
 
+require.register("invariant/browser.js", function(exports, require, module) {
+  require = __makeRelativeRequire(require, {}, "invariant");
+  (function() {
+    /**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+'use strict';
+
+/**
+ * Use invariant() to assert state which your program assumes to be true.
+ *
+ * Provide sprintf-style format (only %s is supported) and arguments
+ * to provide information about what broke and what you were
+ * expecting.
+ *
+ * The invariant message will be stripped in production, but the invariant
+ * will remain to ensure logic does not differ in production.
+ */
+
+var invariant = function(condition, format, a, b, c, d, e, f) {
+  if ('development' !== 'production') {
+    if (format === undefined) {
+      throw new Error('invariant requires an error message argument');
+    }
+  }
+
+  if (!condition) {
+    var error;
+    if (format === undefined) {
+      error = new Error(
+        'Minified exception occurred; use the non-minified dev environment ' +
+        'for the full error message and additional helpful warnings.'
+      );
+    } else {
+      var args = [a, b, c, d, e, f];
+      var argIndex = 0;
+      error = new Error(
+        format.replace(/%s/g, function() { return args[argIndex++]; })
+      );
+      error.name = 'Invariant Violation';
+    }
+
+    error.framesToPop = 1; // we don't care about invariant's own frame
+    throw error;
+  }
+};
+
+module.exports = invariant;
+  })();
+});
+
 require.register("object-assign/index.js", function(exports, require, module) {
   require = __makeRelativeRequire(require, {}, "object-assign");
   (function() {
@@ -44126,9 +46489,13 @@ require.register("ua-parser-js/src/ua-parser.js", function(exports, require, mod
 })(typeof window === 'object' ? window : this);
   })();
 });
+require.alias("draft-convert/lib/index.js", "draft-convert");
 require.alias("draft-js/lib/Draft.js", "draft-js");
+require.alias("draft-js-export-html/lib/main.js", "draft-js-export-html");
+require.alias("draft-js-utils/lib/main.js", "draft-js-utils");
 require.alias("draft-js/node_modules/immutable/dist/immutable.js", "draft-js/node_modules/immutable");
 require.alias("immutable/dist/immutable.js", "immutable");
+require.alias("invariant/browser.js", "invariant");
 require.alias("process/browser.js", "process");
 require.alias("react/react.js", "react");
 require.alias("ua-parser-js/src/ua-parser.js", "ua-parser-js");process = require('process');require.register("___globals___", function(exports, require, module) {
