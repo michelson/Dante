@@ -272,6 +272,9 @@ DanteEditor = (function(superClass) {
 
   function DanteEditor(props) {
     this.render = bind(this.render, this);
+    this.handleDroppedFiles = bind(this.handleDroppedFiles, this);
+    this.handlePasteImage = bind(this.handlePasteImage, this);
+    this.handlePasteText = bind(this.handlePasteText, this);
     this.positionForTooltip = bind(this.positionForTooltip, this);
     this.hidePopLinkOver = bind(this.hidePopLinkOver, this);
     this.showPopLinkOver = bind(this.showPopLinkOver, this);
@@ -550,7 +553,6 @@ DanteEditor = (function(superClass) {
   DanteEditor.prototype.setPreContent = function() {
     var content;
     content = this.emitSerializedOutput();
-    console.log("SET PRE CONTENT", content);
     return this.save.editorContent = content;
   };
 
@@ -1022,6 +1024,34 @@ DanteEditor = (function(superClass) {
     };
   };
 
+  DanteEditor.prototype.handlePasteText = function(text, html) {
+    debugger;
+    var fragment, newContentState;
+    return;
+    fragment = convertFromHTML(this._clearHTML(content));
+    return newContentState = Modifier.replaceWithFragment(contentState, selectionState, BlockMapBuilder.createFromArray(fragment));
+  };
+
+  DanteEditor.prototype.handlePasteImage = function(files) {
+    return files.map((function(_this) {
+      return function(file) {
+        return _this.setCurrentInput(file, function() {
+          return _this.onChange(addNewBlock(_this.state.editorState, 'image'));
+        });
+      };
+    })(this));
+  };
+
+  DanteEditor.prototype.handleDroppedFiles = function(state, files) {
+    return files.map((function(_this) {
+      return function(file) {
+        return _this.setCurrentInput(file, function() {
+          return _this.onChange(addNewBlock(_this.state.editorState, 'image'));
+        });
+      };
+    })(this));
+  };
+
   DanteEditor.prototype.render = function() {
     return React.createElement("div", {
       "id": "content",
@@ -1054,6 +1084,9 @@ DanteEditor = (function(superClass) {
       "handleReturn": this.handleReturn,
       "blockRenderMap": this.state.blockRenderMap,
       "blockStyleFn": this.blockStyleFn,
+      "handlePastedText": this.handlePasteText,
+      "handlePastedFiles": this.handlePasteImage,
+      "handleDroppedFiles": this.handleDroppedFiles,
       "handleKeyCommand": this.handleKeyCommand,
       "keyBindingFn": this.KeyBindingFn,
       "handleBeforeInput": this.handleBeforeInput,
@@ -1061,7 +1094,7 @@ DanteEditor = (function(superClass) {
       "onClick": this.handleClick,
       "suppressContentEditableWarning": true,
       "placeholder": this.props.config.body_placeholder,
-      "rel": "editor"
+      "ref": "editor"
     })))))))), React.createElement(DanteTooltip, {
       "editorState": this.state.editorState,
       "setStateHandler": this.stateHandler,
@@ -1075,7 +1108,6 @@ DanteEditor = (function(superClass) {
       "handleKeyCommand": this.handleKeyCommand,
       "keyBindingFn": this.KeyBindingFn,
       "relocateMenu": this.relocateMenu,
-      "handleDroppedFiles": this.handleDroppedFiles,
       "showPopLinkOver": this.showPopLinkOver,
       "hidePopLinkOver": this.hidePopLinkOver
     }), React.createElement(DanteInlineTooltip, {

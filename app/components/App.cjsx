@@ -74,8 +74,6 @@ SaveBehavior = require('../utils/save_content.coffee')
 
 PocData = require('../data/poc.js')
 
-#window.getVisibleSelectionRect = getVisibleSelectionRect
-
 class Dante 
   constructor: (options={})->
     console.log "init editor!"
@@ -373,7 +371,7 @@ class DanteEditor extends React.Component
 
   setPreContent: =>
     content = @emitSerializedOutput()
-    console.log "SET PRE CONTENT", content
+    # console.log "SET PRE CONTENT", content
     @save.editorContent = content
 
   emitHTML: (editorState)=>
@@ -565,6 +563,7 @@ class DanteEditor extends React.Component
           return true;
         
         return false;
+      
       if selection.isCollapsed() and currentBlock.getType() is "embed" and currentBlock.getLength() > 0
         
         if @.state.continuousBlocks.indexOf(blockType) < 0
@@ -861,6 +860,28 @@ class DanteEditor extends React.Component
       left: selectionBoundary.left - (selectionBoundary.width) #- padd
     }
 
+  handlePasteText: (text, html)=>
+    debugger
+    return 
+    fragment = convertFromHTML(@._clearHTML(content))            
+    newContentState = Modifier.replaceWithFragment(
+      contentState,
+      selectionState,
+      BlockMapBuilder.createFromArray(fragment)
+    )
+
+  handlePasteImage: (files)=>
+    #TODO: check file types
+    files.map (file)=>
+      @setCurrentInput file, ()=>
+        @onChange(addNewBlock(@state.editorState, 'image'));
+
+  handleDroppedFiles: (state, files)=>
+    files.map (file)=>
+      @setCurrentInput file, ()=>
+        @onChange(addNewBlock(@state.editorState, 'image'));
+
+
   render: =>
 
     return (
@@ -886,6 +907,9 @@ class DanteEditor extends React.Component
                         handleReturn={@handleReturn}
                         blockRenderMap={@state.blockRenderMap}
                         blockStyleFn={@.blockStyleFn}
+                        handlePastedText={@handlePasteText}
+                        handlePastedFiles={@handlePasteImage}
+                        handleDroppedFiles={@handleDroppedFiles}
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         handleBeforeInput={@.handleBeforeInput}
@@ -893,7 +917,7 @@ class DanteEditor extends React.Component
                         onClick={@handleClick}
                         suppressContentEditableWarning={true}
                         placeholder={@props.config.body_placeholder}
-                        rel="editor"
+                        ref="editor"
                       />
                     </div> 
                   </div>
@@ -917,7 +941,6 @@ class DanteEditor extends React.Component
           handleKeyCommand={@.handleKeyCommand}
           keyBindingFn={@KeyBindingFn}
           relocateMenu={@relocateMenu}
-          handleDroppedFiles={@.handleDroppedFiles}
           showPopLinkOver={@showPopLinkOver} 
           hidePopLinkOver={@hidePopLinkOver}
         />
