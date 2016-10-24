@@ -14,6 +14,7 @@
     "build": "brunch build --production"
   },
   "dependencies": {
+    "axios": "^0.15.2",
     "draft-convert": "^1.2.3",
     "draft-js": "0.9.1",
     "draft-js-export-html": "^0.5.0",

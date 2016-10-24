@@ -150,7 +150,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/App.cjsx", function(exports, require, module) {
-var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock,
+var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SaveBehavior, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -216,6 +216,8 @@ VideoBlock = require('./blocks/video.cjsx');
 
 PlaceholderBlock = require('./blocks/placeholder.cjsx');
 
+SaveBehavior = require('../utils/save_content.coffee');
+
 PocData = require('../data/poc.js');
 
 Dante = (function() {
@@ -226,17 +228,38 @@ Dante = (function() {
     console.log("init editor!");
     this.options = options;
     this.options.el = options.el || 'app';
+    this.options.read_only = options.read_only || false;
     this.options.spellcheck = options.spellcheck || false;
+    this.options.title_placeholder = options.title_placeholder || "Title";
+    this.options.body_placeholder = options.body_placeholder || "Write your story";
+    this.options.widgets = ["uploader", "embed", "embed-extract"];
+    this.options.store_url = options.store_url || null;
+    this.options.store_method = options.store_method || "POST";
+    this.options.store_success_handler = options.store_success_handler || null;
+    this.options.store_failure_handler = options.store_failure_handler || null;
+    this.options.store_interval = options.store_interval || 1500;
+    this.options.before_xhr_handler = options.before_xhr_handler;
+    this.options.success_xhr_handler = options.success_xhr_handler;
+    this.options.upload_url = options.upload_url || 'uploads.json';
+    this.options.upload_callback = this.options.image_upload_callabck;
+    this.options.image_delete_callback = this.options.image_delete_callback;
+    this.options.image_caption_placeholder = options.image_caption_placeholder;
+    this.options.oembed_url = "http://api.embed.ly/1/oembed?url=";
+    this.options.extract_url = "http://api.embed.ly/1/extract?url=";
+    this.options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter';
+    this.options.embed_caption_placeholder = "Type caption for embed (optional)";
+    this.options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter';
   }
 
   Dante.prototype.getContent = function() {
-    return PocData;
+    PocData;
+    return "";
   };
 
   Dante.prototype.render = function() {
     return ReactDOM.render(React.createElement(DanteEditor, {
       "content": this.getContent(),
-      "options": this.options
+      "config": this.options
     }), document.getElementById(this.options.el));
   };
 
@@ -277,6 +300,8 @@ DanteEditor = (function(superClass) {
     this.decodeEditorContent = bind(this.decodeEditorContent, this);
     this.emitSerializedOutput = bind(this.emitSerializedOutput, this);
     this.emitHTML = bind(this.emitHTML, this);
+    this.setPreContent = bind(this.setPreContent, this);
+    this.dispatchChangesToSave = bind(this.dispatchChangesToSave, this);
     this.onChange = bind(this.onChange, this);
     this.parseDirection = bind(this.parseDirection, this);
     this.forceRender = bind(this.forceRender, this);
@@ -403,6 +428,11 @@ DanteEditor = (function(superClass) {
         style: 'ITALIC'
       }
     ];
+    this.save = new SaveBehavior({
+      config: this.props.config,
+      editorState: this.state.editorState,
+      editorContent: this.emitSerializedOutput()
+    });
     ({
       optionsForDecorator: function() {
         return this.state;
@@ -474,6 +504,7 @@ DanteEditor = (function(superClass) {
 
   DanteEditor.prototype.onChange = function(editorState) {
     var blockType, currentBlock;
+    this.setPreContent();
     this.setState({
       editorState: editorState
     });
@@ -503,7 +534,24 @@ DanteEditor = (function(superClass) {
         return _this.getPositionForCurrent();
       };
     })(this), 0);
+    this.dispatchChangesToSave();
     return console.log("CHANGES!");
+  };
+
+  DanteEditor.prototype.dispatchChangesToSave = function() {
+    clearTimeout(this.saveTimeout);
+    return this.saveTimeout = setTimeout((function(_this) {
+      return function() {
+        return _this.save.store(_this.emitSerializedOutput());
+      };
+    })(this), 100);
+  };
+
+  DanteEditor.prototype.setPreContent = function() {
+    var content;
+    content = this.emitSerializedOutput();
+    console.log("SET PRE CONTENT", content);
+    return this.save.editorContent = content;
   };
 
   DanteEditor.prototype.emitHTML = function(editorState) {
@@ -535,7 +583,6 @@ DanteEditor = (function(superClass) {
   DanteEditor.prototype.emitSerializedOutput = function() {
     var raw;
     raw = convertToRaw(this.state.editorState.getCurrentContent());
-    console.log(raw);
     return raw;
   };
 
@@ -592,7 +639,8 @@ DanteEditor = (function(superClass) {
               file: this.state.current_input
             },
             getEditorState: this.getEditorState,
-            setEditorState: this.onChange
+            setEditorState: this.onChange,
+            config: this.props.config
           }
         };
       case 'embed':
@@ -1009,10 +1057,11 @@ DanteEditor = (function(superClass) {
       "handleKeyCommand": this.handleKeyCommand,
       "keyBindingFn": this.KeyBindingFn,
       "handleBeforeInput": this.handleBeforeInput,
-      "readOnly": false,
+      "readOnly": this.props.config.read_only,
       "onClick": this.handleClick,
       "suppressContentEditableWarning": true,
-      "placeholder": "Write something..."
+      "placeholder": this.props.config.body_placeholder,
+      "rel": "editor"
     })))))))), React.createElement(DanteTooltip, {
       "editorState": this.state.editorState,
       "setStateHandler": this.stateHandler,
@@ -1165,7 +1214,7 @@ module.exports = EmbedBlock;
 });
 
 ;require.register("components/blocks/image.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, ref, updateDataOfBlock,
+var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, axios, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1176,6 +1225,8 @@ ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
 
+axios = require("axios");
+
 updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
 
 ImageBlock = (function(superClass) {
@@ -1183,26 +1234,46 @@ ImageBlock = (function(superClass) {
 
   function ImageBlock(props) {
     this.render = bind(this.render, this);
+    this.updateProgressBar = bind(this.updateProgressBar, this);
+    this.uploadCompleted = bind(this.uploadCompleted, this);
+    this.uploadFile = bind(this.uploadFile, this);
     this.handleGrafFigureSelectImg = bind(this.handleGrafFigureSelectImg, this);
     this.aspectRatio = bind(this.aspectRatio, this);
+    this.handleUpload = bind(this.handleUpload, this);
     this.replaceImg = bind(this.replaceImg, this);
     this.updateData = bind(this.updateData, this);
     this.defaultAspectRatio = bind(this.defaultAspectRatio, this);
     this.defaultUrl = bind(this.defaultUrl, this);
+    this.blockPropsSrc = bind(this.blockPropsSrc, this);
     var existing_data;
     ImageBlock.__super__.constructor.call(this, props);
     existing_data = this.props.block.getData().toJS();
+    this.config = this.props.blockProps.config;
     this.state = {
       selected: false,
-      caption: "Type caption for image",
+      caption: this.defaultPlaceholder(),
       direction: existing_data.direction || "center",
       width: 0,
       height: 0,
       file: null,
-      url: this.defaultUrl(existing_data),
+      url: this.blockPropsSrc() || this.defaultUrl(existing_data),
       aspect_ratio: this.defaultAspectRatio(existing_data)
     };
   }
+
+  ImageBlock.prototype.blockPropsSrc = function() {
+    return this.props.blockProps.data.src;
+
+    /*
+    debugger
+    block = @.props;
+    entity = block.block.getEntityAt(0)
+    if entity
+      data = Entity.get(entity).getData().src
+    else
+      null
+     */
+  };
 
   ImageBlock.prototype.defaultUrl = function(data) {
     if (data.url) {
@@ -1214,6 +1285,10 @@ ImageBlock = (function(superClass) {
     } else {
       return this.props.blockProps.data.src;
     }
+  };
+
+  ImageBlock.prototype.defaultPlaceholder = function() {
+    return this.props.blockProps.config.image_caption_placeholder;
   };
 
   ImageBlock.prototype.defaultAspectRatio = function(data) {
@@ -1287,9 +1362,14 @@ ImageBlock = (function(superClass) {
           width: _this.img.width,
           height: _this.img.height,
           aspect_ratio: self.getAspectRatio(_this.img.width, _this.img.height)
-        }, _this.updateData);
+        }, _this.handleUpload);
       };
     })(this);
+  };
+
+  ImageBlock.prototype.handleUpload = function() {
+    this.updateData();
+    return this.uploadFile();
   };
 
   ImageBlock.prototype.componentDidMount = function() {
@@ -1318,13 +1398,117 @@ ImageBlock = (function(superClass) {
     };
   };
 
-  ImageBlock.prototype.render = function() {
-    var block, data, entity;
-    block = this.props;
-    entity = block.block.getEntityAt(0);
-    if (entity) {
-      data = Entity.get(entity).getData().src;
+  ImageBlock.prototype.formatData = function() {
+    var formData;
+    formData = new FormData();
+    formData.append('file', this.props.blockProps.data.file);
+    return formData;
+  };
+
+  ImageBlock.prototype.uploadFile = function() {
+    var handleUp;
+    axios({
+      method: 'post',
+      url: this.config.upload_url,
+      data: this.formatData(),
+      onUploadProgress: (function(_this) {
+        return function(e) {
+          return _this.updateProgressBar(e);
+        };
+      })(this)
+    }).then((function(_this) {
+      return function(result) {
+        _this.uploadCompleted(result.data);
+        if (_this.config.upload_callback) {
+          return _this.config.upload_callback(response, _this);
+        }
+      };
+    })(this))["catch"]((function(_this) {
+      return function(error) {
+        console.log("ERROR: got error uploading file " + error);
+        if (_this.config.upload_error_callback) {
+          return _this.config.upload_error_callback(error, _this);
+        }
+      };
+    })(this));
+    return handleUp = (function(_this) {
+      return function(json_response) {
+        return _this.uploadCompleted(json_response, n);
+      };
+    })(this);
+  };
+
+  ImageBlock.prototype.uploadCompleted = function(json) {
+    return this.setState({
+      url: json.url
+    }, this.updateData);
+  };
+
+  ImageBlock.prototype.updateProgressBar = function(e) {
+    var complete;
+    complete = "";
+    if (e.lengthComputable) {
+      complete = e.loaded / e.total * 100;
+      complete = complete != null ? complete : {
+        complete: 0
+      };
+      console.log("complete");
+      return console.log(complete);
     }
+  };
+
+
+  /* uploader handler methods
+  
+  uploadFiles: (files)=>
+    acceptedTypes =
+      "image/png": true
+      "image/jpeg": true
+      "image/gif": true
+  
+    i = 0
+    while i < files.length
+      file = files[i]
+      if acceptedTypes[file.type] is true
+        $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
+        @displayAndUploadImages(file)
+      i++
+  
+  uploadFile: (file, node)=>
+    n = node
+    handleUp = (json_response)=>
+      @uploadCompleted json_response, n
+  
+    $.ajax
+      type: "post"
+      url: @config.upload_url
+      xhr: =>
+        xhr = new XMLHttpRequest()
+        xhr.upload.onprogress = @updateProgressBar
+        xhr
+      cache: false
+      contentType: false
+  
+      beforeSend: (res)=>
+        @config.before_xhr_handler(res) if @config.before_xhr_handler
+  
+      success: (response) =>
+        if @config.upload_callback
+          @config.upload_callback(response, n, @)
+        else
+          handleUp(response)
+        
+        @config.success_xhr_handler(response) if @config.success_xhr_handler
+  
+        return
+      error: (jqxhr, status)=>
+        utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
+  
+      processData: false
+      data: @formatData(file)
+   */
+
+  ImageBlock.prototype.render = function() {
     return React.createElement("div", {
       "ref": "image_tag2",
       "suppressContentEditableWarning": true
@@ -1339,7 +1523,7 @@ ImageBlock = (function(superClass) {
       },
       "className": 'aspect-ratio-fill'
     }), React.createElement("img", {
-      "src": data || this.state.url,
+      "src": this.state.url,
       "ref": "image_tag",
       "height": this.state.aspect_ratio.height,
       "width": this.state.aspect_ratio.width,
@@ -1358,15 +1542,6 @@ ImageBlock = (function(superClass) {
 })(React.Component);
 
 module.exports = ImageBlock;
-
-
-/*
-default = ( block ) =>
-  imgContent = Entity.get(block.getEntityAt(0)).data.src
-  return (<img src={imgContent} />);
-
-module.exports = default
- */
 });
 
 ;require.register("components/blocks/placeholder.cjsx", function(exports, require, module) {
@@ -2508,20 +2683,13 @@ module.exports = data
 });
 
 ;require.register("initialize.cjsx", function(exports, require, module) {
-var Dante, React, ReactDOM;
+var React, ReactDOM;
 
 ReactDOM = require('react-dom');
 
 React = require('react');
 
-Dante = require('./components/App.cjsx');
-
-document.addEventListener('DOMContentLoaded', function() {
-  var editor;
-  editor = new Dante;
-  editor.render();
-  return window.dante_editor = editor;
-});
+window.Dante = require('./components/App.cjsx');
 });
 
 ;require.register("model/content.js.es6", function(exports, require, module) {
@@ -2866,6 +3034,79 @@ findEntities = function(entityType, contentBlock, callback) {
 };
 
 module.exports = findEntities;
+});
+
+;require.register("utils/save_content.coffee", function(exports, require, module) {
+var Immutable, SaveBehavior, axios;
+
+axios = require("axios");
+
+Immutable = require('immutable');
+
+SaveBehavior = (function() {
+  function SaveBehavior(options) {
+    this.config = options.config;
+    this.editorContent = options.editorContent;
+  }
+
+  SaveBehavior.prototype.handleStore = function(ev) {
+    return this.store();
+  };
+
+  SaveBehavior.prototype.store = function(content) {
+    if (!this.config.store_url) {
+      return;
+    }
+    clearTimeout(this.timeout);
+    return this.timeout = setTimeout((function(_this) {
+      return function() {
+        return _this.checkforStore(content);
+      };
+    })(this), this.config.store_interval);
+  };
+
+  SaveBehavior.prototype.checkforStore = function(content) {
+    var isChanged;
+    console.log("ENTER DATA STORE");
+    isChanged = !Immutable.is(Immutable.fromJS(this.editorContent), Immutable.fromJS(content));
+    console.log("CONTENT CHANGED:", isChanged);
+    if (!isChanged) {
+      return;
+    }
+    if (this.config.before_xhr_handler) {
+      this.config.before_xhr_handler();
+    }
+    return axios({
+      method: this.config.store_method,
+      url: this.config.store_url,
+      data: {
+        data: JSON.stringify(content)
+      }
+    }).then((function(_this) {
+      return function(result) {
+        console.log("STORING CONTENT", result);
+        if (_this.config.store_success_handler) {
+          _this.config.store_success_handler(result);
+        }
+        if (_this.config.success_xhr_handler) {
+          return _this.config.success_xhr_handler(result);
+        }
+      };
+    })(this))["catch"]((function(_this) {
+      return function(error) {
+        console.log("ERROR: got error uploading file " + error);
+        if (_this.config.failure_xhr_handler) {
+          return _this.config.failure_xhr_handler(error);
+        }
+      };
+    })(this));
+  };
+
+  return SaveBehavior;
+
+})();
+
+module.exports = SaveBehavior;
 });
 
 ;require.register("utils/selection.js.es6", function(exports, require, module) {

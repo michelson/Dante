@@ -24,17 +24,18 @@
     </div>
 
     <div id="app"></div>
+    <h2>oli</h2>
 
     <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', function(){
         editor = new Dante(
           {
             upload_url: "http://localhost:9292/uploads/new",
-            store_url: "http://localhost:3333/store.json",
             el: "app"
           }
         )
         editor.render()
+        window.dante_editor = editor        
       })
     </script>
 

@@ -70,6 +70,8 @@ EmbedBlock = require('./blocks/embed.cjsx')
 VideoBlock = require('./blocks/video.cjsx')
 PlaceholderBlock = require('./blocks/placeholder.cjsx')
 
+SaveBehavior = require('../utils/save_content.coffee')
+
 PocData = require('../data/poc.js')
 
 #window.getVisibleSelectionRect = getVisibleSelectionRect
@@ -79,13 +81,41 @@ class Dante
     console.log "init editor!"
     @options = options
     @options.el = options.el || 'app'
+
+    @options.read_only = options.read_only || false
     @options.spellcheck = options.spellcheck || false
+    @options.title_placeholder = options.title_placeholder || "Title"
+    @options.body_placeholder = options.body_placeholder || "Write your story"
+
+    @options.widgets = ["uploader", "embed", "embed-extract"]
+    
+    @options.store_url = options.store_url || null
+    @options.store_method = options.store_method || "POST"
+    @options.store_success_handler = options.store_success_handler || null
+    @options.store_failure_handler = options.store_failure_handler || null
+    @options.store_interval = options.store_interval || 1500
+    @options.before_xhr_handler = options.before_xhr_handler
+    @options.success_xhr_handler = options.success_xhr_handler
+    
+
+    @options.upload_url = options.upload_url || 'uploads.json'
+    @options.upload_callback = @options.image_upload_callabck
+    @options.image_delete_callback =  @options.image_delete_callback
+    @options.image_caption_placeholder = options.image_caption_placeholder
+
+    @options.oembed_url = "http://api.embed.ly/1/oembed?url="
+    @options.extract_url = "http://api.embed.ly/1/extract?url="
+    @options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
+    @options.embed_caption_placeholder = "Type caption for embed (optional)"
+    @options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 
   getContent: ->
     PocData
+    ""
 
   render: ->
-    ReactDOM.render(<DanteEditor content={@getContent()} options={@options}/>, document.getElementById(@options.el))
+    ReactDOM.render(<DanteEditor content={@getContent()} 
+      config={@options}/>, document.getElementById(@options.el))
 
 class DanteEditor extends React.Component
   constructor: (props) ->
@@ -216,9 +246,13 @@ class DanteEditor extends React.Component
       # {label: 'strikethrough', style: 'STRIKETHROUGH'}
     ];
 
+    @save = new SaveBehavior
+      config: @props.config
+      editorState: @state.editorState
+      editorContent: @emitSerializedOutput()
+
     optionsForDecorator: ()->
       @state
-
 
   initializeState: ()=>
     if @.props.content #and @.props.content.trim() isnt ""
@@ -296,13 +330,13 @@ class DanteEditor extends React.Component
         ""
   
   onChange: (editorState) =>
-    # debugger
+    @setPreContent()
+    
     # console.log "BB", editorState.toJS()
     @.setState({editorState})
     #console.log "changed at", editorState.getSelection().getAnchorKey()
     #console.log "collapsed?", editorState.getSelection().isCollapsed()
 
-    
     currentBlock = getCurrentBlock(@state.editorState);
     blockType = currentBlock.getType()
 
@@ -326,9 +360,21 @@ class DanteEditor extends React.Component
       @getPositionForCurrent()
     , 0
     
-
     # @setState({ editorState });
+    @dispatchChangesToSave()    
+  
     console.log "CHANGES!"
+
+  dispatchChangesToSave: =>
+    clearTimeout @saveTimeout
+    @saveTimeout = setTimeout =>
+      @save.store(@emitSerializedOutput())
+    , 100
+
+  setPreContent: =>
+    content = @emitSerializedOutput()
+    console.log "SET PRE CONTENT", content
+    @save.editorContent = content
 
   emitHTML: (editorState)=>
 
@@ -359,7 +405,7 @@ class DanteEditor extends React.Component
     #s = @state.editorState.getCurrentContent()
     
     raw = convertToRaw( @state.editorState.getCurrentContent() )
-    console.log raw
+    # console.log raw
 
     #raw_as_json = JSON.stringify(raw)
     #console.log raw_as_json
@@ -372,7 +418,6 @@ class DanteEditor extends React.Component
     editorState = EditorState.createWithContent(new_content, @decorator)
 
   testEmitAndDecode: =>
-
     raw_as_json = @emitSerializedOutput()
 
     @setState
@@ -416,6 +461,7 @@ class DanteEditor extends React.Component
                 file: @state.current_input
               getEditorState: @getEditorState
               setEditorState: @onChange
+              config: @props.config
           )
 
       when 'embed'
@@ -455,6 +501,7 @@ class DanteEditor extends React.Component
   simply converted to an unstyled empty block. If RETURN is pressed on an unstyled block
   default behavior is executed.
   ###
+
   handleReturn: (e) =>
     if this.props.handleReturn
       if this.props.handleReturn()
@@ -531,7 +578,6 @@ class DanteEditor extends React.Component
     return false;
 
   handleBeforeInput: (chars)=>
-    
     currentBlock = getCurrentBlock(@state.editorState);
 
     if currentBlock.getText().length isnt 0
@@ -738,7 +784,6 @@ class DanteEditor extends React.Component
     @setState
       display_image_popover: true
 
-
   # will update block state
   updateBlockData: (block, options)=>
     data = block.getData()
@@ -844,10 +889,11 @@ class DanteEditor extends React.Component
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         handleBeforeInput={@.handleBeforeInput}
-                        readOnly={false}
+                        readOnly={@props.config.read_only}
                         onClick={@handleClick}
                         suppressContentEditableWarning={true}
-                        placeholder="Write something..."
+                        placeholder={@props.config.body_placeholder}
+                        rel="editor"
                       />
                     </div> 
                   </div>
@@ -886,8 +932,7 @@ class DanteEditor extends React.Component
           display_tooltip={@state.display_tooltip}
           closeInlineButton={@closeInlineButton}
         />
-
-        
+      
         <DanteImagePopover
           display_image_popover={@state.display_image_popover}
           relocateImageTooltipPosition={@relocateImageTooltipPosition}
@@ -896,15 +941,13 @@ class DanteEditor extends React.Component
           setCurrentComponent={@setCurrentComponent}
         />
       
-
         <DanteAnchorPopover
           display_anchor_popover={@state.display_anchor_popover}
           url={@state.anchor_popover_url}
           position={@state.anchor_popover_position}
           handleOnMouseOver={@handleShowPopLinkOver}
           handleOnMouseOut={@handleHidePopLinkOver}
-        />
-        
+        />   
 
         <ul>
           <li>

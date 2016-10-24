@@ -9,6 +9,8 @@ ReactDOM = require('react-dom')
 
 } = require('draft-js')
 
+axios = require("axios")
+
 { updateDataOfBlock } = require('../../model/index.js.es6')
 
 
@@ -18,16 +20,31 @@ class ImageBlock extends React.Component
     super props
 
     existing_data = @.props.block.getData().toJS()
-    
+
+    @config = @props.blockProps.config
+
     @state = 
       selected: false
-      caption: "Type caption for image"
+      caption: @defaultPlaceholder()
       direction: existing_data.direction || "center"
       width: 0
       height: 0
       file: null
-      url: @defaultUrl(existing_data)
+      url: @blockPropsSrc() || @defaultUrl(existing_data)
       aspect_ratio: @defaultAspectRatio(existing_data)
+
+  blockPropsSrc: ()=>
+    # console.log @.props.blockProps.data.src
+    @.props.blockProps.data.src
+    ###
+    debugger
+    block = @.props;
+    entity = block.block.getEntityAt(0)
+    if entity
+      data = Entity.get(entity).getData().src
+    else
+      null
+    ###
 
   defaultUrl: (data)=>
     if data.url
@@ -35,6 +52,8 @@ class ImageBlock extends React.Component
     else
       @props.blockProps.data.src
 
+  defaultPlaceholder: ->
+    @props.blockProps.config.image_caption_placeholder
 
   defaultAspectRatio: (data)=>
     if data.aspect_ratio
@@ -76,7 +95,7 @@ class ImageBlock extends React.Component
     block = @.props.block
     getEditorState = @props.blockProps.getEditorState
     setEditorState = @props.blockProps.setEditorState
-    data = block.getData();
+    data = block.getData()
     newData = data.merge(@state)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
@@ -95,8 +114,12 @@ class ImageBlock extends React.Component
         width: @img.width
         height: @img.height
         aspect_ratio: self.getAspectRatio(@img.width, @img.height)
-      , @updateData
-  
+      , @handleUpload
+
+  handleUpload: =>
+    @updateData()
+    @uploadFile()
+
   componentDidMount: ->
     @replaceImg()
 
@@ -114,17 +137,98 @@ class ImageBlock extends React.Component
     #main_editor.onChange(main_editor.state.editorState)
 
   coords: ->
-    {maxWidth: "#{@state.aspect_ratio.width}px", maxHeight: "#{@state.aspect_ratio.height}px"}
+    maxWidth: "#{@state.aspect_ratio.width}px"
+    maxHeight: "#{@state.aspect_ratio.height}px"
 
-  #getDirectionClass: ->
-  #  @props.blockProps.image_directions.toJSON()
-  #  "graf--layoutOutsetLeft"
+  formatData: ->
+    formData = new FormData()
+    formData.append('file', @props.blockProps.data.file)
+    return formData
+
+  uploadFile: =>
+    axios
+      method: 'post'
+      url: @config.upload_url
+      data: @formatData()
+      onUploadProgress: (e)=>
+        @updateProgressBar(e)
+    .then (result)=> 
+      @uploadCompleted(result.data)
+      if @config.upload_callback
+        @config.upload_callback(response, @)
+    .catch (error)=>
+      console.log("ERROR: got error uploading file #{error}")
+      if @config.upload_error_callback
+        @config.upload_error_callback(error, @)
+
+    handleUp = (json_response)=>
+      @uploadCompleted json_response, n
+
+  uploadCompleted: (json)=>
+    @setState
+      url: json.url
+    , @updateData
+
+  updateProgressBar: (e)=>
+    complete = ""
+    if (e.lengthComputable)
+      complete = e.loaded / e.total * 100
+      complete = complete ? complete : 0
+      console.log "complete"
+      console.log complete
+
+  ### uploader handler methods
+
+  uploadFiles: (files)=>
+    acceptedTypes =
+      "image/png": true
+      "image/jpeg": true
+      "image/gif": true
+
+    i = 0
+    while i < files.length
+      file = files[i]
+      if acceptedTypes[file.type] is true
+        $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
+        @displayAndUploadImages(file)
+      i++
+
+  uploadFile: (file, node)=>
+    n = node
+    handleUp = (json_response)=>
+      @uploadCompleted json_response, n
+
+    $.ajax
+      type: "post"
+      url: @config.upload_url
+      xhr: =>
+        xhr = new XMLHttpRequest()
+        xhr.upload.onprogress = @updateProgressBar
+        xhr
+      cache: false
+      contentType: false
+
+      beforeSend: (res)=>
+        @config.before_xhr_handler(res) if @config.before_xhr_handler
+
+      success: (response) =>
+        if @config.upload_callback
+          @config.upload_callback(response, n, @)
+        else
+          handleUp(response)
+        
+        @config.success_xhr_handler(response) if @config.success_xhr_handler
+
+        return
+      error: (jqxhr, status)=>
+        utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
+
+      processData: false
+      data: @formatData(file)
+
+  ###
 
   render: =>
-    block = @.props;
-    entity = block.block.getEntityAt(0)
-    data = Entity.get(entity).getData().src if entity
-
     return (
       <div ref="image_tag2" suppressContentEditableWarning={true}>
         <div contentEditable="false"
@@ -133,7 +237,7 @@ class ImageBlock extends React.Component
           onClick={@handleGrafFigureSelectImg}>
           <div style={{paddingBottom: "#{@state.aspect_ratio.ratio}%" }}} className='aspect-ratio-fill'>
           </div>
-          <img src={data||@state.url}
+          <img src={@state.url}
             ref="image_tag"
             height={@state.aspect_ratio.height}
             width={@state.aspect_ratio.width}
@@ -151,11 +255,3 @@ class ImageBlock extends React.Component
     )
     
 module.exports = ImageBlock
-
-###
-default = ( block ) =>
-  imgContent = Entity.get(block.getEntityAt(0)).data.src
-  return (<img src={imgContent} />);
-
-module.exports = default
-###
