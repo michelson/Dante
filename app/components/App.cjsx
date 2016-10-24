@@ -148,27 +148,6 @@ class DanteEditor extends React.Component
 
     @extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(@blockRenderMap);
 
-    @blockStyleFn = (block)=>
-      currentBlock = getCurrentBlock(@.state.editorState)
-      is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
-      
-      switch block.getType()
-        when "image"
-          direction_class = @parseDirection(block.getData().toJS().direction)
-          console.log "direction_class: ", direction_class 
-          is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-          return "graf graf--figure #{is_selected} #{direction_class}"
-        when "video"
-          is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-          return "graf--figure graf--iframe #{is_selected}"
-        when "embed"
-          is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-          return "graf graf--mixtapeEmbed #{is_selected}"
-        when "placeholder"
-          return "is-embedable #{is_selected}"
-        else
-          return "graf graf--p #{is_selected}"
-
     @state = 
       editorState: @initializeState() #EditorState.createEmpty(@decorator)
       display_toolbar: false
@@ -491,6 +470,29 @@ class DanteEditor extends React.Component
           )
 
     return null;
+
+  blockStyleFn: (block)=>
+    currentBlock = getCurrentBlock(@.state.editorState)
+    is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
+    
+    console.log "BLOCK STYLE:", block.getType()
+
+    switch block.getType()
+      when "image"
+        direction_class = @parseDirection(block.getData().toJS().direction)
+        console.log "direction_class: ", direction_class 
+        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
+        return "graf graf--figure #{is_selected} #{direction_class}"
+      when "video"
+        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
+        return "graf--figure graf--iframe #{is_selected}"
+      when "embed"
+        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
+        return "graf graf--mixtapeEmbed #{is_selected}"
+      when "placeholder"
+        return "is-embedable #{is_selected}"
+      else
+        return "graf graf--p #{is_selected}"
 
   ### from medium-draft
   By default, it handles return key for inserting soft breaks (BRs in HTML) and
@@ -861,26 +863,37 @@ class DanteEditor extends React.Component
     }
 
   handlePasteText: (text, html)=>
-    debugger
     return 
+    #TODO check images on paste and insert image block
+    ###
     fragment = convertFromHTML(@._clearHTML(content))            
     newContentState = Modifier.replaceWithFragment(
       contentState,
       selectionState,
       BlockMapBuilder.createFromArray(fragment)
     )
+    ###
 
   handlePasteImage: (files)=>
     #TODO: check file types
     files.map (file)=>
       @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image'));
+        @onChange(addNewBlock(@state.editorState, 'image'))
 
   handleDroppedFiles: (state, files)=>
     files.map (file)=>
       @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image'));
+        @onChange(addNewBlock(@state.editorState, 'image'))
 
+  handleUpArrow: (e)=>
+    setTimeout =>
+      @forceRender(@state.editorState)
+    , 10
+
+  handleDownArrow: (e)=>
+    setTimeout =>
+      @forceRender(@state.editorState)
+    , 10
 
   render: =>
 
@@ -904,6 +917,8 @@ class DanteEditor extends React.Component
                         blockRendererFn={@.blockRenderer}
                         editorState={@state.editorState} 
                         onChange={@onChange}
+                        onUpArrow={@handleUpArrow}
+                        onDownArrow={@handleDownArrow}
                         handleReturn={@handleReturn}
                         blockRenderMap={@state.blockRenderMap}
                         blockStyleFn={@.blockStyleFn}
@@ -917,6 +932,7 @@ class DanteEditor extends React.Component
                         onClick={@handleClick}
                         suppressContentEditableWarning={true}
                         placeholder={@props.config.body_placeholder}
+
                         ref="editor"
                       />
                     </div> 

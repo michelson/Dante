@@ -272,6 +272,8 @@ DanteEditor = (function(superClass) {
 
   function DanteEditor(props) {
     this.render = bind(this.render, this);
+    this.handleDownArrow = bind(this.handleDownArrow, this);
+    this.handleUpArrow = bind(this.handleUpArrow, this);
     this.handleDroppedFiles = bind(this.handleDroppedFiles, this);
     this.handlePasteImage = bind(this.handlePasteImage, this);
     this.handlePasteText = bind(this.handlePasteText, this);
@@ -297,6 +299,7 @@ DanteEditor = (function(superClass) {
     this.handleClick = bind(this.handleClick, this);
     this.handleBeforeInput = bind(this.handleBeforeInput, this);
     this.handleReturn = bind(this.handleReturn, this);
+    this.blockStyleFn = bind(this.blockStyleFn, this);
     this.blockRenderer = bind(this.blockRenderer, this);
     this.setCurrentComponent = bind(this.setCurrentComponent, this);
     this.testEmitAndDecode = bind(this.testEmitAndDecode, this);
@@ -342,30 +345,6 @@ DanteEditor = (function(superClass) {
       }
     });
     this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap);
-    this.blockStyleFn = (function(_this) {
-      return function(block) {
-        var currentBlock, direction_class, is_selected;
-        currentBlock = getCurrentBlock(_this.state.editorState);
-        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : "";
-        switch (block.getType()) {
-          case "image":
-            direction_class = _this.parseDirection(block.getData().toJS().direction);
-            console.log("direction_class: ", direction_class);
-            is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
-            return "graf graf--figure " + is_selected + " " + direction_class;
-          case "video":
-            is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
-            return "graf--figure graf--iframe " + is_selected;
-          case "embed":
-            is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
-            return "graf graf--mixtapeEmbed " + is_selected;
-          case "placeholder":
-            return "is-embedable " + is_selected;
-          default:
-            return "graf graf--p " + is_selected;
-        }
-      };
-    })(this);
     this.state = {
       editorState: this.initializeState(),
       display_toolbar: false,
@@ -674,6 +653,30 @@ DanteEditor = (function(superClass) {
         };
     }
     return null;
+  };
+
+  DanteEditor.prototype.blockStyleFn = function(block) {
+    var currentBlock, direction_class, is_selected;
+    currentBlock = getCurrentBlock(this.state.editorState);
+    is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : "";
+    console.log("BLOCK STYLE:", block.getType());
+    switch (block.getType()) {
+      case "image":
+        direction_class = this.parseDirection(block.getData().toJS().direction);
+        console.log("direction_class: ", direction_class);
+        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
+        return "graf graf--figure " + is_selected + " " + direction_class;
+      case "video":
+        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
+        return "graf--figure graf--iframe " + is_selected;
+      case "embed":
+        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
+        return "graf graf--mixtapeEmbed " + is_selected;
+      case "placeholder":
+        return "is-embedable " + is_selected;
+      default:
+        return "graf graf--p " + is_selected;
+    }
   };
 
 
@@ -1025,11 +1028,15 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.handlePasteText = function(text, html) {
-    debugger;
-    var fragment, newContentState;
-    return;
-    fragment = convertFromHTML(this._clearHTML(content));
-    return newContentState = Modifier.replaceWithFragment(contentState, selectionState, BlockMapBuilder.createFromArray(fragment));
+
+    /*
+    fragment = convertFromHTML(@._clearHTML(content))            
+    newContentState = Modifier.replaceWithFragment(
+      contentState,
+      selectionState,
+      BlockMapBuilder.createFromArray(fragment)
+    )
+     */
   };
 
   DanteEditor.prototype.handlePasteImage = function(files) {
@@ -1050,6 +1057,22 @@ DanteEditor = (function(superClass) {
         });
       };
     })(this));
+  };
+
+  DanteEditor.prototype.handleUpArrow = function(e) {
+    return setTimeout((function(_this) {
+      return function() {
+        return _this.forceRender(_this.state.editorState);
+      };
+    })(this), 10);
+  };
+
+  DanteEditor.prototype.handleDownArrow = function(e) {
+    return setTimeout((function(_this) {
+      return function() {
+        return _this.forceRender(_this.state.editorState);
+      };
+    })(this), 10);
   };
 
   DanteEditor.prototype.render = function() {
@@ -1081,6 +1104,8 @@ DanteEditor = (function(superClass) {
       "blockRendererFn": this.blockRenderer,
       "editorState": this.state.editorState,
       "onChange": this.onChange,
+      "onUpArrow": this.handleUpArrow,
+      "onDownArrow": this.handleDownArrow,
       "handleReturn": this.handleReturn,
       "blockRenderMap": this.state.blockRenderMap,
       "blockStyleFn": this.blockStyleFn,
