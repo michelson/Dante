@@ -18,6 +18,9 @@ Immutable = require('immutable')
   RichUtils
   DefaultDraftBlockRenderMap
   SelectionState
+  Modifier
+  BlockMapBuilder
+  getSafeBodyFromHTML
 } = require('draft-js')
 
 DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor')
@@ -71,6 +74,7 @@ VideoBlock = require('./blocks/video.cjsx')
 PlaceholderBlock = require('./blocks/placeholder.cjsx')
 
 SaveBehavior = require('../utils/save_content.coffee')
+customHTML2Content = require('../utils/convert_html2.coffee')
 
 PocData = require('../data/poc.js')
 
@@ -129,6 +133,8 @@ class DanteEditor extends React.Component
 
     @.blockRenderMap = Map({
         "image":
+          element: 'figure'
+        "avv":
           element: 'figure'
         "video":
           element: 'figure'
@@ -863,16 +869,33 @@ class DanteEditor extends React.Component
     }
 
   handlePasteText: (text, html)=>
-    return 
-    #TODO check images on paste and insert image block
+
+    #html = html.replace("img", "avv")
+    # https://github.com/facebook/draft-js/issues/685
     ###
-    fragment = convertFromHTML(@._clearHTML(content))            
-    newContentState = Modifier.replaceWithFragment(
-      contentState,
-      selectionState,
-      BlockMapBuilder.createFromArray(fragment)
+    html = "<p>chao</p>
+    <avv>aaa</avv>
+    <p>oli</p>
+    <img src='x'/>"
+    ###
+
+    newContentState = customHTML2Content(html, @extendedBlockRenderMap)
+
+    # console.log html
+
+    #currentBlock = getCurrentBlock(@state.editorState)
+    
+    pushedContentState = EditorState.push(
+      @state.editorState, 
+      newContentState, 
+      'insert-fragment'
     )
-    ###
+   
+    @onChange(pushedContentState)
+
+    true
+
+    
 
   handlePasteImage: (files)=>
     #TODO: check file types

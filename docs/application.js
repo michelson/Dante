@@ -150,7 +150,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/App.cjsx", function(exports, require, module) {
-var CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SaveBehavior, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, findEntities, getCurrentBlock, getDefaultKeyBinding, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock,
+var BlockMapBuilder, CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, Modifier, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SaveBehavior, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, customHTML2Content, findEntities, getCurrentBlock, getDefaultKeyBinding, getSafeBodyFromHTML, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -163,7 +163,7 @@ Immutable = require('immutable');
 
 Map = require('immutable').Map;
 
-ref = require('draft-js'), convertToRaw = ref.convertToRaw, convertFromRaw = ref.convertFromRaw, CompositeDecorator = ref.CompositeDecorator, getVisibleSelectionRect = ref.getVisibleSelectionRect, getDefaultKeyBinding = ref.getDefaultKeyBinding, getSelectionOffsetKeyForNode = ref.getSelectionOffsetKeyForNode, KeyBindingUtil = ref.KeyBindingUtil, ContentState = ref.ContentState, Editor = ref.Editor, EditorState = ref.EditorState, Entity = ref.Entity, RichUtils = ref.RichUtils, DefaultDraftBlockRenderMap = ref.DefaultDraftBlockRenderMap, SelectionState = ref.SelectionState;
+ref = require('draft-js'), convertToRaw = ref.convertToRaw, convertFromRaw = ref.convertFromRaw, CompositeDecorator = ref.CompositeDecorator, getVisibleSelectionRect = ref.getVisibleSelectionRect, getDefaultKeyBinding = ref.getDefaultKeyBinding, getSelectionOffsetKeyForNode = ref.getSelectionOffsetKeyForNode, KeyBindingUtil = ref.KeyBindingUtil, ContentState = ref.ContentState, Editor = ref.Editor, EditorState = ref.EditorState, Entity = ref.Entity, RichUtils = ref.RichUtils, DefaultDraftBlockRenderMap = ref.DefaultDraftBlockRenderMap, SelectionState = ref.SelectionState, Modifier = ref.Modifier, BlockMapBuilder = ref.BlockMapBuilder, getSafeBodyFromHTML = ref.getSafeBodyFromHTML;
 
 DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor');
 
@@ -217,6 +217,8 @@ VideoBlock = require('./blocks/video.cjsx');
 PlaceholderBlock = require('./blocks/placeholder.cjsx');
 
 SaveBehavior = require('../utils/save_content.coffee');
+
+customHTML2Content = require('../utils/convert_html2.coffee');
 
 PocData = require('../data/poc.js');
 
@@ -323,6 +325,9 @@ DanteEditor = (function(superClass) {
     ]);
     this.blockRenderMap = Map({
       "image": {
+        element: 'figure'
+      },
+      "avv": {
         element: 'figure'
       },
       "video": {
@@ -1030,13 +1035,16 @@ DanteEditor = (function(superClass) {
   DanteEditor.prototype.handlePasteText = function(text, html) {
 
     /*
-    fragment = convertFromHTML(@._clearHTML(content))            
-    newContentState = Modifier.replaceWithFragment(
-      contentState,
-      selectionState,
-      BlockMapBuilder.createFromArray(fragment)
-    )
+    html = "<p>chao</p>
+    <avv>aaa</avv>
+    <p>oli</p>
+    <img src='x'/>"
      */
+    var newContentState, pushedContentState;
+    newContentState = customHTML2Content(html, this.extendedBlockRenderMap);
+    pushedContentState = EditorState.push(this.state.editorState, newContentState, 'insert-fragment');
+    this.onChange(pushedContentState);
+    return true;
   };
 
   DanteEditor.prototype.handlePasteImage = function(files) {
@@ -1442,6 +1450,7 @@ ImageBlock = (function(superClass) {
   };
 
   ImageBlock.prototype.handleGrafFigureSelectImg = function(e) {
+    debugger;
     e.preventDefault();
     return this.setState({
       selected: true
@@ -1513,57 +1522,6 @@ ImageBlock = (function(superClass) {
       return console.log(complete);
     }
   };
-
-
-  /* uploader handler methods
-  
-  uploadFiles: (files)=>
-    acceptedTypes =
-      "image/png": true
-      "image/jpeg": true
-      "image/gif": true
-  
-    i = 0
-    while i < files.length
-      file = files[i]
-      if acceptedTypes[file.type] is true
-        $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
-        @displayAndUploadImages(file)
-      i++
-  
-  uploadFile: (file, node)=>
-    n = node
-    handleUp = (json_response)=>
-      @uploadCompleted json_response, n
-  
-    $.ajax
-      type: "post"
-      url: @config.upload_url
-      xhr: =>
-        xhr = new XMLHttpRequest()
-        xhr.upload.onprogress = @updateProgressBar
-        xhr
-      cache: false
-      contentType: false
-  
-      beforeSend: (res)=>
-        @config.before_xhr_handler(res) if @config.before_xhr_handler
-  
-      success: (response) =>
-        if @config.upload_callback
-          @config.upload_callback(response, n, @)
-        else
-          handleUp(response)
-        
-        @config.success_xhr_handler(response) if @config.success_xhr_handler
-  
-        return
-      error: (jqxhr, status)=>
-        utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
-  
-      processData: false
-      data: @formatData(file)
-   */
 
   ImageBlock.prototype.render = function() {
     return React.createElement("div", {
@@ -3073,6 +3031,93 @@ var toHTML = (0, _draftConvert.convertToHTML)({
 
 //export default toHTML;
 module.exports = toHTML;
+});
+
+;require.register("utils/convert_html2.coffee", function(exports, require, module) {
+var CharacterMetadata, ContentBlock, ContentState, Entity, List, OrderedSet, Repeat, compose, convertFromHTML, customHTML2Content, elementToBlockSpecElement, extend, fromJS, genKey, getBlockSpecForElement, getSafeBodyFromHTML, imgReplacer, ref, ref1, ref2, replaceElement, toArray, wrapBlockSpec;
+
+ref = require('draft-js'), ContentState = ref.ContentState, genKey = ref.genKey, Entity = ref.Entity, CharacterMetadata = ref.CharacterMetadata, ContentBlock = ref.ContentBlock, convertFromHTML = ref.convertFromHTML, getSafeBodyFromHTML = ref.getSafeBodyFromHTML;
+
+ref1 = require('immutable'), List = ref1.List, OrderedSet = ref1.OrderedSet, Repeat = ref1.Repeat, fromJS = ref1.fromJS;
+
+ref2 = require('underscore'), compose = ref2.compose, toArray = ref2.toArray, extend = ref2.extend;
+
+
+/*
+ * Helpers
+ */
+
+getBlockSpecForElement = (function(_this) {
+  return function(imgElement) {
+    return {
+      contentType: 'image',
+      imgSrc: imgElement.getAttribute('src')
+    };
+  };
+})(this);
+
+wrapBlockSpec = (function(_this) {
+  return function(blockSpec) {
+    var tempEl;
+    if (blockSpec === null) {
+      return null;
+    }
+    tempEl = document.createElement('blockquote');
+    tempEl.innerText = JSON.stringify(blockSpec);
+    return tempEl;
+  };
+})(this);
+
+replaceElement = (function(_this) {
+  return function(oldEl, newEl) {
+    var parentNode;
+    if (!(newEl instanceof HTMLElement)) {
+      return;
+    }
+    parentNode = oldEl.parentNode;
+    return parentNode.replaceChild(newEl, oldEl);
+  };
+})(this);
+
+elementToBlockSpecElement = compose(wrapBlockSpec, getBlockSpecForElement);
+
+imgReplacer = (function(_this) {
+  return function(imgElement) {
+    return replaceElement(imgElement, elementToBlockSpecElement(imgElement));
+  };
+})(this);
+
+
+/*
+ * Main function
+ */
+
+customHTML2Content = function(HTML, blockRn) {
+  var a, contentBlocks, tempDoc;
+  tempDoc = new DOMParser().parseFromString(HTML, 'text/html');
+  a = tempDoc.querySelectorAll('img').forEach(function(item) {
+    return imgReplacer(item);
+  });
+  contentBlocks = convertFromHTML(tempDoc.body.innerHTML, getSafeBodyFromHTML, blockRn);
+  contentBlocks = contentBlocks.map(function(block) {
+    var json, newBlock;
+    if (block.getType() !== 'blockquote') {
+      return block;
+    }
+    json = JSON.parse(block.getText());
+    return newBlock = block.merge({
+      type: "image",
+      text: "",
+      data: {
+        url: json.imgSrc
+      }
+    });
+  });
+  tempDoc = null;
+  return ContentState.createFromBlockArray(contentBlocks);
+};
+
+module.exports = customHTML2Content;
 });
 
 ;require.register("utils/find_entities.coffee", function(exports, require, module) {

@@ -129,6 +129,7 @@ class ImageBlock extends React.Component
     ratio: "#{@state.aspect_ratio.height}"
 
   handleGrafFigureSelectImg: (e)=>
+    debugger
     e.preventDefault()
     #@props.blockProps.setCurrentComponent(@)
     @setState
@@ -177,60 +178,10 @@ class ImageBlock extends React.Component
       console.log "complete"
       console.log complete
 
-  ### uploader handler methods
-
-  uploadFiles: (files)=>
-    acceptedTypes =
-      "image/png": true
-      "image/jpeg": true
-      "image/gif": true
-
-    i = 0
-    while i < files.length
-      file = files[i]
-      if acceptedTypes[file.type] is true
-        $(@placeholder).append "<progress class=\"progress\" min=\"0\" max=\"100\" value=\"0\">0</progress>"
-        @displayAndUploadImages(file)
-      i++
-
-  uploadFile: (file, node)=>
-    n = node
-    handleUp = (json_response)=>
-      @uploadCompleted json_response, n
-
-    $.ajax
-      type: "post"
-      url: @config.upload_url
-      xhr: =>
-        xhr = new XMLHttpRequest()
-        xhr.upload.onprogress = @updateProgressBar
-        xhr
-      cache: false
-      contentType: false
-
-      beforeSend: (res)=>
-        @config.before_xhr_handler(res) if @config.before_xhr_handler
-
-      success: (response) =>
-        if @config.upload_callback
-          @config.upload_callback(response, n, @)
-        else
-          handleUp(response)
-        
-        @config.success_xhr_handler(response) if @config.success_xhr_handler
-
-        return
-      error: (jqxhr, status)=>
-        utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
-
-      processData: false
-      data: @formatData(file)
-
-  ###
-
   render: =>
     return (
-      <div ref="image_tag2" suppressContentEditableWarning={true}>
+      <div ref="image_tag2" 
+          suppressContentEditableWarning={true}>
         <div contentEditable="false"
           className="aspectRatioPlaceholder is-locked" 
           style={@coords()} 
