@@ -1309,7 +1309,7 @@ module.exports = EmbedBlock;
 });
 
 ;require.register("components/blocks/image.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, ImageBlock, React, ReactDOM, RichUtils, axios, ref, updateDataOfBlock,
+var AtomicBlockUtils, EditorBlock, EditorState, Entity, ImageBlock, React, ReactDOM, RichUtils, axios, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1318,7 +1318,7 @@ React = require('react');
 
 ReactDOM = require('react-dom');
 
-ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
+ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock, EditorState = ref.EditorState;
 
 axios = require("axios");
 
@@ -1333,6 +1333,7 @@ ImageBlock = (function(superClass) {
     this.uploadCompleted = bind(this.uploadCompleted, this);
     this.uploadFile = bind(this.uploadFile, this);
     this.handleGrafFigureSelectImg = bind(this.handleGrafFigureSelectImg, this);
+    this.updateDataSelection = bind(this.updateDataSelection, this);
     this.aspectRatio = bind(this.aspectRatio, this);
     this.handleUpload = bind(this.handleUpload, this);
     this.replaceImg = bind(this.replaceImg, this);
@@ -1479,12 +1480,22 @@ ImageBlock = (function(superClass) {
     };
   };
 
+  ImageBlock.prototype.updateDataSelection = function() {
+    var getEditorState, newselection, setEditorState;
+    getEditorState = this.props.blockProps.getEditorState;
+    setEditorState = this.props.blockProps.setEditorState;
+    newselection = getEditorState().getSelection().merge({
+      anchorKey: this.props.block.getKey(),
+      focusKey: this.props.block.getKey()
+    });
+    return setEditorState(EditorState.forceSelection(getEditorState(), newselection));
+  };
+
   ImageBlock.prototype.handleGrafFigureSelectImg = function(e) {
-    debugger;
     e.preventDefault();
     return this.setState({
       selected: true
-    });
+    }, this.updateDataSelection);
   };
 
   ImageBlock.prototype.coords = function() {

@@ -6,7 +6,7 @@ ReactDOM = require('react-dom')
   RichUtils
   AtomicBlockUtils
   EditorBlock
-
+  EditorState
 } = require('draft-js')
 
 axios = require("axios")
@@ -128,12 +128,24 @@ class ImageBlock extends React.Component
     maxHeight: "#{@state.aspect_ratio.height}"
     ratio: "#{@state.aspect_ratio.height}"
 
+  updateDataSelection: =>
+    getEditorState = @props.blockProps.getEditorState
+    setEditorState = @props.blockProps.setEditorState
+    newselection = getEditorState().getSelection().merge(
+      anchorKey: @.props.block.getKey()
+      focusKey: @.props.block.getKey()
+    )
+
+    setEditorState(
+      EditorState.forceSelection(getEditorState(), newselection)
+    )
+  
   handleGrafFigureSelectImg: (e)=>
-    debugger
     e.preventDefault()
     #@props.blockProps.setCurrentComponent(@)
     @setState
       selected: true
+    , @updateDataSelection
 
     #main_editor.onChange(main_editor.state.editorState)
 
