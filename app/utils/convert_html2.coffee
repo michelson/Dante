@@ -76,8 +76,11 @@ customHTML2Content = (HTML, blockRn)->
   contentBlocks = contentBlocks.map (block)->
     if (block.getType() isnt 'blockquote')
       return block
-    
-    json = JSON.parse(block.getText())
+
+    try
+      json = JSON.parse(block.getText())
+    catch
+      return block
     
     newBlock = block.merge({
       type: "image",
