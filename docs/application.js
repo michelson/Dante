@@ -3145,7 +3145,11 @@ customHTML2Content = function(HTML, blockRn) {
     if (block.getType() !== 'blockquote') {
       return block;
     }
-    json = JSON.parse(block.getText());
+    try {
+      json = JSON.parse(block.getText());
+    } catch (error) {
+      return block;
+    }
     return newBlock = block.merge({
       type: "image",
       text: "",
