@@ -1040,9 +1040,39 @@ DanteEditor = (function(superClass) {
     <p>oli</p>
     <img src='x'/>"
      */
-    var newContentState, pushedContentState;
+    var blocksAfter, blocksBefore, content, currentBlock, endKey, newBlockKey, newBlockMap, newContent, newContentState, pushedContentState, selection;
+    if (!html) {
+      return false;
+    }
     newContentState = customHTML2Content(html, this.extendedBlockRenderMap);
-    pushedContentState = EditorState.push(this.state.editorState, newContentState, 'insert-fragment');
+    currentBlock = getCurrentBlock(this.state.editorState);
+    selection = this.state.editorState.getSelection();
+    endKey = selection.getEndKey();
+    content = this.state.editorState.getCurrentContent();
+    blocksBefore = content.blockMap.toSeq().takeUntil((function(_this) {
+      return function(v) {
+        return v.key === endKey;
+      };
+    })(this));
+    blocksAfter = content.blockMap.toSeq().skipUntil((function(_this) {
+      return function(v) {
+        return v.key === endKey;
+      };
+    })(this)).rest();
+    newBlockKey = newContentState.blockMap.first().getKey();
+    newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap();
+    newContent = content.merge({
+      blockMap: newBlockMap,
+      selectionBefore: selection,
+      selectionAfter: selection.merge({
+        anchorKey: newBlockKey,
+        anchorOffset: 0,
+        focusKey: newBlockKey,
+        focusOffset: 0,
+        isBackward: false
+      })
+    });
+    pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment');
     this.onChange(pushedContentState);
     return true;
   };
@@ -3034,13 +3064,13 @@ module.exports = toHTML;
 });
 
 ;require.register("utils/convert_html2.coffee", function(exports, require, module) {
-var CharacterMetadata, ContentBlock, ContentState, Entity, List, OrderedSet, Repeat, compose, convertFromHTML, customHTML2Content, elementToBlockSpecElement, extend, fromJS, genKey, getBlockSpecForElement, getSafeBodyFromHTML, imgReplacer, ref, ref1, ref2, replaceElement, toArray, wrapBlockSpec;
+var CharacterMetadata, ContentBlock, ContentState, Entity, List, OrderedSet, Repeat, compose, convertFromHTML, customHTML2Content, elementToBlockSpecElement, fromJS, genKey, getBlockSpecForElement, getSafeBodyFromHTML, imgReplacer, ref, ref1, replaceElement, wrapBlockSpec;
 
 ref = require('draft-js'), ContentState = ref.ContentState, genKey = ref.genKey, Entity = ref.Entity, CharacterMetadata = ref.CharacterMetadata, ContentBlock = ref.ContentBlock, convertFromHTML = ref.convertFromHTML, getSafeBodyFromHTML = ref.getSafeBodyFromHTML;
 
 ref1 = require('immutable'), List = ref1.List, OrderedSet = ref1.OrderedSet, Repeat = ref1.Repeat, fromJS = ref1.fromJS;
 
-ref2 = require('underscore'), compose = ref2.compose, toArray = ref2.toArray, extend = ref2.extend;
+compose = require('underscore').compose;
 
 
 /*

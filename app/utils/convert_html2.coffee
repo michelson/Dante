@@ -14,8 +14,6 @@
 }  = require('immutable')
 
 { compose 
-  toArray 
-  extend 
 }  = require('underscore')
 
 

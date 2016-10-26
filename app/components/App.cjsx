@@ -870,7 +870,6 @@ class DanteEditor extends React.Component
 
   handlePasteText: (text, html)=>
 
-    #html = html.replace("img", "avv")
     # https://github.com/facebook/draft-js/issues/685
     ###
     html = "<p>chao</p>
@@ -879,15 +878,41 @@ class DanteEditor extends React.Component
     <img src='x'/>"
     ###
 
+    # if not html then fallback to default handler
+    return false unless html
+
     newContentState = customHTML2Content(html, @extendedBlockRenderMap)
 
-    # console.log html
-
-    #currentBlock = getCurrentBlock(@state.editorState)
+    currentBlock = getCurrentBlock(@state.editorState)
+    selection = @state.editorState.getSelection();
+    endKey = selection.getEndKey()
     
+    content = @state.editorState.getCurrentContent();
+    blocksBefore = content.blockMap.toSeq().takeUntil((v) => (v.key is endKey))
+    blocksAfter = content.blockMap.toSeq().skipUntil((v) => (v.key is endKey)).rest()
+
+    newBlockKey = newContentState.blockMap.first().getKey()
+
+    newBlockMap = blocksBefore.concat(
+        newContentState.blockMap,
+        blocksAfter
+      ).toOrderedMap();
+
+    newContent = content.merge({
+      blockMap: newBlockMap,
+      selectionBefore: selection,
+      selectionAfter: selection.merge({
+      anchorKey: newBlockKey,
+      anchorOffset: 0,
+      focusKey: newBlockKey,
+      focusOffset: 0,
+      isBackward: false,
+      })
+    });
+
     pushedContentState = EditorState.push(
       @state.editorState, 
-      newContentState, 
+      newContent, 
       'insert-fragment'
     )
    
