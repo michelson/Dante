@@ -21,22 +21,22 @@ This is a pre release, many code to refactor yet.
 + Improved undo/redo
 + Save Content as a data structure
 + Load Content as a data structure
-+[ ] Load Data as Html
+- [ ] Load Data as Html
 + Handle image blocks on Copy/Paste and Drop
 
 ## Features:
 
 + Image upload for paste html.
-+[ ] Image upload for legacy images on existent texts.
+- [ ] Image upload for legacy images on existent texts.
 + The medium (+) Tooltip to embed or upload media.
-+[ ] Tab navigation.
+- [ ] Tab navigation.
 
 ## Embeds:
 
 + Image Uploader with preview and caption option.
 + Embed data for pasted link through OEmbed services.
 + Embed media information for pasted links through OEmbed services.
-+[ ] Add or remove tooltip buttons with ease with plugin system.
+- [ ] Add or remove tooltip buttons with ease with plugin system.
 
 
 ## Usage
@@ -55,26 +55,34 @@ new Dante(
 
 ```
 
-see wiki for options: 
-
-
-
 ### Installation for development
 
 node + brunch
 
-+ npm install
-+ npm start
++ `npm install`
++ `npm start`
 
 then open http://localhost:3333
 
 #### upload test server (ruby, optional)
 
-+ bundle install
-+ rackup
++ `bundle install`
++ `rackup`
 
 this server is to serve assets on http://localhost:9292
 
+
+## License
+
+### Commercial license
+
+If you want to use Dante2 to develop commercial sites, themes, projects, and applications, the Commercial license is the appropriate license. With this option, your source code is kept proprietary. Purchase a Dante2 Commercial License at [Dante2.vadb.org](http://Dante2.vadb.org/#commercial-license)
+
+### Open source license
+
+If you are creating an open source application under a license compatible with the [GNU GPL license v3](https://www.gnu.org/licenses/gpl-3.0.html), you may use Dante2 under the terms of the GPLv3.
+
+[Read more about Dante2's license](http://Dante2.vadb.org/license.html).
 
 
 
