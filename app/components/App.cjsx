@@ -59,7 +59,7 @@ KeyCodes =
   RIGHTARROW: 39
   DOWNARROW: 40
 
-window.utils = require('../utils/utils.coffee')
+# window.utils = require('../utils/utils.coffee')
 { 
   getSelectionRect
   getSelection
@@ -720,6 +720,17 @@ class DanteEditor extends React.Component
         show: true
         position: { left: left , top: top }
 
+
+  getNode:  (root=window) =>
+    t = null
+    if (root.getSelection)
+      t = root.getSelection()
+    else if (root.document.getSelection)
+      t = root.document.getSelection()
+    else if (root.document.selection)
+      t = root.document.selection.createRange().text
+    return t
+
   getPositionForCurrent: ->
     
     if @state.editorState.getSelection().isCollapsed()
@@ -743,7 +754,7 @@ class DanteEditor extends React.Component
       #selectionBoundary = getSelectionRect(nativeSelection);
       #debugger
       
-      node = utils.getNode()
+      node = @getNode()
       #console.log "ANCHOR NODE", node.anchorNode
       #console.log "PARENT ANCHOR", node.anchorNode.parentNode.parentNode.parentNode
 

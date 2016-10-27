@@ -9,8 +9,6 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-utils = require("../../utils/utils")
-
 { updateDataOfBlock } = require('../../model/index.js.es6')
 
 class VideoBlock extends React.Component
@@ -37,6 +35,7 @@ class VideoBlock extends React.Component
 
   componentDidMount: ->
     return unless @.props.blockProps.data
+    ###
     utils.ajax
       url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
       (data)=>
@@ -44,6 +43,17 @@ class VideoBlock extends React.Component
           @setState
             embed_data: JSON.parse(data.responseText)   
           , @updateData 
+    ###
+
+    axios
+      method: 'get'
+      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
+    .then (result)=>
+      @setState
+        embed_data: result.data #JSON.parse(data.responseText)
+      , @updateData    
+    .catch (error)=>
+      console.log("TODO: error")
 
   classForImage: ->
     if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"

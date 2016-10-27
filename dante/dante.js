@@ -196,8 +196,6 @@ KeyCodes = {
   DOWNARROW: 40
 };
 
-window.utils = require('../utils/utils.coffee');
-
 ref3 = require("../utils/selection.js.es6"), getSelectionRect = ref3.getSelectionRect, getSelection = ref3.getSelection;
 
 DanteInlineTooltip = require('./inlineTooltip.cjsx');
@@ -288,6 +286,7 @@ DanteEditor = (function(superClass) {
     this.updateBlockData = bind(this.updateBlockData, this);
     this.relocateImageTooltipPosition = bind(this.relocateImageTooltipPosition, this);
     this.setCurrentInput = bind(this.setCurrentInput, this);
+    this.getNode = bind(this.getNode, this);
     this.relocateMenu = bind(this.relocateMenu, this);
     this.KeyBindingFn = bind(this.KeyBindingFn, this);
     this.closeInlineButton = bind(this.closeInlineButton, this);
@@ -900,6 +899,22 @@ DanteEditor = (function(superClass) {
     });
   };
 
+  DanteEditor.prototype.getNode = function(root) {
+    var t;
+    if (root == null) {
+      root = window;
+    }
+    t = null;
+    if (root.getSelection) {
+      t = root.getSelection();
+    } else if (root.document.getSelection) {
+      t = root.document.getSelection();
+    } else if (root.document.selection) {
+      t = root.document.selection.createRange().text;
+    }
+    return t;
+  };
+
   DanteEditor.prototype.getPositionForCurrent = function() {
     var block, blockType, contentState, coords, currentBlock, el, nativeSelection, node, padd, parent, parentBoundary, selectionBoundary, selectionState, toolbarBoundary, toolbarNode;
     if (this.state.editorState.getSelection().isCollapsed()) {
@@ -912,7 +927,7 @@ DanteEditor = (function(superClass) {
       if (!nativeSelection.rangeCount) {
         return;
       }
-      node = utils.getNode();
+      node = this.getNode();
       selectionBoundary = getSelectionRect(nativeSelection);
       coords = selectionBoundary;
       if (blockType === "image") {
@@ -1211,7 +1226,7 @@ module.exports = Dante;
 });
 
 ;require.register("components/blocks/embed.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, EmbedBlock, Entity, React, ReactDOM, RichUtils, ref, updateDataOfBlock, utils,
+var AtomicBlockUtils, EditorBlock, EmbedBlock, Entity, React, ReactDOM, RichUtils, axios, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1222,7 +1237,7 @@ ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
 
-utils = require("../../utils/utils");
+axios = require("axios");
 
 updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
 
@@ -1261,15 +1276,28 @@ EmbedBlock = (function(superClass) {
     if (!this.props.blockProps.data) {
       return;
     }
-    return utils.ajax({
-      url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
-    }, (function(_this) {
-      return function(data) {
-        if (data.status === 200) {
-          return _this.setState({
+
+    /*
+    utils.ajax
+      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
+      (data)=>
+        if data.status is 200
+          @setState
             embed_data: JSON.parse(data.responseText)
-          }, _this.updateData);
-        }
+          , @updateData
+     */
+    return axios({
+      method: 'get',
+      url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
+    }).then((function(_this) {
+      return function(result) {
+        return _this.setState({
+          embed_data: result.data
+        }, _this.updateData);
+      };
+    })(this))["catch"]((function(_this) {
+      return function(error) {
+        return console.log("TODO: error");
       };
     })(this));
   };
@@ -1425,7 +1453,7 @@ ImageBlock = (function(superClass) {
       height: height,
       ratio: fill_ratio
     };
-    utils.log(result);
+    console.log(result);
     return result;
   };
 
@@ -1601,7 +1629,7 @@ module.exports = ImageBlock;
 });
 
 ;require.register("components/blocks/placeholder.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, PlaceholderBlock, React, ReactDOM, RichUtils, ref, utils,
+var AtomicBlockUtils, EditorBlock, Entity, PlaceholderBlock, React, ReactDOM, RichUtils, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1611,8 +1639,6 @@ React = require('react');
 ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
-
-utils = require("../../utils/utils");
 
 PlaceholderBlock = (function(superClass) {
   extend(PlaceholderBlock, superClass);
@@ -1682,7 +1708,7 @@ module.exports = PlaceholderBlock;
 });
 
 ;require.register("components/blocks/video.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, React, ReactDOM, RichUtils, VideoBlock, ref, updateDataOfBlock, utils,
+var AtomicBlockUtils, EditorBlock, Entity, React, ReactDOM, RichUtils, VideoBlock, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1692,8 +1718,6 @@ React = require('react');
 ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
-
-utils = require("../../utils/utils");
 
 updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
 
@@ -1731,15 +1755,28 @@ VideoBlock = (function(superClass) {
     if (!this.props.blockProps.data) {
       return;
     }
-    return utils.ajax({
+
+    /*
+    utils.ajax
+      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
+      (data)=>
+        if data.status is 200
+          @setState
+            embed_data: JSON.parse(data.responseText)   
+          , @updateData
+     */
+    return axios({
+      method: 'get',
       url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
-    }, (function(_this) {
-      return function(data) {
-        if (data.status === 200) {
-          return _this.setState({
-            embed_data: JSON.parse(data.responseText)
-          }, _this.updateData);
-        }
+    }).then((function(_this) {
+      return function(result) {
+        return _this.setState({
+          embed_data: result.data
+        }, _this.updateData);
+      };
+    })(this))["catch"]((function(_this) {
+      return function(error) {
+        return console.log("TODO: error");
       };
     })(this));
   };
@@ -2315,7 +2352,7 @@ module.exports = DanteAnchorPopover;
 });
 
 ;require.register("components/toolTip.cjsx", function(exports, require, module) {
-var CompositeDecorator, ContentState, DanteTooltip, DanteTooltipItem, DanteTooltipLink, Editor, EditorState, Entity, KeyBindingUtil, React, ReactDOM, RichUtils, convertToRaw, getDefaultKeyBinding, getSelectionOffsetKeyForNode, getVisibleSelectionRect, ref, utils,
+var CompositeDecorator, ContentState, DanteTooltip, DanteTooltipItem, DanteTooltipLink, Editor, EditorState, Entity, KeyBindingUtil, React, ReactDOM, RichUtils, convertToRaw, getDefaultKeyBinding, getSelectionOffsetKeyForNode, getVisibleSelectionRect, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -2323,8 +2360,6 @@ var CompositeDecorator, ContentState, DanteTooltip, DanteTooltipItem, DanteToolt
 React = require('react');
 
 ReactDOM = require('react-dom');
-
-utils = require('../utils/utils.coffee');
 
 ref = require('draft-js'), convertToRaw = ref.convertToRaw, CompositeDecorator = ref.CompositeDecorator, getVisibleSelectionRect = ref.getVisibleSelectionRect, getDefaultKeyBinding = ref.getDefaultKeyBinding, getSelectionOffsetKeyForNode = ref.getSelectionOffsetKeyForNode, KeyBindingUtil = ref.KeyBindingUtil, ContentState = ref.ContentState, Editor = ref.Editor, EditorState = ref.EditorState, Entity = ref.Entity, RichUtils = ref.RichUtils;
 
@@ -2739,12 +2774,6 @@ module.exports = data
 });
 
 ;require.register("initialize.cjsx", function(exports, require, module) {
-var React, ReactDOM;
-
-ReactDOM = require('react-dom');
-
-React = require('react');
-
 window.Dante = require('./components/App.cjsx');
 });
 
@@ -3317,613 +3346,9 @@ var getSelectedBlockNode = exports.getSelectedBlockNode = function getSelectedBl
 };
 });
 
-require.register("utils/simple_decorator.js", function(exports, require, module) {
-var Immutable = require('immutable');
-
-var KEY_SEPARATOR = '-';
-
-/**
- * Creates a Draft decorator
- * @param {Function} strategy function (contentBlock, callback(start, end, props))
- * @param {Function} getComponent function (props) -> React.Component
- */
-function SimpleDecorator(strategy, getComponent) {
-    this.decorated = {};
-    this.strategy = strategy;
-    this.getComponent = getComponent;
-}
-
-/**
- * Return list of decoration IDs per character
- * @param {ContentBlock} block
- * @return {List<String>}
- */
-SimpleDecorator.prototype.getDecorations = function(block) {
-    var decorations = Array(block.getText().length).fill(null);
-    // Apply a decoration to given range, with given props
-    function callback (start, end, props) {
-        if (props === undefined) {
-            props = {};
-        }
-        key = blockKey + KEY_SEPARATOR + decorationId;
-        decorated[blockKey][decorationId] = props;
-        decorateRange(decorations, start, end, key);
-        decorationId++;
-    }
-
-    var blockKey = block.getKey();
-    var key;
-    var decorationId = 0;
-    var decorated = this.decorated;
-    decorated[blockKey] = {};
-
-    this.strategy(block, callback);
-
-    return Immutable.List(decorations);
-};
-
-/**
- * Return component to render a decoration
- * @param {String} key
- * @return {Function}
- */
-SimpleDecorator.prototype.getComponentForKey = function(key) {
-    return this.getComponent;
-};
-
-/**
- * Return props to render a decoration
- * @param {String} key
- * @return {Object}
- */
-SimpleDecorator.prototype.getPropsForKey = function(key) {
-    var parts = key.split(KEY_SEPARATOR);
-    var blockKey = parts[0];
-    var decorationId = parts[1];
-    return this.decorated[blockKey][decorationId];
-};
-
-function decorateRange(decorationsArray, start, end, key) {
-    for (var ii = start; ii < end; ii++) {
-        decorationsArray[ii] = key;
-    }
-}
-
-module.exports = SimpleDecorator;
-});
-
-require.register("utils/utils.coffee", function(exports, require, module) {
-var LINE_HEIGHT, is_caret_at_end_of_node, is_caret_at_start_of_node, utils;
-
-String.prototype.killWhiteSpace = function() {
-  return this.replace(/\s/g, '');
-};
-
-String.prototype.reduceWhiteSpace = function() {
-  return this.replace(/\s+/g, ' ');
-};
-
-utils = {};
-
-utils.ajax = (function(_this) {
-  return function(options, cb) {
-    var xhr;
-    xhr = new XMLHttpRequest();
-    xhr.open('GET', options.url);
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        return cb(xhr);
-      } else {
-        return cb(xhr);
-      }
-    };
-    return xhr.send();
-  };
-})(this);
-
-utils.getSelectionRange = (function(_this) {
-  return function() {
-    var selection;
-    selection = window.getSelection();
-    if (selection.rangeCount === 0) {
-      return null;
-    }
-    return selection.getRangeAt(0);
-  };
-})(this);
-
-utils.getSelectedBlockElement = (function(_this) {
-  return function(range) {
-    var node, nodeIsDataBlock;
-    node = range.startContainer;
-    while (node !== null) {
-      nodeIsDataBlock = node.getAttribute ? node.getAttribute('data-block') : null;
-      node = node.parentNode;
-    }
-    return null;
-  };
-})(this);
-
-utils.getSelectedNode = (function(_this) {
-  return function(range) {
-    var node;
-    node = range.startContainer;
-    while (node !== null) {
-      node = node.parentNode;
-      return node;
-    }
-    return null;
-  };
-})(this);
-
-utils.getSelectionCoords = (function(_this) {
-  return function(selectionRange) {
-    var editorBounds, offsetLeft, offsetTop, rangeBounds, rangeHeight, rangeWidth;
-    editorBounds = document.getElementById('richEditor').getBoundingClientRect();
-    rangeBounds = selectionRange.getBoundingClientRect();
-    rangeWidth = rangeBounds.right - rangeBounds.left;
-    rangeHeight = rangeBounds.bottom - rangeBounds.top;
-    offsetLeft = (rangeBounds.left - editorBounds.left) + (rangeWidth / 2) - (72 / 2);
-    offsetTop = rangeBounds.top - editorBounds.top - 42;
-    return {
-      offsetLeft: offsetLeft,
-      offsetTop: offsetTop
-    };
-  };
-})(this);
-
-utils.log = function(message, force) {
-  if (window.debugMode || force) {
-    return console.log(message);
-  }
-};
-
-utils.getBase64Image = function(img) {
-  var canvas, ctx, dataURL;
-  canvas = document.createElement("canvas");
-  canvas.width = img.width;
-  canvas.height = img.height;
-  ctx = canvas.getContext("2d");
-  ctx.drawImage(img, 0, 0);
-  dataURL = canvas.toDataURL("image/png");
-  return dataURL;
-};
-
-utils.generateUniqueName = function() {
-  return Math.random().toString(36).slice(8);
-};
-
-utils.saveSelection = function() {
-  var i, len, ranges, sel;
-  if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.getRangeAt && sel.rangeCount) {
-      ranges = [];
-      i = 0;
-      len = sel.rangeCount;
-      while (i < len) {
-        ranges.push(sel.getRangeAt(i));
-        ++i;
-      }
-      return ranges;
-    }
-  } else {
-    if (document.selection && document.selection.createRange) {
-      return document.selection.createRange();
-    }
-  }
-  return null;
-};
-
-utils.restoreSelection = function(savedSel) {
-  var i, len, sel;
-  if (savedSel) {
-    if (window.getSelection) {
-      sel = window.getSelection();
-      sel.removeAllRanges();
-      i = 0;
-      len = savedSel.length;
-      while (i < len) {
-        sel.addRange(savedSel[i]);
-        ++i;
-      }
-    } else {
-      if (document.selection && savedSel.select) {
-        savedSel.select();
-      }
-    }
-  }
-};
-
-utils.getNodeDIS = function() {
-  var container, range, sel;
-  range = void 0;
-  sel = void 0;
-  container = void 0;
-  if (document.selection && document.selection.createRange) {
-    range = document.selection.createRange();
-    return range.parentElement();
-  } else if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.getRangeAt) {
-      if (sel.rangeCount > 0) {
-        range = sel.getRangeAt(0);
-      }
-    } else {
-      range = document.createRange();
-      range.setStart(sel.anchorNode, sel.anchorOffset);
-      range.setEnd(sel.focusNode, sel.focusOffset);
-      if (range.collapsed !== sel.isCollapsed) {
-        range.setStart(sel.focusNode, sel.focusOffset);
-        range.setEnd(sel.anchorNode, sel.anchorOffset);
-      }
-    }
-    if (range) {
-      container = range.commonAncestorContainer;
-      if (container.nodeType === 3) {
-        return container.parentNode;
-      } else {
-        return container;
-      }
-    }
-  }
-};
-
-utils.getSelectionDimensionsDIS = function() {
-  var height, left, range, rect, sel, top, width;
-  sel = document.selection;
-  range = void 0;
-  width = 0;
-  height = 0;
-  left = 0;
-  top = 0;
-  if (sel) {
-    if (sel.type !== "Control") {
-      range = sel.createRange();
-      width = range.boundingWidth;
-      return height = range.boundingHeight;
-    }
-  } else if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.rangeCount) {
-      range = sel.getRangeAt(0).cloneRange();
-      if (range.getBoundingClientRect) {
-        rect = range.getBoundingClientRect();
-        width = rect.right - rect.left;
-        height = rect.bottom - rect.top;
-      }
-    }
-    return rect;
-  }
-};
-
-utils.getSelectionDimensions = (function(_this) {
-  return function(selected) {
-    var _rect, rect, ref;
-    _rect = selected.getRangeAt(0).getBoundingClientRect();
-    rect = (ref = _rect && _rect.top) != null ? ref : {
-      _rect: selected.getRangeAt(0).getClientRects()[0]
-    };
-    if (!rect) {
-      if (selected.anchorNode && selected.anchorNode.getBoundingClientRect) {
-        rect = selected.anchorNode.getBoundingClientRect();
-        rect.isEmptyline = true;
-      } else {
-        return null;
-      }
-    }
-    return rect;
-  };
-})(this);
-
-utils.getNode = (function(_this) {
-  return function(root) {
-    var t;
-    if (root == null) {
-      root = window;
-    }
-    t = null;
-    if (root.getSelection) {
-      t = root.getSelection();
-    } else if (root.document.getSelection) {
-      t = root.document.getSelection();
-    } else if (root.document.selection) {
-      t = root.document.selection.createRange().text;
-    }
-    return t;
-  };
-})(this);
-
-utils.getCaretPosition = function(editableDiv) {
-  var caretPos, containerEl, range, sel, tempEl, tempRange;
-  caretPos = 0;
-  containerEl = null;
-  sel = void 0;
-  range = void 0;
-  if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.rangeCount) {
-      range = sel.getRangeAt(0);
-      if (range.commonAncestorContainer.parentNode === editableDiv) {
-        caretPos = range.endOffset;
-      }
-    }
-  } else if (document.selection && document.selection.createRange) {
-    range = document.selection.createRange();
-    if (range.parentElement() === editableDiv) {
-      tempEl = document.createElement("span");
-      editableDiv.insertBefore(tempEl, editableDiv.firstChild);
-      tempRange = range.duplicate();
-      tempRange.moveToElementText(tempEl);
-      tempRange.setEndPoint("EndToEnd", range);
-      caretPos = tempRange.text.length;
-    }
-  }
-  return caretPos;
-};
-
-utils.isElementInViewport = function(el) {
-  var rect;
-  if (typeof jQuery === "function" && el instanceof jQuery) {
-    el = el[0];
-  }
-  rect = el.getBoundingClientRect();
-  return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
-};
-
-utils.getSelectedText = function() {
-  var text;
-  text = "";
-  if (typeof window.getSelection !== "undefined") {
-    text = window.getSelection().toString();
-  } else if (typeof document.selection !== "undefined" && document.selection.type === "Text") {
-    text = document.selection.createRange().text;
-  }
-  return text;
-};
-
-utils.selection = (function(_this) {
-  return function() {
-    selection;
-    var selection;
-    if (window.getSelection) {
-      return selection = window.getSelection();
-    } else if (document.selection && document.selection.type !== "Control") {
-      return selection = document.selection;
-    }
-  };
-})(this);
-
-utils.getSelectionStart = function() {
-  var node;
-  node = document.getSelection().anchorNode;
-  if (node === null) {
-    return;
-  }
-  if (node.nodeType === 3) {
-    return node.parentNode;
-  } else {
-    return node;
-  }
-};
-
-utils.getRange = function() {
-  var editor, range;
-  editor = $(this.el)[0];
-  range = selection && selection.rangeCount && selection.getRangeAt(0);
-  if (!range) {
-    range = document.createRange();
-  }
-  if (!editor.contains(range.commonAncestorContainer)) {
-    range.selectNodeContents(editor);
-    range.collapse(false);
-  }
-  return range;
-};
-
-utils.setRange = function(range) {
-  range = range || this.current_range;
-  if (!range) {
-    range = this.getRange();
-    range.collapse(false);
-  }
-  this.selection().removeAllRanges();
-  this.selection().addRange(range);
-  return this;
-};
-
-utils.getCharacterPrecedingCaret = function() {
-  var precedingChar, precedingRange, range, sel;
-  precedingChar = "";
-  sel = void 0;
-  range = void 0;
-  precedingRange = void 0;
-  if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.rangeCount > 0) {
-      range = sel.getRangeAt(0).cloneRange();
-      range.collapse(true);
-      range.setStart(this.getNode(), 0);
-      precedingChar = range.toString().slice(0);
-    }
-  } else if ((sel = document.selection) && sel.type !== "Control") {
-    range = sel.createRange();
-    precedingRange = range.duplicate();
-    precedingRange.moveToElementText(containerEl);
-    precedingRange.setEndPoint("EndToStart", range);
-    precedingChar = precedingRange.text.slice(0);
-  }
-  return precedingChar;
-};
-
-utils.isLastChar = function() {
-  return $(this.getNode()).text().trim().length === this.getCharacterPrecedingCaret().trim().length;
-};
-
-utils.isFirstChar = function() {
-  return this.getCharacterPrecedingCaret().trim().length === 0;
-};
-
-utils.isSelectingAll = function(element) {
-  var a, b;
-  a = this.getSelectedText().killWhiteSpace().length;
-  b = $(element).text().killWhiteSpace().length;
-  return a === b;
-};
-
-utils.setRangeAt = function(element, pos) {
-  var range, sel;
-  if (pos == null) {
-    pos = 0;
-  }
-  range = document.createRange();
-  sel = window.getSelection();
-  range.setStart(element, pos);
-  range.collapse(true);
-  sel.removeAllRanges();
-  sel.addRange(range);
-  return element.focus();
-};
-
-utils.setRangeAtText = function(element, pos) {
-  var node, range, sel;
-  if (pos == null) {
-    pos = 0;
-  }
-  range = document.createRange();
-  sel = window.getSelection();
-  node = element.firstChild;
-  range.setStart(node, 0);
-  range.setEnd(node, 0);
-  range.collapse(true);
-  sel.removeAllRanges();
-  sel.addRange(range);
-  return element.focus();
-};
-
-LINE_HEIGHT = 20;
-
-is_caret_at_start_of_node = function(node, range) {
-  var pre_range;
-  pre_range = document.createRange();
-  pre_range.selectNodeContents(node);
-  pre_range.setEnd(range.startContainer, range.startOffset);
-  return pre_range.toString().trim().length === 0;
-};
-
-is_caret_at_end_of_node = function(node, range) {
-  var post_range;
-  post_range = document.createRange();
-  post_range.selectNodeContents(node);
-  post_range.setStart(range.endContainer, range.endOffset);
-  return post_range.toString().trim().length === 0;
-};
-
-
-/* DOM UTILS */
-
-utils.scrollTop = function(element, to, duration) {
-  var difference, perTick;
-  if (duration <= 0) {
-    return;
-  }
-  difference = to - element.scrollTop;
-  perTick = difference / duration * 10;
-  return setTimeout(function() {
-    element.scrollTop = element.scrollTop + perTick;
-    if (element.scrollTop === to) {
-      return;
-    }
-    return scrollTo(element, to, duration - 10);
-  }, 10);
-};
-
-utils.outerHeight = function(el) {
-  var height, style;
-  height = el.offsetHeight;
-  style = getComputedStyle(el);
-  height += parseInt(style.marginTop) + parseInt(style.marginBottom);
-  return height;
-};
-
-
-/*
-$.fn.editableIsCaret = ->
-  return window.getSelection().type == 'Caret'
-   * alt test:
-   * return sel.rangeCount == 1 and sel.getRangeAt(0).collapsed
-
-$.fn.editableRange = ->
-   * Return the range for the selection
-  sel = window.getSelection()
-  return unless sel.rangeCount > 0
-  return sel.getRangeAt(0)
-
-$.fn.editableCaretRange = ->
-  return unless @editableIsCaret()
-  return @editableRange()
-
-$.fn.editableSetRange = (range) ->
-  sel = window.getSelection()
-  sel.removeAllRanges() if sel.rangeCount > 0
-  sel.addRange(range)
-
-$.fn.editableFocus = (at_start=true) ->
-  return unless @attr('contenteditable')
-  sel = window.getSelection()
-  sel.removeAllRanges() if sel.rangeCount > 0
-  range = document.createRange()
-  range.selectNodeContents(@[0])
-  range.collapse(at_start)
-  sel.addRange(range)
-
-$.fn.editableCaretAtStart = ->
-  range = @editableRange()
-  return false unless range
-  return is_caret_at_start_of_node(@[0], range)
-
-$.fn.editableCaretAtEnd = ->
-  range = @editableRange()
-  return false unless range
-  return is_caret_at_end_of_node(@[0], range)
-
-$.fn.editableCaretOnFirstLine = ->
-  range = @editableRange()
-  return false unless range
-   * At the start of a node, the getClientRects() is [], so we have to
-   * use the getBoundingClientRect (which seems to work).
-  if is_caret_at_start_of_node(@[0], range)
-    return true
-  else if is_caret_at_end_of_node(@[0], range)
-    ctop = @[0].getBoundingClientRect().bottom - LINE_HEIGHT
-  else
-    ctop = range.getClientRects()[0].top
-  etop = @[0].getBoundingClientRect().top
-  return ctop < etop + LINE_HEIGHT
-
-$.fn.editableCaretOnLastLine = ->
-  range = @editableRange()
-  return false unless range
-  if is_caret_at_end_of_node(@[0], range)
-    return true
-  else if is_caret_at_start_of_node(@[0], range)
-     * We are on the first line.
-    cbtm = @[0].getBoundingClientRect().top + LINE_HEIGHT
-  else
-    cbtm = range.getClientRects()[0].bottom
-  ebtm = @[0].getBoundingClientRect().bottom
-  return cbtm > ebtm - LINE_HEIGHT
-
-$.fn.exists = ->
-  @.length > 0
- */
-
-module.exports = utils;
-});
-
-;require.alias("process/browser.js", "process");process = require('process');require.register("___globals___", function(exports, require, module) {
+require.alias("process/browser.js", "process");process = require('process');require.register("___globals___", function(exports, require, module) {
   
 });})();require('___globals___');
 
 
-//# sourceMappingURL=application.js.map
+//# sourceMappingURL=dante.js.map

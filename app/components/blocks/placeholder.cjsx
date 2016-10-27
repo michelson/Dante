@@ -9,7 +9,7 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-utils = require("../../utils/utils")
+#utils = require("../../utils/utils")
 
 
 class PlaceholderBlock extends React.Component

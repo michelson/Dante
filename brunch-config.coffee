@@ -1,17 +1,25 @@
 module.exports =
 
   paths:
-    public: 'docs'
+    public: 'dante/'
 
   files:
     javascripts:
       joinTo:
-        'application.js': /^app/
+        'dante.js': /^app/
         'vendor.js': /^(?!app)/
 
     stylesheets:
       joinTo:
-        'application.css': /^app|bower_components|fonts/
+        'dante.css': /^app|bower_components|fonts/
+
+  modules: {
+    autoRequire: {
+      "dante.js": [
+        "app/initialize.cjsx"
+      ]
+    }
+  },
 
   plugins: 
     copycat:

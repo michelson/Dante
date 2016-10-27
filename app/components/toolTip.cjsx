@@ -1,6 +1,5 @@
 React = require('react')
 ReactDOM = require('react-dom')
-utils = require('../utils/utils.coffee')
 
 {
   convertToRaw,

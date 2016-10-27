@@ -86,7 +86,7 @@ class ImageBlock extends React.Component
 
     fill_ratio = height / width * 100
     result = { width: width, height: height, ratio: fill_ratio }
-    utils.log result
+    console.log result
     result
 
   # will update block state
