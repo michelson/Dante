@@ -84,6 +84,8 @@ class Dante
     @options = options
     @options.el = options.el || 'app'
 
+    options.readOnly = options.readOnly
+
     @options.content = options.content
 
     @options.read_only = options.read_only || false
@@ -142,8 +144,6 @@ class DanteEditor extends React.Component
 
     @.blockRenderMap = Map({
         "image":
-          element: 'figure'
-        "avv":
           element: 'figure'
         "video":
           element: 'figure'
@@ -935,6 +935,8 @@ class DanteEditor extends React.Component
         newContentState.blockMap,
         blocksAfter
       ).toOrderedMap();
+
+    debugger
 
     newContent = content.merge({
       blockMap: newBlockMap,

@@ -228,6 +228,7 @@ Dante = (function() {
     console.log("init editor!");
     this.options = options;
     this.options.el = options.el || 'app';
+    options.readOnly = options.readOnly;
     this.options.content = options.content;
     this.options.read_only = options.read_only || false;
     this.options.spellcheck = options.spellcheck || false;
@@ -331,9 +332,6 @@ DanteEditor = (function(superClass) {
     ]);
     this.blockRenderMap = Map({
       "image": {
-        element: 'figure'
-      },
-      "avv": {
         element: 'figure'
       },
       "video": {
@@ -1105,6 +1103,7 @@ DanteEditor = (function(superClass) {
     })(this)).rest();
     newBlockKey = newContentState.blockMap.first().getKey();
     newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap();
+    debugger;
     newContent = content.merge({
       blockMap: newBlockMap,
       selectionBefore: selection,
@@ -3249,9 +3248,11 @@ customHTML2Content = function(HTML, blockRn) {
   a = tempDoc.querySelectorAll('img').forEach(function(item) {
     return imgReplacer(item);
   });
+  console.log(tempDoc.body.innerHTML);
   contentBlocks = convertFromHTML(tempDoc.body.innerHTML, getSafeBodyFromHTML, blockRn);
   contentBlocks = contentBlocks.map(function(block) {
     var json, newBlock;
+    console.log("BLOCLCOCLCLCO", block.getType());
     if (block.getType() !== 'blockquote') {
       return block;
     }
@@ -3268,6 +3269,7 @@ customHTML2Content = function(HTML, blockRn) {
       }
     });
   });
+  debugger;
   tempDoc = null;
   return ContentState.createFromBlockArray(contentBlocks);
 };
