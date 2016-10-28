@@ -1,9 +1,9 @@
 axios = require("axios")
 Immutable = require('immutable')
-# ReactDOM = require('react-dom')
 
 class SaveBehavior 
   constructor: (options)->
+    @getLocks = options.getLocks
     @config = options.config
     @editorContent = options.editorContent
 
@@ -12,7 +12,11 @@ class SaveBehavior
 
   store: (content)->
     return unless @config.store_url
-    
+    console.log "CHECK FOR LOCKS", @getLocks()
+    if @getLocks() > 0
+      console.log "LOCKED!!"
+    return if @getLocks() > 0
+
     clearTimeout(@timeout)
     
     @timeout = setTimeout =>
@@ -20,11 +24,7 @@ class SaveBehavior
     , @config.store_interval
 
   checkforStore: (content)->
-    console.log "ENTER DATA STORE"
-  
-    # TODO check of content was changed!!
-    # console.log 'editor:', @.editorContent
-    # console.log 'content', content
+    # console.log "ENTER DATA STORE"
 
     isChanged = !Immutable.is(Immutable.fromJS(@.editorContent), Immutable.fromJS(content))
     console.log("CONTENT CHANGED:", isChanged)
@@ -32,7 +32,8 @@ class SaveBehavior
     return unless isChanged
 
     @config.before_xhr_handler() if @config.before_xhr_handler
-
+    console.log "SAVING TO: #{@config.store_url}"
+    
     axios
       method: @config.store_method
       url: @config.store_url
@@ -43,7 +44,7 @@ class SaveBehavior
       @config.store_success_handler(result) if @config.store_success_handler
       @config.success_xhr_handler(result) if @config.success_xhr_handler
     .catch (error)=>
-      console.log("ERROR: got error uploading file #{error}")
+      console.log("ERROR: got error saving content at #{@config.store_url} - #{error}")
       @config.failure_xhr_handler(error) if @config.failure_xhr_handler
 
 

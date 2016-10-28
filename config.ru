@@ -23,7 +23,8 @@ class UploadServer < Sinatra::Base
   # Handle POST-request (Receive and save the uploaded file)
   post "/new.?:format?" do
     content_type :json
-    
+    # to test locking system let the upload sleep por a while before response
+    # sleep 10 
     name = [Time.now.to_i , params['file'][:filename]].join("-")
     path = File.join(File.dirname(__FILE__), 'tmp/images', name)
     File.open(path, "wb") do |f|

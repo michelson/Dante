@@ -169,6 +169,8 @@ class DanteEditor extends React.Component
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
       current_input: ""
+      locks: 0
+
       inlineTooltip:
         show: true
         position: {}
@@ -239,6 +241,7 @@ class DanteEditor extends React.Component
     ];
 
     @save = new SaveBehavior
+      getLocks: @getLocks
       config: @props.config
       editorState: @state.editorState
       editorContent: @emitSerializedOutput()
@@ -434,6 +437,18 @@ class DanteEditor extends React.Component
     @setState
       current_component: component
 
+  getLocks: =>
+    @state.locks
+
+  addLock: =>
+    @setState
+      locks: @state.locks +=1
+
+  removeLock: =>
+    #return unless @state.locks < 0
+    @setState
+      locks: @state.locks -=1
+
   blockRenderer: (block)=>
     switch block.getType()
 
@@ -454,6 +469,9 @@ class DanteEditor extends React.Component
                 file: @state.current_input
               getEditorState: @getEditorState
               setEditorState: @onChange
+              addLock: @addLock
+              removeLock: @removeLock
+              getLocks: @getLocks
               config: @props.config
           )
 
@@ -730,7 +748,6 @@ class DanteEditor extends React.Component
         show: true
         position: { left: left , top: top }
 
-
   getNode:  (root=window) =>
     t = null
     if (root.getSelection)
@@ -941,8 +958,6 @@ class DanteEditor extends React.Component
 
     true
 
-    
-
   handlePasteImage: (files)=>
     #TODO: check file types
     files.map (file)=>
@@ -1058,6 +1073,7 @@ class DanteEditor extends React.Component
         />   
 
         <ul>
+          <li>LOCKS: {@state.locks}</li>
           <li>
             <a href="#" onClick={@emitHTML}>
               get content

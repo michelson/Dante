@@ -105,6 +105,7 @@ class ImageBlock extends React.Component
     @setState 
       url: @img.src
     self = @
+    return unless @img.src.includes("blob");
     @img.onload = ()=>
       console.log @img
       console.log this
@@ -117,6 +118,7 @@ class ImageBlock extends React.Component
       , @handleUpload
 
   handleUpload: =>
+    @props.blockProps.addLock()
     @updateData()
     @uploadFile()
 
@@ -167,9 +169,11 @@ class ImageBlock extends React.Component
         @updateProgressBar(e)
     .then (result)=> 
       @uploadCompleted(result.data)
+      @props.blockProps.removeLock()
       if @config.upload_callback
         @config.upload_callback(response, @)
     .catch (error)=>
+      @props.blockProps.removeLock()
       console.log("ERROR: got error uploading file #{error}")
       if @config.upload_error_callback
         @config.upload_error_callback(error, @)

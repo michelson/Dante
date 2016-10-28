@@ -306,6 +306,9 @@ DanteEditor = (function(superClass) {
     this.handleReturn = bind(this.handleReturn, this);
     this.blockStyleFn = bind(this.blockStyleFn, this);
     this.blockRenderer = bind(this.blockRenderer, this);
+    this.removeLock = bind(this.removeLock, this);
+    this.addLock = bind(this.addLock, this);
+    this.getLocks = bind(this.getLocks, this);
     this.setCurrentComponent = bind(this.setCurrentComponent, this);
     this.testEmitAndDecode = bind(this.testEmitAndDecode, this);
     this.decodeEditorContent = bind(this.decodeEditorContent, this);
@@ -359,6 +362,7 @@ DanteEditor = (function(superClass) {
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
       current_input: "",
+      locks: 0,
       inlineTooltip: {
         show: true,
         position: {}
@@ -419,6 +423,7 @@ DanteEditor = (function(superClass) {
       }
     ];
     this.save = new SaveBehavior({
+      getLocks: this.getLocks,
       config: this.props.config,
       editorState: this.state.editorState,
       editorContent: this.emitSerializedOutput()
@@ -612,6 +617,22 @@ DanteEditor = (function(superClass) {
     });
   };
 
+  DanteEditor.prototype.getLocks = function() {
+    return this.state.locks;
+  };
+
+  DanteEditor.prototype.addLock = function() {
+    return this.setState({
+      locks: this.state.locks += 1
+    });
+  };
+
+  DanteEditor.prototype.removeLock = function() {
+    return this.setState({
+      locks: this.state.locks -= 1
+    });
+  };
+
   DanteEditor.prototype.blockRenderer = function(block) {
     var entity, entity_type;
     switch (block.getType()) {
@@ -630,6 +651,9 @@ DanteEditor = (function(superClass) {
             },
             getEditorState: this.getEditorState,
             setEditorState: this.onChange,
+            addLock: this.addLock,
+            removeLock: this.removeLock,
+            getLocks: this.getLocks,
             config: this.props.config
           }
         };
@@ -1214,7 +1238,7 @@ DanteEditor = (function(superClass) {
       "position": this.state.anchor_popover_position,
       "handleOnMouseOver": this.handleShowPopLinkOver,
       "handleOnMouseOut": this.handleHidePopLinkOver
-    }), React.createElement("ul", null, React.createElement("li", null, React.createElement("a", {
+    }), React.createElement("ul", null, React.createElement("li", null, "LOCKS: ", this.state.locks), React.createElement("li", null, React.createElement("a", {
       "href": "#",
       "onClick": this.emitHTML
     }, "get content")), React.createElement("li", null, React.createElement("a", {
@@ -1481,6 +1505,9 @@ ImageBlock = (function(superClass) {
       url: this.img.src
     });
     self = this;
+    if (!this.img.src.includes("blob")) {
+      return;
+    }
     return this.img.onload = (function(_this) {
       return function() {
         console.log(_this.img);
@@ -1497,6 +1524,7 @@ ImageBlock = (function(superClass) {
   };
 
   ImageBlock.prototype.handleUpload = function() {
+    this.props.blockProps.addLock();
     this.updateData();
     return this.uploadFile();
   };
@@ -1559,12 +1587,14 @@ ImageBlock = (function(superClass) {
     }).then((function(_this) {
       return function(result) {
         _this.uploadCompleted(result.data);
+        _this.props.blockProps.removeLock();
         if (_this.config.upload_callback) {
           return _this.config.upload_callback(response, _this);
         }
       };
     })(this))["catch"]((function(_this) {
       return function(error) {
+        _this.props.blockProps.removeLock();
         console.log("ERROR: got error uploading file " + error);
         if (_this.config.upload_error_callback) {
           return _this.config.upload_error_callback(error, _this);
@@ -3230,6 +3260,7 @@ Immutable = require('immutable');
 
 SaveBehavior = (function() {
   function SaveBehavior(options) {
+    this.getLocks = options.getLocks;
     this.config = options.config;
     this.editorContent = options.editorContent;
   }
@@ -3242,6 +3273,13 @@ SaveBehavior = (function() {
     if (!this.config.store_url) {
       return;
     }
+    console.log("CHECK FOR LOCKS", this.getLocks());
+    if (this.getLocks() > 0) {
+      console.log("LOCKED!!");
+    }
+    if (this.getLocks() > 0) {
+      return;
+    }
     clearTimeout(this.timeout);
     return this.timeout = setTimeout((function(_this) {
       return function() {
@@ -3252,7 +3290,6 @@ SaveBehavior = (function() {
 
   SaveBehavior.prototype.checkforStore = function(content) {
     var isChanged;
-    console.log("ENTER DATA STORE");
     isChanged = !Immutable.is(Immutable.fromJS(this.editorContent), Immutable.fromJS(content));
     console.log("CONTENT CHANGED:", isChanged);
     if (!isChanged) {
@@ -3261,6 +3298,7 @@ SaveBehavior = (function() {
     if (this.config.before_xhr_handler) {
       this.config.before_xhr_handler();
     }
+    console.log("SAVING TO: " + this.config.store_url);
     return axios({
       method: this.config.store_method,
       url: this.config.store_url,
@@ -3279,7 +3317,7 @@ SaveBehavior = (function() {
       };
     })(this))["catch"]((function(_this) {
       return function(error) {
-        console.log("ERROR: got error uploading file " + error);
+        console.log("ERROR: got error saving content at " + _this.config.store_url + " - " + error);
         if (_this.config.failure_xhr_handler) {
           return _this.config.failure_xhr_handler(error);
         }
