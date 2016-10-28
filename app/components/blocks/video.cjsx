@@ -11,6 +11,8 @@ ReactDOM = require('react-dom')
 
 { updateDataOfBlock } = require('../../model/index.js.es6')
 
+axios = require("axios")
+
 class VideoBlock extends React.Component
   constructor: (props) ->
     super props

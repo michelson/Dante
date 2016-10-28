@@ -228,6 +228,7 @@ Dante = (function() {
     console.log("init editor!");
     this.options = options;
     this.options.el = options.el || 'app';
+    this.options.content = options.content;
     this.options.read_only = options.read_only || false;
     this.options.spellcheck = options.spellcheck || false;
     this.options.title_placeholder = options.title_placeholder || "Title";
@@ -252,8 +253,11 @@ Dante = (function() {
   }
 
   Dante.prototype.getContent = function() {
+    console.log(this.options.content);
+    console.log("TRUE?", this.options.content === PocData);
+    console.log(this.options.content, PocData);
     PocData;
-    return "";
+    return this.options.content;
   };
 
   Dante.prototype.render = function() {
@@ -573,6 +577,7 @@ DanteEditor = (function(superClass) {
 
   DanteEditor.prototype.decodeEditorContent = function(raw_as_json) {
     var editorState, new_content;
+    console.log("CONTENT", raw_as_json);
     new_content = convertFromRaw(raw_as_json);
     return editorState = EditorState.createWithContent(new_content, this.decorator);
   };
@@ -1708,7 +1713,7 @@ module.exports = PlaceholderBlock;
 });
 
 ;require.register("components/blocks/video.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, Entity, React, ReactDOM, RichUtils, VideoBlock, ref, updateDataOfBlock,
+var AtomicBlockUtils, EditorBlock, Entity, React, ReactDOM, RichUtils, VideoBlock, axios, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1720,6 +1725,8 @@ ReactDOM = require('react-dom');
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorBlock = ref.EditorBlock;
 
 updateDataOfBlock = require('../../model/index.js.es6').updateDataOfBlock;
+
+axios = require("axios");
 
 VideoBlock = (function(superClass) {
   extend(VideoBlock, superClass);
@@ -2619,7 +2626,7 @@ module.exports = DanteTooltip;
 
 ;require.register("data/poc.js", function(exports, require, module) {
 
-data = {
+data2 = {
   "entityMap": {},
   "blocks": [
     {
@@ -2769,6 +2776,8 @@ data = {
     }
   ]
 }
+
+data = {"entityMap":{},"blocks":[{"key":"gmko","text":"oli oli","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}
 
 module.exports = data
 });

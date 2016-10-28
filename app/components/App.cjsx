@@ -84,6 +84,8 @@ class Dante
     @options = options
     @options.el = options.el || 'app'
 
+    @options.content = options.content
+
     @options.read_only = options.read_only || false
     @options.spellcheck = options.spellcheck || false
     @options.title_placeholder = options.title_placeholder || "Title"
@@ -112,8 +114,15 @@ class Dante
     @options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 
   getContent: ->
+    #PocData || 
+    #""
+    console.log @options.content
+    console.log "TRUE?", @options.content is PocData
+
+    console.log @options.content , PocData
+
     PocData
-    ""
+    @options.content
 
   render: ->
     ReactDOM.render(<DanteEditor content={@getContent()} 
@@ -396,6 +405,7 @@ class DanteEditor extends React.Component
     raw
 
   decodeEditorContent: (raw_as_json)=>
+    console.log "CONTENT", raw_as_json
     #new_content = convertFromRaw(JSON.parse(raw_as_json))
     new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)

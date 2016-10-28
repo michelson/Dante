@@ -1,5 +1,5 @@
 
-data = {
+data2 = {
   "entityMap": {},
   "blocks": [
     {
@@ -149,5 +149,7 @@ data = {
     }
   ]
 }
+
+data = {"entityMap":{},"blocks":[{"key":"gmko","text":"oli oli","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}
 
 module.exports = data
