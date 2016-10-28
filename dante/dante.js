@@ -1366,7 +1366,7 @@ module.exports = EmbedBlock;
 });
 
 ;require.register("components/blocks/image.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, EditorBlock, EditorState, Entity, ImageBlock, React, ReactDOM, RichUtils, axios, ref, updateDataOfBlock,
+var AtomicBlockUtils, EditorBlock, EditorState, Entity, ImageBlock, Loader, React, ReactDOM, RichUtils, axios, ref, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1393,6 +1393,8 @@ ImageBlock = (function(superClass) {
     this.updateDataSelection = bind(this.updateDataSelection, this);
     this.aspectRatio = bind(this.aspectRatio, this);
     this.handleUpload = bind(this.handleUpload, this);
+    this.stopLoader = bind(this.stopLoader, this);
+    this.startLoader = bind(this.startLoader, this);
     this.replaceImg = bind(this.replaceImg, this);
     this.updateData = bind(this.updateData, this);
     this.defaultAspectRatio = bind(this.defaultAspectRatio, this);
@@ -1403,7 +1405,9 @@ ImageBlock = (function(superClass) {
     existing_data = this.props.block.getData().toJS();
     this.config = this.props.blockProps.config;
     this.state = {
+      loading: false,
       selected: false,
+      loading_progress: 0,
       caption: this.defaultPlaceholder(),
       direction: existing_data.direction || "center",
       width: 0,
@@ -1523,7 +1527,20 @@ ImageBlock = (function(superClass) {
     })(this);
   };
 
+  ImageBlock.prototype.startLoader = function() {
+    return this.setState({
+      loading: true
+    });
+  };
+
+  ImageBlock.prototype.stopLoader = function() {
+    return this.setState({
+      loading: false
+    });
+  };
+
   ImageBlock.prototype.handleUpload = function() {
+    this.startLoader();
     this.props.blockProps.addLock();
     this.updateData();
     return this.uploadFile();
@@ -1588,6 +1605,7 @@ ImageBlock = (function(superClass) {
       return function(result) {
         _this.uploadCompleted(result.data);
         _this.props.blockProps.removeLock();
+        _this.stopLoader();
         if (_this.config.upload_callback) {
           return _this.config.upload_callback(response, _this);
         }
@@ -1595,6 +1613,7 @@ ImageBlock = (function(superClass) {
     })(this))["catch"]((function(_this) {
       return function(error) {
         _this.props.blockProps.removeLock();
+        _this.stopLoader();
         console.log("ERROR: got error uploading file " + error);
         if (_this.config.upload_error_callback) {
           return _this.config.upload_error_callback(error, _this);
@@ -1616,12 +1635,15 @@ ImageBlock = (function(superClass) {
 
   ImageBlock.prototype.updateProgressBar = function(e) {
     var complete;
-    complete = "";
+    complete = this.state.loading_progress;
     if (e.lengthComputable) {
       complete = e.loaded / e.total * 100;
       complete = complete != null ? complete : {
         complete: 0
       };
+      this.setState({
+        loading_progress: complete
+      });
       console.log("complete");
       return console.log(complete);
     }
@@ -1647,6 +1669,9 @@ ImageBlock = (function(superClass) {
       "height": this.state.aspect_ratio.height,
       "width": this.state.aspect_ratio.width,
       "className": 'graf-image'
+    }), React.createElement(Loader, {
+      "toggle": this.state.loading,
+      "progress": this.state.loading_progress
     })), React.createElement("figcaption", {
       "className": 'imageCaption'
     }, React.createElement(EditorBlock, React.__spread({}, this.props, {
@@ -1657,6 +1682,23 @@ ImageBlock = (function(superClass) {
   };
 
   return ImageBlock;
+
+})(React.Component);
+
+Loader = (function(superClass) {
+  extend(Loader, superClass);
+
+  function Loader() {
+    return Loader.__super__.constructor.apply(this, arguments);
+  }
+
+  Loader.prototype.render = function() {
+    return React.createElement("div", null, (this.props.toggle ? React.createElement("div", {
+      "className": "image-upoader-loader"
+    }, React.createElement("p", null, (this.props.progress === 100 ? "processing image..." : React.createElement("span", null, React.createElement("span", null, "loading"), this.props.progress)))) : void 0));
+  };
+
+  return Loader;
 
 })(React.Component);
 

@@ -2,6 +2,26 @@
 figure figcaption .public-DraftStyleDefault-block {
   text-align: center; }
 
+/* line 6, /Users/michelson/Documents/brunch-apps/dante2/app/styles/blame.scss */
+.aspectRatioPlaceholder .image-upoader-loader {
+  position: absolute;
+  bottom: 0px;
+  left: 0%;
+  background-color: #fff;
+  width: 100%;
+  /* height: 3px; */
+  text-align: center;
+  top: 0px;
+  vertical-align: text-bottom;
+  opacity: 0.7; }
+  /* line 17, /Users/michelson/Documents/brunch-apps/dante2/app/styles/blame.scss */
+  .aspectRatioPlaceholder .image-upoader-loader p {
+    line-height: 5px;
+    /* font-weight: 700; */
+    /* text-transform: uppercase; */
+    font-size: 14px;
+    margin-top: 49%; }
+
 @charset "UTF-8";
 /* DEPRECATED */
 /* DEPRECATED */
@@ -1773,6 +1793,26 @@ a[rel=token], .markup--query {
 /* line 1, /Users/michelson/Documents/brunch-apps/dante2/app/styles/blame.scss */
 figure figcaption .public-DraftStyleDefault-block {
   text-align: center; }
+
+/* line 6, /Users/michelson/Documents/brunch-apps/dante2/app/styles/blame.scss */
+.aspectRatioPlaceholder .image-upoader-loader {
+  position: absolute;
+  bottom: 0px;
+  left: 0%;
+  background-color: #fff;
+  width: 100%;
+  /* height: 3px; */
+  text-align: center;
+  top: 0px;
+  vertical-align: text-bottom;
+  opacity: 0.7; }
+  /* line 17, /Users/michelson/Documents/brunch-apps/dante2/app/styles/blame.scss */
+  .aspectRatioPlaceholder .image-upoader-loader p {
+    line-height: 5px;
+    /* font-weight: 700; */
+    /* text-transform: uppercase; */
+    font-size: 14px;
+    margin-top: 49%; }
 
 /*! normalize.css v2.0.1 | MIT License | git.io/normalize */
 /* ==========================================================================

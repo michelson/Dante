@@ -23,8 +23,10 @@ class ImageBlock extends React.Component
 
     @config = @props.blockProps.config
 
-    @state = 
+    @state =
+      loading: false 
       selected: false
+      loading_progress: 0
       caption: @defaultPlaceholder()
       direction: existing_data.direction || "center"
       width: 0
@@ -117,7 +119,16 @@ class ImageBlock extends React.Component
         aspect_ratio: self.getAspectRatio(@img.width, @img.height)
       , @handleUpload
 
+  startLoader: =>
+    @setState
+      loading: true
+
+  stopLoader: =>
+    @setState
+      loading: false
+
   handleUpload: =>
+    @startLoader()
     @props.blockProps.addLock()
     @updateData()
     @uploadFile()
@@ -170,10 +181,15 @@ class ImageBlock extends React.Component
     .then (result)=> 
       @uploadCompleted(result.data)
       @props.blockProps.removeLock()
+      @stopLoader()
+
       if @config.upload_callback
         @config.upload_callback(response, @)
+
     .catch (error)=>
       @props.blockProps.removeLock()
+      @stopLoader()
+
       console.log("ERROR: got error uploading file #{error}")
       if @config.upload_error_callback
         @config.upload_error_callback(error, @)
@@ -187,10 +203,12 @@ class ImageBlock extends React.Component
     , @updateData
 
   updateProgressBar: (e)=>
-    complete = ""
+    complete = @state.loading_progress
     if (e.lengthComputable)
       complete = e.loaded / e.total * 100
       complete = complete ? complete : 0
+      @setState
+        loading_progress: complete
       console.log "complete"
       console.log complete
 
@@ -210,6 +228,10 @@ class ImageBlock extends React.Component
             width={@state.aspect_ratio.width}
             className='graf-image'
           />
+          <Loader 
+            toggle={@state.loading}
+            progress={@state.loading_progress}
+          />
         </div>
         <figcaption className='imageCaption'>
           <EditorBlock {...@props} 
@@ -218,6 +240,29 @@ class ImageBlock extends React.Component
             placeholder="escrive alalal"
           />
         </figcaption>
+      </div>
+    )
+
+class Loader extends React.Component
+
+  render: ->
+    return (
+      <div>
+        { if @props.toggle
+          <div className="image-upoader-loader">
+            <p>
+              {
+                if @props.progress is 100
+                  "processing image..."
+                else
+                  <span>
+                    <span>loading</span>
+                    {@props.progress}
+                  </span>
+              }
+            </p>
+          </div>
+        }
       </div>
     )
     
