@@ -75,10 +75,11 @@ customHTML2Content = (HTML, blockRn)->
 
   # now replace <blockquote /> ContentBlocks with 'atomic' ones
   contentBlocks = contentBlocks.map (block)->
-    console.log "BLOCLCOCLCLCO", block.getType()
+    console.log "CHECK BLOCK", block.getType()
     if (block.getType() isnt 'blockquote')
       return block
 
+    json = ""
     try
       json = JSON.parse(block.getText())
     catch
@@ -89,10 +90,8 @@ customHTML2Content = (HTML, blockRn)->
       text: ""
       data: 
         url: json.imgSrc
-
+        forceUpload: true
     });
-
-  debugger
 
   tempDoc = null
   return ContentState.createFromBlockArray(contentBlocks)

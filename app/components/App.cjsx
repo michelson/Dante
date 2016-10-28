@@ -936,8 +936,6 @@ class DanteEditor extends React.Component
         blocksAfter
       ).toOrderedMap();
 
-    debugger
-
     newContent = content.merge({
       blockMap: newBlockMap,
       selectionBefore: selection,

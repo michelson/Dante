@@ -1103,7 +1103,6 @@ DanteEditor = (function(superClass) {
     })(this)).rest();
     newBlockKey = newContentState.blockMap.first().getKey();
     newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap();
-    debugger;
     newContent = content.merge({
       blockMap: newBlockMap,
       selectionBefore: selection,
@@ -1496,7 +1495,9 @@ ImageBlock = (function(superClass) {
     getEditorState = this.props.blockProps.getEditorState;
     setEditorState = this.props.blockProps.setEditorState;
     data = block.getData();
-    newData = data.merge(this.state);
+    newData = data.merge(this.state).merge({
+      forceUpload: false
+    });
     return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
   };
 
@@ -1508,7 +1509,7 @@ ImageBlock = (function(superClass) {
       url: this.img.src
     });
     self = this;
-    if (!this.img.src.includes("blob")) {
+    if (!this.img.src.includes("blob") && !this.props.block.data.get("forceUpload")) {
       return;
     }
     return this.img.onload = (function(_this) {
@@ -3252,10 +3253,11 @@ customHTML2Content = function(HTML, blockRn) {
   contentBlocks = convertFromHTML(tempDoc.body.innerHTML, getSafeBodyFromHTML, blockRn);
   contentBlocks = contentBlocks.map(function(block) {
     var json, newBlock;
-    console.log("BLOCLCOCLCLCO", block.getType());
+    console.log("CHECK BLOCK", block.getType());
     if (block.getType() !== 'blockquote') {
       return block;
     }
+    json = "";
     try {
       json = JSON.parse(block.getText());
     } catch (error) {
@@ -3265,11 +3267,11 @@ customHTML2Content = function(HTML, blockRn) {
       type: "image",
       text: "",
       data: {
-        url: json.imgSrc
+        url: json.imgSrc,
+        forceUpload: true
       }
     });
   });
-  debugger;
   tempDoc = null;
   return ContentState.createFromBlockArray(contentBlocks);
 };

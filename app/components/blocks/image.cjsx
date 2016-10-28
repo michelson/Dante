@@ -98,7 +98,7 @@ class ImageBlock extends React.Component
     getEditorState = @props.blockProps.getEditorState
     setEditorState = @props.blockProps.setEditorState
     data = block.getData()
-    newData = data.merge(@state)
+    newData = data.merge(@state).merge(forceUpload: false)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
   replaceImg: =>
@@ -107,7 +107,8 @@ class ImageBlock extends React.Component
     @setState 
       url: @img.src
     self = @
-    return unless @img.src.includes("blob");
+    # exit only when not blob and not forceUload
+    return if !@img.src.includes("blob") and !@props.block.data.get("forceUpload")
     @img.onload = ()=>
       console.log @img
       console.log this
