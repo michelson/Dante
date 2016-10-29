@@ -197,9 +197,13 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       contentType: false
 
       beforeSend: (res)=>
+        @current_editor.locks += 1
+
         @current_editor.before_xhr_handler(res) if @current_editor.before_xhr_handler
 
       success: (response) =>
+        @current_editor.locks -= 1
+
         if @current_editor.upload_callback
           @current_editor.upload_callback(response, n, @)
         else
@@ -209,6 +213,7 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
 
         return
       error: (jqxhr, status)=>
+        @current_editor.locks -= 1
         utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
 
       processData: false

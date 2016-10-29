@@ -88,6 +88,7 @@ Until now We´ve implemented the following features:
 + **store_url:**   default: to none , url to store data with interval
 + **store_method** default: to POST , http verb to use when store_url is present.
 + **store_success_handler** default: to none. Option to set a function to handle success response for save operation, works only if store_url is present.
++ **failure_xhr_handler**: handles ajax store failure
 + **store_interval:** default: 1500 (1.5 secs), used when store_url is present.
 
 + **before_xhr_handler:** default: none, callback for handle beforeSend on **all** ajax calls 
