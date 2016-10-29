@@ -255,7 +255,7 @@ Dante = (function() {
 
   Dante.prototype.getContent = function() {
     console.log(this.options.content);
-    console.log("TRUE?", this.options.content === PocData);
+    console.log("IS POC DATA?", this.options.content === PocData);
     console.log(this.options.content, PocData);
     return PocData;
   };
@@ -279,6 +279,7 @@ DanteEditor = (function(superClass) {
     this.getTextFromEditor = bind(this.getTextFromEditor, this);
     this.toggleEditable = bind(this.toggleEditable, this);
     this.toggleReadOnly = bind(this.toggleReadOnly, this);
+    this.closePopOvers = bind(this.closePopOvers, this);
     this.handleDownArrow = bind(this.handleDownArrow, this);
     this.handleUpArrow = bind(this.handleUpArrow, this);
     this.handleDroppedFiles = bind(this.handleDroppedFiles, this);
@@ -1158,12 +1159,26 @@ DanteEditor = (function(superClass) {
     })(this), 10);
   };
 
+  DanteEditor.prototype.closePopOvers = function() {
+    return this.setState({
+      menu: {
+        show: false,
+        position: {}
+      },
+      display_toolbar: false,
+      display_tooltip: false,
+      display_image_popover: false,
+      display_anchor_popover: false
+    });
+  };
+
   DanteEditor.prototype.toggleReadOnly = function(e) {
     e.preventDefault();
     return this.toggleEditable();
   };
 
   DanteEditor.prototype.toggleEditable = function() {
+    this.closePopOvers();
     return this.setState({
       read_only: !this.state.read_only
     }, this.testEmitAndDecode);

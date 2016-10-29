@@ -119,7 +119,7 @@ class Dante
     #PocData || 
     #""
     console.log @options.content
-    console.log "TRUE?", @options.content is PocData
+    console.log "IS POC DATA?", @options.content is PocData
 
     console.log @options.content , PocData
 
@@ -980,12 +980,25 @@ class DanteEditor extends React.Component
       @forceRender(@state.editorState)
     , 10
 
+  ## close popovers
+  closePopOvers: ()=>
+    @setState
+      menu:
+          show: false
+          position: {}
+      display_toolbar: false
+      display_tooltip: false
+      display_image_popover: false
+      display_anchor_popover: false
+
   ## read only utils
   toggleReadOnly: (e)=>
     e.preventDefault()
     @toggleEditable()
   
   toggleEditable: =>
+    @closePopOvers()
+
     @setState
       read_only: !@state.read_only
     , @testEmitAndDecode
