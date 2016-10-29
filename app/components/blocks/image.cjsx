@@ -217,7 +217,7 @@ class ImageBlock extends React.Component
     return (
       <div ref="image_tag2" 
           suppressContentEditableWarning={true}>
-        <div contentEditable="false"
+        <div
           className="aspectRatioPlaceholder is-locked" 
           style={@coords()} 
           onClick={@handleGrafFigureSelectImg}>

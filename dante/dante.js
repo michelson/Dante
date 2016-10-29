@@ -257,8 +257,7 @@ Dante = (function() {
     console.log(this.options.content);
     console.log("TRUE?", this.options.content === PocData);
     console.log(this.options.content, PocData);
-    PocData;
-    return this.options.content;
+    return PocData;
   };
 
   Dante.prototype.render = function() {
@@ -277,6 +276,8 @@ DanteEditor = (function(superClass) {
 
   function DanteEditor(props) {
     this.render = bind(this.render, this);
+    this.toggleEditable = bind(this.toggleEditable, this);
+    this.toggleReadOnly = bind(this.toggleReadOnly, this);
     this.handleDownArrow = bind(this.handleDownArrow, this);
     this.handleUpArrow = bind(this.handleUpArrow, this);
     this.handleDroppedFiles = bind(this.handleDroppedFiles, this);
@@ -357,6 +358,7 @@ DanteEditor = (function(superClass) {
     this.state = {
       editorState: this.initializeState(),
       display_toolbar: false,
+      read_only: this.props.read_only,
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
       current_input: "",
@@ -641,7 +643,7 @@ DanteEditor = (function(superClass) {
       case 'image':
         return {
           component: ImageBlock,
-          editable: true,
+          editable: !this.state.read_only,
           props: {
             data: {
               src: this.state.current_input !== "" ? URL.createObjectURL(this.state.current_input) : "",
@@ -658,7 +660,7 @@ DanteEditor = (function(superClass) {
       case 'embed':
         return {
           component: EmbedBlock,
-          editable: true,
+          editable: !this.state.read_only,
           props: {
             data: this.state.current_input,
             getEditorState: this.getEditorState,
@@ -668,7 +670,7 @@ DanteEditor = (function(superClass) {
       case 'video':
         return {
           component: VideoBlock,
-          editable: true,
+          editable: !this.state.read_only,
           props: {
             data: this.state.current_input,
             getEditorState: this.getEditorState,
@@ -1155,6 +1157,17 @@ DanteEditor = (function(superClass) {
     })(this), 10);
   };
 
+  DanteEditor.prototype.toggleReadOnly = function(e) {
+    e.preventDefault();
+    return this.toggleEditable();
+  };
+
+  DanteEditor.prototype.toggleEditable = function() {
+    return this.setState({
+      read_only: !this.state.read_only
+    }, this.testEmitAndDecode);
+  };
+
   DanteEditor.prototype.render = function() {
     return React.createElement("div", {
       "id": "content",
@@ -1195,9 +1208,8 @@ DanteEditor = (function(superClass) {
       "handleKeyCommand": this.handleKeyCommand,
       "keyBindingFn": this.KeyBindingFn,
       "handleBeforeInput": this.handleBeforeInput,
-      "readOnly": this.props.config.read_only,
+      "readOnly": this.state.read_only,
       "onClick": this.handleClick,
-      "suppressContentEditableWarning": true,
       "placeholder": this.props.config.body_placeholder,
       "ref": "editor"
     })))))))), React.createElement(DanteTooltip, {
@@ -1238,6 +1250,9 @@ DanteEditor = (function(superClass) {
       "handleOnMouseOut": this.handleHidePopLinkOver
     }), React.createElement("ul", null, React.createElement("li", null, "LOCKS: ", this.state.locks), React.createElement("li", null, React.createElement("a", {
       "href": "#",
+      "onClick": this.toggleReadOnly
+    }, "READ ONLY ", (this.state.read_only ? 'yup' : 'noup'))), React.createElement("li", null, React.createElement("a", {
+      "href": "#",
       "onClick": this.emitHTML
     }, "get content")), React.createElement("li", null, React.createElement("a", {
       "href": "#",
@@ -1274,9 +1289,7 @@ EmbedBlock = (function(superClass) {
   function EmbedBlock(props) {
     this.componentDidMount = bind(this.componentDidMount, this);
     this.updateData = bind(this.updateData, this);
-    var api_key;
     EmbedBlock.__super__.constructor.call(this, props);
-    api_key = "86c28a410a104c8bb58848733c82f840";
     this.state = {
       embed_data: this.defaultData()
     };
@@ -1303,16 +1316,6 @@ EmbedBlock = (function(superClass) {
     if (!this.props.blockProps.data) {
       return;
     }
-
-    /*
-    utils.ajax
-      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
-      (data)=>
-        if data.status is 200
-          @setState
-            embed_data: JSON.parse(data.responseText)
-          , @updateData
-     */
     return axios({
       method: 'get',
       url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
@@ -1654,7 +1657,6 @@ ImageBlock = (function(superClass) {
       "ref": "image_tag2",
       "suppressContentEditableWarning": true
     }, React.createElement("div", {
-      "contentEditable": "false",
       "className": "aspectRatioPlaceholder is-locked",
       "style": this.coords(),
       "onClick": this.handleGrafFigureSelectImg
@@ -2339,7 +2341,8 @@ DanteImagePopover = (function(superClass) {
       return function(item, i) {
         return React.createElement(DanteImagePopoverItem, {
           "item": item,
-          "handleClick": _this.handleClick
+          "handleClick": _this.handleClick,
+          "key": i
         });
       };
     })(this)))), React.createElement("div", {
@@ -2851,7 +2854,93 @@ data2 = {
 
 data = {"entityMap":{},"blocks":[{"key":"gmko","text":"oli oli","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}
 
-module.exports = data
+
+data3 = {
+  "entityMap": {},
+  "blocks": [
+    {
+      "key": "5i64m",
+      "text": "ttps://www.youtube.com/watch?v=KPJgtQwtVVA&feature=youtu.be",
+      "type": "video",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {
+        "embed_data": {
+          "provider_url": "https://www.youtube.com/",
+          "width": 854,
+          "height": 480,
+          "html": "<iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.com%2Fembed%2FKPJgtQwtVVA%3Ffeature%3Doembed&url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DKPJgtQwtVVA&image=https%3A%2F%2Fi.ytimg.com%2Fvi%2FKPJgtQwtVVA%2Fhqdefault.jpg&key=d42b91026ea041c0875fd61ff736cb79&type=text%2Fhtml&schema=youtube\" width=\"854\" height=\"480\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>",
+          "url": "http://www.youtube.com/watch?v=KPJgtQwtVVA",
+          "thumbnail_width": 480,
+          "version": "1.0",
+          "title": "When Eric Clapton met Jimi Hendrix",
+          "provider_name": "YouTube",
+          "type": "video",
+          "thumbnail_height": 360,
+          "author_url": "https://www.youtube.com/user/Mrjamesanonymous",
+          "thumbnail_url": "https://i.ytimg.com/vi/KPJgtQwtVVA/hqdefault.jpg",
+          "description": "An excerpt from the bbc documentary 'the seven ages of rock - Episode 1 the birth of rock'.",
+          "author_name": "Mrjamesanonymous"
+        }
+      }
+    },
+    {
+      "key": "347m6",
+      "text": "ttp://news.ycombinator.com",
+      "type": "embed",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {
+        "embed_data": {
+          "provider_url": "https://news.ycombinator.com",
+          "description": "Air India Taking Advantage of Tailwinds",
+          "title": "Hacker News",
+          "url": "https://news.ycombinator.com/",
+          "version": "1.0",
+          "provider_name": "Ycombinator",
+          "type": "link"
+        }
+      }
+    },
+    {
+      "key": "t0sk",
+      "text": "sdcoidjco sidjcioj",
+      "type": "unstyled",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {}
+    },
+    {
+      "key": "92f7o",
+      "text": "",
+      "type": "image",
+      "depth": 0,
+      "inlineStyleRanges": [],
+      "entityRanges": [],
+      "data": {
+        "aspect_ratio": {
+          "width": 508,
+          "height": 448,
+          "ratio": 88.18897637795276
+        },
+        "width": 508,
+        "height": 448,
+        "forceUpload": false,
+        "url": "blob:http://localhost:3333/580647fb-5cf1-49d0-be3a-4e986f432d2c",
+        "loading_progress": 0,
+        "selected": false,
+        "loading": false,
+        "file": null,
+        "direction": "center"
+      }
+    }
+  ]
+}
+
+module.exports = data3
 });
 
 ;require.register("initialize.cjsx", function(exports, require, module) {

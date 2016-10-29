@@ -61,6 +61,7 @@ class DanteImagePopover extends React.Component
                 <DanteImagePopoverItem
                   item={item}
                   handleClick={@handleClick}
+                  key={i}
                 />
             }
 

@@ -124,7 +124,7 @@ class Dante
     console.log @options.content , PocData
 
     PocData
-    @options.content
+    #@options.content
 
   render: ->
     ReactDOM.render(<DanteEditor content={@getContent()} 
@@ -166,6 +166,7 @@ class DanteEditor extends React.Component
     @state = 
       editorState: @initializeState() #EditorState.createEmpty(@decorator)
       display_toolbar: false
+      read_only: @props.read_only
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
       current_input: ""
@@ -462,7 +463,7 @@ class DanteEditor extends React.Component
       when 'image'
         return (
             component: ImageBlock
-            editable: true
+            editable: !@state.read_only
             props:
               data:
                 src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
@@ -478,7 +479,7 @@ class DanteEditor extends React.Component
       when 'embed'
         return (
             component: EmbedBlock
-            editable: true
+            editable: !@state.read_only
             props:
               data: @state.current_input
               getEditorState: @getEditorState
@@ -488,7 +489,7 @@ class DanteEditor extends React.Component
       when 'video'
         return (
             component: VideoBlock
-            editable: true
+            editable: !@state.read_only
             props:
               data: @state.current_input
               getEditorState: @getEditorState
@@ -979,6 +980,15 @@ class DanteEditor extends React.Component
       @forceRender(@state.editorState)
     , 10
 
+  toggleReadOnly: (e)=>
+    e.preventDefault()
+    @toggleEditable()
+  
+  toggleEditable: =>
+    @setState
+      read_only: !@state.read_only
+    , @testEmitAndDecode
+
   render: =>
 
     return (
@@ -1012,11 +1022,9 @@ class DanteEditor extends React.Component
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         handleBeforeInput={@.handleBeforeInput}
-                        readOnly={@props.config.read_only}
+                        readOnly={@state.read_only}
                         onClick={@handleClick}
-                        suppressContentEditableWarning={true}
                         placeholder={@props.config.body_placeholder}
-
                         ref="editor"
                       />
                     </div> 
@@ -1074,6 +1082,11 @@ class DanteEditor extends React.Component
 
         <ul>
           <li>LOCKS: {@state.locks}</li>
+          <li>
+            <a href="#" onClick={@toggleReadOnly}>
+              READ ONLY {if @state.read_only then 'yup' else 'noup'}
+            </a>
+          </li>
           <li>
             <a href="#" onClick={@emitHTML}>
               get content
