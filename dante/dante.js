@@ -276,6 +276,7 @@ DanteEditor = (function(superClass) {
 
   function DanteEditor(props) {
     this.render = bind(this.render, this);
+    this.getTextFromEditor = bind(this.getTextFromEditor, this);
     this.toggleEditable = bind(this.toggleEditable, this);
     this.toggleReadOnly = bind(this.toggleReadOnly, this);
     this.handleDownArrow = bind(this.handleDownArrow, this);
@@ -1168,6 +1169,18 @@ DanteEditor = (function(superClass) {
     }, this.testEmitAndDecode);
   };
 
+  DanteEditor.prototype.getTextFromEditor = function() {
+    var c, out;
+    c = this.state.editorState.getCurrentContent();
+    out = c.getBlocksAsArray().map((function(_this) {
+      return function(o) {
+        return o.getText();
+      };
+    })(this)).join("\n");
+    console.log(out);
+    return out;
+  };
+
   DanteEditor.prototype.render = function() {
     return React.createElement("div", {
       "id": "content",
@@ -1255,6 +1268,9 @@ DanteEditor = (function(superClass) {
       "href": "#",
       "onClick": this.emitHTML
     }, "get content")), React.createElement("li", null, React.createElement("a", {
+      "href": "#",
+      "onClick": this.getTextFromEditor
+    }, "get Text From Editor")), React.createElement("li", null, React.createElement("a", {
       "href": "#",
       "onClick": this.testEmitAndDecode
     }, "serialize and set content"))));

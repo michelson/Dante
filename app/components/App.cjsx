@@ -980,6 +980,7 @@ class DanteEditor extends React.Component
       @forceRender(@state.editorState)
     , 10
 
+  ## read only utils
   toggleReadOnly: (e)=>
     e.preventDefault()
     @toggleEditable()
@@ -988,6 +989,17 @@ class DanteEditor extends React.Component
     @setState
       read_only: !@state.read_only
     , @testEmitAndDecode
+  ##
+
+  ## title utils
+  getTextFromEditor: =>
+    c = @.state.editorState.getCurrentContent()
+    out = c.getBlocksAsArray().map (o)=>
+        o.getText()
+      .join("\n")
+    
+    console.log out
+    return out
 
   render: =>
 
@@ -1092,6 +1104,12 @@ class DanteEditor extends React.Component
               get content
             </a>
           </li>
+          <li>
+            <a href="#" onClick={@getTextFromEditor}>
+              get Text From Editor
+            </a>
+          </li>
+          
           <li>
             <a href="#" onClick={@testEmitAndDecode}>
               serialize and set content
