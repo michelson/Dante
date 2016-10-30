@@ -35,12 +35,17 @@ class VideoBlock extends React.Component
     newData = data.merge(@state)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
+  dataForUpdate: =>
+    @.props.blockProps.data.toJS()
+
   componentDidMount: ->
     return unless @.props.blockProps.data
-
+    # ensure data isnt already loaded
+    return unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+    
     axios
       method: 'get'
-      url: "#{@.props.blockProps.data.endpoint}#{@.props.blockProps.data.provisory_text}&scheme=https"
+      url: "#{@.dataForUpdate().endpoint}#{@.dataForUpdate().provisory_text}&scheme=https"
     .then (result)=>
       @setState
         embed_data: result.data #JSON.parse(data.responseText)

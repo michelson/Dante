@@ -20,7 +20,8 @@ class PlaceholderBlock extends React.Component
 
   placeholderText: =>
     return "" if @state.enabled
-    if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
+    @.props.blockProps.data.toJS().placeholder || @defaultText()
+    #if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
 
   defaultText: =>
     "write something "
@@ -36,6 +37,7 @@ class PlaceholderBlock extends React.Component
 
   classForDefault: =>
     if !@state.enabled then "defaultValue defaultValue--root" else ""
+
   render: ->
     return(
       <span className={@classForDefault()}

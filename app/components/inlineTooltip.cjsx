@@ -108,15 +108,18 @@ class DanteInlineTooltip extends React.Component
   handlePlaceholder: (input)=>
     opts =
       type: input.insert_block
-      text: input.options.placeholder
+      placeholder: input.options.placeholder
       endpoint: input.options.endpoint
 
     @props.setCurrentInput opts, ()=>
       @props.onChange(resetBlockWithType(@props.editorState, 'placeholder', opts));
 
   insertImage: (file) =>
-    @props.setCurrentInput file, ()=>
-      @props.onChange(addNewBlock(@props.editorState, 'image', file));
+    opts =  
+      url: URL.createObjectURL(file)
+
+    @props.setCurrentInput opts, ()=>
+      @props.onChange(addNewBlock(@props.editorState, 'image', opts));
 
   handleFileInput: (e)=>
     fileList = e.target.files

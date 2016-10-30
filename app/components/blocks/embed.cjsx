@@ -35,13 +35,21 @@ class EmbedBlock extends React.Component
     newData = data.merge(@state)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
-  componentDidMount: =>
+  dataForUpdate: =>
+    @.props.blockProps.data.toJS()
 
+  componentDidMount: =>
+    
     return unless @.props.blockProps.data
+    
+    # ensure data isnt already loaded
+    return unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+    
     axios
       method: 'get'
-      url: "#{@.props.blockProps.data.endpoint}#{@.props.blockProps.data.provisory_text}&scheme=https"
+      url: "#{@dataForUpdate().endpoint}#{@dataForUpdate().provisory_text}&scheme=https"
     .then (result)=> 
+      
       @setState
         embed_data: result.data #JSON.parse(data.responseText)
       , @updateData    
@@ -49,7 +57,11 @@ class EmbedBlock extends React.Component
       console.log("TODO: error")
       
   classForImage: ->
-    if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
+    if @state.embed_data.images then "" else "mixtapeImage--empty u-ignoreBlock"
+    #if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
+
+  picture: ->
+    if @state.embed_data.images then @state.embed_data.images[0].url else ""
 
   render: ->
     #block = @.props;
@@ -60,7 +72,7 @@ class EmbedBlock extends React.Component
         <a target='_blank'
           className="js-mixtapeImage mixtapeImage #{@classForImage()}"
           href={@state.embed_data.url} 
-          style={{backgroundImage: "url('#{@state.embed_data.thumbnail_url}')"}}>
+          style={{backgroundImage: "url('#{@picture()}')"}}>
         </a>
         <a className='markup--anchor markup--mixtapeEmbed-anchor' 
           target='_blank' href={@state.embed_data.url}>

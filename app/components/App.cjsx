@@ -103,13 +103,6 @@ class Dante
         block: 'ImageBlock'
         checkOnRender: true
         displayOnInlineTooltip: true
-        dataProc: (data)=>
-          return (
-            { 
-              src: if data.state.current_input isnt "" then URL.createObjectURL(data.state.current_input) else ""
-              file: data.state.current_input
-            }
-          )
         options:
           upload_url: options.upload_url or 'uploads.json'
           upload_callback: @options.image_upload_callabck
@@ -149,6 +142,7 @@ class Dante
         name: 'placeholder'
         checkOnRender: true
         block: 'PlaceholderBlock'
+        type: 'placeholder'
         displayOnInlineTooltip: false
       }
     ]
@@ -536,69 +530,21 @@ class DanteEditor extends React.Component
         #return null unless entity
         entity_type = Entity.get(entity).getType()
 
-      when 'image'
-        return (
-            component: ImageBlock
-            editable: !@state.read_only
-            props:
-              data:
-                src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
-                file: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-              addLock: @addLock
-              removeLock: @removeLock
-              getLocks: @getLocks
-              config: @props.config
-          )
-
-      when 'embed'
-        return (
-            component: EmbedBlock
-            editable: !@state.read_only
-            props:
-              data: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-          )
-
-      when 'video'
-        return (
-            component: VideoBlock
-            editable: !@state.read_only
-            props:
-              data: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-          )
-
-      when 'placeholder'
-        debugger
-        return (
-            component: PlaceholderBlock
-            props:
-              data: @state.current_input
-          )
-
-
-      #when "image", "embed", "placeholder", "video"
-      #  return @handleBlockRenderer(block)
+      when "image", "embed", "placeholder", "video"
+        return @handleBlockRenderer(block)
 
     return null;
 
   handleBlockRenderer: (block)=>
-    #dataBlock = @props.config.widgets.find (o)=>
-    #  o.type is block.getType() and o.checkOnRender
+    dataBlock = @props.config.widgets.find (o)=>
+      o.type is block.getType() and o.checkOnRender
 
-    #return false unless dataBlock
-
-    #console.log if dataBlock.dataProc then dataBlock.dataProc(@) else @state.current_input
-    ###
+    return null unless dataBlock
     return (
       component: eval(dataBlock.block)
       editable: !@state.read_only
       props:
-        data: if dataBlock.dataProc then dataBlock.dataProc(@) else @state.current_input
+        data: block.getData()
         getEditorState: @getEditorState
         setEditorState: @onChange
         addLock: @addLock
@@ -606,53 +552,7 @@ class DanteEditor extends React.Component
         getLocks: @getLocks
         config: dataBlock.options 
     )
-    ###
-
-    switch block.getType()
-      when 'image'
-        return (
-            component: ImageBlock
-            editable: !@state.read_only
-            props:
-              data:
-                src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
-                file: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-              addLock: @addLock
-              removeLock: @removeLock
-              getLocks: @getLocks
-              config: @props.config
-          )
-
-      when 'embed'
-        return (
-            component: EmbedBlock
-            editable: !@state.read_only
-            props:
-              data: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-          )
-
-      when 'video'
-        return (
-            component: VideoBlock
-            editable: !@state.read_only
-            props:
-              data: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-          )
-
-      when 'placeholder'
-        debugger
-        return (
-            component: PlaceholderBlock
-            props:
-              data: @state.current_input
-          )
-
+    
     return null
    
 
@@ -735,11 +635,15 @@ class DanteEditor extends React.Component
           when "placeholder"
             @setState
               display_tooltip: false
-              current_input:
-                provisory_text: currentBlock.getText()
-                endpoint: @state.current_input.endpoint
+            opts =
+              provisory_text: currentBlock.getText()
+              endpoint: currentBlock.getData().get('endpoint')
 
-            @.onChange(resetBlockWithType(editorState, @state.current_input.type));
+            @.onChange(resetBlockWithType(
+              editorState, 
+              currentBlock.getData().get('type'), 
+              opts)
+            )
             return true    
 
       selection = editorState.getSelection();
@@ -971,9 +875,10 @@ class DanteEditor extends React.Component
 
   setCurrentInput: (data, cb)=>
     #debugger
-    @setState
-      current_input: data
-    , cb
+    #@setState
+    #  current_input: data
+    #, cb
+    cb()
     #console.log "current in put" , data
 
   relocateImageTooltipPosition: (coords)=>
@@ -1112,13 +1017,19 @@ class DanteEditor extends React.Component
   handlePasteImage: (files)=>
     #TODO: check file types
     files.map (file)=>
+      opts =  
+        url: URL.createObjectURL(file)
+
       @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image'))
+        @onChange(addNewBlock(@state.editorState, 'image', opts))
 
   handleDroppedFiles: (state, files)=>
     files.map (file)=>
       @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image'))
+        opts =  
+          url: URL.createObjectURL(file)
+
+        @onChange(addNewBlock(@state.editorState, 'image', opts))
 
   handleUpArrow: (e)=>
     setTimeout =>

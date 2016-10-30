@@ -62,7 +62,7 @@ export const addNewBlock = (editorState, newType = "unstyled", initialData = {})
 /*
 Changes the block type of the current block.
 */
-export const resetBlockWithType = (editorState, newType = "unstyled", data=null) => {
+export const resetBlockWithType = (editorState, newType = "unstyled", data={}) => {
   const contentState = editorState.getCurrentContent();
   const selectionState = editorState.getSelection();
   const key = selectionState.getStartKey();
@@ -76,11 +76,10 @@ export const resetBlockWithType = (editorState, newType = "unstyled", data=null)
 
   //let newText = data.text
 
-  //debugger
   const newBlock = block.merge({
     text: newText,
     type: newType,
-    data: getDefaultBlockData(newType),
+    data: getDefaultBlockData(newType, data),
   });
   const newContentState = contentState.merge({
     blockMap: blockMap.set(key, newBlock),

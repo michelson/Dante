@@ -35,6 +35,7 @@ class ImageBlock extends React.Component
       url: @blockPropsSrc() || @defaultUrl(existing_data)
       aspect_ratio: @defaultAspectRatio(existing_data)
 
+
   blockPropsSrc: ()=>
     # console.log @.props.blockProps.data.src
     @.props.blockProps.data.src
@@ -49,6 +50,8 @@ class ImageBlock extends React.Component
     ###
 
   defaultUrl: (data)=>
+    return data.url if data.url
+
     if data.url
       if data.file then URL.createObjectURL(data.file) else data.url
     else

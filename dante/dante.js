@@ -244,14 +244,6 @@ Dante = (function() {
         block: 'ImageBlock',
         checkOnRender: true,
         displayOnInlineTooltip: true,
-        dataProc: (function(_this) {
-          return function(data) {
-            return {
-              src: data.state.current_input !== "" ? URL.createObjectURL(data.state.current_input) : "",
-              file: data.state.current_input
-            };
-          };
-        })(this),
         options: {
           upload_url: options.upload_url || 'uploads.json',
           upload_callback: this.options.image_upload_callabck,
@@ -291,6 +283,7 @@ Dante = (function() {
         name: 'placeholder',
         checkOnRender: true,
         block: 'PlaceholderBlock',
+        type: 'placeholder',
         displayOnInlineTooltip: false
       }
     ];
@@ -702,118 +695,38 @@ DanteEditor = (function(superClass) {
         entity = block.getEntityAt(0);
         entity_type = Entity.get(entity).getType();
         break;
-      case 'image':
-        return {
-          component: ImageBlock,
-          editable: !this.state.read_only,
-          props: {
-            data: {
-              src: this.state.current_input !== "" ? URL.createObjectURL(this.state.current_input) : "",
-              file: this.state.current_input
-            },
-            getEditorState: this.getEditorState,
-            setEditorState: this.onChange,
-            addLock: this.addLock,
-            removeLock: this.removeLock,
-            getLocks: this.getLocks,
-            config: this.props.config
-          }
-        };
-      case 'embed':
-        return {
-          component: EmbedBlock,
-          editable: !this.state.read_only,
-          props: {
-            data: this.state.current_input,
-            getEditorState: this.getEditorState,
-            setEditorState: this.onChange
-          }
-        };
-      case 'video':
-        return {
-          component: VideoBlock,
-          editable: !this.state.read_only,
-          props: {
-            data: this.state.current_input,
-            getEditorState: this.getEditorState,
-            setEditorState: this.onChange
-          }
-        };
-      case 'placeholder':
-        debugger;
-        return {
-          component: PlaceholderBlock,
-          props: {
-            data: this.state.current_input
-          }
-        };
+      case "image":
+      case "embed":
+      case "placeholder":
+      case "video":
+        return this.handleBlockRenderer(block);
     }
     return null;
   };
 
   DanteEditor.prototype.handleBlockRenderer = function(block) {
-
-    /*
-    return (
-      component: eval(dataBlock.block)
-      editable: !@state.read_only
-      props:
-        data: if dataBlock.dataProc then dataBlock.dataProc(@) else @state.current_input
-        getEditorState: @getEditorState
-        setEditorState: @onChange
-        addLock: @addLock
-        removeLock: @removeLock
-        getLocks: @getLocks
-        config: dataBlock.options 
-    )
-     */
-    switch (block.getType()) {
-      case 'image':
-        return {
-          component: ImageBlock,
-          editable: !this.state.read_only,
-          props: {
-            data: {
-              src: this.state.current_input !== "" ? URL.createObjectURL(this.state.current_input) : "",
-              file: this.state.current_input
-            },
-            getEditorState: this.getEditorState,
-            setEditorState: this.onChange,
-            addLock: this.addLock,
-            removeLock: this.removeLock,
-            getLocks: this.getLocks,
-            config: this.props.config
-          }
-        };
-      case 'embed':
-        return {
-          component: EmbedBlock,
-          editable: !this.state.read_only,
-          props: {
-            data: this.state.current_input,
-            getEditorState: this.getEditorState,
-            setEditorState: this.onChange
-          }
-        };
-      case 'video':
-        return {
-          component: VideoBlock,
-          editable: !this.state.read_only,
-          props: {
-            data: this.state.current_input,
-            getEditorState: this.getEditorState,
-            setEditorState: this.onChange
-          }
-        };
-      case 'placeholder':
-        debugger;
-        return {
-          component: PlaceholderBlock,
-          props: {
-            data: this.state.current_input
-          }
-        };
+    var dataBlock;
+    dataBlock = this.props.config.widgets.find((function(_this) {
+      return function(o) {
+        return o.type === block.getType() && o.checkOnRender;
+      };
+    })(this));
+    if (!dataBlock) {
+      return null;
     }
+    return {
+      component: eval(dataBlock.block),
+      editable: !this.state.read_only,
+      props: {
+        data: block.getData(),
+        getEditorState: this.getEditorState,
+        setEditorState: this.onChange,
+        addLock: this.addLock,
+        removeLock: this.removeLock,
+        getLocks: this.getLocks,
+        config: dataBlock.options
+      }
+    };
     return null;
   };
 
@@ -851,7 +764,7 @@ DanteEditor = (function(superClass) {
    */
 
   DanteEditor.prototype.handleReturn = function(e) {
-    var blockType, currentBlock, editorState, selection;
+    var blockType, currentBlock, editorState, opts, selection;
     if (this.props.handleReturn) {
       if (this.props.handleReturn()) {
         return true;
@@ -893,13 +806,13 @@ DanteEditor = (function(superClass) {
             return true;
           case "placeholder":
             this.setState({
-              display_tooltip: false,
-              current_input: {
-                provisory_text: currentBlock.getText(),
-                endpoint: this.state.current_input.endpoint
-              }
+              display_tooltip: false
             });
-            this.onChange(resetBlockWithType(editorState, this.state.current_input.type));
+            opts = {
+              provisory_text: currentBlock.getText(),
+              endpoint: currentBlock.getData().get('endpoint')
+            };
+            this.onChange(resetBlockWithType(editorState, currentBlock.getData().get('type'), opts));
             return true;
         }
       }
@@ -1119,9 +1032,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.setCurrentInput = function(data, cb) {
-    return this.setState({
-      current_input: data
-    }, cb);
+    return cb();
   };
 
   DanteEditor.prototype.relocateImageTooltipPosition = function(coords) {
@@ -1253,8 +1164,12 @@ DanteEditor = (function(superClass) {
   DanteEditor.prototype.handlePasteImage = function(files) {
     return files.map((function(_this) {
       return function(file) {
+        var opts;
+        opts = {
+          url: URL.createObjectURL(file)
+        };
         return _this.setCurrentInput(file, function() {
-          return _this.onChange(addNewBlock(_this.state.editorState, 'image'));
+          return _this.onChange(addNewBlock(_this.state.editorState, 'image', opts));
         });
       };
     })(this));
@@ -1264,7 +1179,11 @@ DanteEditor = (function(superClass) {
     return files.map((function(_this) {
       return function(file) {
         return _this.setCurrentInput(file, function() {
-          return _this.onChange(addNewBlock(_this.state.editorState, 'image'));
+          var opts;
+          opts = {
+            url: URL.createObjectURL(file)
+          };
+          return _this.onChange(addNewBlock(_this.state.editorState, 'image', opts));
         });
       };
     })(this));
@@ -1447,6 +1366,7 @@ EmbedBlock = (function(superClass) {
 
   function EmbedBlock(props) {
     this.componentDidMount = bind(this.componentDidMount, this);
+    this.dataForUpdate = bind(this.dataForUpdate, this);
     this.updateData = bind(this.updateData, this);
     EmbedBlock.__super__.constructor.call(this, props);
     this.state = {
@@ -1471,13 +1391,20 @@ EmbedBlock = (function(superClass) {
     return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
   };
 
+  EmbedBlock.prototype.dataForUpdate = function() {
+    return this.props.blockProps.data.toJS();
+  };
+
   EmbedBlock.prototype.componentDidMount = function() {
     if (!this.props.blockProps.data) {
       return;
     }
+    if (!(this.dataForUpdate().endpoint || this.dataForUpdate().provisory_text)) {
+      return;
+    }
     return axios({
       method: 'get',
-      url: "" + this.props.blockProps.data.endpoint + this.props.blockProps.data.provisory_text + "&scheme=https"
+      url: "" + (this.dataForUpdate().endpoint) + (this.dataForUpdate().provisory_text) + "&scheme=https"
     }).then((function(_this) {
       return function(result) {
         return _this.setState({
@@ -1492,10 +1419,18 @@ EmbedBlock = (function(superClass) {
   };
 
   EmbedBlock.prototype.classForImage = function() {
-    if (this.state.embed_data.thumbnail_url) {
+    if (this.state.embed_data.images) {
       return "";
     } else {
       return "mixtapeImage--empty u-ignoreBlock";
+    }
+  };
+
+  EmbedBlock.prototype.picture = function() {
+    if (this.state.embed_data.images) {
+      return this.state.embed_data.images[0].url;
+    } else {
+      return "";
     }
   };
 
@@ -1505,7 +1440,7 @@ EmbedBlock = (function(superClass) {
       "className": "js-mixtapeImage mixtapeImage " + (this.classForImage()),
       "href": this.state.embed_data.url,
       "style": {
-        backgroundImage: "url('" + this.state.embed_data.thumbnail_url + "')"
+        backgroundImage: "url('" + (this.picture()) + "')"
       }
     }), React.createElement("a", {
       "className": 'markup--anchor markup--mixtapeEmbed-anchor',
@@ -1593,6 +1528,9 @@ ImageBlock = (function(superClass) {
   };
 
   ImageBlock.prototype.defaultUrl = function(data) {
+    if (data.url) {
+      return data.url;
+    }
     if (data.url) {
       if (data.file) {
         return URL.createObjectURL(data.file);
@@ -1896,11 +1834,7 @@ PlaceholderBlock = (function(superClass) {
     if (this.state.enabled) {
       return "";
     }
-    if (this.props.blockProps.data) {
-      return this.props.blockProps.data.placeholder;
-    } else {
-      return this.defaultText();
-    }
+    return this.props.blockProps.data.toJS().placeholder || this.defaultText();
   };
 
   PlaceholderBlock.prototype.defaultText = function() {
@@ -1965,6 +1899,7 @@ VideoBlock = (function(superClass) {
   extend(VideoBlock, superClass);
 
   function VideoBlock(props) {
+    this.dataForUpdate = bind(this.dataForUpdate, this);
     this.updateData = bind(this.updateData, this);
     VideoBlock.__super__.constructor.call(this, props);
     this.state = {
@@ -1989,13 +1924,20 @@ VideoBlock = (function(superClass) {
     return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
   };
 
+  VideoBlock.prototype.dataForUpdate = function() {
+    return this.props.blockProps.data.toJS();
+  };
+
   VideoBlock.prototype.componentDidMount = function() {
     if (!this.props.blockProps.data) {
       return;
     }
+    if (!(this.dataForUpdate().endpoint || this.dataForUpdate().provisory_text)) {
+      return;
+    }
     return axios({
       method: 'get',
-      url: "" + this.props.blockProps.data.endpoint + this.props.blockProps.data.provisory_text + "&scheme=https"
+      url: "" + (this.dataForUpdate().endpoint) + (this.dataForUpdate().provisory_text) + "&scheme=https"
     }).then((function(_this) {
       return function(result) {
         return _this.setState({
@@ -2184,7 +2126,7 @@ DanteInlineTooltip = (function(superClass) {
     var opts;
     opts = {
       type: input.insert_block,
-      text: input.options.placeholder,
+      placeholder: input.options.placeholder,
       endpoint: input.options.endpoint
     };
     return this.props.setCurrentInput(opts, (function(_this) {
@@ -2195,9 +2137,13 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.insertImage = function(file) {
-    return this.props.setCurrentInput(file, (function(_this) {
+    var opts;
+    opts = {
+      url: URL.createObjectURL(file)
+    };
+    return this.props.setCurrentInput(opts, (function(_this) {
       return function() {
-        return _this.props.onChange(addNewBlock(_this.props.editorState, 'image', file));
+        return _this.props.onChange(addNewBlock(_this.props.editorState, 'image', opts));
       };
     })(this));
   };
@@ -3051,6 +2997,8 @@ data3 = {
   ]
 }
 
+empty = null
+
 module.exports = data3
 });
 
@@ -3175,7 +3123,7 @@ Changes the block type of the current block.
 */
 var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithType(editorState) {
   var newType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "unstyled";
-  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var contentState = editorState.getCurrentContent();
   var selectionState = editorState.getSelection();
@@ -3190,11 +3138,10 @@ var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithTyp
 
   //let newText = data.text
 
-  //debugger
   var newBlock = block.merge({
     text: newText,
     type: newType,
-    data: getDefaultBlockData(newType)
+    data: getDefaultBlockData(newType, data)
   });
   var newContentState = contentState.merge({
     blockMap: blockMap.set(key, newBlock),
