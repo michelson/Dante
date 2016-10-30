@@ -365,7 +365,6 @@ DanteEditor = (function(superClass) {
     this.setDirection = bind(this.setDirection, this);
     this.updateBlockData = bind(this.updateBlockData, this);
     this.relocateImageTooltipPosition = bind(this.relocateImageTooltipPosition, this);
-    this.setCurrentInput = bind(this.setCurrentInput, this);
     this.getNode = bind(this.getNode, this);
     this.relocateMenu = bind(this.relocateMenu, this);
     this.KeyBindingFn = bind(this.KeyBindingFn, this);
@@ -1040,10 +1039,6 @@ DanteEditor = (function(superClass) {
     }
   };
 
-  DanteEditor.prototype.setCurrentInput = function(data, cb) {
-    return cb();
-  };
-
   DanteEditor.prototype.relocateImageTooltipPosition = function(coords) {
     return this.setState({
       display_image_popover: true
@@ -1177,9 +1172,7 @@ DanteEditor = (function(superClass) {
         opts = {
           url: URL.createObjectURL(file)
         };
-        return _this.setCurrentInput(file, function() {
-          return _this.onChange(addNewBlock(_this.state.editorState, 'image', opts));
-        });
+        return _this.onChange(addNewBlock(_this.state.editorState, 'image', opts));
       };
     })(this));
   };
@@ -1187,13 +1180,11 @@ DanteEditor = (function(superClass) {
   DanteEditor.prototype.handleDroppedFiles = function(state, files) {
     return files.map((function(_this) {
       return function(file) {
-        return _this.setCurrentInput(file, function() {
-          var opts;
-          opts = {
-            url: URL.createObjectURL(file)
-          };
-          return _this.onChange(addNewBlock(_this.state.editorState, 'image', opts));
-        });
+        var opts;
+        opts = {
+          url: URL.createObjectURL(file)
+        };
+        return _this.onChange(addNewBlock(_this.state.editorState, 'image', opts));
       };
     })(this));
   };
@@ -1317,7 +1308,6 @@ DanteEditor = (function(superClass) {
       "style": this.state.position,
       "onChange": this.onChange,
       "dispatchChanges": this.dispatchChanges,
-      "setCurrentInput": this.setCurrentInput,
       "display_tooltip": this.state.display_tooltip,
       "closeInlineButton": this.closeInlineButton
     }), React.createElement(DanteImagePopover, {
@@ -2136,11 +2126,7 @@ DanteInlineTooltip = (function(superClass) {
       placeholder: input.options.placeholder,
       endpoint: input.options.endpoint
     };
-    return this.props.setCurrentInput(opts, (function(_this) {
-      return function() {
-        return _this.props.onChange(resetBlockWithType(_this.props.editorState, 'placeholder', opts));
-      };
-    })(this));
+    return this.props.onChange(resetBlockWithType(this.props.editorState, 'placeholder', opts));
   };
 
   DanteInlineTooltip.prototype.insertImage = function(file) {
@@ -2148,11 +2134,7 @@ DanteInlineTooltip = (function(superClass) {
     opts = {
       url: URL.createObjectURL(file)
     };
-    return this.props.setCurrentInput(opts, (function(_this) {
-      return function() {
-        return _this.props.onChange(addNewBlock(_this.props.editorState, 'image', opts));
-      };
-    })(this));
+    return this.props.onChange(addNewBlock(this.props.editorState, 'image', opts));
   };
 
   DanteInlineTooltip.prototype.handleFileInput = function(e) {

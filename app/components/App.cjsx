@@ -860,14 +860,6 @@ class DanteEditor extends React.Component
     else
       @closeInlineButton()
 
-  setCurrentInput: (data, cb)=>
-    #debugger
-    #@setState
-    #  current_input: data
-    #, cb
-    cb()
-    #console.log "current in put" , data
-
   relocateImageTooltipPosition: (coords)=>
     @setState
       display_image_popover: true
@@ -1007,16 +999,14 @@ class DanteEditor extends React.Component
       opts =  
         url: URL.createObjectURL(file)
 
-      @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image', opts))
+      @onChange(addNewBlock(@state.editorState, 'image', opts))
 
   handleDroppedFiles: (state, files)=>
     files.map (file)=>
-      @setCurrentInput file, ()=>
-        opts =  
-          url: URL.createObjectURL(file)
+      opts =  
+        url: URL.createObjectURL(file)
 
-        @onChange(addNewBlock(@state.editorState, 'image', opts))
+      @onChange(addNewBlock(@state.editorState, 'image', opts))
 
   handleUpArrow: (e)=>
     setTimeout =>
@@ -1133,7 +1123,6 @@ class DanteEditor extends React.Component
           style={@state.position}
           onChange={@onChange}
           dispatchChanges={@dispatchChanges}
-          setCurrentInput={@setCurrentInput}
           display_tooltip={@state.display_tooltip}
           closeInlineButton={@closeInlineButton}
         />
