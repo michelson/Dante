@@ -178,6 +178,48 @@ class Dante
       interval: options.store_interval || 1500
     }
 
+
+    @options.continuousBlocks = [
+        "unstyled"
+        "blockquote"
+        "ordered-list"
+        "unordered-list"
+        "unordered-list-item"
+        "ordered-list-item"
+        "code-block"
+      ]
+
+    @options.tooltipables = [
+        "unstyled"
+        "blockquote"
+        "ordered-list"
+        "unordered-list"
+        "unordered-list-item"
+        "ordered-list-item"
+        "code-block"
+        'header-one'
+        'header-two'
+        'header-three'        
+      ]
+
+    @options.block_types = [
+      # {label: 'p', style: 'unstyled'},
+      {label: 'h3', style: 'header-one'},
+      {label: 'h4', style: 'header-two'},
+      {label: 'blockquote', style: 'blockquote'},
+      {label: 'insertunorderedlist', style: 'unordered-list-item'},
+      {label: 'insertorderedlist', style: 'ordered-list-item'},
+      {label: 'code', style: 'code-block'}
+    ];
+
+    @options.inline_styles = [
+      {label: 'bold', style: 'BOLD'},
+      {label: 'italic', style: 'ITALIC'},
+      # {label: 'underline', style: 'UNDERLINE'},
+      # {label: 'monospace', style: 'CODE'},
+      # {label: 'strikethrough', style: 'STRIKETHROUGH'}
+    ];
+
   getContent: ->
     #PocData || 
     #""
@@ -262,48 +304,15 @@ class DanteEditor extends React.Component
         show: false
         position: {}
 
-      embed_url: ""
+      #embed_url: ""
 
-      continuousBlocks: [
-        "unstyled"
-        "blockquote"
-        "ordered-list"
-        "unordered-list"
-        "unordered-list-item"
-        "ordered-list-item"
-        "code-block"
-      ]
+    @continuousBlocks = @props.config.continuousBlocks
 
-      tooltipables: [
-        "unstyled"
-        "blockquote"
-        "ordered-list"
-        "unordered-list"
-        "unordered-list-item"
-        "ordered-list-item"
-        "code-block"
-        'header-one'
-        'header-two'
-        'header-three'        
-      ]
+    @tooltipables =  @props.config.tooltipables
 
-    @.BLOCK_TYPES = [
-      # {label: 'p', style: 'unstyled'},
-      {label: 'h3', style: 'header-one'},
-      {label: 'h4', style: 'header-two'},
-      {label: 'blockquote', style: 'blockquote'},
-      {label: 'insertunorderedlist', style: 'unordered-list-item'},
-      {label: 'insertorderedlist', style: 'ordered-list-item'},
-      {label: 'code', style: 'code-block'}
-    ];
+    @block_types = @props.config.block_types
 
-    @.INLINE_STYLES = [
-      {label: 'bold', style: 'BOLD'},
-      {label: 'italic', style: 'ITALIC'},
-      # {label: 'underline', style: 'UNDERLINE'},
-      # {label: 'monospace', style: 'CODE'},
-      # {label: 'strikethrough', style: 'STRIKETHROUGH'}
-    ];
+    @inline_styles = @props.config.inline_styles
 
     @save = new SaveBehavior
       getLocks: @getLocks
@@ -394,7 +403,7 @@ class DanteEditor extends React.Component
 
     if (!editorState.getSelection().isCollapsed())
 
-      return if @.state.tooltipables.indexOf(blockType) < 0
+      return if @.tooltipables.indexOf(blockType) < 0
 
       @.setState
         menu:
@@ -636,7 +645,7 @@ class DanteEditor extends React.Component
       selection = editorState.getSelection();
       
       if selection.isCollapsed() and currentBlock.getLength() is selection.getStartOffset()
-        if @.state.continuousBlocks.indexOf(blockType) < 0
+        if @continuousBlocks.indexOf(blockType) < 0
           @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
           return true;
         
@@ -644,7 +653,7 @@ class DanteEditor extends React.Component
       
       if selection.isCollapsed() and currentBlock.getType() is "embed" and currentBlock.getLength() > 0
         
-        if @.state.continuousBlocks.indexOf(blockType) < 0
+        if @continuousBlocks.indexOf(blockType) < 0
           #console.log "adding block on embed inner text enter "
           @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
           return true;
@@ -756,7 +765,7 @@ class DanteEditor extends React.Component
     currentBlock = getCurrentBlock(@state.editorState);
     blockType    = currentBlock.getType()
     # display tooltip only for unstyled
-    if @.state.tooltipables.indexOf(blockType) < 0
+    if @.tooltipables.indexOf(blockType) < 0
       @disableMenu()
       return
 
@@ -1103,8 +1112,8 @@ class DanteEditor extends React.Component
           editorState={@state.editorState} 
           setStateHandler={@stateHandler}
           toggleBlockType={@_toggleBlockType}
-          block_types={@BLOCK_TYPES}
-          inline_styles={@INLINE_STYLES}
+          block_types={@block_types}
+          inline_styles={@inline_styles}
           confirmLink={@_confirmLink}
           options={@state.menu}
           disableMenu={@disableMenu}

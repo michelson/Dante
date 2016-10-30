@@ -323,6 +323,38 @@ Dante = (function() {
       failure_handler: options.store_failure_handler || null,
       interval: options.store_interval || 1500
     };
+    this.options.continuousBlocks = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"];
+    this.options.tooltipables = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block", 'header-one', 'header-two', 'header-three'];
+    this.options.block_types = [
+      {
+        label: 'h3',
+        style: 'header-one'
+      }, {
+        label: 'h4',
+        style: 'header-two'
+      }, {
+        label: 'blockquote',
+        style: 'blockquote'
+      }, {
+        label: 'insertunorderedlist',
+        style: 'unordered-list-item'
+      }, {
+        label: 'insertorderedlist',
+        style: 'ordered-list-item'
+      }, {
+        label: 'code',
+        style: 'code-block'
+      }
+    ];
+    this.options.inline_styles = [
+      {
+        label: 'bold',
+        style: 'BOLD'
+      }, {
+        label: 'italic',
+        style: 'ITALIC'
+      }
+    ];
   }
 
   Dante.prototype.getContent = function() {
@@ -460,41 +492,12 @@ DanteEditor = (function(superClass) {
       menu: {
         show: false,
         position: {}
-      },
-      embed_url: "",
-      continuousBlocks: ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"],
-      tooltipables: ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block", 'header-one', 'header-two', 'header-three']
+      }
     };
-    this.BLOCK_TYPES = [
-      {
-        label: 'h3',
-        style: 'header-one'
-      }, {
-        label: 'h4',
-        style: 'header-two'
-      }, {
-        label: 'blockquote',
-        style: 'blockquote'
-      }, {
-        label: 'insertunorderedlist',
-        style: 'unordered-list-item'
-      }, {
-        label: 'insertorderedlist',
-        style: 'ordered-list-item'
-      }, {
-        label: 'code',
-        style: 'code-block'
-      }
-    ];
-    this.INLINE_STYLES = [
-      {
-        label: 'bold',
-        style: 'BOLD'
-      }, {
-        label: 'italic',
-        style: 'ITALIC'
-      }
-    ];
+    this.continuousBlocks = this.props.config.continuousBlocks;
+    this.tooltipables = this.props.config.tooltipables;
+    this.block_types = this.props.config.block_types;
+    this.inline_styles = this.props.config.inline_styles;
     this.save = new SaveBehavior({
       getLocks: this.getLocks,
       config: {
@@ -567,7 +570,7 @@ DanteEditor = (function(superClass) {
     currentBlock = getCurrentBlock(this.state.editorState);
     blockType = currentBlock.getType();
     if (!editorState.getSelection().isCollapsed()) {
-      if (this.state.tooltipables.indexOf(blockType) < 0) {
+      if (this.tooltipables.indexOf(blockType) < 0) {
         return;
       }
       this.setState({
@@ -826,14 +829,14 @@ DanteEditor = (function(superClass) {
       }
       selection = editorState.getSelection();
       if (selection.isCollapsed() && currentBlock.getLength() === selection.getStartOffset()) {
-        if (this.state.continuousBlocks.indexOf(blockType) < 0) {
+        if (this.continuousBlocks.indexOf(blockType) < 0) {
           this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
           return true;
         }
         return false;
       }
       if (selection.isCollapsed() && currentBlock.getType() === "embed" && currentBlock.getLength() > 0) {
-        if (this.state.continuousBlocks.indexOf(blockType) < 0) {
+        if (this.continuousBlocks.indexOf(blockType) < 0) {
           this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
           return true;
         }
@@ -944,7 +947,7 @@ DanteEditor = (function(superClass) {
     var blockType, currentBlock, el, left, nativeSelection, padd, parent, parentBoundary, selectionBoundary, toolbarBoundary, toolbarNode, top;
     currentBlock = getCurrentBlock(this.state.editorState);
     blockType = currentBlock.getType();
-    if (this.state.tooltipables.indexOf(blockType) < 0) {
+    if (this.tooltipables.indexOf(blockType) < 0) {
       this.disableMenu();
       return;
     }
@@ -1290,8 +1293,8 @@ DanteEditor = (function(superClass) {
       "editorState": this.state.editorState,
       "setStateHandler": this.stateHandler,
       "toggleBlockType": this._toggleBlockType,
-      "block_types": this.BLOCK_TYPES,
-      "inline_styles": this.INLINE_STYLES,
+      "block_types": this.block_types,
+      "inline_styles": this.inline_styles,
       "confirmLink": this._confirmLink,
       "options": this.state.menu,
       "disableMenu": this.disableMenu,
