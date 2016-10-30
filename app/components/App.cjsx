@@ -591,14 +591,12 @@ class DanteEditor extends React.Component
         return true;
 
     editorState = @state.editorState
-    
     ###
-    if (isSoftNewlineEvent(e)) {
-      this.onChange(RichUtils.insertSoftNewline(editorState));
-      return true;
-    }
+    #if (isSoftNewlineEvent(e)) {
+    #  this.onChange(RichUtils.insertSoftNewline(editorState));
+    #  return true;
+    #}
     ###
-
     if !e.altKey && !e.metaKey && !e.ctrlKey
       currentBlock = getCurrentBlock(editorState);
       blockType = currentBlock.getType();
@@ -610,6 +608,14 @@ class DanteEditor extends React.Component
         return true;
       
       if currentBlock.getText().length is 0
+        #console.log "Handle return #{blockType} 2"
+
+        if config_block.breakOnContinuous
+          @setState
+            display_tooltip: false
+          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true
+
         switch (blockType)
           when "header-one"
             @.onChange(resetBlockWithType(editorState, "unstyled"));
@@ -618,8 +624,15 @@ class DanteEditor extends React.Component
             return false;
       
       if currentBlock.getText().length > 0
-        # TODO: check how can we make this configurable
+        #console.log "Handle return #{blockType} with text"
+        if config_block.breakOnContinuous
+          @setState
+            display_tooltip: false
+          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true
+
         switch (blockType)
+          
           when "placeholder"
             @setState
               display_tooltip: false
@@ -635,9 +648,7 @@ class DanteEditor extends React.Component
             return true    
 
       selection = editorState.getSelection();
-      
       # selection.isCollapsed() and # should we check collapsed here?
-      
       if ((currentBlock.getLength() is selection.getStartOffset()) or (config_block && config_block.breakOnContinuous))
         # it will match the unstyled for custom blocks
         if @continuousBlocks.indexOf(blockType) < 0

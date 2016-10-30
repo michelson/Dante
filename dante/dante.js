@@ -787,10 +787,10 @@ DanteEditor = (function(superClass) {
     editorState = this.state.editorState;
 
     /*
-    if (isSoftNewlineEvent(e)) {
-      this.onChange(RichUtils.insertSoftNewline(editorState));
-      return true;
-    }
+    #if (isSoftNewlineEvent(e)) {
+     *  this.onChange(RichUtils.insertSoftNewline(editorState));
+     *  return true;
+    #}
      */
     if (!e.altKey && !e.metaKey && !e.ctrlKey) {
       currentBlock = getCurrentBlock(editorState);
@@ -801,6 +801,13 @@ DanteEditor = (function(superClass) {
         return true;
       }
       if (currentBlock.getText().length === 0) {
+        if (config_block.breakOnContinuous) {
+          this.setState({
+            display_tooltip: false
+          });
+          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
+          return true;
+        }
         switch (blockType) {
           case "header-one":
             this.onChange(resetBlockWithType(editorState, "unstyled"));
@@ -810,6 +817,13 @@ DanteEditor = (function(superClass) {
         }
       }
       if (currentBlock.getText().length > 0) {
+        if (config_block.breakOnContinuous) {
+          this.setState({
+            display_tooltip: false
+          });
+          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
+          return true;
+        }
         switch (blockType) {
           case "placeholder":
             this.setState({
