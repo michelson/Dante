@@ -23,11 +23,6 @@ class DanteInlineTooltip extends React.Component
       #position: {top: 0, left:0}
       show: true
       scaled: false
-      buttons: [
-        {title: "Add an image", icon: "image" }
-        {title: "Add an video", icon: "video" }
-        {title: "Add an embed", icon: "embed" }
-      ]
 
   _toggleScaled: (ev)=>
     if @state.scaled then @collapse() else @scale()
@@ -106,90 +101,43 @@ class DanteInlineTooltip extends React.Component
     if @state.scaled then "124" else "0"   
 
   clickOnFileUpload: => 
-    #ReactDOM.findDOMNode(@)
     @.refs.fileInput.click()
     @collapse()
     @props.closeInlineButton()
 
+  handlePlaceholder: (input)=>
+    opts =
+      type: input.insert_block
+      text: input.options.placeholder
+      endpoint: input.options.endpoint
+
+    @props.setCurrentInput opts, ()=>
+      @props.onChange(resetBlockWithType(@props.editorState, 'placeholder', opts));
+
   insertImage: (file) =>
     @props.setCurrentInput file, ()=>
-      @props.onChange(addNewBlock(@props.editorState, 'image'));
-
-    #entityKey = Entity.create('atomic:image', 'IMMUTABLE', {src: URL.createObjectURL(file)})
-    #@.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
-    #    @.props.editorState,
-    #    entityKey,
-    #    ' '
-    #  ));
-
-  insertVideo: () =>
-    #entityKey = Entity.create('atomic:video', 'IMMUTABLE', {src: "oli"})
-    #@.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
-    #    @.props.editorState,
-    #    entityKey,
-    #    ' '
-    #  ));  
-
-    api_key = "86c28a410a104c8bb58848733c82f840"
-
-    opts = 
-      type: "video"
-      placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter" 
-
-      provisory_text: "http://twitter.com"
-      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
-
-    @props.setCurrentInput opts, ()=>
-      @props.onChange(resetBlockWithType(@props.editorState, 'placeholder'));
-
-    #@props.setCurrentInput opts, ()=>
-    #  @props.onChange(resetBlockWithType(@props.editorState, 'video'));
-
-  insertEmbed: () =>
-    api_key = "86c28a410a104c8bb58848733c82f840"
-
-    opts =
-      type: "embed"
-      placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter" 
-      provisory_text: "http://twitter.com/michelson"
-      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
-
-    @props.setCurrentInput opts, ()=>
-      @props.onChange(resetBlockWithType(@props.editorState, 'placeholder'));
-
-  insertEmbedDIS: () =>
-    api_key = "86c28a410a104c8bb58848733c82f840"
-
-    opts = 
-      provisory_text: "http://twitter.com"
-      embed_url: "http://api.embed.ly/1/oembed?key=#{api_key}&url="
-
-    @props.setCurrentInput opts, ()=>
-      @props.onChange(resetBlockWithType(@props.editorState, 'embed'));
-
-    #entityKey = Entity.create('atomic:embed', 'IMMUTABLE', {src: "oli"})
-    #@.props.dispatchChanges(AtomicBlockUtils.insertAtomicBlock(
-    #    @.props.editorState,
-    #    entityKey,
-    #    ' '
-    #  )); 
+      @props.onChange(addNewBlock(@props.editorState, 'image', file));
 
   handleFileInput: (e)=>
-    #debugger
     fileList = e.target.files
     file = fileList[0]
     @.insertImage(file)
 
   clickHandler: (e, type)=>
-    switch type
-      when "image"
-        @clickOnFileUpload(e)
-      when "video"
-        @insertVideo()
-      when "embed"
-        @insertEmbed()
-      else
-        null
+    request_block = @.props.config.find (o)-> 
+      o.icon is type 
+
+    switch request_block.insertion
+      when "upload" 
+        @clickOnFileUpload(e, request_block)
+      when "placeholder" 
+        @handlePlaceholder(request_block)
+      else 
+        console.log "WRONG TYPE FOR #{request_block.insertion}"
+
+  getItems: ->
+    @props.config.filter (o)=>
+      o.displayOnInlineTooltip
 
   render: ->
     return (
@@ -208,7 +156,7 @@ class DanteInlineTooltip extends React.Component
         <div className="inlineTooltip-menu" style={{width: "#{@scaledWidth()}px"}}> 
           
           {
-            @state.buttons.map (item, i)=>
+            @getItems().map (item, i)=>
               <InlineTooltipItem
                 item={item}
                 key={i}

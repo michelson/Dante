@@ -84,8 +84,6 @@ class Dante
     @options = options
     @options.el = options.el || 'app'
 
-    options.readOnly = options.readOnly
-
     @options.content = options.content
 
     @options.read_only = options.read_only || false
@@ -93,27 +91,100 @@ class Dante
     @options.title_placeholder = options.title_placeholder || "Title"
     @options.body_placeholder = options.body_placeholder || "Write your story"
 
-    @options.widgets = ["uploader", "embed", "embed-extract"]
-    
-    @options.store_url = options.store_url || null
-    @options.store_method = options.store_method || "POST"
-    @options.store_success_handler = options.store_success_handler || null
-    @options.store_failure_handler = options.store_failure_handler || null
-    @options.store_interval = options.store_interval || 1500
-    @options.before_xhr_handler = options.before_xhr_handler
-    @options.success_xhr_handler = options.success_xhr_handler
-    
+    @options.api_key = options.api_key || "86c28a410a104c8bb58848733c82f840"
 
-    @options.upload_url = options.upload_url || 'uploads.json'
-    @options.upload_callback = @options.image_upload_callabck
-    @options.image_delete_callback =  @options.image_delete_callback
-    @options.image_caption_placeholder = options.image_caption_placeholder
+    @options.widgets = [
+      {
+        icon: 'image'
+        title: 'add a image'
+        insertion: "upload"
+        insert_block: "image"
+        type: 'image'
+        block: 'ImageBlock'
+        checkOnRender: true
+        displayOnInlineTooltip: true
+        dataProc: (data)=>
+          return (
+            { 
+              src: if data.state.current_input isnt "" then URL.createObjectURL(data.state.current_input) else ""
+              file: data.state.current_input
+            }
+          )
+        options:
+          upload_url: options.upload_url or 'uploads.json'
+          upload_callback: @options.image_upload_callabck
+          image_delete_callback: @options.image_delete_callback
+          image_caption_placeholder: options.image_caption_placeholder
+      }
+      {
+        name: 'embed'
+        icon: 'embed'
+        title: 'insert embed'
+        insertion: "placeholder"
+        insert_block: "embed"
+        type: 'embed'
+        block: 'EmbedBlock'
+        checkOnRender: true
+        displayOnInlineTooltip: true
+        options:
+          endpoint: "http://api.embed.ly/1/extract?key=#{@options.api_key}&url="
+          placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+      }
+      {
+        name: 'video'
+        icon: 'video'
+        title: 'insert video'
+        insertion: "placeholder"
+        insert_block: "video"
+        type: 'video'
+        block: 'VideoBlock'
+        checkOnRender: true
+        displayOnInlineTooltip: true
+        options:
+          endpoint: "http://api.embed.ly/1/oembed?key=#{@options.api_key}&url="
+          placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
+          caption: 'Type caption for embed (optional)'
+      }
+      {
+        name: 'placeholder'
+        checkOnRender: true
+        block: 'PlaceholderBlock'
+        displayOnInlineTooltip: false
+      }
+    ]
 
-    @options.oembed_url = "http://api.embed.ly/1/oembed?url="
-    @options.extract_url = "http://api.embed.ly/1/extract?url="
-    @options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
-    @options.embed_caption_placeholder = "Type caption for embed (optional)"
-    @options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+    @options.xhr = {
+      before_handler: options.before_xhr_handler
+      success_handler: options.success_xhr_handler
+      error_handler: options.success_xhr_handler
+    }
+
+    @options.data_storage = {
+      url: options.store_url || null
+      method: options.store_method || "POST"
+      success_handler: options.store_success_handler || null
+      failure_handler: options.store_failure_handler || null
+      interval: options.store_interval || 1500
+    }
+
+    #@options.store_url = options.store_url || null
+    #@options.store_method = options.store_method || "POST"
+    #@options.store_success_handler = options.store_success_handler || null
+    #@options.store_failure_handler = options.store_failure_handler || null
+    #@options.store_interval = options.store_interval || 1500
+    #@options.before_xhr_handler = options.before_xhr_handler
+    #@options.success_xhr_handler = options.success_xhr_handler
+    
+    #@options.upload_url = options.upload_url || 'uploads.json'
+    #@options.upload_callback = @options.image_upload_callabck
+    #@options.image_delete_callback =  @options.image_delete_callback
+    #@options.image_caption_placeholder = options.image_caption_placeholder
+
+    #@options.oembed_url = "http://api.embed.ly/1/oembed?url="
+    #@options.extract_url = "http://api.embed.ly/1/extract?url="
+    #@options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
+    #@options.embed_caption_placeholder = "Type caption for embed (optional)"
+    #@options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 
   getContent: ->
     #PocData || 
@@ -171,6 +242,8 @@ class DanteEditor extends React.Component
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
       current_input: ""
       locks: 0
+
+      widgets: props.config.widgets
 
       inlineTooltip:
         show: true
@@ -243,7 +316,9 @@ class DanteEditor extends React.Component
 
     @save = new SaveBehavior
       getLocks: @getLocks
-      config: @props.config
+      config: 
+        xhr: @props.config.xhr
+        data_storage: @props.config.data_storage
       editorState: @state.editorState
       editorContent: @emitSerializedOutput()
 
@@ -451,6 +526,7 @@ class DanteEditor extends React.Component
       locks: @state.locks -=1
 
   blockRenderer: (block)=>
+    
     switch block.getType()
 
       when "atomic"
@@ -497,14 +573,88 @@ class DanteEditor extends React.Component
           )
 
       when 'placeholder'
+        debugger
         return (
             component: PlaceholderBlock
-            #editable: true
             props:
               data: @state.current_input
           )
 
+
+      #when "image", "embed", "placeholder", "video"
+      #  return @handleBlockRenderer(block)
+
     return null;
+
+  handleBlockRenderer: (block)=>
+    #dataBlock = @props.config.widgets.find (o)=>
+    #  o.type is block.getType() and o.checkOnRender
+
+    #return false unless dataBlock
+
+    #console.log if dataBlock.dataProc then dataBlock.dataProc(@) else @state.current_input
+    ###
+    return (
+      component: eval(dataBlock.block)
+      editable: !@state.read_only
+      props:
+        data: if dataBlock.dataProc then dataBlock.dataProc(@) else @state.current_input
+        getEditorState: @getEditorState
+        setEditorState: @onChange
+        addLock: @addLock
+        removeLock: @removeLock
+        getLocks: @getLocks
+        config: dataBlock.options 
+    )
+    ###
+
+    switch block.getType()
+      when 'image'
+        return (
+            component: ImageBlock
+            editable: !@state.read_only
+            props:
+              data:
+                src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
+                file: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
+              addLock: @addLock
+              removeLock: @removeLock
+              getLocks: @getLocks
+              config: @props.config
+          )
+
+      when 'embed'
+        return (
+            component: EmbedBlock
+            editable: !@state.read_only
+            props:
+              data: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
+          )
+
+      when 'video'
+        return (
+            component: VideoBlock
+            editable: !@state.read_only
+            props:
+              data: @state.current_input
+              getEditorState: @getEditorState
+              setEditorState: @onChange
+          )
+
+      when 'placeholder'
+        debugger
+        return (
+            component: PlaceholderBlock
+            props:
+              data: @state.current_input
+          )
+
+    return null
+   
 
   blockStyleFn: (block)=>
     currentBlock = getCurrentBlock(@.state.editorState)
@@ -587,7 +737,7 @@ class DanteEditor extends React.Component
               display_tooltip: false
               current_input:
                 provisory_text: currentBlock.getText()
-                embed_url: @state.current_input.embed_url
+                endpoint: @state.current_input.endpoint
 
             @.onChange(resetBlockWithType(editorState, @state.current_input.type));
             return true    
@@ -1080,6 +1230,7 @@ class DanteEditor extends React.Component
 
         <DanteInlineTooltip
           options={@state.inlineTooltip}
+          config={@state.widgets}
           editorState={@state.editorState}
           style={@state.position}
           onChange={@onChange}

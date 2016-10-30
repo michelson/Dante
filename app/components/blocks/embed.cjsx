@@ -25,7 +25,7 @@ class EmbedBlock extends React.Component
     existing_data = @.props.block.getData().toJS()
     existing_data.embed_data || {}
 
-    # will update block state
+  # will update block state
   updateData: =>
     blockProps = @.props.blockProps
     block = @.props.block
@@ -36,10 +36,11 @@ class EmbedBlock extends React.Component
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
   componentDidMount: =>
+
     return unless @.props.blockProps.data
     axios
       method: 'get'
-      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
+      url: "#{@.props.blockProps.data.endpoint}#{@.props.blockProps.data.provisory_text}&scheme=https"
     .then (result)=> 
       @setState
         embed_data: result.data #JSON.parse(data.responseText)

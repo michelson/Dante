@@ -228,29 +228,84 @@ Dante = (function() {
     console.log("init editor!");
     this.options = options;
     this.options.el = options.el || 'app';
-    options.readOnly = options.readOnly;
     this.options.content = options.content;
     this.options.read_only = options.read_only || false;
     this.options.spellcheck = options.spellcheck || false;
     this.options.title_placeholder = options.title_placeholder || "Title";
     this.options.body_placeholder = options.body_placeholder || "Write your story";
-    this.options.widgets = ["uploader", "embed", "embed-extract"];
-    this.options.store_url = options.store_url || null;
-    this.options.store_method = options.store_method || "POST";
-    this.options.store_success_handler = options.store_success_handler || null;
-    this.options.store_failure_handler = options.store_failure_handler || null;
-    this.options.store_interval = options.store_interval || 1500;
-    this.options.before_xhr_handler = options.before_xhr_handler;
-    this.options.success_xhr_handler = options.success_xhr_handler;
-    this.options.upload_url = options.upload_url || 'uploads.json';
-    this.options.upload_callback = this.options.image_upload_callabck;
-    this.options.image_delete_callback = this.options.image_delete_callback;
-    this.options.image_caption_placeholder = options.image_caption_placeholder;
-    this.options.oembed_url = "http://api.embed.ly/1/oembed?url=";
-    this.options.extract_url = "http://api.embed.ly/1/extract?url=";
-    this.options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter';
-    this.options.embed_caption_placeholder = "Type caption for embed (optional)";
-    this.options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter';
+    this.options.api_key = options.api_key || "86c28a410a104c8bb58848733c82f840";
+    this.options.widgets = [
+      {
+        icon: 'image',
+        title: 'add a image',
+        insertion: "upload",
+        insert_block: "image",
+        type: 'image',
+        block: 'ImageBlock',
+        checkOnRender: true,
+        displayOnInlineTooltip: true,
+        dataProc: (function(_this) {
+          return function(data) {
+            return {
+              src: data.state.current_input !== "" ? URL.createObjectURL(data.state.current_input) : "",
+              file: data.state.current_input
+            };
+          };
+        })(this),
+        options: {
+          upload_url: options.upload_url || 'uploads.json',
+          upload_callback: this.options.image_upload_callabck,
+          image_delete_callback: this.options.image_delete_callback,
+          image_caption_placeholder: options.image_caption_placeholder
+        }
+      }, {
+        name: 'embed',
+        icon: 'embed',
+        title: 'insert embed',
+        insertion: "placeholder",
+        insert_block: "embed",
+        type: 'embed',
+        block: 'EmbedBlock',
+        checkOnRender: true,
+        displayOnInlineTooltip: true,
+        options: {
+          endpoint: "http://api.embed.ly/1/extract?key=" + this.options.api_key + "&url=",
+          placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+        }
+      }, {
+        name: 'video',
+        icon: 'video',
+        title: 'insert video',
+        insertion: "placeholder",
+        insert_block: "video",
+        type: 'video',
+        block: 'VideoBlock',
+        checkOnRender: true,
+        displayOnInlineTooltip: true,
+        options: {
+          endpoint: "http://api.embed.ly/1/oembed?key=" + this.options.api_key + "&url=",
+          placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
+          caption: 'Type caption for embed (optional)'
+        }
+      }, {
+        name: 'placeholder',
+        checkOnRender: true,
+        block: 'PlaceholderBlock',
+        displayOnInlineTooltip: false
+      }
+    ];
+    this.options.xhr = {
+      before_handler: options.before_xhr_handler,
+      success_handler: options.success_xhr_handler,
+      error_handler: options.success_xhr_handler
+    };
+    this.options.data_storage = {
+      url: options.store_url || null,
+      method: options.store_method || "POST",
+      success_handler: options.store_success_handler || null,
+      failure_handler: options.store_failure_handler || null,
+      interval: options.store_interval || 1500
+    };
   }
 
   Dante.prototype.getContent = function() {
@@ -309,6 +364,7 @@ DanteEditor = (function(superClass) {
     this.handleBeforeInput = bind(this.handleBeforeInput, this);
     this.handleReturn = bind(this.handleReturn, this);
     this.blockStyleFn = bind(this.blockStyleFn, this);
+    this.handleBlockRenderer = bind(this.handleBlockRenderer, this);
     this.blockRenderer = bind(this.blockRenderer, this);
     this.removeLock = bind(this.removeLock, this);
     this.addLock = bind(this.addLock, this);
@@ -365,6 +421,7 @@ DanteEditor = (function(superClass) {
       blockRenderMap: this.extendedBlockRenderMap,
       current_input: "",
       locks: 0,
+      widgets: props.config.widgets,
       inlineTooltip: {
         show: true,
         position: {}
@@ -426,7 +483,10 @@ DanteEditor = (function(superClass) {
     ];
     this.save = new SaveBehavior({
       getLocks: this.getLocks,
-      config: this.props.config,
+      config: {
+        xhr: this.props.config.xhr,
+        data_storage: this.props.config.data_storage
+      },
       editorState: this.state.editorState,
       editorContent: this.emitSerializedOutput()
     });
@@ -680,6 +740,73 @@ DanteEditor = (function(superClass) {
           }
         };
       case 'placeholder':
+        debugger;
+        return {
+          component: PlaceholderBlock,
+          props: {
+            data: this.state.current_input
+          }
+        };
+    }
+    return null;
+  };
+
+  DanteEditor.prototype.handleBlockRenderer = function(block) {
+
+    /*
+    return (
+      component: eval(dataBlock.block)
+      editable: !@state.read_only
+      props:
+        data: if dataBlock.dataProc then dataBlock.dataProc(@) else @state.current_input
+        getEditorState: @getEditorState
+        setEditorState: @onChange
+        addLock: @addLock
+        removeLock: @removeLock
+        getLocks: @getLocks
+        config: dataBlock.options 
+    )
+     */
+    switch (block.getType()) {
+      case 'image':
+        return {
+          component: ImageBlock,
+          editable: !this.state.read_only,
+          props: {
+            data: {
+              src: this.state.current_input !== "" ? URL.createObjectURL(this.state.current_input) : "",
+              file: this.state.current_input
+            },
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange,
+            addLock: this.addLock,
+            removeLock: this.removeLock,
+            getLocks: this.getLocks,
+            config: this.props.config
+          }
+        };
+      case 'embed':
+        return {
+          component: EmbedBlock,
+          editable: !this.state.read_only,
+          props: {
+            data: this.state.current_input,
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange
+          }
+        };
+      case 'video':
+        return {
+          component: VideoBlock,
+          editable: !this.state.read_only,
+          props: {
+            data: this.state.current_input,
+            getEditorState: this.getEditorState,
+            setEditorState: this.onChange
+          }
+        };
+      case 'placeholder':
+        debugger;
         return {
           component: PlaceholderBlock,
           props: {
@@ -769,7 +896,7 @@ DanteEditor = (function(superClass) {
               display_tooltip: false,
               current_input: {
                 provisory_text: currentBlock.getText(),
-                embed_url: this.state.current_input.embed_url
+                endpoint: this.state.current_input.endpoint
               }
             });
             this.onChange(resetBlockWithType(editorState, this.state.current_input.type));
@@ -1257,6 +1384,7 @@ DanteEditor = (function(superClass) {
       "hidePopLinkOver": this.hidePopLinkOver
     }), React.createElement(DanteInlineTooltip, {
       "options": this.state.inlineTooltip,
+      "config": this.state.widgets,
       "editorState": this.state.editorState,
       "style": this.state.position,
       "onChange": this.onChange,
@@ -1349,7 +1477,7 @@ EmbedBlock = (function(superClass) {
     }
     return axios({
       method: 'get',
-      url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
+      url: "" + this.props.blockProps.data.endpoint + this.props.blockProps.data.provisory_text + "&scheme=https"
     }).then((function(_this) {
       return function(result) {
         return _this.setState({
@@ -1838,9 +1966,7 @@ VideoBlock = (function(superClass) {
 
   function VideoBlock(props) {
     this.updateData = bind(this.updateData, this);
-    var api_key;
     VideoBlock.__super__.constructor.call(this, props);
-    api_key = "86c28a410a104c8bb58848733c82f840";
     this.state = {
       embed_data: this.defaultData()
     };
@@ -1867,19 +1993,9 @@ VideoBlock = (function(superClass) {
     if (!this.props.blockProps.data) {
       return;
     }
-
-    /*
-    utils.ajax
-      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
-      (data)=>
-        if data.status is 200
-          @setState
-            embed_data: JSON.parse(data.responseText)   
-          , @updateData
-     */
     return axios({
       method: 'get',
-      url: "" + this.props.blockProps.data.embed_url + this.props.blockProps.data.provisory_text + "&scheme=https"
+      url: "" + this.props.blockProps.data.endpoint + this.props.blockProps.data.provisory_text + "&scheme=https"
     }).then((function(_this) {
       return function(result) {
         return _this.setState({
@@ -1945,10 +2061,8 @@ DanteInlineTooltip = (function(superClass) {
   function DanteInlineTooltip(props) {
     this.clickHandler = bind(this.clickHandler, this);
     this.handleFileInput = bind(this.handleFileInput, this);
-    this.insertEmbedDIS = bind(this.insertEmbedDIS, this);
-    this.insertEmbed = bind(this.insertEmbed, this);
-    this.insertVideo = bind(this.insertVideo, this);
     this.insertImage = bind(this.insertImage, this);
+    this.handlePlaceholder = bind(this.handlePlaceholder, this);
     this.clickOnFileUpload = bind(this.clickOnFileUpload, this);
     this.componentWillReceiveProps = bind(this.componentWillReceiveProps, this);
     this.collapse = bind(this.collapse, this);
@@ -1957,19 +2071,7 @@ DanteInlineTooltip = (function(superClass) {
     DanteInlineTooltip.__super__.constructor.call(this, props);
     this.state = {
       show: true,
-      scaled: false,
-      buttons: [
-        {
-          title: "Add an image",
-          icon: "image"
-        }, {
-          title: "Add an video",
-          icon: "video"
-        }, {
-          title: "Add an embed",
-          icon: "embed"
-        }
-      ]
+      scaled: false
     };
   }
 
@@ -2078,56 +2180,24 @@ DanteInlineTooltip = (function(superClass) {
     return this.props.closeInlineButton();
   };
 
+  DanteInlineTooltip.prototype.handlePlaceholder = function(input) {
+    var opts;
+    opts = {
+      type: input.insert_block,
+      text: input.options.placeholder,
+      endpoint: input.options.endpoint
+    };
+    return this.props.setCurrentInput(opts, (function(_this) {
+      return function() {
+        return _this.props.onChange(resetBlockWithType(_this.props.editorState, 'placeholder', opts));
+      };
+    })(this));
+  };
+
   DanteInlineTooltip.prototype.insertImage = function(file) {
     return this.props.setCurrentInput(file, (function(_this) {
       return function() {
-        return _this.props.onChange(addNewBlock(_this.props.editorState, 'image'));
-      };
-    })(this));
-  };
-
-  DanteInlineTooltip.prototype.insertVideo = function() {
-    var api_key, opts;
-    api_key = "86c28a410a104c8bb58848733c82f840";
-    opts = {
-      type: "video",
-      placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter",
-      provisory_text: "http://twitter.com",
-      embed_url: "http://api.embed.ly/1/oembed?key=" + api_key + "&url="
-    };
-    return this.props.setCurrentInput(opts, (function(_this) {
-      return function() {
-        return _this.props.onChange(resetBlockWithType(_this.props.editorState, 'placeholder'));
-      };
-    })(this));
-  };
-
-  DanteInlineTooltip.prototype.insertEmbed = function() {
-    var api_key, opts;
-    api_key = "86c28a410a104c8bb58848733c82f840";
-    opts = {
-      type: "embed",
-      placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter",
-      provisory_text: "http://twitter.com/michelson",
-      embed_url: "http://api.embed.ly/1/oembed?key=" + api_key + "&url="
-    };
-    return this.props.setCurrentInput(opts, (function(_this) {
-      return function() {
-        return _this.props.onChange(resetBlockWithType(_this.props.editorState, 'placeholder'));
-      };
-    })(this));
-  };
-
-  DanteInlineTooltip.prototype.insertEmbedDIS = function() {
-    var api_key, opts;
-    api_key = "86c28a410a104c8bb58848733c82f840";
-    opts = {
-      provisory_text: "http://twitter.com",
-      embed_url: "http://api.embed.ly/1/oembed?key=" + api_key + "&url="
-    };
-    return this.props.setCurrentInput(opts, (function(_this) {
-      return function() {
-        return _this.props.onChange(resetBlockWithType(_this.props.editorState, 'embed'));
+        return _this.props.onChange(addNewBlock(_this.props.editorState, 'image', file));
       };
     })(this));
   };
@@ -2140,16 +2210,26 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.clickHandler = function(e, type) {
-    switch (type) {
-      case "image":
-        return this.clickOnFileUpload(e);
-      case "video":
-        return this.insertVideo();
-      case "embed":
-        return this.insertEmbed();
+    var request_block;
+    request_block = this.props.config.find(function(o) {
+      return o.icon === type;
+    });
+    switch (request_block.insertion) {
+      case "upload":
+        return this.clickOnFileUpload(e, request_block);
+      case "placeholder":
+        return this.handlePlaceholder(request_block);
       default:
-        return null;
+        return console.log("WRONG TYPE FOR " + request_block.insertion);
     }
+  };
+
+  DanteInlineTooltip.prototype.getItems = function() {
+    return this.props.config.filter((function(_this) {
+      return function(o) {
+        return o.displayOnInlineTooltip;
+      };
+    })(this));
   };
 
   DanteInlineTooltip.prototype.render = function() {
@@ -2168,7 +2248,7 @@ DanteInlineTooltip = (function(superClass) {
       "style": {
         width: (this.scaledWidth()) + "px"
       }
-    }, this.state.buttons.map((function(_this) {
+    }, this.getItems().map((function(_this) {
       return function(item, i) {
         return React.createElement(InlineTooltipItem, {
           "item": item,
@@ -3095,6 +3175,7 @@ Changes the block type of the current block.
 */
 var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithType(editorState) {
   var newType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "unstyled";
+  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
   var contentState = editorState.getCurrentContent();
   var selectionState = editorState.getSelection();
@@ -3106,6 +3187,10 @@ var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithTyp
   if (block.getLength() >= 2) {
     newText = text.substr(1);
   }
+
+  //let newText = data.text
+
+  //debugger
   var newBlock = block.merge({
     text: newText,
     type: newType,
@@ -3436,7 +3521,7 @@ SaveBehavior = (function() {
   };
 
   SaveBehavior.prototype.store = function(content) {
-    if (!this.config.store_url) {
+    if (!this.config.data_storage.url) {
       return;
     }
     console.log("CHECK FOR LOCKS", this.getLocks());
@@ -3451,7 +3536,7 @@ SaveBehavior = (function() {
       return function() {
         return _this.checkforStore(content);
       };
-    })(this), this.config.store_interval);
+    })(this), this.config.data_storage.interval);
   };
 
   SaveBehavior.prototype.checkforStore = function(content) {
@@ -3461,31 +3546,31 @@ SaveBehavior = (function() {
     if (!isChanged) {
       return;
     }
-    if (this.config.before_xhr_handler) {
-      this.config.before_xhr_handler();
+    if (this.config.xhr.before_handler) {
+      this.config.xhr.before_handler();
     }
-    console.log("SAVING TO: " + this.config.store_url);
+    console.log("SAVING TO: " + this.config.data_storage.url);
     return axios({
-      method: this.config.store_method,
-      url: this.config.store_url,
+      method: this.config.data_storage.method,
+      url: this.config.data_storage.url,
       data: {
         data: JSON.stringify(content)
       }
     }).then((function(_this) {
       return function(result) {
         console.log("STORING CONTENT", result);
-        if (_this.config.store_success_handler) {
-          _this.config.store_success_handler(result);
+        if (_this.config.data_storage.success_handler) {
+          _this.config.data_storage.success_handler(result);
         }
-        if (_this.config.success_xhr_handler) {
-          return _this.config.success_xhr_handler(result);
+        if (_this.config.xhr.success_handler) {
+          return _this.config.xhr.success_handler(result);
         }
       };
     })(this))["catch"]((function(_this) {
       return function(error) {
-        console.log("ERROR: got error saving content at " + _this.config.store_url + " - " + error);
-        if (_this.config.failure_xhr_handler) {
-          return _this.config.failure_xhr_handler(error);
+        console.log("ERROR: got error saving content at " + _this.config.data_storage.url + " - " + error);
+        if (_this.config.xhr.failure_handler) {
+          return _this.config.xhr.failure_handler(error);
         }
       };
     })(this));

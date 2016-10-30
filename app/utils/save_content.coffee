@@ -11,7 +11,7 @@ class SaveBehavior
     @store()
 
   store: (content)->
-    return unless @config.store_url
+    return unless @config.data_storage.url
     console.log "CHECK FOR LOCKS", @getLocks()
     if @getLocks() > 0
       console.log "LOCKED!!"
@@ -21,31 +21,31 @@ class SaveBehavior
     
     @timeout = setTimeout =>
       @checkforStore(content)
-    , @config.store_interval
+    , @config.data_storage.interval
 
   checkforStore: (content)->
-    # console.log "ENTER DATA STORE"
+    # ENTER DATA STORE
 
     isChanged = !Immutable.is(Immutable.fromJS(@.editorContent), Immutable.fromJS(content))
     console.log("CONTENT CHANGED:", isChanged)
     
     return unless isChanged
 
-    @config.before_xhr_handler() if @config.before_xhr_handler
-    console.log "SAVING TO: #{@config.store_url}"
+    @config.xhr.before_handler() if @config.xhr.before_handler
+    console.log "SAVING TO: #{@config.data_storage.url}"
     
     axios
-      method: @config.store_method
-      url: @config.store_url
+      method: @config.data_storage.method
+      url: @config.data_storage.url
       data: 
         data: JSON.stringify(content)
     .then (result)=> 
       console.log "STORING CONTENT", result
-      @config.store_success_handler(result) if @config.store_success_handler
-      @config.success_xhr_handler(result) if @config.success_xhr_handler
+      @config.data_storage.success_handler(result) if @config.data_storage.success_handler
+      @config.xhr.success_handler(result) if @config.xhr.success_handler
     .catch (error)=>
-      console.log("ERROR: got error saving content at #{@config.store_url} - #{error}")
-      @config.failure_xhr_handler(error) if @config.failure_xhr_handler
+      console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
+      @config.xhr.failure_handler(error) if @config.xhr.failure_handler
 
 
 module.exports = SaveBehavior
