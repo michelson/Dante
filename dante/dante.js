@@ -242,7 +242,25 @@ Dante = (function() {
         insert_block: "image",
         type: 'image',
         block: 'ImageBlock',
-        checkOnRender: true,
+        renderable: true,
+        wrapper_class: "graf graf--figure",
+        selected_class: " is-selected is-mediaFocused",
+        selectedFn: (function(_this) {
+          return function(block) {
+            var direction;
+            direction = block.getData().toJS().direction;
+            switch (direction) {
+              case "left":
+                return "graf--layoutOutsetLeft";
+              case "center":
+                return "";
+              case "wide":
+                return "sectionLayout--fullWidth";
+              case "fill":
+                return "graf--layoutFillWidth";
+            }
+          };
+        })(this),
         displayOnInlineTooltip: true,
         options: {
           upload_url: options.upload_url || 'uploads.json',
@@ -258,8 +276,10 @@ Dante = (function() {
         insert_block: "embed",
         type: 'embed',
         block: 'EmbedBlock',
-        checkOnRender: true,
+        renderable: true,
+        wrapper_class: "graf graf--mixtapeEmbed",
         displayOnInlineTooltip: true,
+        selected_class: " is-selected is-mediaFocused",
         options: {
           endpoint: "http://api.embed.ly/1/extract?key=" + this.options.api_key + "&url=",
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
@@ -272,7 +292,9 @@ Dante = (function() {
         insert_block: "video",
         type: 'video',
         block: 'VideoBlock',
-        checkOnRender: true,
+        renderable: true,
+        wrapper_class: "graf--figure graf--iframe",
+        selected_class: " is-selected is-mediaFocused",
         displayOnInlineTooltip: true,
         options: {
           endpoint: "http://api.embed.ly/1/oembed?key=" + this.options.api_key + "&url=",
@@ -281,9 +303,11 @@ Dante = (function() {
         }
       }, {
         name: 'placeholder',
-        checkOnRender: true,
+        renderable: true,
         block: 'PlaceholderBlock',
         type: 'placeholder',
+        wrapper_class: "is-embedable",
+        selected_class: " is-selected is-mediaFocused",
         displayOnInlineTooltip: false
       }
     ];
@@ -356,13 +380,14 @@ DanteEditor = (function(superClass) {
     this.handleClick = bind(this.handleClick, this);
     this.handleBeforeInput = bind(this.handleBeforeInput, this);
     this.handleReturn = bind(this.handleReturn, this);
+    this.styleForBlock = bind(this.styleForBlock, this);
     this.blockStyleFn = bind(this.blockStyleFn, this);
     this.handleBlockRenderer = bind(this.handleBlockRenderer, this);
     this.blockRenderer = bind(this.blockRenderer, this);
+    this.renderableBlocks = bind(this.renderableBlocks, this);
     this.removeLock = bind(this.removeLock, this);
     this.addLock = bind(this.addLock, this);
     this.getLocks = bind(this.getLocks, this);
-    this.setCurrentComponent = bind(this.setCurrentComponent, this);
     this.testEmitAndDecode = bind(this.testEmitAndDecode, this);
     this.decodeEditorContent = bind(this.decodeEditorContent, this);
     this.emitSerializedOutput = bind(this.emitSerializedOutput, this);
@@ -370,7 +395,6 @@ DanteEditor = (function(superClass) {
     this.setPreContent = bind(this.setPreContent, this);
     this.dispatchChangesToSave = bind(this.dispatchChangesToSave, this);
     this.onChange = bind(this.onChange, this);
-    this.parseDirection = bind(this.parseDirection, this);
     this.forceRender = bind(this.forceRender, this);
     this.refreshSelection = bind(this.refreshSelection, this);
     this.initializeState = bind(this.initializeState, this);
@@ -412,14 +436,12 @@ DanteEditor = (function(superClass) {
       read_only: this.props.read_only,
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
-      current_input: "",
       locks: 0,
       widgets: props.config.widgets,
       inlineTooltip: {
         show: true,
         position: {}
       },
-      current_component: "",
       display_tooltip: false,
       position: {
         top: 0,
@@ -537,21 +559,6 @@ DanteEditor = (function(superClass) {
     return this.refreshSelection(newEditorState);
   };
 
-  DanteEditor.prototype.parseDirection = function(direction) {
-    switch (direction) {
-      case "left":
-        return "graf--layoutOutsetLeft";
-      case "center":
-        return "";
-      case "wide":
-        return "sectionLayout--fullWidth";
-      case "fill":
-        return "graf--layoutFillWidth";
-      default:
-        return "";
-    }
-  };
-
   DanteEditor.prototype.onChange = function(editorState) {
     var blockType, currentBlock;
     this.setPreContent();
@@ -666,12 +673,6 @@ DanteEditor = (function(superClass) {
     })(this.state.editorState.getCurrentContent());
   };
 
-  DanteEditor.prototype.setCurrentComponent = function(component) {
-    return this.setState({
-      current_component: component
-    });
-  };
-
   DanteEditor.prototype.getLocks = function() {
     return this.state.locks;
   };
@@ -688,18 +689,23 @@ DanteEditor = (function(superClass) {
     });
   };
 
+  DanteEditor.prototype.renderableBlocks = function() {
+    return this.props.config.widgets.filter(function(o) {
+      return o.renderable;
+    }).map(function(o) {
+      return o.type;
+    });
+  };
+
   DanteEditor.prototype.blockRenderer = function(block) {
     var entity, entity_type;
     switch (block.getType()) {
       case "atomic":
         entity = block.getEntityAt(0);
         entity_type = Entity.get(entity).getType();
-        break;
-      case "image":
-      case "embed":
-      case "placeholder":
-      case "video":
-        return this.handleBlockRenderer(block);
+    }
+    if (this.renderableBlocks().includes(block.getType())) {
+      return this.handleBlockRenderer(block);
     }
     return null;
   };
@@ -708,7 +714,7 @@ DanteEditor = (function(superClass) {
     var dataBlock;
     dataBlock = this.props.config.widgets.find((function(_this) {
       return function(o) {
-        return o.type === block.getType() && o.checkOnRender;
+        return o.type === block.getType() && o.renderable;
       };
     })(this));
     if (!dataBlock) {
@@ -731,27 +737,30 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.blockStyleFn = function(block) {
-    var currentBlock, direction_class, is_selected;
+    var currentBlock, is_selected;
     currentBlock = getCurrentBlock(this.state.editorState);
     is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : "";
     console.log("BLOCK STYLE:", block.getType());
-    switch (block.getType()) {
-      case "image":
-        direction_class = this.parseDirection(block.getData().toJS().direction);
-        console.log("direction_class: ", direction_class);
-        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
-        return "graf graf--figure " + is_selected + " " + direction_class;
-      case "video":
-        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
-        return "graf--figure graf--iframe " + is_selected;
-      case "embed":
-        is_selected = currentBlock.getKey() === block.getKey() ? "is-selected is-mediaFocused" : "";
-        return "graf graf--mixtapeEmbed " + is_selected;
-      case "placeholder":
-        return "is-embedable " + is_selected;
-      default:
-        return "graf graf--p " + is_selected;
+    if (this.renderableBlocks().includes(block.getType())) {
+      return this.styleForBlock(block, currentBlock, is_selected);
+    } else {
+      return "graf graf--p " + is_selected;
     }
+  };
+
+  DanteEditor.prototype.styleForBlock = function(block, currentBlock, is_selected) {
+    var dataBlock, selectedFn, selected_class;
+    dataBlock = this.props.config.widgets.find((function(_this) {
+      return function(o) {
+        return o.type === block.getType();
+      };
+    })(this));
+    if (!dataBlock) {
+      return null;
+    }
+    selectedFn = dataBlock.selectedFn ? dataBlock.selectedFn(block) : null;
+    selected_class = is_selected ? dataBlock.selected_class : '';
+    return dataBlock.wrapper_class + " " + selected_class + " " + selectedFn;
   };
 
 
@@ -1315,8 +1324,7 @@ DanteEditor = (function(superClass) {
       "display_image_popover": this.state.display_image_popover,
       "relocateImageTooltipPosition": this.relocateImageTooltipPosition,
       "position": this.state.image_popover_position,
-      "setDirection": this.setDirection,
-      "setCurrentComponent": this.setCurrentComponent
+      "setDirection": this.setDirection
     }), React.createElement(DanteAnchorPopover, {
       "display_anchor_popover": this.state.display_anchor_popover,
       "url": this.state.anchor_popover_url,
@@ -1971,8 +1979,7 @@ VideoBlock = (function(superClass) {
     }), React.createElement("figcaption", {
       "className": 'imageCaption'
     }, React.createElement(EditorBlock, React.__spread({}, this.props, {
-      "className": "imageCaption",
-      "placeholder": "escrive alalal"
+      "className": "imageCaption"
     }))));
   };
 

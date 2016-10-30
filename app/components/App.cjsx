@@ -101,7 +101,18 @@ class Dante
         insert_block: "image"
         type: 'image'
         block: 'ImageBlock'
-        checkOnRender: true
+        renderable: true
+        wrapper_class: "graf graf--figure"
+        selected_class:" is-selected is-mediaFocused"
+        selectedFn: (block)=>
+          direction = block.getData().toJS().direction
+          switch direction
+            when "left" then "graf--layoutOutsetLeft"
+            when "center" then ""
+            when "wide" then "sectionLayout--fullWidth"
+            when "fill" then "graf--layoutFillWidth"
+            else
+      
         displayOnInlineTooltip: true
         options:
           upload_url: options.upload_url or 'uploads.json'
@@ -117,8 +128,10 @@ class Dante
         insert_block: "embed"
         type: 'embed'
         block: 'EmbedBlock'
-        checkOnRender: true
+        renderable: true
+        wrapper_class: "graf graf--mixtapeEmbed"
         displayOnInlineTooltip: true
+        selected_class:" is-selected is-mediaFocused"
         options:
           endpoint: "http://api.embed.ly/1/extract?key=#{@options.api_key}&url="
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
@@ -131,7 +144,9 @@ class Dante
         insert_block: "video"
         type: 'video'
         block: 'VideoBlock'
-        checkOnRender: true
+        renderable: true
+        wrapper_class: "graf--figure graf--iframe" 
+        selected_class:" is-selected is-mediaFocused"
         displayOnInlineTooltip: true
         options:
           endpoint: "http://api.embed.ly/1/oembed?key=#{@options.api_key}&url="
@@ -140,9 +155,11 @@ class Dante
       }
       {
         name: 'placeholder'
-        checkOnRender: true
+        renderable: true
         block: 'PlaceholderBlock'
         type: 'placeholder'
+        wrapper_class: "is-embedable"
+        selected_class:" is-selected is-mediaFocused"
         displayOnInlineTooltip: false
       }
     ]
@@ -160,25 +177,6 @@ class Dante
       failure_handler: options.store_failure_handler || null
       interval: options.store_interval || 1500
     }
-
-    #@options.store_url = options.store_url || null
-    #@options.store_method = options.store_method || "POST"
-    #@options.store_success_handler = options.store_success_handler || null
-    #@options.store_failure_handler = options.store_failure_handler || null
-    #@options.store_interval = options.store_interval || 1500
-    #@options.before_xhr_handler = options.before_xhr_handler
-    #@options.success_xhr_handler = options.success_xhr_handler
-    
-    #@options.upload_url = options.upload_url || 'uploads.json'
-    #@options.upload_callback = @options.image_upload_callabck
-    #@options.image_delete_callback =  @options.image_delete_callback
-    #@options.image_caption_placeholder = options.image_caption_placeholder
-
-    #@options.oembed_url = "http://api.embed.ly/1/oembed?url="
-    #@options.extract_url = "http://api.embed.ly/1/extract?url="
-    #@options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
-    #@options.embed_caption_placeholder = "Type caption for embed (optional)"
-    #@options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
 
   getContent: ->
     #PocData || 
@@ -234,7 +232,6 @@ class DanteEditor extends React.Component
       read_only: @props.read_only
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
-      current_input: ""
       locks: 0
 
       widgets: props.config.widgets
@@ -243,7 +240,7 @@ class DanteEditor extends React.Component
         show: true
         position: {}
 
-      current_component: ""
+      #current_component: ""
 
       display_tooltip: false      
       position:  
@@ -383,16 +380,6 @@ class DanteEditor extends React.Component
     #setTimeout =>
     #  @getPositionForCurrent()
     #, 0
-
-  parseDirection: (direction)=>
-    #console.log(direction)
-    switch direction
-      when "left" then "graf--layoutOutsetLeft"
-      when "center" then ""
-      when "wide" then "sectionLayout--fullWidth"
-      when "fill" then "graf--layoutFillWidth"
-      else
-        ""
   
   onChange: (editorState) =>
     @setPreContent()
@@ -503,10 +490,6 @@ class DanteEditor extends React.Component
     )(@.state.editorState.getCurrentContent())
     #html = convertToHTML(@.state.editorState.getCurrentContent())
 
-  setCurrentComponent: (component)=>
-    @setState
-      current_component: component
-
   getLocks: =>
     @state.locks
 
@@ -519,8 +502,14 @@ class DanteEditor extends React.Component
     @setState
       locks: @state.locks -=1
 
+  renderableBlocks: =>
+    @props.config.widgets.filter (o)->
+      o.renderable
+    .map (o)->
+      o.type
+
   blockRenderer: (block)=>
-    
+
     switch block.getType()
 
       when "atomic"
@@ -530,14 +519,14 @@ class DanteEditor extends React.Component
         #return null unless entity
         entity_type = Entity.get(entity).getType()
 
-      when "image", "embed", "placeholder", "video"
-        return @handleBlockRenderer(block)
+    if @renderableBlocks().includes(block.getType())
+      return @handleBlockRenderer(block)
 
     return null;
 
   handleBlockRenderer: (block)=>
     dataBlock = @props.config.widgets.find (o)=>
-      o.type is block.getType() and o.checkOnRender
+      o.type is block.getType() and o.renderable
 
     return null unless dataBlock
     return (
@@ -555,29 +544,27 @@ class DanteEditor extends React.Component
     
     return null
    
-
   blockStyleFn: (block)=>
     currentBlock = getCurrentBlock(@.state.editorState)
     is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
     
     console.log "BLOCK STYLE:", block.getType()
 
-    switch block.getType()
-      when "image"
-        direction_class = @parseDirection(block.getData().toJS().direction)
-        console.log "direction_class: ", direction_class 
-        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-        return "graf graf--figure #{is_selected} #{direction_class}"
-      when "video"
-        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-        return "graf--figure graf--iframe #{is_selected}"
-      when "embed"
-        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-        return "graf graf--mixtapeEmbed #{is_selected}"
-      when "placeholder"
-        return "is-embedable #{is_selected}"
-      else
-        return "graf graf--p #{is_selected}"
+    if @renderableBlocks().includes(block.getType())
+      return @styleForBlock(block, currentBlock, is_selected) 
+    else
+      return "graf graf--p #{is_selected}"
+
+  styleForBlock: (block, currentBlock, is_selected)=>
+    dataBlock = @props.config.widgets.find (o)=>
+      o.type is block.getType()
+
+    return null unless dataBlock
+
+    selectedFn = if dataBlock.selectedFn then dataBlock.selectedFn(block) else null
+    selected_class = if is_selected then dataBlock.selected_class else ''
+    
+    return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
 
   ### from medium-draft
   By default, it handles return key for inserting soft breaks (BRs in HTML) and
@@ -1156,7 +1143,6 @@ class DanteEditor extends React.Component
           relocateImageTooltipPosition={@relocateImageTooltipPosition}
           position={@state.image_popover_position}
           setDirection={@setDirection}
-          setCurrentComponent={@setCurrentComponent}
         />
       
         <DanteAnchorPopover

@@ -66,7 +66,6 @@ class VideoBlock extends React.Component
           className='imageCaption'>
             <EditorBlock {...@props} 
               className="imageCaption"
-              placeholder="escrive alalal"
             />
         </figcaption>
       </figure>

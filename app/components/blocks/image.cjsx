@@ -159,7 +159,6 @@ class ImageBlock extends React.Component
   
   handleGrafFigureSelectImg: (e)=>
     e.preventDefault()
-    #@props.blockProps.setCurrentComponent(@)
     @setState
       selected: true
     , @updateDataSelection
