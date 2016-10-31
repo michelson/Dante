@@ -39,6 +39,7 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
   addNewBlock
   resetBlockWithType
   updateDataOfBlock
+  updateTextOfBlock
   getCurrentBlock
   addNewBlockAt
 } = require('../model/index.js.es6')
@@ -95,10 +96,10 @@ class Dante
 
     @options.widgets = [
       {
-        icon: 'image'
         title: 'add a image'
         insertion: "upload"
         insert_block: "image"
+        icon: 'image'
         type: 'image'
         block: 'ImageBlock'
         renderable: true
@@ -113,6 +114,12 @@ class Dante
             when "wide" then "sectionLayout--fullWidth"
             when "fill" then "graf--layoutFillWidth"
             else
+        handleEnterWithoutText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       
         displayOnInlineTooltip: true
         options:
@@ -122,7 +129,6 @@ class Dante
           image_caption_placeholder: options.image_caption_placeholder
       }
       {
-        name: 'embed'
         icon: 'embed'
         title: 'insert embed'
         insertion: "placeholder"
@@ -137,9 +143,14 @@ class Dante
         options:
           endpoint: "http://api.embed.ly/1/extract?key=#{@options.api_key}&url="
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+        handleEnterWithoutText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       }
       {
-        name: 'video'
         icon: 'video'
         title: 'insert video'
         insertion: "placeholder"
@@ -155,15 +166,34 @@ class Dante
           endpoint: "http://api.embed.ly/1/oembed?key=#{@options.api_key}&url="
           placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
           caption: 'Type caption for embed (optional)'
+
+        handleEnterWithoutText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       }
       {
-        name: 'placeholder'
         renderable: true
         block: 'PlaceholderBlock'
         type: 'placeholder'
         wrapper_class: "is-embedable"
         selected_class:" is-selected is-mediaFocused"
         displayOnInlineTooltip: false
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          data =
+            provisory_text: block.getText()
+            endpoint: block.getData().get('endpoint')
+            type: block.getData().get('type')
+
+          ctx.onChange(resetBlockWithType(
+            editorState, 
+            data.type, 
+            data)
+          )   
       }
     ]
 
@@ -182,26 +212,26 @@ class Dante
     }
 
     @options.continuousBlocks = [
-        "unstyled"
-        "blockquote"
-        "ordered-list"
-        "unordered-list"
-        "unordered-list-item"
-        "ordered-list-item"
-        "code-block"
+      "unstyled"
+      "blockquote"
+      "ordered-list"
+      "unordered-list"
+      "unordered-list-item"
+      "ordered-list-item"
+      "code-block"
     ]
 
     @options.tooltipables = [
-        "unstyled"
-        "blockquote"
-        "ordered-list"
-        "unordered-list"
-        "unordered-list-item"
-        "ordered-list-item"
-        "code-block"
-        'header-one'
-        'header-two'
-        'header-three'        
+      "unstyled"
+      "blockquote"
+      "ordered-list"
+      "unordered-list"
+      "unordered-list-item"
+      "ordered-list-item"
+      "code-block"
+      'header-one'
+      'header-two'
+      'header-three'        
     ]
 
     @options.block_types = [
@@ -382,8 +412,8 @@ class DanteEditor extends React.Component
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
 
-    # @onChange(newEditorState)
-
+    @onChange(newEditorState)
+    #debugger
     @refreshSelection(newEditorState)
     
     #setTimeout =>
@@ -535,7 +565,7 @@ class DanteEditor extends React.Component
 
   handleBlockRenderer: (block)=>
     dataBlock = @getDataBlock(block)
-
+    #debugger if dataBlock.type is "placeholder"
     return null unless dataBlock
     return (
       component: eval(dataBlock.block)
@@ -598,24 +628,26 @@ class DanteEditor extends React.Component
     #}
     ###
     if !e.altKey && !e.metaKey && !e.ctrlKey
-      currentBlock = getCurrentBlock(editorState);
-      blockType = currentBlock.getType();
+      currentBlock = getCurrentBlock(editorState)
+      blockType = currentBlock.getType()
 
       config_block = @getDataBlock(currentBlock)
 
-      if blockType.indexOf('atomic') is 0
-        @.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-        return true;
+      #if blockType.indexOf('atomic') is 0
+      #  @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+      #  return true;
       
       if currentBlock.getText().length is 0
-        #console.log "Handle return #{blockType} 2"
 
-        if config_block.breakOnContinuous
+        if config_block && config_block.handleEnterWithoutText
+          config_block.handleEnterWithText(@, currentBlock)
+
           @setState
             display_tooltip: false
-          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true
 
+          return true 
+
+        #TODO turn this in configurable
         switch (blockType)
           when "header-one"
             @.onChange(resetBlockWithType(editorState, "unstyled"));
@@ -624,37 +656,25 @@ class DanteEditor extends React.Component
             return false;
       
       if currentBlock.getText().length > 0
-        #console.log "Handle return #{blockType} with text"
-        if config_block.breakOnContinuous
+        if config_block && config_block.handleEnterWithText
+          config_block.handleEnterWithText(@, currentBlock)
           @setState
             display_tooltip: false
-          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true
+          return true 
 
-        switch (blockType)
-          
-          when "placeholder"
-            @setState
-              display_tooltip: false
-            opts =
-              provisory_text: currentBlock.getText()
-              endpoint: currentBlock.getData().get('endpoint')
-
-            @.onChange(resetBlockWithType(
-              editorState, 
-              currentBlock.getData().get('type'), 
-              opts)
-            )
-            return true    
+        return false
 
       selection = editorState.getSelection();
+      
       # selection.isCollapsed() and # should we check collapsed here?
-      if ((currentBlock.getLength() is selection.getStartOffset()) or (config_block && config_block.breakOnContinuous))
+      if ( currentBlock.getLength() is selection.getStartOffset()) #or (config_block && config_block.breakOnContinuous))
         # it will match the unstyled for custom blocks
         if @continuousBlocks.indexOf(blockType) < 0
           @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
           return true;
         return false;
+      
+
       return false;
     
     return false;
@@ -707,8 +727,41 @@ class DanteEditor extends React.Component
     ###
 
     # if not html then fallback to default handler
-    return false unless html
 
+    return @handleTXTPaste(text, html) unless html
+    return @handleHTMLPaste(text, html) if html
+
+  handleTXTPaste: (text, html)=>
+    currentBlock = getCurrentBlock(@state.editorState)
+    
+    editorState = @state.editorState
+    
+    switch currentBlock.getType()
+      when "placeholder"
+
+        newContent = Modifier.replaceText(
+          editorState.getCurrentContent(),
+          new SelectionState({
+            anchorKey: currentBlock.getKey(),
+            anchorOffset: 0,
+            focusKey: currentBlock.getKey(),
+            focusOffset: 2
+          }),
+          text)
+
+        editorState = EditorState.push(
+          editorState,
+          newContent,
+          'replace-text'
+        );
+
+        @onChange(editorState)
+
+        return true
+      else
+        return false
+
+  handleHTMLPaste: (text, html)=>
     newContentState = customHTML2Content(html, @extendedBlockRenderMap)
 
     currentBlock = getCurrentBlock(@state.editorState)
@@ -856,6 +909,13 @@ class DanteEditor extends React.Component
     newState = updateDataOfBlock(@state.editorState, block, newData)
     # @onChange(newState)
     # this fixes enter from image caption
+    @forceRender(newState)
+
+  updateBlockText: (block, text)=>
+    data = block.getData()
+    newState = updateTextOfBlock(@state.editorState, block, text)
+    #debugger
+    #@onChange(newState)
     @forceRender(newState)
 
   ## TODO methods to move ##

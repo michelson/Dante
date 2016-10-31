@@ -106,6 +106,7 @@ class DanteInlineTooltip extends React.Component
     @props.closeInlineButton()
 
   handlePlaceholder: (input)=>
+    debugger
     opts =
       type: input.insert_block
       placeholder: input.options.placeholder

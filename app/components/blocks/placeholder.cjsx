@@ -17,11 +17,16 @@ class PlaceholderBlock extends React.Component
     super props
     @state =
       enabled: false
+      data: @.props.blockProps.data.toJS()
 
   placeholderText: =>
     return "" if @state.enabled
-    @.props.blockProps.data.toJS().placeholder || @defaultText()
+    @.props.blockProps.data.toJS().placeholder || @placeholderFromProps() || @defaultText()
     #if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
+
+
+  placeholderFromProps: =>
+    @.props.block.toJS().placeholder
 
   defaultText: =>
     "write something "
@@ -39,6 +44,8 @@ class PlaceholderBlock extends React.Component
     if !@state.enabled then "defaultValue defaultValue--root" else ""
 
   render: ->
+    console.log(@.state)
+    console.log(@props)
     return(
       <span className={@classForDefault()}
         onMouseDown={@handleFocus}>

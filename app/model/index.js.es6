@@ -68,11 +68,17 @@ export const resetBlockWithType = (editorState, newType = "unstyled", data={}) =
   const key = selectionState.getStartKey();
   const blockMap = contentState.getBlockMap();
   const block = blockMap.get(key);
+
   let newText = '';
+  console.log( "DATA FOR PLACEHOLDER!", data)
   const text = block.getText();
   if (block.getLength() >= 2) {
     newText = text.substr(1);
   }
+
+  /*if(data.text){
+    newText = data.text
+  }*/
 
   //let newText = data.text
 
@@ -103,6 +109,19 @@ export const updateDataOfBlock = (editorState, block, newData) => {
   const newContentState = contentState.merge({
     blockMap: contentState.getBlockMap().set(block.getKey(), newBlock),
   });
+  return EditorState.push(editorState, newContentState, 'change-block-type');
+  // return editorState;
+};
+
+export const updateTextOfBlock = (editorState, block, text) => {
+  const contentState = editorState.getCurrentContent();
+  const newBlock = block.merge({
+    text: text,
+  });
+  const newContentState = contentState.merge({
+    blockMap: contentState.getBlockMap().set(block.getKey(), newBlock),
+  });
+
   return EditorState.push(editorState, newContentState, 'change-block-type');
   // return editorState;
 };

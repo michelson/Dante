@@ -150,7 +150,7 @@ var __makeRelativeRequire = function(require, mappings, pref) {
   }
 };
 require.register("components/App.cjsx", function(exports, require, module) {
-var BlockMapBuilder, CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, Modifier, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SaveBehavior, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, customHTML2Content, findEntities, getCurrentBlock, getDefaultKeyBinding, getSafeBodyFromHTML, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock,
+var BlockMapBuilder, CompositeDecorator, ContentState, Dante, DanteAnchorPopover, DanteEditor, DanteImagePopover, DanteInlineTooltip, DanteTooltip, DefaultDraftBlockRenderMap, DraftPasteProcessor, Editor, EditorState, EmbedBlock, Entity, ImageBlock, Immutable, KeyBindingUtil, KeyCodes, Link, Map, Modifier, PlaceholderBlock, PocData, React, ReactDOM, RichUtils, SaveBehavior, SelectionState, VideoBlock, addNewBlock, addNewBlockAt, convertFromHTML, convertFromRaw, convertToHTML, convertToRaw, createEditorState, customHTML2Content, findEntities, getCurrentBlock, getDefaultKeyBinding, getSafeBodyFromHTML, getSelection, getSelectionOffsetKeyForNode, getSelectionRect, getVisibleSelectionRect, isSoftNewlineEvent, ref, ref1, ref2, ref3, resetBlockWithType, stateToHTML, toHTML, updateDataOfBlock, updateTextOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -175,7 +175,7 @@ toHTML = require("../utils/convert_html.js.es6");
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent');
 
-ref2 = require('../model/index.js.es6'), addNewBlock = ref2.addNewBlock, resetBlockWithType = ref2.resetBlockWithType, updateDataOfBlock = ref2.updateDataOfBlock, getCurrentBlock = ref2.getCurrentBlock, addNewBlockAt = ref2.addNewBlockAt;
+ref2 = require('../model/index.js.es6'), addNewBlock = ref2.addNewBlock, resetBlockWithType = ref2.resetBlockWithType, updateDataOfBlock = ref2.updateDataOfBlock, updateTextOfBlock = ref2.updateTextOfBlock, getCurrentBlock = ref2.getCurrentBlock, addNewBlockAt = ref2.addNewBlockAt;
 
 createEditorState = require('../model/content.js.es6');
 
@@ -236,10 +236,10 @@ Dante = (function() {
     this.options.api_key = options.api_key || "86c28a410a104c8bb58848733c82f840";
     this.options.widgets = [
       {
-        icon: 'image',
         title: 'add a image',
         insertion: "upload",
         insert_block: "image",
+        icon: 'image',
         type: 'image',
         block: 'ImageBlock',
         renderable: true,
@@ -262,6 +262,16 @@ Dante = (function() {
             }
           };
         })(this),
+        handleEnterWithoutText: function(ctx, block) {
+          var editorState;
+          editorState = ctx.state.editorState;
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        },
+        handleEnterWithText: function(ctx, block) {
+          var editorState;
+          editorState = ctx.state.editorState;
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        },
         displayOnInlineTooltip: true,
         options: {
           upload_url: options.upload_url || 'uploads.json',
@@ -270,7 +280,6 @@ Dante = (function() {
           image_caption_placeholder: options.image_caption_placeholder
         }
       }, {
-        name: 'embed',
         icon: 'embed',
         title: 'insert embed',
         insertion: "placeholder",
@@ -285,9 +294,18 @@ Dante = (function() {
         options: {
           endpoint: "http://api.embed.ly/1/extract?key=" + this.options.api_key + "&url=",
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+        },
+        handleEnterWithoutText: function(ctx, block) {
+          var editorState;
+          editorState = ctx.state.editorState;
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        },
+        handleEnterWithText: function(ctx, block) {
+          var editorState;
+          editorState = ctx.state.editorState;
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
         }
       }, {
-        name: 'video',
         icon: 'video',
         title: 'insert video',
         insertion: "placeholder",
@@ -303,15 +321,34 @@ Dante = (function() {
           endpoint: "http://api.embed.ly/1/oembed?key=" + this.options.api_key + "&url=",
           placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
           caption: 'Type caption for embed (optional)'
+        },
+        handleEnterWithoutText: function(ctx, block) {
+          var editorState;
+          editorState = ctx.state.editorState;
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        },
+        handleEnterWithText: function(ctx, block) {
+          var editorState;
+          editorState = ctx.state.editorState;
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
         }
       }, {
-        name: 'placeholder',
         renderable: true,
         block: 'PlaceholderBlock',
         type: 'placeholder',
         wrapper_class: "is-embedable",
         selected_class: " is-selected is-mediaFocused",
-        displayOnInlineTooltip: false
+        displayOnInlineTooltip: false,
+        handleEnterWithText: function(ctx, block) {
+          var data, editorState;
+          editorState = ctx.state.editorState;
+          data = {
+            provisory_text: block.getText(),
+            endpoint: block.getData().get('endpoint'),
+            type: block.getData().get('type')
+          };
+          return ctx.onChange(resetBlockWithType(editorState, data.type, data));
+        }
       }
     ];
     this.options.xhr = {
@@ -394,6 +431,7 @@ DanteEditor = (function(superClass) {
     this.positionForTooltip = bind(this.positionForTooltip, this);
     this.relocateImageTooltipPosition = bind(this.relocateImageTooltipPosition, this);
     this.relocateMenu = bind(this.relocateMenu, this);
+    this.updateBlockText = bind(this.updateBlockText, this);
     this.updateBlockData = bind(this.updateBlockData, this);
     this.getNode = bind(this.getNode, this);
     this.KeyBindingFn = bind(this.KeyBindingFn, this);
@@ -406,6 +444,8 @@ DanteEditor = (function(superClass) {
     this.handleUpArrow = bind(this.handleUpArrow, this);
     this.handleDroppedFiles = bind(this.handleDroppedFiles, this);
     this.handlePasteImage = bind(this.handlePasteImage, this);
+    this.handleHTMLPaste = bind(this.handleHTMLPaste, this);
+    this.handleTXTPaste = bind(this.handleTXTPaste, this);
     this.handlePasteText = bind(this.handlePasteText, this);
     this.stateHandler = bind(this.stateHandler, this);
     this.dispatchChanges = bind(this.dispatchChanges, this);
@@ -561,6 +601,7 @@ DanteEditor = (function(superClass) {
     selection = this.state.editorState.getSelection();
     content = editorState.getCurrentContent();
     newEditorState = EditorState.createWithContent(content, this.decorator);
+    this.onChange(newEditorState);
     return this.refreshSelection(newEditorState);
   };
 
@@ -778,7 +819,7 @@ DanteEditor = (function(superClass) {
    */
 
   DanteEditor.prototype.handleReturn = function(e) {
-    var blockType, config_block, currentBlock, editorState, opts, selection;
+    var blockType, config_block, currentBlock, editorState, selection;
     if (this.props.handleReturn) {
       if (this.props.handleReturn()) {
         return true;
@@ -796,16 +837,12 @@ DanteEditor = (function(superClass) {
       currentBlock = getCurrentBlock(editorState);
       blockType = currentBlock.getType();
       config_block = this.getDataBlock(currentBlock);
-      if (blockType.indexOf('atomic') === 0) {
-        this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-        return true;
-      }
       if (currentBlock.getText().length === 0) {
-        if (config_block.breakOnContinuous) {
+        if (config_block && config_block.handleEnterWithoutText) {
+          config_block.handleEnterWithText(this, currentBlock);
           this.setState({
             display_tooltip: false
           });
-          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
           return true;
         }
         switch (blockType) {
@@ -817,28 +854,17 @@ DanteEditor = (function(superClass) {
         }
       }
       if (currentBlock.getText().length > 0) {
-        if (config_block.breakOnContinuous) {
+        if (config_block && config_block.handleEnterWithText) {
+          config_block.handleEnterWithText(this, currentBlock);
           this.setState({
             display_tooltip: false
           });
-          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
           return true;
         }
-        switch (blockType) {
-          case "placeholder":
-            this.setState({
-              display_tooltip: false
-            });
-            opts = {
-              provisory_text: currentBlock.getText(),
-              endpoint: currentBlock.getData().get('endpoint')
-            };
-            this.onChange(resetBlockWithType(editorState, currentBlock.getData().get('type'), opts));
-            return true;
-        }
+        return false;
       }
       selection = editorState.getSelection();
-      if ((currentBlock.getLength() === selection.getStartOffset()) || (config_block && config_block.breakOnContinuous)) {
+      if (currentBlock.getLength() === selection.getStartOffset()) {
         if (this.continuousBlocks.indexOf(blockType) < 0) {
           this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
           return true;
@@ -902,10 +928,36 @@ DanteEditor = (function(superClass) {
     <p>oli</p>
     <img src='x'/>"
      */
-    var blocksAfter, blocksBefore, content, currentBlock, endKey, newBlockKey, newBlockMap, newContent, newContentState, pushedContentState, selection;
     if (!html) {
-      return false;
+      return this.handleTXTPaste(text, html);
     }
+    if (html) {
+      return this.handleHTMLPaste(text, html);
+    }
+  };
+
+  DanteEditor.prototype.handleTXTPaste = function(text, html) {
+    var currentBlock, editorState, newContent;
+    currentBlock = getCurrentBlock(this.state.editorState);
+    editorState = this.state.editorState;
+    switch (currentBlock.getType()) {
+      case "placeholder":
+        newContent = Modifier.replaceText(editorState.getCurrentContent(), new SelectionState({
+          anchorKey: currentBlock.getKey(),
+          anchorOffset: 0,
+          focusKey: currentBlock.getKey(),
+          focusOffset: 2
+        }), text);
+        editorState = EditorState.push(editorState, newContent, 'replace-text');
+        this.onChange(editorState);
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  DanteEditor.prototype.handleHTMLPaste = function(text, html) {
+    var blocksAfter, blocksBefore, content, currentBlock, endKey, newBlockKey, newBlockMap, newContent, newContentState, pushedContentState, selection;
     newContentState = customHTML2Content(html, this.extendedBlockRenderMap);
     currentBlock = getCurrentBlock(this.state.editorState);
     selection = this.state.editorState.getSelection();
@@ -1060,6 +1112,13 @@ DanteEditor = (function(superClass) {
     data = block.getData();
     newData = data.merge(options);
     newState = updateDataOfBlock(this.state.editorState, block, newData);
+    return this.forceRender(newState);
+  };
+
+  DanteEditor.prototype.updateBlockText = function(block, text) {
+    var data, newState;
+    data = block.getData();
+    newState = updateTextOfBlock(this.state.editorState, block, text);
     return this.forceRender(newState);
   };
 
@@ -1822,10 +1881,12 @@ PlaceholderBlock = (function(superClass) {
     this.classForDefault = bind(this.classForDefault, this);
     this.handleFocus = bind(this.handleFocus, this);
     this.defaultText = bind(this.defaultText, this);
+    this.placeholderFromProps = bind(this.placeholderFromProps, this);
     this.placeholderText = bind(this.placeholderText, this);
     PlaceholderBlock.__super__.constructor.call(this, props);
     this.state = {
-      enabled: false
+      enabled: false,
+      data: this.props.blockProps.data.toJS()
     };
   }
 
@@ -1833,7 +1894,11 @@ PlaceholderBlock = (function(superClass) {
     if (this.state.enabled) {
       return "";
     }
-    return this.props.blockProps.data.toJS().placeholder || this.defaultText();
+    return this.props.blockProps.data.toJS().placeholder || this.placeholderFromProps() || this.defaultText();
+  };
+
+  PlaceholderBlock.prototype.placeholderFromProps = function() {
+    return this.props.block.toJS().placeholder;
   };
 
   PlaceholderBlock.prototype.defaultText = function() {
@@ -1862,6 +1927,8 @@ PlaceholderBlock = (function(superClass) {
   };
 
   PlaceholderBlock.prototype.render = function() {
+    console.log(this.state);
+    console.log(this.props);
     return React.createElement("span", {
       "className": this.classForDefault(),
       "onMouseDown": this.handleFocus
@@ -2121,6 +2188,7 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.handlePlaceholder = function(input) {
+    debugger;
     var opts;
     opts = {
       type: input.insert_block,
@@ -3040,7 +3108,7 @@ require.register("model/index.js.es6", function(exports, require, module) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addNewBlockAt = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getDefaultBlockData = undefined;
+exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getDefaultBlockData = undefined;
 
 var _immutable = require('immutable');
 
@@ -3120,11 +3188,17 @@ var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithTyp
   var key = selectionState.getStartKey();
   var blockMap = contentState.getBlockMap();
   var block = blockMap.get(key);
+
   var newText = '';
+  console.log("DATA FOR PLACEHOLDER!", data);
   var text = block.getText();
   if (block.getLength() >= 2) {
     newText = text.substr(1);
   }
+
+  /*if(data.text){
+    newText = data.text
+  }*/
 
   //let newText = data.text
 
@@ -3154,6 +3228,19 @@ var updateDataOfBlock = exports.updateDataOfBlock = function updateDataOfBlock(e
   var newContentState = contentState.merge({
     blockMap: contentState.getBlockMap().set(block.getKey(), newBlock)
   });
+  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
+  // return editorState;
+};
+
+var updateTextOfBlock = exports.updateTextOfBlock = function updateTextOfBlock(editorState, block, text) {
+  var contentState = editorState.getCurrentContent();
+  var newBlock = block.merge({
+    text: text
+  });
+  var newContentState = contentState.merge({
+    blockMap: contentState.getBlockMap().set(block.getKey(), newBlock)
+  });
+
   return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
   // return editorState;
 };

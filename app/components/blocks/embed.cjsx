@@ -36,6 +36,7 @@ class EmbedBlock extends React.Component
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
   dataForUpdate: =>
+
     @.props.blockProps.data.toJS()
 
   componentDidMount: =>
@@ -43,8 +44,12 @@ class EmbedBlock extends React.Component
     return unless @.props.blockProps.data
     
     # ensure data isnt already loaded
-    return unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
-    
+    # unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+      
+    unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+      #debugger
+      return
+
     axios
       method: 'get'
       url: "#{@dataForUpdate().endpoint}#{@dataForUpdate().provisory_text}&scheme=https"

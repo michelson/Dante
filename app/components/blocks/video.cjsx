@@ -39,10 +39,11 @@ class VideoBlock extends React.Component
     @.props.blockProps.data.toJS()
 
   componentDidMount: ->
+
     return unless @.props.blockProps.data
     # ensure data isnt already loaded
     return unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
-    
+
     axios
       method: 'get'
       url: "#{@.dataForUpdate().endpoint}#{@.dataForUpdate().provisory_text}&scheme=https"
