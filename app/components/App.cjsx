@@ -412,8 +412,8 @@ class DanteEditor extends React.Component
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
 
-    @onChange(newEditorState)
-    #debugger
+    # @onChange(newEditorState)
+    # debugger
     @refreshSelection(newEditorState)
     
     #setTimeout =>
@@ -909,13 +909,6 @@ class DanteEditor extends React.Component
     newState = updateDataOfBlock(@state.editorState, block, newData)
     # @onChange(newState)
     # this fixes enter from image caption
-    @forceRender(newState)
-
-  updateBlockText: (block, text)=>
-    data = block.getData()
-    newState = updateTextOfBlock(@state.editorState, block, text)
-    #debugger
-    #@onChange(newState)
     @forceRender(newState)
 
   ## TODO methods to move ##

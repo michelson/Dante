@@ -431,7 +431,6 @@ DanteEditor = (function(superClass) {
     this.positionForTooltip = bind(this.positionForTooltip, this);
     this.relocateImageTooltipPosition = bind(this.relocateImageTooltipPosition, this);
     this.relocateMenu = bind(this.relocateMenu, this);
-    this.updateBlockText = bind(this.updateBlockText, this);
     this.updateBlockData = bind(this.updateBlockData, this);
     this.getNode = bind(this.getNode, this);
     this.KeyBindingFn = bind(this.KeyBindingFn, this);
@@ -601,7 +600,6 @@ DanteEditor = (function(superClass) {
     selection = this.state.editorState.getSelection();
     content = editorState.getCurrentContent();
     newEditorState = EditorState.createWithContent(content, this.decorator);
-    this.onChange(newEditorState);
     return this.refreshSelection(newEditorState);
   };
 
@@ -1112,13 +1110,6 @@ DanteEditor = (function(superClass) {
     data = block.getData();
     newData = data.merge(options);
     newState = updateDataOfBlock(this.state.editorState, block, newData);
-    return this.forceRender(newState);
-  };
-
-  DanteEditor.prototype.updateBlockText = function(block, text) {
-    var data, newState;
-    data = block.getData();
-    newState = updateTextOfBlock(this.state.editorState, block, text);
     return this.forceRender(newState);
   };
 
@@ -2188,7 +2179,6 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.handlePlaceholder = function(input) {
-    debugger;
     var opts;
     opts = {
       type: input.insert_block,
