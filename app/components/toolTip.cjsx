@@ -42,7 +42,7 @@ class DanteTooltip extends React.Component
     # console.log "hoi", style
     #@props.toggleBlockType(style)
     #ev.preventDefault()
-    @props.dispatchChanges(
+    @props.onChange(
       RichUtils.toggleBlockType(@props.editorState, style)
     )
     #debugger
@@ -120,6 +120,14 @@ class DanteTooltip extends React.Component
     #  @props.relocateMenu()
     #, 0
 
+  inlineItems: =>
+    @props.block_types.filter (o)=>
+      o.type is "inline"
+
+  blockItems: =>
+    @props.block_types.filter (o)=>
+      o.type is "block"
+
   render: ->
     return (
       <div id="dante-menu" className="dante-menu #{@displayActiveMenu()} #{@displayLinkMode()}" 
@@ -138,7 +146,7 @@ class DanteTooltip extends React.Component
 
         <ul className="dante-menu-buttons">
           {
-            @props.block_types.map (item, i)=>
+            @blockItems().map (item, i)=>
               <DanteTooltipItem 
                 key={i}
                 item={item}
@@ -155,7 +163,7 @@ class DanteTooltip extends React.Component
             />
           }
           {
-            @props.inline_styles.map (item, i)=>
+            @inlineItems().map (item, i)=>
               <DanteTooltipItem 
                 key={i}
                 item={item}

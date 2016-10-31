@@ -899,7 +899,9 @@ DanteEditor = (function(superClass) {
     return false;
   };
 
-  DanteEditor.prototype.focus = function() {};
+  DanteEditor.prototype.focus = function() {
+    return this.props.refs.richEditor.focus();
+  };
 
   DanteEditor.prototype.getEditorState = function() {
     return this.state.editorState;
@@ -2579,7 +2581,7 @@ DanteTooltip = (function(superClass) {
 
   DanteTooltip.prototype._clickBlockHandler = function(ev, style) {
     ev.preventDefault();
-    this.props.onChange(RichUtils.toggleBlockType(this.props.editorState, style));
+    this.props.dispatchChanges(RichUtils.toggleBlockType(this.props.editorState, style));
     return setTimeout((function(_this) {
       return function() {
         return _this.props.relocateMenu();
@@ -3676,4 +3678,4 @@ require.alias("process/browser.js", "process");process = require('process');requ
 });})();require('___globals___');
 
 
-//# sourceMappingURL=dante.js.map
+//# sourceMappingURL=application.js.map

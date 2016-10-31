@@ -236,20 +236,17 @@ class Dante
 
     @options.block_types = [
       # {label: 'p', style: 'unstyled'},
-      {label: 'h3', style: 'header-one'},
-      {label: 'h4', style: 'header-two'},
-      {label: 'blockquote', style: 'blockquote'},
-      {label: 'insertunorderedlist', style: 'unordered-list-item'},
-      {label: 'insertorderedlist', style: 'ordered-list-item'},
-      {label: 'code', style: 'code-block'}
-    ]
-
-    @options.inline_styles = [
-      {label: 'bold', style: 'BOLD'},
-      {label: 'italic', style: 'ITALIC'},
-      # {label: 'underline', style: 'UNDERLINE'},
-      # {label: 'monospace', style: 'CODE'},
-      # {label: 'strikethrough', style: 'STRIKETHROUGH'}
+      {label: 'h3', style: 'header-one', type: "block"},
+      {label: 'h4', style: 'header-two', type: "block"},
+      {label: 'blockquote', style: 'blockquote', type: "block"},
+      {label: 'insertunorderedlist', style: 'unordered-list-item', type: "block"},
+      {label: 'insertorderedlist', style: 'ordered-list-item', type: "block"},
+      {label: 'code', style: 'code-block', type: "block"}
+      {label: 'bold', style: 'BOLD', type: "inline"},
+      {label: 'italic', style: 'ITALIC', type: "inline"},
+      # {label: 'underline', style: 'UNDERLINE', type: "inline"},
+      # {label: 'monospace', style: 'CODE', type: "inline"},
+      # {label: 'strikethrough', style: 'STRIKETHROUGH', type: "inline"}
     ]
 
   getContent: ->
@@ -334,15 +331,11 @@ class DanteEditor extends React.Component
         show: false
         position: {}
 
-      #embed_url: ""
-
     @continuousBlocks = @props.config.continuousBlocks
 
     @tooltipables =  @props.config.tooltipables
 
     @block_types = @props.config.block_types
-
-    @inline_styles = @props.config.inline_styles
 
     @save = new SaveBehavior
       getLocks: @getLocks
@@ -699,9 +692,10 @@ class DanteEditor extends React.Component
     ###
     return false
 
-  focus: () => 
-    @props.refs.richEditor.focus()
-
+  focus: () =>
+    
+    #@props.refs.richEditor.focus()
+    
   getEditorState: =>
     @state.editorState
 
@@ -1152,7 +1146,6 @@ class DanteEditor extends React.Component
           setStateHandler={@stateHandler}
           toggleBlockType={@_toggleBlockType}
           block_types={@block_types}
-          inline_styles={@inline_styles}
           confirmLink={@_confirmLink}
           options={@state.menu}
           onChange={@onChange}
