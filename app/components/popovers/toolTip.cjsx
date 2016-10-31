@@ -15,6 +15,16 @@ ReactDOM = require('react-dom')
   RichUtils
 } = require('draft-js')
 
+{ 
+  getSelectionRect
+  getSelection
+} = require("../../utils/selection.js.es6")
+
+{ 
+  getCurrentBlock
+} = require('../../model/index.js.es6')
+
+
 class DanteTooltip extends React.Component
 
   constructor: (props) ->
@@ -22,6 +32,8 @@ class DanteTooltip extends React.Component
     @getVisibleSelectionRect = getVisibleSelectionRect
     @state = 
       link_mode: false
+      show: false
+      position: {}
 
   _clickInlineHandler: (ev, style)=>
     ev.preventDefault()
@@ -37,6 +49,61 @@ class DanteTooltip extends React.Component
     , 0
     #@props.relocateMenu()
 
+  display: (b)=>
+    if b then @show() else @hide()
+
+  show: =>
+    @setState
+      show: true
+
+  hide: =>
+    @setState
+      show: false
+
+  setPosition: (coords)->
+    @setState
+      position: coords
+
+  relocateMenu: (editorState, parent)=>
+
+    currentBlock = getCurrentBlock(editorState);
+    blockType    = currentBlock.getType()
+    # display tooltip only for unstyled
+    if @.props.tooltipables.indexOf(blockType) < 0
+      @disableMenu()
+      return
+
+    return if !@state.show
+    el = @refs.dante_menu 
+    #document.querySelector("#dante-menu")
+    padd   = el.offsetWidth / 2
+
+    # eslint-disable-next-line no-undef
+    nativeSelection = getSelection(window);
+    if !nativeSelection.rangeCount
+      return;
+    
+    selectionBoundary = getSelectionRect(nativeSelection);
+
+    # eslint-disable-next-line react/no-find-dom-node
+    #toolbarNode = ReactDOM.findDOMNode(@);
+    #toolbarBoundary = toolbarNode.getBoundingClientRect();
+
+    # eslint-disable-next-line react/no-find-dom-node
+    #parent = ReactDOM.findDOMNode(@);
+    parentBoundary = parent.getBoundingClientRect();
+
+    top    = selectionBoundary.top - parentBoundary.top - -90 - 5
+    left   = selectionBoundary.left + (selectionBoundary.width / 2) - padd
+
+    if !top or !left
+      return
+
+    console.log "SET SHOW FOR TOOLTIP INSERT MENU"
+    @setState
+      show: true
+      position: { left: left , top: top }
+
   _clickBlockHandler: (ev, style)=>
     ev.preventDefault()
     # console.log "hoi", style
@@ -51,14 +118,14 @@ class DanteTooltip extends React.Component
     #)
     #@props.relocateMenu()
     setTimeout ()=>
-      @props.relocateMenu()
+      @relocateMenu()
     , 0
 
   displayLinkMode: =>
     if @state.link_mode then "dante-menu--linkmode" else ""
 
   displayActiveMenu: =>
-    if @props.options.show then "dante-menu--active" else ""
+    if @state.show then "dante-menu--active" else ""
 
   _enableLinkMode: (ev)=>
     ev.preventDefault()
@@ -71,7 +138,8 @@ class DanteTooltip extends React.Component
       link_mode: false
 
   hideMenu: ->
-    @props.disableMenu()
+    @hide()
+    #@props.disableMenu()
 
   handleInputEnter: (e)=>    
     if (e.which is 13)
@@ -91,15 +159,13 @@ class DanteTooltip extends React.Component
       hidePopLinkOver: @props.hidePopLinkOver
     }
 
-    console.log "MAMAMA", opts
-
     entityKey = Entity.create('link', 'MUTABLE', opts);
 
     if selection.isCollapsed()
       console.log "COLLAPSED SKIPPN LINK"
       return
 
-    @props.dispatchChanges(
+    @props.onChange(
       RichUtils.toggleLink(
         editorState,
         selection,
@@ -110,7 +176,7 @@ class DanteTooltip extends React.Component
     @_disableLinkMode(e)
 
   getPosition: ->
-    pos = @props.options.position
+    pos = @state.position
     #console.log pos
     pos
     
@@ -130,7 +196,9 @@ class DanteTooltip extends React.Component
 
   render: ->
     return (
-      <div id="dante-menu" className="dante-menu #{@displayActiveMenu()} #{@displayLinkMode()}" 
+      <div id="dante-menu" 
+        ref="dante_menu"
+        className="dante-menu #{@displayActiveMenu()} #{@displayLinkMode()}" 
         style={@getPosition()}>
         
         <div className="dante-menu-linkinput">

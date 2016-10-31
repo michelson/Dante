@@ -15,8 +15,10 @@ class DanteImagePopover extends React.Component
     super props
 
     @state = 
-      #position: {top: 0, left:0}
-      show: true
+      position: 
+        top: 0
+        left:0
+      show: false
       scaled: false
       buttons: [
         {type: "left" }
@@ -24,6 +26,21 @@ class DanteImagePopover extends React.Component
         {type: "fill" }
         {type: "wide" }
       ]
+
+  display: (b)=>
+    if b then @show() else @hide()
+
+  show: =>
+    @setState
+      show: true
+
+  hide: =>
+    @setState
+      show: false
+
+  setPosition: (coords)->
+    @setState
+      position: coords
 
   _toggleScaled: (ev)=>
     if @state.scaled then @collapse() else @scale()
@@ -48,9 +65,9 @@ class DanteImagePopover extends React.Component
   render: ->
     return (
 
-      <div id="dante_image_popover" 
-          className="dante-popover popover--Aligntooltip popover--top popover--animated #{'is-active' if @props.display_image_popover}" 
-          style={{top: @props.position.top, left: @props.position.left}}>
+      <div ref="image_popover" 
+          className="dante-popover popover--Aligntooltip popover--top popover--animated #{'is-active' if @state.show}" 
+          style={{top: @state.position.top, left: @state.position.left}}>
 
         <div className='popover-inner'>
 

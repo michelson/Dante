@@ -65,8 +65,8 @@ KeyCodes =
   getSelectionRect
   getSelection
 } = require("../utils/selection.js.es6")
-DanteInlineTooltip = require('./inlineTooltip.cjsx')
-DanteTooltip = require('./toolTip.cjsx')
+DanteInlineTooltip = require('./popovers/addButton.cjsx')
+DanteTooltip = require('./popovers/toolTip.cjsx')
 Link = require('./link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./blocks/image.cjsx')
@@ -297,7 +297,7 @@ class DanteEditor extends React.Component
 
     @state = 
       editorState: @initializeState() #EditorState.createEmpty(@decorator)
-      display_toolbar: false
+      #display_toolbar: false
       read_only: @props.read_only
       showURLInput: false
       blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
@@ -305,31 +305,22 @@ class DanteEditor extends React.Component
 
       widgets: props.config.widgets
 
+      tooltips: [
+        {
+          type: 'image',
+          display: false
+          component: DanteImagePopover
+        }
+      ]
+
       inlineTooltip:
         show: true
-        position: {}
-
-      #current_component: ""
 
       display_tooltip: false      
       position:  
         top: 0
         left: 0
 
-      display_image_popover: false
-      image_popover_position:
-        top: 0
-        left: 0 
-
-      anchor_popover_url: ""
-      display_anchor_popover: false 
-      anchor_popover_position: 
-        left: 0
-        top: 0
-
-      menu:
-        show: false
-        position: {}
 
     @continuousBlocks = @props.config.continuousBlocks
 
@@ -374,7 +365,6 @@ class DanteEditor extends React.Component
 
       @decodeEditorContent(@props.content)
             
-      #debugger
       #createEditorState.default(@props.content, @decorator)
     else 
       EditorState.createEmpty(@decorator)
@@ -400,18 +390,11 @@ class DanteEditor extends React.Component
     @onChange(newState)
   
   forceRender: (editorState)=>
-    #editorState     = @.state.editorState
     selection       = @.state.editorState.getSelection()
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
 
-    # @onChange(newEditorState)
-    # debugger
     @refreshSelection(newEditorState)
-    
-    #setTimeout =>
-    #  @getPositionForCurrent()
-    #, 0
   
   onChange: (editorState) =>
     @setPreContent()
@@ -425,20 +408,10 @@ class DanteEditor extends React.Component
     blockType = currentBlock.getType()
 
     if (!editorState.getSelection().isCollapsed())
-
       return if @.tooltipables.indexOf(blockType) < 0
-
-      @.setState
-        menu:
-          show: true
-          position: @state.menu.position
-        display_tooltip: false
-      , @handleOnChange
+      @handleOnChange()
     else
-      @.setState
-        menu:
-          show: false
-          position: @state.menu.position
+      @refs.insert_tooltip.hide()
 
     setTimeout ()=>
       @getPositionForCurrent()
@@ -664,13 +637,12 @@ class DanteEditor extends React.Component
         # it will match the unstyled for custom blocks
         if @continuousBlocks.indexOf(blockType) < 0
           @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true;
-        return false;
+          return true
+        return false
       
-
-      return false;
+      return false
     
-    return false;
+    return false
 
   handleBeforeInput: (chars)=>
     currentBlock = getCurrentBlock(@state.editorState);
@@ -700,11 +672,11 @@ class DanteEditor extends React.Component
     @state.editorState
 
   handleOnChange: ->
-    @relocateMenu()
-
-  stateHandler: (option)=>
-    @.setState
-      editorState: option
+    setTimeout =>
+      @refs.insert_tooltip.show() # from relocate menu it also set show true , but it wont work
+      parent = ReactDOM.findDOMNode(@);
+      @refs.insert_tooltip.relocateMenu(@state.editorState, parent)
+    , 20
 
   handlePasteText: (text, html)=>
 
@@ -835,10 +807,6 @@ class DanteEditor extends React.Component
       )
     )
 
-  disableMenu: =>
-    @setState
-      display_toolbar: false
-
   handleKeyCommand: (command)=>
     #console.log "command:",  command
     if command is 'dante-save'
@@ -897,46 +865,6 @@ class DanteEditor extends React.Component
     # this fixes enter from image caption
     @forceRender(newState)
 
-  ## TODO methods to move ##
-  relocateMenu: =>
-
-    currentBlock = getCurrentBlock(@state.editorState);
-    blockType    = currentBlock.getType()
-    # display tooltip only for unstyled
-    if @.tooltipables.indexOf(blockType) < 0
-      @disableMenu()
-      return
-
-    return if !@state.menu.show
-    el = document.querySelector("#dante-menu")
-    padd   = el.offsetWidth / 2
-
-    # eslint-disable-next-line no-undef
-    nativeSelection = getSelection(window);
-    if !nativeSelection.rangeCount
-      return;
-    
-    selectionBoundary = getSelectionRect(nativeSelection);
-
-    # eslint-disable-next-line react/no-find-dom-node
-    toolbarNode = ReactDOM.findDOMNode(@);
-    toolbarBoundary = toolbarNode.getBoundingClientRect();
-
-    # eslint-disable-next-line react/no-find-dom-node
-    parent = ReactDOM.findDOMNode(@);
-    parentBoundary = parent.getBoundingClientRect();
-
-    top    = selectionBoundary.top - parentBoundary.top - -90 - 5
-    left   = selectionBoundary.left + (selectionBoundary.width / 2) - padd
-
-    if !top or !left
-      return
-
-    @setState
-      menu:
-        show: true
-        position: { left: left , top: top }
-
   getPositionForCurrent: ->
     
     if @state.editorState.getSelection().isCollapsed()
@@ -944,12 +872,9 @@ class DanteEditor extends React.Component
       currentBlock = getCurrentBlock(@state.editorState)
       blockType = currentBlock.getType()
       
-      # console.log  "POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
-
       contentState = @state.editorState.getCurrentContent()
       selectionState = @state.editorState.getSelection()
-      # console.log contentState
-      # console.log selectionState
+
       block = contentState.getBlockForKey(selectionState.anchorKey);
       # console.log block.getText().length, block.getText()
 
@@ -957,19 +882,12 @@ class DanteEditor extends React.Component
       nativeSelection = getSelection(window);
       if !nativeSelection.rangeCount
         return;
-      #selectionBoundary = getSelectionRect(nativeSelection);
-      #debugger
-      
+
       node = @getNode()
-      #console.log "ANCHOR NODE", node.anchorNode
-      #console.log "PARENT ANCHOR", node.anchorNode.parentNode.parentNode.parentNode
 
       selectionBoundary = getSelectionRect(nativeSelection);
       coords = selectionBoundary #utils.getSelectionDimensions(node)
-      if blockType is "image"
-        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
-        el = document.querySelector("#dante_image_popover")
-        padd   = el.offsetWidth / 2
+      
       # eslint-disable-next-line react/no-find-dom-node
       toolbarNode = ReactDOM.findDOMNode(@);
       toolbarBoundary = toolbarNode.getBoundingClientRect();
@@ -978,61 +896,35 @@ class DanteEditor extends React.Component
       parent = ReactDOM.findDOMNode(@);
       parentBoundary = parent.getBoundingClientRect();
 
-      #console.log "SB", selectionBoundary
-      #console.log "PB", parentBoundary
       # checkeamos si esta vacio
       @setState
         display_tooltip: block.getText().length is 0 and blockType is "unstyled"
         position:  
           top: coords.top + window.scrollY
           left: coords.left + window.scrollX - 60
-        display_image_popover: blockType is "image"
+
+        #display_image_popover: blockType is "image"
+
+      @refs.image_popover.display(blockType is "image")
 
       if blockType is "image"
+        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+        #el = document.querySelector("#dante_image_popover")
+        el = @refs.image_popover.refs.image_popover
+        padd   = el.offsetWidth / 2
+        @refs.image_popover.setPosition
+          top: selectionBoundary.top - parentBoundary.top + 60
+          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+
+        ###
         @setState
           image_popover_position: 
             top: selectionBoundary.top - parentBoundary.top + 60
             left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-
+        ###
     else
       @closeInlineButton()
 
-  relocateImageTooltipPosition: (coords)=>
-    @setState
-      display_image_popover: true
-
-  positionForTooltip: (node)=>
-    #debugger
-    #if !@state.editorState.getSelection().isCollapsed()
-
-    currentBlock = getCurrentBlock(@state.editorState)
-    blockType = currentBlock.getType()
-    
-    # console.log  "ANCHOR POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
-
-    contentState = @state.editorState.getCurrentContent()
-    selectionState = @state.editorState.getSelection()
-
-    selectionBoundary = node.getBoundingClientRect() #getSelectionRect(nativeSelection);
-    coords = selectionBoundary #utils.getSelectionDimensions(node)
-    #if blockType is "image"
-    #selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
-    el = document.querySelector("#dante-popover")
-    padd   = el.offsetWidth / 2
-    # eslint-disable-next-line react/no-find-dom-node
-    toolbarNode = ReactDOM.findDOMNode(@)
-    toolbarBoundary = toolbarNode.getBoundingClientRect()
-
-    # eslint-disable-next-line react/no-find-dom-node
-    parent = ReactDOM.findDOMNode(@);
-    parentBoundary = parent.getBoundingClientRect()
-
-
-    # selectionBoundary.left + (selectionBoundary.width / 2) - padd
-    {
-      top: selectionBoundary.top - parentBoundary.top + 160
-      left: selectionBoundary.left - (selectionBoundary.width) #- padd
-    }
 
   setDirection: (direction_type)=>
     
@@ -1051,18 +943,27 @@ class DanteEditor extends React.Component
   showPopLinkOver: (el)=>
     # handles popover display 
     # using anchor or from popover
-    coords = @positionForTooltip(el) if el
+    parent_el = ReactDOM.findDOMNode(@);
+    coords = @refs.anchor_popover.positionForTooltip(
+      el, 
+      @state.editorState,
+      parent_el
+      ) if el
+
+    @refs.anchor_popover.setPosition coords if coords
+
+    @refs.anchor_popover.setProps
+      show: true
+      url: if el then el.href else @refs.anchor_popover.state.url
+
     @isHover = true
     @cancelHide()
-    @setState
-      anchor_popover_url: if el then el.href else @state.anchor_popover_url
-      display_anchor_popover: true
-      anchor_popover_position: if el then coords else @state.anchor_popover_position
+
+    #@refs.anchor_popover.show()
 
   hidePopLinkOver: ()=>
     @hideTimeout = setTimeout ()=>
-      @setState
-        display_anchor_popover: false
+      @refs.anchor_popover.hide()
     , 300
 
   cancelHide: ()->
@@ -1072,13 +973,13 @@ class DanteEditor extends React.Component
   ## close popovers
   closePopOvers: ()=>
     @setState
-      menu:
-          show: false
-          position: {}
-      display_toolbar: false
       display_tooltip: false
-      display_image_popover: false
-      display_anchor_popover: false
+      #display_image_popover: false
+      #display_anchor_popover: false
+
+    @refs.insert_popover.hide()
+    @refs.image_popover.hide()
+    @refs.anchor_popover.hide()
 
   ## read only utils
   toggleReadOnly: (e)=>
@@ -1143,18 +1044,14 @@ class DanteEditor extends React.Component
 
         <DanteTooltip
           editorState={@state.editorState} 
-          setStateHandler={@stateHandler}
           toggleBlockType={@_toggleBlockType}
           block_types={@block_types}
           confirmLink={@_confirmLink}
-          options={@state.menu}
+          tooltipables={@tooltipables}
           onChange={@onChange}
-          disableMenu={@disableMenu}
-          handleKeyCommand={@.handleKeyCommand}
-          keyBindingFn={@KeyBindingFn}
-          relocateMenu={@relocateMenu}
           showPopLinkOver={@showPopLinkOver} 
           hidePopLinkOver={@hidePopLinkOver}
+          ref="insert_tooltip"
         />
 
         <DanteInlineTooltip
@@ -1165,22 +1062,22 @@ class DanteEditor extends React.Component
           onChange={@onChange}
           display_tooltip={@state.display_tooltip}
           closeInlineButton={@closeInlineButton}
+          ref="add_tooltip"
         />
       
         <DanteImagePopover
-          display_image_popover={@state.display_image_popover}
-          relocateImageTooltipPosition={@relocateImageTooltipPosition}
-          position={@state.image_popover_position}
           setDirection={@setDirection}
+          ref="image_popover"
         />
       
         <DanteAnchorPopover
-          display_anchor_popover={@state.display_anchor_popover}
           url={@state.anchor_popover_url}
-          position={@state.anchor_popover_position}
           handleOnMouseOver={@handleShowPopLinkOver}
           handleOnMouseOut={@handleHidePopLinkOver}
-        />   
+          ref="anchor_popover"
+        />  
+
+        <hr/> 
 
         <ul>
           <li>LOCKS: {@state.locks}</li>

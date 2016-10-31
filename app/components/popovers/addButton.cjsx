@@ -12,7 +12,7 @@ ReactDOM = require('react-dom')
   addNewBlock
   resetBlockWithType
   updateDataOfBlock
-} = require('../model/index.js.es6')
+} = require('../../model/index.js.es6')
 
 class DanteInlineTooltip extends React.Component
 
@@ -20,9 +20,24 @@ class DanteInlineTooltip extends React.Component
     super props
 
     @state = 
-      #position: {top: 0, left:0}
+      position: {top: 0, left:0}
       show: true
       scaled: false
+
+  display: (b)=>
+    if b then @show() else @hide()
+
+  show: =>
+    @setState
+      show: true
+
+  hide: =>
+    @setState
+      show: false
+
+  setPosition: (coords)->
+    @setState
+      position: coords
 
   _toggleScaled: (ev)=>
     if @state.scaled then @collapse() else @scale()
