@@ -700,17 +700,13 @@ class DanteEditor extends React.Component
     return false
 
   focus: () => 
-    document.getElementById('richEditor').focus()
+    @props.refs.richEditor.focus()
 
   getEditorState: =>
     @state.editorState
 
   handleOnChange: ->
     @relocateMenu()
-
-  # send new blocks to changes
-  dispatchChanges: (body)=>
-    @onChange(body)
 
   stateHandler: (option)=>
     @.setState
@@ -886,9 +882,6 @@ class DanteEditor extends React.Component
     if e.keyCode is KeyCodes.UPARROW
       console.log "UPARROW"
       return 'dante-uparrow'
-    #if e.keyCode is KeyCodes.ENTER
-    #  @closeInlineButton()
-    #  #return 'dante-enteriji' 
 
     return getDefaultKeyBinding(e)
    
@@ -907,7 +900,6 @@ class DanteEditor extends React.Component
     data = block.getData()
     newData = data.merge(options)
     newState = updateDataOfBlock(@state.editorState, block, newData)
-    # @onChange(newState)
     # this fixes enter from image caption
     @forceRender(newState)
 
@@ -1124,7 +1116,9 @@ class DanteEditor extends React.Component
                   </div> 
 
                   <div className="section-content"> 
-                    <div id="richEditor" className="section-inner layoutSingleColumn" onClick={@.focus}>
+                    <div ref="richEditor" 
+                      className="section-inner layoutSingleColumn" 
+                      onClick={@.focus}>
                       <Editor 
                         blockRendererFn={@.blockRenderer}
                         editorState={@state.editorState} 
@@ -1161,8 +1155,8 @@ class DanteEditor extends React.Component
           inline_styles={@inline_styles}
           confirmLink={@_confirmLink}
           options={@state.menu}
+          onChange={@onChange}
           disableMenu={@disableMenu}
-          dispatchChanges={@dispatchChanges}
           handleKeyCommand={@.handleKeyCommand}
           keyBindingFn={@KeyBindingFn}
           relocateMenu={@relocateMenu}
@@ -1176,7 +1170,6 @@ class DanteEditor extends React.Component
           editorState={@state.editorState}
           style={@state.position}
           onChange={@onChange}
-          dispatchChanges={@dispatchChanges}
           display_tooltip={@state.display_tooltip}
           closeInlineButton={@closeInlineButton}
         />

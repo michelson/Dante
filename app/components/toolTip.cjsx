@@ -28,7 +28,7 @@ class DanteTooltip extends React.Component
     #@props.setStateHandler(
     #  RichUtils.toggleInlineStyle(@props.editorState, style)
     #)
-    @props.dispatchChanges(
+    @props.onChange(
       RichUtils.toggleInlineStyle(@props.editorState, style)
     )
 

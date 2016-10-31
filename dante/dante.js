@@ -447,7 +447,6 @@ DanteEditor = (function(superClass) {
     this.handleTXTPaste = bind(this.handleTXTPaste, this);
     this.handlePasteText = bind(this.handlePasteText, this);
     this.stateHandler = bind(this.stateHandler, this);
-    this.dispatchChanges = bind(this.dispatchChanges, this);
     this.getEditorState = bind(this.getEditorState, this);
     this.focus = bind(this.focus, this);
     this.handleBeforeInput = bind(this.handleBeforeInput, this);
@@ -897,7 +896,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.focus = function() {
-    return document.getElementById('richEditor').focus();
+    return this.props.refs.richEditor.focus();
   };
 
   DanteEditor.prototype.getEditorState = function() {
@@ -906,10 +905,6 @@ DanteEditor = (function(superClass) {
 
   DanteEditor.prototype.handleOnChange = function() {
     return this.relocateMenu();
-  };
-
-  DanteEditor.prototype.dispatchChanges = function(body) {
-    return this.onChange(body);
   };
 
   DanteEditor.prototype.stateHandler = function(option) {
@@ -1316,7 +1311,7 @@ DanteEditor = (function(superClass) {
     })), React.createElement("div", {
       "className": "section-content"
     }, React.createElement("div", {
-      "id": "richEditor",
+      "ref": "richEditor",
       "className": "section-inner layoutSingleColumn",
       "onClick": this.focus
     }, React.createElement(Editor, {
@@ -1345,8 +1340,8 @@ DanteEditor = (function(superClass) {
       "inline_styles": this.inline_styles,
       "confirmLink": this._confirmLink,
       "options": this.state.menu,
+      "onChange": this.onChange,
       "disableMenu": this.disableMenu,
-      "dispatchChanges": this.dispatchChanges,
       "handleKeyCommand": this.handleKeyCommand,
       "keyBindingFn": this.KeyBindingFn,
       "relocateMenu": this.relocateMenu,
@@ -1358,7 +1353,6 @@ DanteEditor = (function(superClass) {
       "editorState": this.state.editorState,
       "style": this.state.position,
       "onChange": this.onChange,
-      "dispatchChanges": this.dispatchChanges,
       "display_tooltip": this.state.display_tooltip,
       "closeInlineButton": this.closeInlineButton
     }), React.createElement(DanteImagePopover, {
@@ -2572,7 +2566,7 @@ DanteTooltip = (function(superClass) {
 
   DanteTooltip.prototype._clickInlineHandler = function(ev, style) {
     ev.preventDefault();
-    this.props.dispatchChanges(RichUtils.toggleInlineStyle(this.props.editorState, style));
+    this.props.onChange(RichUtils.toggleInlineStyle(this.props.editorState, style));
     return setTimeout((function(_this) {
       return function() {
         return _this.props.relocateMenu();
