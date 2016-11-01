@@ -37,17 +37,14 @@ class DanteTooltip extends React.Component
 
   _clickInlineHandler: (ev, style)=>
     ev.preventDefault()
-    #@props.setStateHandler(
-    #  RichUtils.toggleInlineStyle(@props.editorState, style)
-    #)
+
     @props.onChange(
       RichUtils.toggleInlineStyle(@props.editorState, style)
     )
 
     setTimeout ()=>
-      @props.relocateMenu()
+      @relocate()
     , 0
-    #@props.relocateMenu()
 
   display: (b)=>
     if b then @show() else @hide()
@@ -63,8 +60,6 @@ class DanteTooltip extends React.Component
   setPosition: (coords)->
     @setState
       position: coords
-
-  #relocateMenu: ()=>
   
   relocate: ()=>
 
@@ -102,17 +97,11 @@ class DanteTooltip extends React.Component
 
   _clickBlockHandler: (ev, style)=>
     ev.preventDefault()
-    # console.log "hoi", style
-    #@props.toggleBlockType(style)
-    #ev.preventDefault()
+
     @props.onChange(
       RichUtils.toggleBlockType(@props.editorState, style)
     )
-    #debugger
-    #@props.dispatchChanges(
-    #  RichUtils.toggleInlineStyle(@props.editorState, style)
-    #)
-    #@props.relocateMenu()
+
     setTimeout ()=>
       @relocateMenu()
     , 0
@@ -135,11 +124,9 @@ class DanteTooltip extends React.Component
 
   hideMenu: ->
     @hide()
-    #@props.disableMenu()
 
   handleInputEnter: (e)=>    
     if (e.which is 13)
-      #utils.restoreSelection(@savedSel)
       return @confirmLink(e)
 
   confirmLink: (e)=>
@@ -173,14 +160,7 @@ class DanteTooltip extends React.Component
 
   getPosition: ->
     pos = @state.position
-    #console.log pos
     pos
-    
-  componentWillReceiveProps: (newProps)=>
-    # console.log "isjsj"
-    #setTimeout ()=>
-    #  @props.relocateMenu()
-    #, 0
 
   inlineItems: =>
     @props.editor.block_types.filter (o)=>

@@ -63,8 +63,6 @@ class DanteImagePopover extends React.Component
   collapse: =>
     @setState
       scaled: false
-
-  #getPositionForCurrent: ()=>
   
   relocate: ()=>
     editorState = @props.editorState

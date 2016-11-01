@@ -532,10 +532,10 @@ DanteEditor = (function(superClass) {
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
-      debug: true,
-      widgets: props.config.widgets,
-      tooltips: props.config.tooltips
+      debug: true
     };
+    this.widgets = props.config.widgets;
+    this.tooltips = props.config.tooltips;
     this.continuousBlocks = this.props.config.continuousBlocks;
     this.block_types = this.props.config.block_types;
     this.save = new SaveBehavior({
@@ -722,7 +722,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.renderableBlocks = function() {
-    return this.props.config.widgets.filter(function(o) {
+    return this.widgets.filter(function(o) {
       return o.renderable;
     }).map(function(o) {
       return o.type;
@@ -777,7 +777,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.getDataBlock = function(block) {
-    return this.props.config.widgets.find((function(_this) {
+    return this.widgets.find((function(_this) {
       return function(o) {
         return o.type === block.getType();
       };
@@ -1113,7 +1113,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.closePopOvers = function() {
-    return this.state.tooltips.map((function(_this) {
+    return this.tooltips.map((function(_this) {
       return function(o) {
         return _this.refs[o.ref].hide();
       };
@@ -1121,7 +1121,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.relocateTooltips = function() {
-    return this.state.tooltips.map((function(_this) {
+    return this.tooltips.map((function(_this) {
       return function(o) {
         return _this.refs[o.ref].relocate();
       };
@@ -1129,7 +1129,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.tooltipsWithProp = function(prop) {
-    return this.state.tooltips.filter((function(_this) {
+    return this.tooltips.filter((function(_this) {
       return function(o) {
         return o[prop];
       };
@@ -1183,7 +1183,7 @@ DanteEditor = (function(superClass) {
       "readOnly": this.state.read_only,
       "placeholder": this.props.config.body_placeholder,
       "ref": "editor"
-    })))))))), this.state.tooltips.map((function(_this) {
+    })))))))), this.tooltips.map((function(_this) {
       return function(o) {
         return React.createElement(o.component, {
           "ref": o.ref,
@@ -2022,53 +2022,6 @@ DanteInlineTooltip = (function(superClass) {
     return this.collapse();
   };
 
-
-  /*
-  componentWillReceiveProps: (newProps)=>
-    console.log "RECEIVED PROPS"
-  
-    contentState = newProps.editorState.getCurrentContent()
-    selectionState = newProps.editorState.getSelection()
-    console.log contentState
-    console.log selectionState
-    if newProps.editorState.getSelection().isCollapsed()
-      block = contentState.getBlockForKey(selectionState.anchorKey);
-      console.log block.getText().length, block.getText()
-  
-      #debugger
-      if block.getText().length > 0
-        @setState
-          show: false    
-        return
-  
-      #debugger
-      node = utils.getNode()
-      #console.log node.AnchorNode
-  
-       * clearTimeout(@timeout)
-       * @timeout = setTimeout =>
-  
-      if node.anchorNode
-        #debugger
-        #debugger
-        console.log "ANCHOR NODE", node.anchorNode
-        coords = utils.getSelectionDimensions(node)
-        console.log coords
-        @setState
-          position:
-            top: coords.top + window.scrollY
-            left: coords.left + window.scrollX - 40
-          show: true
-      #, 0
-    else
-      #if (!selectionState.isCollapsed() || selectionState.anchorKey !== selectionState.focusKey) {
-      console.log('no sel');
-      #this.hideBlock();
-      @setState
-        show: false
-      return;
-   */
-
   DanteInlineTooltip.prototype.activeClass = function() {
     if (this.isActive()) {
       return "is-active";
@@ -2129,7 +2082,7 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.widgets = function() {
-    return this.props.editor.state.widgets;
+    return this.props.editor.widgets;
   };
 
   DanteInlineTooltip.prototype.clickHandler = function(e, type) {
@@ -2612,7 +2565,6 @@ DanteTooltip = (function(superClass) {
   function DanteTooltip(props) {
     this.blockItems = bind(this.blockItems, this);
     this.inlineItems = bind(this.inlineItems, this);
-    this.componentWillReceiveProps = bind(this.componentWillReceiveProps, this);
     this.confirmLink = bind(this.confirmLink, this);
     this.handleInputEnter = bind(this.handleInputEnter, this);
     this._disableLinkMode = bind(this._disableLinkMode, this);
@@ -2639,7 +2591,7 @@ DanteTooltip = (function(superClass) {
     this.props.onChange(RichUtils.toggleInlineStyle(this.props.editorState, style));
     return setTimeout((function(_this) {
       return function() {
-        return _this.props.relocateMenu();
+        return _this.relocate();
       };
     })(this), 0);
   };
@@ -2781,8 +2733,6 @@ DanteTooltip = (function(superClass) {
     pos = this.state.position;
     return pos;
   };
-
-  DanteTooltip.prototype.componentWillReceiveProps = function(newProps) {};
 
   DanteTooltip.prototype.inlineItems = function() {
     return this.props.editor.block_types.filter((function(_this) {

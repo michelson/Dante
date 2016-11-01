@@ -60,58 +60,9 @@ class DanteInlineTooltip extends React.Component
   componentWillReceiveProps: (newProps)=>
     @collapse()
 
-  ###
-  componentWillReceiveProps: (newProps)=>
-    console.log "RECEIVED PROPS"
-
-    contentState = newProps.editorState.getCurrentContent()
-    selectionState = newProps.editorState.getSelection()
-    console.log contentState
-    console.log selectionState
-    if newProps.editorState.getSelection().isCollapsed()
-      block = contentState.getBlockForKey(selectionState.anchorKey);
-      console.log block.getText().length, block.getText()
-
-      #debugger
-      if block.getText().length > 0
-        @setState
-          show: false    
-        return
-
-      #debugger
-      node = utils.getNode()
-      #console.log node.AnchorNode
-
-      # clearTimeout(@timeout)
-      # @timeout = setTimeout =>
-
-      if node.anchorNode
-        #debugger
-        #debugger
-        console.log "ANCHOR NODE", node.anchorNode
-        coords = utils.getSelectionDimensions(node)
-        console.log coords
-        @setState
-          position:
-            top: coords.top + window.scrollY
-            left: coords.left + window.scrollX - 40
-          show: true
-      #, 0
-    else
-      #if (!selectionState.isCollapsed() || selectionState.anchorKey !== selectionState.focusKey) {
-      console.log('no sel');
-      #this.hideBlock();
-      @setState
-        show: false
-      return;
-  ###
-
   activeClass: ->
     #if @props.show then "is-active" else ""
     if @isActive() then "is-active" else ""
-
-  #getPosition: ->
-  #  @state.position
 
   isActive: ->
     @state.show 
@@ -147,7 +98,7 @@ class DanteInlineTooltip extends React.Component
     @.insertImage(file)
 
   widgets: =>
-    @.props.editor.state.widgets
+    @.props.editor.widgets
 
   clickHandler: (e, type)=>
     request_block = @widgets().find (o)-> 
@@ -164,8 +115,6 @@ class DanteInlineTooltip extends React.Component
   getItems: ->
     @widgets().filter (o)=>
       o.displayOnInlineTooltip
-
-  #getPositionForCurrent: ()=>
   
   relocate: ()=>
     editorState = @props.editorState
@@ -263,7 +212,6 @@ class InlineTooltipItem extends React.Component
 
   clickHandler: (e)=>
     e.preventDefault()
-    #console.log "UPLOAD IMAGE"
     @props.clickHandler(e, @props.item.icon)
 
   render: ->

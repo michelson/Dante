@@ -33,11 +33,6 @@ class DanteAnchorPopover extends React.Component
   setPosition: (coords)->
     @setState
       position: coords
-
-  #setProps: (options)=>
-  #  @setState options
-
-  #positionForTooltip: (node)=>
   
   relocate: (node=null)=>
     return unless node

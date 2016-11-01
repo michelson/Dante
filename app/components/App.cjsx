@@ -318,22 +318,19 @@ class DanteEditor extends React.Component
           wrapper: null
           element: 'div'
     }) 
-    #.merge(DefaultDraftBlockRenderMap);
 
     @extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(@blockRenderMap);
 
     @state = 
-      editorState: @initializeState() #EditorState.createEmpty(@decorator)
-      #display_toolbar: false
+      editorState: @initializeState()
       read_only: @props.read_only
       showURLInput: false
-      blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
+      blockRenderMap: @extendedBlockRenderMap
       locks: 0
       debug: true
 
-      widgets: props.config.widgets
-
-      tooltips: props.config.tooltips
+    @widgets  = props.config.widgets
+    @tooltips = props.config.tooltips
 
     @continuousBlocks = @props.config.continuousBlocks
 
@@ -521,7 +518,7 @@ class DanteEditor extends React.Component
       locks: @state.locks -=1
 
   renderableBlocks: =>
-    @props.config.widgets.filter (o)->
+    @widgets.filter (o)->
       o.renderable
     .map (o)->
       o.type
@@ -573,7 +570,7 @@ class DanteEditor extends React.Component
       return "graf graf--p #{is_selected}"
 
   getDataBlock: (block)=>
-    @props.config.widgets.find (o)=>
+    @widgets.find (o)=>
       o.type is block.getType()
 
   styleForBlock: (block, currentBlock, is_selected)=>
@@ -898,15 +895,15 @@ class DanteEditor extends React.Component
 
   ## close popovers
   closePopOvers: ()=>
-    @state.tooltips.map (o)=>
+    @tooltips.map (o)=>
       @refs[o.ref].hide()
 
   relocateTooltips: ()=>
-    @state.tooltips.map (o)=>
+    @tooltips.map (o)=>
       @refs[o.ref].relocate()
 
   tooltipsWithProp: (prop)=>
-    @state.tooltips.filter (o)=>
+    @tooltips.filter (o)=>
       o[prop]
 
   tooltipHasSelectionElement: (tooltip, element)=>
@@ -963,7 +960,7 @@ class DanteEditor extends React.Component
         </article>
 
         {
-          @state.tooltips.map (o)=>
+          @tooltips.map (o)=>
             <o.component 
               ref={o.ref}
               editorState={@state.editorState}
