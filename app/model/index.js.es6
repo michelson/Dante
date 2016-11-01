@@ -14,6 +14,17 @@ export const getDefaultBlockData = (blockType, initialData = {}) => {
   }
 };
 
+export const getNode = (root=window) => {
+  let t = null
+  if (root.getSelection){
+    t = root.getSelection()
+  } else if (root.document.getSelection){
+    t = root.document.getSelection()
+  } else if (root.document.selection){
+    t = root.document.selection.createRange().text
+  }
+  return t
+}
 
 /*
 Get currentBlock in the editorState.

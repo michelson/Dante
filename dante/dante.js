@@ -351,6 +351,31 @@ Dante = (function() {
         }
       }
     ];
+    this.options.tooltips = [
+      {
+        type: 'menu',
+        ref: 'insert_tooltip',
+        display: false,
+        component: DanteTooltip,
+        displayOnSelection: true,
+        selectionElements: ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block", 'header-one', 'header-two', 'header-three']
+      }, {
+        type: 'inline_tooltip',
+        ref: 'add_tooltip',
+        display: false,
+        component: DanteInlineTooltip
+      }, {
+        type: 'anchor',
+        ref: 'anchor_popover',
+        display: false,
+        component: DanteAnchorPopover
+      }, {
+        type: 'image',
+        ref: 'image_popover',
+        display: false,
+        component: DanteImagePopover
+      }
+    ];
     this.options.xhr = {
       before_handler: options.before_xhr_handler,
       success_handler: options.success_xhr_handler,
@@ -364,7 +389,6 @@ Dante = (function() {
       interval: options.store_interval || 1500
     };
     this.options.continuousBlocks = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"];
-    this.options.tooltipables = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block", 'header-one', 'header-two', 'header-three'];
     this.options.block_types = [
       {
         label: 'h3',
@@ -425,20 +449,20 @@ DanteEditor = (function(superClass) {
 
   function DanteEditor(props) {
     this.render = bind(this.render, this);
-    this.toggleEditable = bind(this.toggleEditable, this);
-    this.toggleReadOnly = bind(this.toggleReadOnly, this);
+    this.tooltipHasSelectionElement = bind(this.tooltipHasSelectionElement, this);
+    this.tooltipsWithProp = bind(this.tooltipsWithProp, this);
+    this.relocateTooltips = bind(this.relocateTooltips, this);
     this.closePopOvers = bind(this.closePopOvers, this);
     this.hidePopLinkOver = bind(this.hidePopLinkOver, this);
     this.showPopLinkOver = bind(this.showPopLinkOver, this);
     this.handleHidePopLinkOver = bind(this.handleHidePopLinkOver, this);
     this.handleShowPopLinkOver = bind(this.handleShowPopLinkOver, this);
+    this.toggleEditable = bind(this.toggleEditable, this);
+    this.toggleReadOnly = bind(this.toggleReadOnly, this);
     this.setDirection = bind(this.setDirection, this);
     this.updateBlockData = bind(this.updateBlockData, this);
-    this.getNode = bind(this.getNode, this);
     this.KeyBindingFn = bind(this.KeyBindingFn, this);
-    this.closeInlineButton = bind(this.closeInlineButton, this);
     this.handleKeyCommand = bind(this.handleKeyCommand, this);
-    this._toggleBlockType = bind(this._toggleBlockType, this);
     this.getTextFromEditor = bind(this.getTextFromEditor, this);
     this.handleDownArrow = bind(this.handleDownArrow, this);
     this.handleUpArrow = bind(this.handleUpArrow, this);
@@ -508,25 +532,11 @@ DanteEditor = (function(superClass) {
       showURLInput: false,
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
+      debug: true,
       widgets: props.config.widgets,
-      tooltips: [
-        {
-          type: 'image',
-          display: false,
-          component: DanteImagePopover
-        }
-      ],
-      inlineTooltip: {
-        show: true
-      },
-      display_tooltip: false,
-      position: {
-        top: 0,
-        left: 0
-      }
+      tooltips: props.config.tooltips
     };
     this.continuousBlocks = this.props.config.continuousBlocks;
-    this.tooltipables = this.props.config.tooltipables;
     this.block_types = this.props.config.block_types;
     this.save = new SaveBehavior({
       getLocks: this.getLocks,
@@ -592,7 +602,7 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.onChange = function(editorState) {
-    var blockType, currentBlock;
+    var blockType, currentBlock, tooltip;
     this.setPreContent();
     this.setState({
       editorState: editorState
@@ -600,16 +610,17 @@ DanteEditor = (function(superClass) {
     currentBlock = getCurrentBlock(this.state.editorState);
     blockType = currentBlock.getType();
     if (!editorState.getSelection().isCollapsed()) {
-      if (this.tooltipables.indexOf(blockType) < 0) {
+      tooltip = this.tooltipsWithProp('displayOnSelection')[0];
+      if (!this.tooltipHasSelectionElement(tooltip, blockType)) {
         return;
       }
-      this.handleOnChange();
+      this.handleTooltipDisplayOn('displayOnSelection');
     } else {
-      this.refs.insert_tooltip.hide();
+      this.handleTooltipDisplayOn('displayOnSelection', false);
     }
     setTimeout((function(_this) {
       return function() {
-        return _this.getPositionForCurrent();
+        return _this.relocateTooltips();
       };
     })(this), 0);
     this.dispatchChangesToSave();
@@ -815,9 +826,7 @@ DanteEditor = (function(superClass) {
       if (currentBlock.getText().length === 0) {
         if (config_block && config_block.handleEnterWithoutText) {
           config_block.handleEnterWithText(this, currentBlock);
-          this.setState({
-            display_tooltip: false
-          });
+          this.closePopOvers();
           return true;
         }
         switch (blockType) {
@@ -831,9 +840,7 @@ DanteEditor = (function(superClass) {
       if (currentBlock.getText().length > 0) {
         if (config_block && config_block.handleEnterWithText) {
           config_block.handleEnterWithText(this, currentBlock);
-          this.setState({
-            display_tooltip: false
-          });
+          this.closePopOvers();
           return true;
         }
         return false;
@@ -855,21 +862,8 @@ DanteEditor = (function(superClass) {
     var currentBlock;
     currentBlock = getCurrentBlock(this.state.editorState);
     if (currentBlock.getText().length !== 0) {
-      this.closeInlineButton();
+      this.closePopOvers();
     }
-
-    /*
-    switch currentBlock.getType()
-      when "placeholder"
-        @setState
-          current_input: 
-            placeholder: "aa"
-            embed_url:"http://api.embed.ly/1/oembed?key=86c28a410a104c8bb58848733c82f840&url="
-            provisory_text:"http://twitter.com/michelson"
-        
-        @.onChange(resetBlockWithType(@state.editorState, "placeholder"));
-        return false
-     */
     return false;
   };
 
@@ -879,13 +873,18 @@ DanteEditor = (function(superClass) {
     return this.state.editorState;
   };
 
-  DanteEditor.prototype.handleOnChange = function() {
+  DanteEditor.prototype.handleTooltipDisplayOn = function(prop, display) {
+    if (display == null) {
+      display = true;
+    }
     return setTimeout((function(_this) {
       return function() {
-        var parent;
-        _this.refs.insert_tooltip.show();
-        parent = ReactDOM.findDOMNode(_this);
-        return _this.refs.insert_tooltip.relocateMenu(_this.state.editorState, parent);
+        var items;
+        items = _this.tooltipsWithProp(prop);
+        return items.map(function(o) {
+          _this.refs[o.ref].display(display);
+          return _this.refs[o.ref].relocate();
+        });
       };
     })(this), 20);
   };
@@ -1013,10 +1012,6 @@ DanteEditor = (function(superClass) {
     return out;
   };
 
-  DanteEditor.prototype._toggleBlockType = function(blockType) {
-    return this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, blockType));
-  };
-
   DanteEditor.prototype.handleKeyCommand = function(command) {
     var newState;
     if (command === 'dante-save') {
@@ -1038,12 +1033,6 @@ DanteEditor = (function(superClass) {
     return false;
   };
 
-  DanteEditor.prototype.closeInlineButton = function() {
-    return this.setState({
-      display_tooltip: false
-    });
-  };
-
   DanteEditor.prototype.KeyBindingFn = function(e) {
     if (e.keyCode === 83) {
       console.log("TODO: save in this point");
@@ -1055,76 +1044,12 @@ DanteEditor = (function(superClass) {
     return getDefaultKeyBinding(e);
   };
 
-  DanteEditor.prototype.getNode = function(root) {
-    var t;
-    if (root == null) {
-      root = window;
-    }
-    t = null;
-    if (root.getSelection) {
-      t = root.getSelection();
-    } else if (root.document.getSelection) {
-      t = root.document.getSelection();
-    } else if (root.document.selection) {
-      t = root.document.selection.createRange().text;
-    }
-    return t;
-  };
-
   DanteEditor.prototype.updateBlockData = function(block, options) {
     var data, newData, newState;
     data = block.getData();
     newData = data.merge(options);
     newState = updateDataOfBlock(this.state.editorState, block, newData);
     return this.forceRender(newState);
-  };
-
-  DanteEditor.prototype.getPositionForCurrent = function() {
-    var block, blockType, contentState, coords, currentBlock, el, nativeSelection, node, padd, parent, parentBoundary, selectionBoundary, selectionState, toolbarBoundary, toolbarNode;
-    if (this.state.editorState.getSelection().isCollapsed()) {
-      currentBlock = getCurrentBlock(this.state.editorState);
-      blockType = currentBlock.getType();
-      contentState = this.state.editorState.getCurrentContent();
-      selectionState = this.state.editorState.getSelection();
-      block = contentState.getBlockForKey(selectionState.anchorKey);
-      nativeSelection = getSelection(window);
-      if (!nativeSelection.rangeCount) {
-        return;
-      }
-      node = this.getNode();
-      selectionBoundary = getSelectionRect(nativeSelection);
-      coords = selectionBoundary;
-      toolbarNode = ReactDOM.findDOMNode(this);
-      toolbarBoundary = toolbarNode.getBoundingClientRect();
-      parent = ReactDOM.findDOMNode(this);
-      parentBoundary = parent.getBoundingClientRect();
-      this.setState({
-        display_tooltip: block.getText().length === 0 && blockType === "unstyled",
-        position: {
-          top: coords.top + window.scrollY,
-          left: coords.left + window.scrollX - 60
-        }
-      });
-      this.refs.image_popover.display(blockType === "image");
-      if (blockType === "image") {
-        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect();
-        el = this.refs.image_popover.refs.image_popover;
-        padd = el.offsetWidth / 2;
-        return this.refs.image_popover.setPosition({
-          top: selectionBoundary.top - parentBoundary.top + 60,
-          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-        });
-
-        /*
-        @setState
-          image_popover_position: 
-            top: selectionBoundary.top - parentBoundary.top + 60
-            left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-         */
-      }
-    } else {
-      return this.closeInlineButton();
-    }
   };
 
   DanteEditor.prototype.setDirection = function(direction_type) {
@@ -1135,6 +1060,18 @@ DanteEditor = (function(superClass) {
     return this.updateBlockData(block, {
       direction: direction_type
     });
+  };
+
+  DanteEditor.prototype.toggleReadOnly = function(e) {
+    e.preventDefault();
+    return this.toggleEditable();
+  };
+
+  DanteEditor.prototype.toggleEditable = function() {
+    this.closePopOvers();
+    return this.setState({
+      read_only: !this.state.read_only
+    }, this.testEmitAndDecode);
   };
 
   DanteEditor.prototype.handleShowPopLinkOver = function(e) {
@@ -1149,12 +1086,12 @@ DanteEditor = (function(superClass) {
     var coords, parent_el;
     parent_el = ReactDOM.findDOMNode(this);
     if (el) {
-      coords = this.refs.anchor_popover.positionForTooltip(el, this.state.editorState, parent_el);
+      coords = this.refs.anchor_popover.relocate(el);
     }
     if (coords) {
       this.refs.anchor_popover.setPosition(coords);
     }
-    this.refs.anchor_popover.setProps({
+    this.refs.anchor_popover.setState({
       show: true,
       url: el ? el.href : this.refs.anchor_popover.state.url
     });
@@ -1176,24 +1113,31 @@ DanteEditor = (function(superClass) {
   };
 
   DanteEditor.prototype.closePopOvers = function() {
-    this.setState({
-      display_tooltip: false
-    });
-    this.refs.insert_popover.hide();
-    this.refs.image_popover.hide();
-    return this.refs.anchor_popover.hide();
+    return this.state.tooltips.map((function(_this) {
+      return function(o) {
+        return _this.refs[o.ref].hide();
+      };
+    })(this));
   };
 
-  DanteEditor.prototype.toggleReadOnly = function(e) {
-    e.preventDefault();
-    return this.toggleEditable();
+  DanteEditor.prototype.relocateTooltips = function() {
+    return this.state.tooltips.map((function(_this) {
+      return function(o) {
+        return _this.refs[o.ref].relocate();
+      };
+    })(this));
   };
 
-  DanteEditor.prototype.toggleEditable = function() {
-    this.closePopOvers();
-    return this.setState({
-      read_only: !this.state.read_only
-    }, this.testEmitAndDecode);
+  DanteEditor.prototype.tooltipsWithProp = function(prop) {
+    return this.state.tooltips.filter((function(_this) {
+      return function(o) {
+        return o[prop];
+      };
+    })(this));
+  };
+
+  DanteEditor.prototype.tooltipHasSelectionElement = function(tooltip, element) {
+    return tooltip.selectionElements.includes(element);
   };
 
   DanteEditor.prototype.render = function() {
@@ -1239,34 +1183,22 @@ DanteEditor = (function(superClass) {
       "readOnly": this.state.read_only,
       "placeholder": this.props.config.body_placeholder,
       "ref": "editor"
-    })))))))), React.createElement(DanteTooltip, {
-      "editorState": this.state.editorState,
-      "toggleBlockType": this._toggleBlockType,
-      "block_types": this.block_types,
-      "confirmLink": this._confirmLink,
-      "tooltipables": this.tooltipables,
-      "onChange": this.onChange,
-      "showPopLinkOver": this.showPopLinkOver,
-      "hidePopLinkOver": this.hidePopLinkOver,
-      "ref": "insert_tooltip"
-    }), React.createElement(DanteInlineTooltip, {
-      "options": this.state.inlineTooltip,
-      "config": this.state.widgets,
-      "editorState": this.state.editorState,
-      "style": this.state.position,
-      "onChange": this.onChange,
-      "display_tooltip": this.state.display_tooltip,
-      "closeInlineButton": this.closeInlineButton,
-      "ref": "add_tooltip"
-    }), React.createElement(DanteImagePopover, {
-      "setDirection": this.setDirection,
-      "ref": "image_popover"
-    }), React.createElement(DanteAnchorPopover, {
-      "url": this.state.anchor_popover_url,
-      "handleOnMouseOver": this.handleShowPopLinkOver,
-      "handleOnMouseOut": this.handleHidePopLinkOver,
-      "ref": "anchor_popover"
-    }), React.createElement("hr", null), React.createElement("ul", null, React.createElement("li", null, "LOCKS: ", this.state.locks), React.createElement("li", null, React.createElement("a", {
+    })))))))), this.state.tooltips.map((function(_this) {
+      return function(o) {
+        return React.createElement(o.component, {
+          "ref": o.ref,
+          "editorState": _this.state.editorState,
+          "editor": _this,
+          "onChange": _this.onChange,
+          "configTooltip": o,
+          "setDirection": _this.setDirection,
+          "showPopLinkOver": _this.showPopLinkOver,
+          "hidePopLinkOver": _this.hidePopLinkOver,
+          "handleOnMouseOver": _this.handleShowPopLinkOver,
+          "handleOnMouseOut": _this.handleHidePopLinkOver
+        });
+      };
+    })(this)), (this.state.debug ? React.createElement("div", null, React.createElement("hr", null), React.createElement("ul", null, React.createElement("li", null, "LOCKS: ", this.state.locks), React.createElement("li", null, React.createElement("a", {
       "href": "#",
       "onClick": this.toggleReadOnly
     }, "READ ONLY ", (this.state.read_only ? 'yup' : 'noup'))), React.createElement("li", null, React.createElement("a", {
@@ -1278,7 +1210,7 @@ DanteEditor = (function(superClass) {
     }, "get Text From Editor")), React.createElement("li", null, React.createElement("a", {
       "href": "#",
       "onClick": this.testEmitAndDecode
-    }, "serialize and set content"))));
+    }, "serialize and set content")))) : void 0));
   };
 
   return DanteEditor;
@@ -1996,7 +1928,7 @@ module.exports = Link;
 });
 
 ;require.register("components/popovers/addButton.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, DanteInlineTooltip, EditorState, Entity, InlineTooltipItem, React, ReactDOM, RichUtils, addNewBlock, ref, ref1, resetBlockWithType, updateDataOfBlock,
+var AtomicBlockUtils, DanteInlineTooltip, EditorState, Entity, InlineTooltipItem, React, ReactDOM, RichUtils, addNewBlock, getCurrentBlock, getNode, getSelection, getSelectionRect, ref, ref1, ref2, resetBlockWithType, updateDataOfBlock,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -2007,13 +1939,17 @@ ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorState = ref.EditorState;
 
-ref1 = require('../../model/index.js.es6'), addNewBlock = ref1.addNewBlock, resetBlockWithType = ref1.resetBlockWithType, updateDataOfBlock = ref1.updateDataOfBlock;
+ref1 = require('../../model/index.js.es6'), addNewBlock = ref1.addNewBlock, resetBlockWithType = ref1.resetBlockWithType, updateDataOfBlock = ref1.updateDataOfBlock, getCurrentBlock = ref1.getCurrentBlock, getNode = ref1.getNode;
+
+ref2 = require("../../utils/selection.js.es6"), getSelectionRect = ref2.getSelectionRect, getSelection = ref2.getSelection;
 
 DanteInlineTooltip = (function(superClass) {
   extend(DanteInlineTooltip, superClass);
 
   function DanteInlineTooltip(props) {
+    this.relocate = bind(this.relocate, this);
     this.clickHandler = bind(this.clickHandler, this);
+    this.widgets = bind(this.widgets, this);
     this.handleFileInput = bind(this.handleFileInput, this);
     this.insertImage = bind(this.insertImage, this);
     this.handlePlaceholder = bind(this.handlePlaceholder, this);
@@ -2031,7 +1967,7 @@ DanteInlineTooltip = (function(superClass) {
         top: 0,
         left: 0
       },
-      show: true,
+      show: false,
       scaled: false
     };
   }
@@ -2134,7 +2070,7 @@ DanteInlineTooltip = (function(superClass) {
    */
 
   DanteInlineTooltip.prototype.activeClass = function() {
-    if (this.props.display_tooltip) {
+    if (this.isActive()) {
       return "is-active";
     } else {
       return "";
@@ -2142,7 +2078,7 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.isActive = function() {
-    return this.props.display_tooltip;
+    return this.state.show;
   };
 
   DanteInlineTooltip.prototype.scaledClass = function() {
@@ -2164,7 +2100,7 @@ DanteInlineTooltip = (function(superClass) {
   DanteInlineTooltip.prototype.clickOnFileUpload = function() {
     this.refs.fileInput.click();
     this.collapse();
-    return this.props.closeInlineButton();
+    return this.hide();
   };
 
   DanteInlineTooltip.prototype.handlePlaceholder = function(input) {
@@ -2192,9 +2128,13 @@ DanteInlineTooltip = (function(superClass) {
     return this.insertImage(file);
   };
 
+  DanteInlineTooltip.prototype.widgets = function() {
+    return this.props.editor.state.widgets;
+  };
+
   DanteInlineTooltip.prototype.clickHandler = function(e, type) {
     var request_block;
-    request_block = this.props.config.find(function(o) {
+    request_block = this.widgets().find(function(o) {
       return o.icon === type;
     });
     switch (request_block.insertion) {
@@ -2208,17 +2148,65 @@ DanteInlineTooltip = (function(superClass) {
   };
 
   DanteInlineTooltip.prototype.getItems = function() {
-    return this.props.config.filter((function(_this) {
+    return this.widgets().filter((function(_this) {
       return function(o) {
         return o.displayOnInlineTooltip;
       };
     })(this));
   };
 
+  DanteInlineTooltip.prototype.relocate = function() {
+    var block, blockType, contentState, coords, currentBlock, editorState, nativeSelection, node, parent, parentBoundary, selectionBoundary, selectionState;
+    editorState = this.props.editorState;
+    if (editorState.getSelection().isCollapsed()) {
+      currentBlock = getCurrentBlock(editorState);
+      blockType = currentBlock.getType();
+      contentState = editorState.getCurrentContent();
+      selectionState = editorState.getSelection();
+      block = contentState.getBlockForKey(selectionState.anchorKey);
+      nativeSelection = getSelection(window);
+      if (!nativeSelection.rangeCount) {
+        return;
+      }
+      node = getNode();
+      selectionBoundary = getSelectionRect(nativeSelection);
+      coords = selectionBoundary;
+      parent = ReactDOM.findDOMNode(this.props.editor);
+      parentBoundary = parent.getBoundingClientRect();
+      this.display(block.getText().length === 0 && blockType === "unstyled");
+      return this.setPosition({
+        top: coords.top + window.scrollY,
+        left: coords.left + window.scrollX - 60
+      });
+
+      /*
+      @refs.image_popover.display(blockType is "image")
+      
+      if blockType is "image"
+        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+        #el = document.querySelector("#dante_image_popover")
+        el = @refs.image_popover.refs.image_popover
+        padd   = el.offsetWidth / 2
+        @refs.image_popover.setPosition
+          top: selectionBoundary.top - parentBoundary.top + 60
+          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+      
+        
+        #@setState
+         *  image_popover_position: 
+         *    top: selectionBoundary.top - parentBoundary.top + 60
+         *    left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+         *
+       */
+    } else {
+      return this.hide();
+    }
+  };
+
   DanteInlineTooltip.prototype.render = function() {
     return React.createElement("div", {
       "className": "inlineTooltip " + (this.activeClass()) + " " + (this.scaledClass()),
-      "style": this.props.style
+      "style": this.state.position
     }, React.createElement("button", {
       "className": "inlineTooltip-button control",
       "title": "Close Menu",
@@ -2285,7 +2273,7 @@ module.exports = DanteInlineTooltip;
 });
 
 ;require.register("components/popovers/image.cjsx", function(exports, require, module) {
-var AtomicBlockUtils, DanteImagePopover, DanteImagePopoverItem, EditorState, Entity, React, ReactDOM, RichUtils, ref,
+var AtomicBlockUtils, DanteImagePopover, DanteImagePopoverItem, EditorState, Entity, React, ReactDOM, RichUtils, getCurrentBlock, getNode, getSelection, getSelectionRect, ref, ref1, ref2,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -2296,12 +2284,17 @@ ReactDOM = require('react-dom');
 
 ref = require('draft-js'), Entity = ref.Entity, RichUtils = ref.RichUtils, AtomicBlockUtils = ref.AtomicBlockUtils, EditorState = ref.EditorState;
 
+ref1 = require("../../utils/selection.js.es6"), getSelectionRect = ref1.getSelectionRect, getSelection = ref1.getSelection;
+
+ref2 = require('../../model/index.js.es6'), getCurrentBlock = ref2.getCurrentBlock, getNode = ref2.getNode;
+
 DanteImagePopover = (function(superClass) {
   extend(DanteImagePopover, superClass);
 
   function DanteImagePopover(props) {
     this.handleClick = bind(this.handleClick, this);
     this.componentWillReceiveProps = bind(this.componentWillReceiveProps, this);
+    this.relocate = bind(this.relocate, this);
     this.collapse = bind(this.collapse, this);
     this.scale = bind(this.scale, this);
     this._toggleScaled = bind(this._toggleScaled, this);
@@ -2374,6 +2367,39 @@ DanteImagePopover = (function(superClass) {
     return this.setState({
       scaled: false
     });
+  };
+
+  DanteImagePopover.prototype.relocate = function() {
+    var block, blockType, contentState, coords, currentBlock, editorState, el, nativeSelection, node, padd, parent, parentBoundary, selectionBoundary, selectionState;
+    editorState = this.props.editorState;
+    if (editorState.getSelection().isCollapsed()) {
+      currentBlock = getCurrentBlock(editorState);
+      blockType = currentBlock.getType();
+      contentState = editorState.getCurrentContent();
+      selectionState = editorState.getSelection();
+      block = contentState.getBlockForKey(selectionState.anchorKey);
+      nativeSelection = getSelection(window);
+      if (!nativeSelection.rangeCount) {
+        return;
+      }
+      node = getNode();
+      selectionBoundary = getSelectionRect(nativeSelection);
+      coords = selectionBoundary;
+      parent = ReactDOM.findDOMNode(this.props.editor);
+      parentBoundary = parent.getBoundingClientRect();
+      this.display(blockType === "image");
+      if (blockType === "image") {
+        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect();
+        el = this.refs.image_popover;
+        padd = el.offsetWidth / 2;
+        return this.setPosition({
+          top: selectionBoundary.top - parentBoundary.top + 60,
+          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+        });
+      }
+    } else {
+      return this.hide();
+    }
   };
 
   DanteImagePopover.prototype.componentWillReceiveProps = function(newProps) {
@@ -2466,8 +2492,7 @@ DanteAnchorPopover = (function(superClass) {
 
   function DanteAnchorPopover(props) {
     this.render = bind(this.render, this);
-    this.positionForTooltip = bind(this.positionForTooltip, this);
-    this.setProps = bind(this.setProps, this);
+    this.relocate = bind(this.relocate, this);
     this.hide = bind(this.hide, this);
     this.show = bind(this.show, this);
     this.display = bind(this.display, this);
@@ -2508,12 +2533,15 @@ DanteAnchorPopover = (function(superClass) {
     });
   };
 
-  DanteAnchorPopover.prototype.setProps = function(options) {
-    return this.setState(options);
-  };
-
-  DanteAnchorPopover.prototype.positionForTooltip = function(node, editorState, parent) {
-    var blockType, contentState, coords, currentBlock, el, padd, parentBoundary, selectionBoundary, selectionState;
+  DanteAnchorPopover.prototype.relocate = function(node) {
+    var blockType, contentState, coords, currentBlock, editorState, el, padd, parent, parentBoundary, selectionBoundary, selectionState;
+    if (node == null) {
+      node = null;
+    }
+    if (!node) {
+      return;
+    }
+    editorState = this.props.editorState;
     currentBlock = getCurrentBlock(editorState);
     blockType = currentBlock.getType();
     contentState = editorState.getCurrentContent();
@@ -2522,6 +2550,7 @@ DanteAnchorPopover = (function(superClass) {
     coords = selectionBoundary;
     el = this.refs.dante_popover;
     padd = el.offsetWidth / 2;
+    parent = ReactDOM.findDOMNode(this.props.editor);
     parentBoundary = parent.getBoundingClientRect();
     return {
       top: selectionBoundary.top - parentBoundary.top + 160,
@@ -2591,7 +2620,7 @@ DanteTooltip = (function(superClass) {
     this.displayActiveMenu = bind(this.displayActiveMenu, this);
     this.displayLinkMode = bind(this.displayLinkMode, this);
     this._clickBlockHandler = bind(this._clickBlockHandler, this);
-    this.relocateMenu = bind(this.relocateMenu, this);
+    this.relocate = bind(this.relocate, this);
     this.hide = bind(this.hide, this);
     this.show = bind(this.show, this);
     this.display = bind(this.display, this);
@@ -2641,12 +2670,12 @@ DanteTooltip = (function(superClass) {
     });
   };
 
-  DanteTooltip.prototype.relocateMenu = function(editorState, parent) {
-    var blockType, currentBlock, el, left, nativeSelection, padd, parentBoundary, selectionBoundary, top;
-    currentBlock = getCurrentBlock(editorState);
+  DanteTooltip.prototype.relocate = function() {
+    var blockType, currentBlock, el, left, nativeSelection, padd, parent, parentBoundary, selectionBoundary, top;
+    currentBlock = getCurrentBlock(this.props.editorState);
     blockType = currentBlock.getType();
-    if (this.props.tooltipables.indexOf(blockType) < 0) {
-      this.disableMenu();
+    if (this.props.configTooltip.selectionElements.indexOf(blockType) < 0) {
+      this.hide();
       return;
     }
     if (!this.state.show) {
@@ -2659,6 +2688,7 @@ DanteTooltip = (function(superClass) {
       return;
     }
     selectionBoundary = getSelectionRect(nativeSelection);
+    parent = ReactDOM.findDOMNode(this.props.editor);
     parentBoundary = parent.getBoundingClientRect();
     top = selectionBoundary.top - parentBoundary.top - -90 - 5;
     left = selectionBoundary.left + (selectionBoundary.width / 2) - padd;
@@ -2755,7 +2785,7 @@ DanteTooltip = (function(superClass) {
   DanteTooltip.prototype.componentWillReceiveProps = function(newProps) {};
 
   DanteTooltip.prototype.inlineItems = function() {
-    return this.props.block_types.filter((function(_this) {
+    return this.props.editor.block_types.filter((function(_this) {
       return function(o) {
         return o.type === "inline";
       };
@@ -2763,7 +2793,7 @@ DanteTooltip = (function(superClass) {
   };
 
   DanteTooltip.prototype.blockItems = function() {
-    return this.props.block_types.filter((function(_this) {
+    return this.props.editor.block_types.filter((function(_this) {
       return function(o) {
         return o.type === "block";
       };
@@ -3209,7 +3239,7 @@ require.register("model/index.js.es6", function(exports, require, module) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getDefaultBlockData = undefined;
+exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getNode = exports.getDefaultBlockData = undefined;
 
 var _immutable = require('immutable');
 
@@ -3229,6 +3259,20 @@ var getDefaultBlockData = exports.getDefaultBlockData = function getDefaultBlock
     default:
       return initialData;
   }
+};
+
+var getNode = exports.getNode = function getNode() {
+  var root = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
+
+  var t = null;
+  if (root.getSelection) {
+    t = root.getSelection();
+  } else if (root.document.getSelection) {
+    t = root.document.getSelection();
+  } else if (root.document.selection) {
+    t = root.document.selection.createRange().text;
+  }
+  return t;
 };
 
 /*

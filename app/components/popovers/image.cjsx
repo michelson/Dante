@@ -9,6 +9,17 @@ ReactDOM = require('react-dom')
   EditorState
 } = require('draft-js')
 
+{ 
+  getSelectionRect
+  getSelection
+} = require("../../utils/selection.js.es6")
+
+{ 
+  getCurrentBlock
+  getNode
+} = require('../../model/index.js.es6')
+
+
 class DanteImagePopover extends React.Component
 
   constructor: (props) ->
@@ -52,6 +63,46 @@ class DanteImagePopover extends React.Component
   collapse: =>
     @setState
       scaled: false
+
+  #getPositionForCurrent: ()=>
+  
+  relocate: ()=>
+    editorState = @props.editorState
+    
+    if editorState.getSelection().isCollapsed()
+
+      currentBlock = getCurrentBlock(editorState)
+      blockType = currentBlock.getType()
+      
+      contentState = editorState.getCurrentContent()
+      selectionState = editorState.getSelection()
+
+      block = contentState.getBlockForKey(selectionState.anchorKey)
+
+      nativeSelection = getSelection(window)
+      if !nativeSelection.rangeCount
+        return;
+
+      node = getNode()
+
+      selectionBoundary = getSelectionRect(nativeSelection)
+      coords = selectionBoundary
+      
+      parent = ReactDOM.findDOMNode(@props.editor);
+      parentBoundary = parent.getBoundingClientRect();
+
+      @display(blockType is "image")
+
+      if blockType is "image"
+        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+        el = @refs.image_popover
+        padd   = el.offsetWidth / 2
+        @setPosition
+          top: selectionBoundary.top - parentBoundary.top + 60
+          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+
+    else
+      @hide()
 
   componentWillReceiveProps: (newProps)=>
     @collapse()

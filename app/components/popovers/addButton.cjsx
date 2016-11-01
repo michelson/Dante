@@ -12,7 +12,14 @@ ReactDOM = require('react-dom')
   addNewBlock
   resetBlockWithType
   updateDataOfBlock
+  getCurrentBlock
+  getNode
 } = require('../../model/index.js.es6')
+
+{ 
+  getSelectionRect
+  getSelection
+} = require("../../utils/selection.js.es6")
 
 class DanteInlineTooltip extends React.Component
 
@@ -21,7 +28,7 @@ class DanteInlineTooltip extends React.Component
 
     @state = 
       position: {top: 0, left:0}
-      show: true
+      show: false
       scaled: false
 
   display: (b)=>
@@ -101,13 +108,13 @@ class DanteInlineTooltip extends React.Component
 
   activeClass: ->
     #if @props.show then "is-active" else ""
-    if @props.display_tooltip then "is-active" else ""
+    if @isActive() then "is-active" else ""
 
   #getPosition: ->
   #  @state.position
 
   isActive: ->
-    @props.display_tooltip 
+    @state.show 
 
   scaledClass: ->
     if @state.scaled then "is-scaled" else ""
@@ -118,7 +125,7 @@ class DanteInlineTooltip extends React.Component
   clickOnFileUpload: => 
     @.refs.fileInput.click()
     @collapse()
-    @props.closeInlineButton()
+    @hide()
 
   handlePlaceholder: (input)=>
     opts =
@@ -139,8 +146,11 @@ class DanteInlineTooltip extends React.Component
     file = fileList[0]
     @.insertImage(file)
 
+  widgets: =>
+    @.props.editor.state.widgets
+
   clickHandler: (e, type)=>
-    request_block = @.props.config.find (o)-> 
+    request_block = @widgets().find (o)-> 
       o.icon is type 
 
     switch request_block.insertion
@@ -152,14 +162,70 @@ class DanteInlineTooltip extends React.Component
         console.log "WRONG TYPE FOR #{request_block.insertion}"
 
   getItems: ->
-    @props.config.filter (o)=>
+    @widgets().filter (o)=>
       o.displayOnInlineTooltip
+
+  #getPositionForCurrent: ()=>
+  
+  relocate: ()=>
+    editorState = @props.editorState
+    
+    if editorState.getSelection().isCollapsed()
+
+      currentBlock = getCurrentBlock(editorState)
+      blockType = currentBlock.getType()
+      
+      contentState = editorState.getCurrentContent()
+      selectionState = editorState.getSelection()
+
+      block = contentState.getBlockForKey(selectionState.anchorKey);
+
+      nativeSelection = getSelection(window);
+      if !nativeSelection.rangeCount
+        return;
+
+      node = getNode()
+
+      selectionBoundary = getSelectionRect(nativeSelection);
+      coords = selectionBoundary #utils.getSelectionDimensions(node)
+      
+      parent = ReactDOM.findDOMNode(@props.editor);
+      parentBoundary = parent.getBoundingClientRect();
+
+      # checkeamos si esta vacio
+      @display block.getText().length is 0 and blockType is "unstyled"
+      @setPosition
+        top: coords.top + window.scrollY
+        left: coords.left + window.scrollX - 60
+
+      ###
+      @refs.image_popover.display(blockType is "image")
+
+      if blockType is "image"
+        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+        #el = document.querySelector("#dante_image_popover")
+        el = @refs.image_popover.refs.image_popover
+        padd   = el.offsetWidth / 2
+        @refs.image_popover.setPosition
+          top: selectionBoundary.top - parentBoundary.top + 60
+          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+
+        
+        #@setState
+        #  image_popover_position: 
+        #    top: selectionBoundary.top - parentBoundary.top + 60
+        #    left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
+        #
+      ###
+
+    else
+      @hide()
 
   render: ->
     return (
 
       <div className="inlineTooltip #{@activeClass()} #{@scaledClass()}" 
-        style={@props.style}>
+        style={@state.position}>
         
         <button className="inlineTooltip-button control" 
           title="Close Menu" 

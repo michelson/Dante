@@ -64,33 +64,29 @@ class DanteTooltip extends React.Component
     @setState
       position: coords
 
-  relocateMenu: (editorState, parent)=>
+  #relocateMenu: ()=>
+  
+  relocate: ()=>
 
-    currentBlock = getCurrentBlock(editorState);
+    currentBlock = getCurrentBlock(@props.editorState);
     blockType    = currentBlock.getType()
     # display tooltip only for unstyled
-    if @.props.tooltipables.indexOf(blockType) < 0
-      @disableMenu()
+
+    if @.props.configTooltip.selectionElements.indexOf(blockType) < 0
+      @hide()
       return
 
     return if !@state.show
     el = @refs.dante_menu 
-    #document.querySelector("#dante-menu")
     padd   = el.offsetWidth / 2
 
-    # eslint-disable-next-line no-undef
     nativeSelection = getSelection(window);
     if !nativeSelection.rangeCount
       return;
     
     selectionBoundary = getSelectionRect(nativeSelection);
 
-    # eslint-disable-next-line react/no-find-dom-node
-    #toolbarNode = ReactDOM.findDOMNode(@);
-    #toolbarBoundary = toolbarNode.getBoundingClientRect();
-
-    # eslint-disable-next-line react/no-find-dom-node
-    #parent = ReactDOM.findDOMNode(@);
+    parent = ReactDOM.findDOMNode(@props.editor);
     parentBoundary = parent.getBoundingClientRect();
 
     top    = selectionBoundary.top - parentBoundary.top - -90 - 5
@@ -187,11 +183,11 @@ class DanteTooltip extends React.Component
     #, 0
 
   inlineItems: =>
-    @props.block_types.filter (o)=>
+    @props.editor.block_types.filter (o)=>
       o.type is "inline"
 
   blockItems: =>
-    @props.block_types.filter (o)=>
+    @props.editor.block_types.filter (o)=>
       o.type is "block"
 
   render: ->

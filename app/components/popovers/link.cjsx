@@ -34,28 +34,26 @@ class DanteAnchorPopover extends React.Component
     @setState
       position: coords
 
-  setProps: (options)=>
-    @setState options
+  #setProps: (options)=>
+  #  @setState options
 
-  positionForTooltip: (node, editorState, parent)=>
+  #positionForTooltip: (node)=>
+  
+  relocate: (node=null)=>
+    return unless node
+    editorState = @props.editorState
     currentBlock = getCurrentBlock(editorState)
     blockType = currentBlock.getType()
     
     contentState = editorState.getCurrentContent()
     selectionState = editorState.getSelection()
 
-    selectionBoundary = node.getBoundingClientRect() #getSelectionRect(nativeSelection);
-    coords = selectionBoundary #utils.getSelectionDimensions(node)
-    #if blockType is "image"
-    #selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+    selectionBoundary = node.getBoundingClientRect()
+    coords = selectionBoundary 
     el = @refs.dante_popover
     padd   = el.offsetWidth / 2
-    # eslint-disable-next-line react/no-find-dom-node
-    #toolbarNode = ReactDOM.findDOMNode(@)
-    #toolbarBoundary = toolbarNode.getBoundingClientRect()
 
-    # eslint-disable-next-line react/no-find-dom-node
-    # parent = ReactDOM.findDOMNode(@);
+    parent = ReactDOM.findDOMNode(@props.editor);
     parentBoundary = parent.getBoundingClientRect()
 
     {
