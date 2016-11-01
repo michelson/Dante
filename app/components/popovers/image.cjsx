@@ -109,7 +109,7 @@ class DanteImagePopover extends React.Component
     return {} if !@state.position
     
   handleClick: (item)=>
-    @props.setDirection(item.type)
+    @props.editor.setDirection(item.type)
 
   render: ->
     return (

@@ -1187,11 +1187,10 @@ DanteEditor = (function(superClass) {
       return function(o) {
         return React.createElement(o.component, {
           "ref": o.ref,
-          "editorState": _this.state.editorState,
           "editor": _this,
+          "editorState": _this.state.editorState,
           "onChange": _this.onChange,
           "configTooltip": o,
-          "setDirection": _this.setDirection,
           "showPopLinkOver": _this.showPopLinkOver,
           "hidePopLinkOver": _this.hidePopLinkOver,
           "handleOnMouseOver": _this.handleShowPopLinkOver,
@@ -2366,7 +2365,7 @@ DanteImagePopover = (function(superClass) {
   };
 
   DanteImagePopover.prototype.handleClick = function(item) {
-    return this.props.setDirection(item.type);
+    return this.props.editor.setDirection(item.type);
   };
 
   DanteImagePopover.prototype.render = function() {

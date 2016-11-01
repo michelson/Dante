@@ -963,12 +963,11 @@ class DanteEditor extends React.Component
           @tooltips.map (o)=>
             <o.component 
               ref={o.ref}
-              editorState={@state.editorState}
               editor={@}
+              editorState={@state.editorState}
               onChange={@onChange}
               configTooltip={o}
               
-              setDirection={@setDirection}
               showPopLinkOver={@showPopLinkOver} 
               hidePopLinkOver={@hidePopLinkOver}
               handleOnMouseOver={@handleShowPopLinkOver}
