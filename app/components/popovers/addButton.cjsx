@@ -80,7 +80,7 @@ class DanteInlineTooltip extends React.Component
 
   handlePlaceholder: (input)=>
     opts =
-      type: input.insert_block
+      type: input.widget_options.insert_block
       placeholder: input.options.placeholder
       endpoint: input.options.endpoint
 
@@ -104,17 +104,17 @@ class DanteInlineTooltip extends React.Component
     request_block = @widgets().find (o)-> 
       o.icon is type 
 
-    switch request_block.insertion
+    switch request_block.widget_options.insertion
       when "upload" 
         @clickOnFileUpload(e, request_block)
       when "placeholder" 
         @handlePlaceholder(request_block)
       else 
-        console.log "WRONG TYPE FOR #{request_block.insertion}"
+        console.log "WRONG TYPE FOR #{request_block.widget_options.insertion}"
 
   getItems: ->
     @widgets().filter (o)=>
-      o.displayOnInlineTooltip
+      o.widget_options.displayOnInlineTooltip
   
   relocate: ()=>
     editorState = @props.editorState

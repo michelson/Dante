@@ -71,7 +71,9 @@ class DanteTooltip extends React.Component
       @hide()
       return
 
+    return if @state.link_mode
     return if !@state.show
+
     el = @refs.dante_menu 
     padd   = el.offsetWidth / 2
 
@@ -103,7 +105,7 @@ class DanteTooltip extends React.Component
     )
 
     setTimeout ()=>
-      @relocateMenu()
+      @relocate()
     , 0
 
   displayLinkMode: =>
@@ -121,6 +123,7 @@ class DanteTooltip extends React.Component
     ev.preventDefault()
     @setState
       link_mode: false
+      url: ""
 
   hideMenu: ->
     @hide()

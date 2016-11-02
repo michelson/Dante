@@ -6,6 +6,7 @@ class SaveBehavior
     @getLocks = options.getLocks
     @config = options.config
     @editorContent = options.editorContent
+    @editorState = options.editorState
 
   handleStore: (ev)->
     @store()
@@ -23,6 +24,15 @@ class SaveBehavior
       @checkforStore(content)
     , @config.data_storage.interval
 
+  getTextFromEditor: ->
+    c = @editorState.getCurrentContent()
+    out = c.getBlocksAsArray().map (o)=>
+        o.getText()
+      .join("\n")
+    
+    console.log out
+    return out
+
   checkforStore: (content)->
     # ENTER DATA STORE
 
@@ -38,7 +48,8 @@ class SaveBehavior
       method: @config.data_storage.method
       url: @config.data_storage.url
       data: 
-        data: JSON.stringify(content)
+        editor_content: JSON.stringify(content)
+        text_content: @getTextFromEditor()
     .then (result)=> 
       console.log "STORING CONTENT", result
       @config.data_storage.success_handler(result) if @config.data_storage.success_handler

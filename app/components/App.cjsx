@@ -42,10 +42,8 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
   updateTextOfBlock
   getCurrentBlock
   addNewBlockAt
+  updateDataOfBlock
 } = require('../model/index.js.es6')
-
-createEditorState = require('../model/content.js.es6')
-{ updateDataOfBlock } = require('../model/index.js.es6')
 
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
@@ -67,7 +65,7 @@ KeyCodes =
 } = require("../utils/selection.js.es6")
 DanteInlineTooltip = require('./popovers/addButton.cjsx')
 DanteTooltip = require('./popovers/toolTip.cjsx')
-Link = require('./link.cjsx')
+Link = require('./decorators/link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./blocks/image.cjsx')
 EmbedBlock = require('./blocks/embed.cjsx')
@@ -79,26 +77,22 @@ customHTML2Content = require('../utils/convert_html2.coffee')
 
 PocData = require('../data/poc.js')
 
-class Dante 
+class @Dante
   constructor: (options={})->
     console.log "init editor!"
     @options = options
     @options.el = options.el || 'app'
-
+    @options.poc = options.poc
     @options.content = options.content
-
     @options.read_only = options.read_only || false
     @options.spellcheck = options.spellcheck || false
     @options.title_placeholder = options.title_placeholder || "Title"
     @options.body_placeholder = options.body_placeholder || "Write your story"
-
     @options.api_key = options.api_key || "86c28a410a104c8bb58848733c82f840"
 
     @options.widgets = [
       {
         title: 'add a image'
-        insertion: "upload"
-        insert_block: "image"
         icon: 'image'
         type: 'image'
         block: 'ImageBlock'
@@ -120,8 +114,10 @@ class Dante
         handleEnterWithText: (ctx, block)->
           editorState = ctx.state.editorState
           ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      
-        displayOnInlineTooltip: true
+        widget_options:
+          displayOnInlineTooltip: true
+          insertion: "upload"
+          insert_block: "image"
         options:
           upload_url: options.upload_url or 'uploads.json'
           upload_callback: @options.image_upload_callabck
@@ -131,15 +127,16 @@ class Dante
       {
         icon: 'embed'
         title: 'insert embed'
-        insertion: "placeholder"
-        insert_block: "embed"
         type: 'embed'
         block: 'EmbedBlock'
         renderable: true
         breakOnContinuous: true
         wrapper_class: "graf graf--mixtapeEmbed"
-        displayOnInlineTooltip: true
-        selected_class:" is-selected is-mediaFocused"
+        selected_class: "is-selected is-mediaFocused"
+        widget_options:
+          displayOnInlineTooltip: true
+          insertion: "placeholder"
+          insert_block: "embed"
         options:
           endpoint: "http://api.embed.ly/1/extract?key=#{@options.api_key}&url="
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
@@ -153,15 +150,17 @@ class Dante
       {
         icon: 'video'
         title: 'insert video'
-        insertion: "placeholder"
-        insert_block: "video"
+
         type: 'video'
         block: 'VideoBlock'
         renderable: true
         breakOnContinuous: true
         wrapper_class: "graf--figure graf--iframe" 
         selected_class:" is-selected is-mediaFocused"
-        displayOnInlineTooltip: true
+        widget_options:
+          displayOnInlineTooltip: true
+          insertion: "placeholder"
+          insert_block: "video"
         options:
           endpoint: "http://api.embed.ly/1/oembed?key=#{@options.api_key}&url="
           placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
@@ -181,7 +180,8 @@ class Dante
         type: 'placeholder'
         wrapper_class: "is-embedable"
         selected_class:" is-selected is-mediaFocused"
-        displayOnInlineTooltip: false
+        widget_options:
+          displayOnInlineTooltip: false
         handleEnterWithText: (ctx, block)->
           editorState = ctx.state.editorState
           data =
@@ -279,11 +279,10 @@ class Dante
   getContent: ->
     console.log @options.content
     console.log "IS POC DATA?", @options.content is PocData
-
-    console.log @options.content , PocData
-
-    PocData
-    #@options.content
+    return PocData if @options.poc
+    #console.log @options.content , PocData
+    #PocData
+    @options.content
 
   render: ->
     ReactDOM.render(<DanteEditor content={@getContent()} 
@@ -324,10 +323,10 @@ class DanteEditor extends React.Component
     @state = 
       editorState: @initializeState()
       read_only: @props.read_only
-      showURLInput: false
       blockRenderMap: @extendedBlockRenderMap
       locks: 0
       debug: true
+      debug_json: null
 
     @widgets  = props.config.widgets
     @tooltips = props.config.tooltips
@@ -343,9 +342,6 @@ class DanteEditor extends React.Component
         data_storage: @props.config.data_storage
       editorState: @state.editorState
       editorContent: @emitSerializedOutput()
-
-    optionsForDecorator: ()->
-      @state
 
   initializeState: ()=>
     if @.props.content #and @.props.content.trim() isnt ""
@@ -371,9 +367,7 @@ class DanteEditor extends React.Component
 
       #editorState = EditorState.createWithContent(html, @decorator)
 
-      @decodeEditorContent(@props.content)
-            
-      #createEditorState.default(@props.content, @decorator)
+      @decodeEditorContent(@props.content)    
     else 
       EditorState.createEmpty(@decorator)
 
@@ -490,8 +484,12 @@ class DanteEditor extends React.Component
 
     @setState
       editorState: @decodeEditorContent(raw_as_json)
-
+    , @logState(raw_as_json)
     false
+
+  logState: (raw)=>
+    @setState
+      debug_json: raw
 
   emitHTML2: ()->
 
@@ -857,6 +855,21 @@ class DanteEditor extends React.Component
       read_only: !@state.read_only
     , @testEmitAndDecode
 
+  closePopOvers: ()=>
+    @tooltips.map (o)=>
+      @refs[o.ref].hide()
+
+  relocateTooltips: ()=>
+    @tooltips.map (o)=>
+      @refs[o.ref].relocate()
+
+  tooltipsWithProp: (prop)=>
+    @tooltips.filter (o)=>
+      o[prop]
+
+  tooltipHasSelectionElement: (tooltip, element)=>
+    tooltip.selectionElements.includes(element)
+
   #################################
   # TODO: this methods belongs to popovers/link
   #################################
@@ -892,22 +905,6 @@ class DanteEditor extends React.Component
   cancelHide: ()->
     console.log "Cancel Hide"
     clearTimeout @hideTimeout
-
-  ## close popovers
-  closePopOvers: ()=>
-    @tooltips.map (o)=>
-      @refs[o.ref].hide()
-
-  relocateTooltips: ()=>
-    @tooltips.map (o)=>
-      @refs[o.ref].relocate()
-
-  tooltipsWithProp: (prop)=>
-    @tooltips.filter (o)=>
-      o[prop]
-
-  tooltipHasSelectionElement: (tooltip, element)=>
-    tooltip.selectionElements.includes(element)
 
   ###############################
 
@@ -960,9 +957,10 @@ class DanteEditor extends React.Component
         </article>
 
         {
-          @tooltips.map (o)=>
+          @tooltips.map (o, i)=>
             <o.component 
               ref={o.ref}
+              key={i}
               editor={@}
               editorState={@state.editorState}
               onChange={@onChange}
@@ -975,7 +973,6 @@ class DanteEditor extends React.Component
             />
         }
 
-
         {
           if @state.debug
             <div>
@@ -984,7 +981,7 @@ class DanteEditor extends React.Component
                 <li>LOCKS: {@state.locks}</li>
                 <li>
                   <a href="#" onClick={@toggleReadOnly}>
-                    READ ONLY {if @state.read_only then 'yup' else 'noup'}
+                    READ ONLY: {if @state.read_only then 'YES' else 'NO'}
                   </a>
                 </li>
                 <li>
@@ -1003,6 +1000,10 @@ class DanteEditor extends React.Component
                     serialize and set content
                   </a>
                 </li>
+
+                <pre>
+                  {JSON.stringify(@.state.debug_json)}
+                </pre>
               </ul>
             </div>
         }
@@ -1010,5 +1011,7 @@ class DanteEditor extends React.Component
       </div>
     ) 
 
-module.exports = Dante
+debugger
+window.Dante = Dante
 
+#module.exports = Dante
