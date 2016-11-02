@@ -11,7 +11,7 @@ ReactDOM = require('react-dom')
 
 axios = require("axios")
 
-{ updateDataOfBlock } = require('../../model/index.js.es6')
+{ updateDataOfBlock } = require('../../model/index.js')
 
 
 class ImageBlock extends React.Component

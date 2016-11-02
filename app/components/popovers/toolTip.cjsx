@@ -18,11 +18,11 @@ ReactDOM = require('react-dom')
 { 
   getSelectionRect
   getSelection
-} = require("../../utils/selection.js.es6")
+} = require("../../utils/selection.js")
 
 { 
   getCurrentBlock
-} = require('../../model/index.js.es6')
+} = require('../../model/index.js')
 
 
 class DanteTooltip extends React.Component

@@ -14,12 +14,12 @@ ReactDOM = require('react-dom')
   updateDataOfBlock
   getCurrentBlock
   getNode
-} = require('../../model/index.js.es6')
+} = require('../../model/index.js')
 
 { 
   getSelectionRect
   getSelection
-} = require("../../utils/selection.js.es6")
+} = require("../../utils/selection.js")
 
 class DanteInlineTooltip extends React.Component
 

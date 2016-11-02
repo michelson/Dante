@@ -4,7 +4,7 @@ ReactDOM = require('react-dom')
 
 { 
   getCurrentBlock
-} = require('../../model/index.js.es6')
+} = require('../../model/index.js')
 
 class DanteAnchorPopover extends React.Component
 

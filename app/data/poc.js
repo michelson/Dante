@@ -1,5 +1,5 @@
 
-data2 = {
+const data2 = {
   "entityMap": {},
   "blocks": [
     {
@@ -150,10 +150,10 @@ data2 = {
   ]
 }
 
-data = {"entityMap":{},"blocks":[{"key":"gmko","text":"oli oli","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}
+const data = {"entityMap":{},"blocks":[{"key":"gmko","text":"oli oli","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}
 
 
-data3 = {
+const data3 = {
   "entityMap": {},
   "blocks": [
     {
@@ -238,6 +238,6 @@ data3 = {
   ]
 }
 
-empty = null
+const empty = null;
 
 module.exports = data3

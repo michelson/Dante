@@ -12,12 +12,12 @@ ReactDOM = require('react-dom')
 { 
   getSelectionRect
   getSelection
-} = require("../../utils/selection.js.es6")
+} = require("../../utils/selection.js")
 
 { 
   getCurrentBlock
   getNode
-} = require('../../model/index.js.es6')
+} = require('../../model/index.js')
 
 
 class DanteImagePopover extends React.Component

@@ -31,7 +31,7 @@ DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor')
   convertFromHTML
 } = require('draft-convert')
 
-toHTML = require("../utils/convert_html.js.es6")
+#toHTML = require("../utils/convert_html.js")
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 
@@ -43,7 +43,7 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
   getCurrentBlock
   addNewBlockAt
   updateDataOfBlock
-} = require('../model/index.js.es6')
+} = require('../model/index.js')
 
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
@@ -62,7 +62,7 @@ KeyCodes =
 { 
   getSelectionRect
   getSelection
-} = require("../utils/selection.js.es6")
+} = require("../utils/selection.js")
 DanteInlineTooltip = require('./popovers/addButton.cjsx')
 DanteTooltip = require('./popovers/toolTip.cjsx')
 Link = require('./decorators/link.cjsx')
@@ -77,7 +77,7 @@ customHTML2Content = require('../utils/convert_html2.coffee')
 
 PocData = require('../data/poc.js')
 
-class @Dante
+class Dante
   constructor: (options={})->
     console.log "init editor!"
     @options = options
@@ -437,6 +437,7 @@ class DanteEditor extends React.Component
     # console.log "SET PRE CONTENT", content
     @save.editorContent = content
 
+  ###
   emitHTML: (editorState)=>
 
     options =
@@ -461,6 +462,7 @@ class DanteEditor extends React.Component
 
     console.log html
     return false
+  ###
 
   emitSerializedOutput: =>
     #s = @state.editorState.getCurrentContent()
@@ -985,11 +987,6 @@ class DanteEditor extends React.Component
                   </a>
                 </li>
                 <li>
-                  <a href="#" onClick={@emitHTML}>
-                    get content
-                  </a>
-                </li>
-                <li>
                   <a href="#" onClick={@getTextFromEditor}>
                     get Text From Editor
                   </a>
@@ -1011,7 +1008,7 @@ class DanteEditor extends React.Component
       </div>
     ) 
 
-debugger
-window.Dante = Dante
+#debugger
+#window.Dante = Dante
 
-#module.exports = Dante
+module.exports = Dante

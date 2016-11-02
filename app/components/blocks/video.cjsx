@@ -9,7 +9,7 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-{ updateDataOfBlock } = require('../../model/index.js.es6')
+{ updateDataOfBlock } = require('../../model/index.js')
 
 axios = require("axios")
 

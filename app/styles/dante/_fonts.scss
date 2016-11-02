@@ -1,11 +1,11 @@
 @mixin dante-font-face($font-family, $file-name, $font-weight: normal, $font-style: normal) {
   @font-face {
     font-family: '#{$font-family}';
-    src: url('fonts/dante/#{$file-name}.eot');
-    src: url('fonts/dante/#{$file-name}.eot?#iefix') format('embedded-opentype'),
-    url('fonts/dante/#{$file-name}.woff') format('woff'),
-    url('fonts/dante/#{$file-name}.ttf') format('truetype'),
-    url('fonts/dante/#{$file-name}.svg#{$file-name}') format('svg');
+    src: url('./fonts/dante/#{$file-name}.eot');
+    src: url('./fonts/dante/#{$file-name}.eot?#iefix') format('embedded-opentype'),
+    url('./fonts/dante/#{$file-name}.woff') format('woff'),
+    url('./fonts/dante/#{$file-name}.ttf') format('truetype'),
+    url('./fonts/dante/#{$file-name}.svg##{$file-name}') format('svg');
     font-weight: $font-weight;
     font-style: $font-style;
   }
