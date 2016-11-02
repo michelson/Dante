@@ -5,10 +5,10 @@
   "author": "Miguel Michelson",
   "main": "app/initialize.js",
   "scripts": {
-    "build": "webpack --mode=build",
-    "dev": "webpack --progress --colors --watch --mode=dev",
-    "test": "mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js",
-    "server": "node_modules/.bin/webpack-dev-server"
+    "build": "node_modules/.bin/webpack --mode=build",
+    "dev": "node_modules/.bin/webpack --progress --colors --watch --mode=dev",
+    "test": "node_modules/.bin/mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js",
+    "start": "node_modules/.bin/webpack-dev-server"
   },
   "dependencies": {
     "axios": "^0.15.2",
@@ -17,10 +17,12 @@
     "draft-js-export-html": "^0.5.0",
     "react": "~15.3.0",
     "react-dom": "~15.3.0",
-    "style-loader": "^0.13.1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "coffee-script": "^1.11.1",
+    "node-sass": "^3.10.1",
+    "style-loader": "^0.13.1",
     "babel": "6.3.13",
     "babel-core": "6.1.18",
     "babel-eslint": "5.0.0",

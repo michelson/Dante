@@ -1,3 +1,4 @@
 
-require("styles/dante.scss");
+require("styles/dante");
+require("styles/layout/layout");
 window.Dante = require('./components/App.cjsx');
