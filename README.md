@@ -8,7 +8,7 @@ Dante 2 is a complete rewrite of Dante. This version is built on top of Facebook
 
 ### Why rewrite another Dante on DraftJs ?
 
-The previous version of Dante relies a lot on DOM manipulation. So separate the presentation from the logic even with the modular plugin system it has is a very complex task, a redesign was needed. Some of the historic features requested by Dante users will never going to never take place with this approach.
+The previous version of Dante relies a lot on DOM manipulation. So separate the presentation from the logic even with the modular plugin system is a very complex task, and is the  and some of the historic features requested by Dante users will never take place with this approach. A redesign was needed. 
 
 By the other hand, DraftJs handles selection, ranges and markup blocks as a data layer. Stacking states of it making the task of paste, undo/redo, replace blocks and insert then on certain selection a trivial taskwith zero DOM manipulation. Just managing data and composing new blocks as React components.
 
