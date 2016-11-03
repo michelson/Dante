@@ -11,7 +11,7 @@ ReactDOM = require('react-dom')
 
 axios = require("axios")
 
-{ updateDataOfBlock } = require('../../model/index.js.es6')
+{ updateDataOfBlock } = require('../../model/index.js')
 
 
 class ImageBlock extends React.Component
@@ -23,8 +23,10 @@ class ImageBlock extends React.Component
 
     @config = @props.blockProps.config
 
-    @state = 
+    @state =
+      loading: false 
       selected: false
+      loading_progress: 0
       caption: @defaultPlaceholder()
       direction: existing_data.direction || "center"
       width: 0
@@ -32,6 +34,7 @@ class ImageBlock extends React.Component
       file: null
       url: @blockPropsSrc() || @defaultUrl(existing_data)
       aspect_ratio: @defaultAspectRatio(existing_data)
+
 
   blockPropsSrc: ()=>
     # console.log @.props.blockProps.data.src
@@ -47,6 +50,8 @@ class ImageBlock extends React.Component
     ###
 
   defaultUrl: (data)=>
+    return data.url if data.url
+
     if data.url
       if data.file then URL.createObjectURL(data.file) else data.url
     else
@@ -86,7 +91,7 @@ class ImageBlock extends React.Component
 
     fill_ratio = height / width * 100
     result = { width: width, height: height, ratio: fill_ratio }
-    utils.log result
+    console.log result
     result
 
   # will update block state
@@ -96,7 +101,7 @@ class ImageBlock extends React.Component
     getEditorState = @props.blockProps.getEditorState
     setEditorState = @props.blockProps.setEditorState
     data = block.getData()
-    newData = data.merge(@state)
+    newData = data.merge(@state).merge(forceUpload: false)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
   replaceImg: =>
@@ -105,6 +110,8 @@ class ImageBlock extends React.Component
     @setState 
       url: @img.src
     self = @
+    # exit only when not blob and not forceUload
+    return if !@img.src.includes("blob") and !@props.block.data.get("forceUpload")
     @img.onload = ()=>
       console.log @img
       console.log this
@@ -116,7 +123,17 @@ class ImageBlock extends React.Component
         aspect_ratio: self.getAspectRatio(@img.width, @img.height)
       , @handleUpload
 
+  startLoader: =>
+    @setState
+      loading: true
+
+  stopLoader: =>
+    @setState
+      loading: false
+
   handleUpload: =>
+    @startLoader()
+    @props.blockProps.addLock()
     @updateData()
     @uploadFile()
 
@@ -142,7 +159,6 @@ class ImageBlock extends React.Component
   
   handleGrafFigureSelectImg: (e)=>
     e.preventDefault()
-    #@props.blockProps.setCurrentComponent(@)
     @setState
       selected: true
     , @updateDataSelection
@@ -167,9 +183,16 @@ class ImageBlock extends React.Component
         @updateProgressBar(e)
     .then (result)=> 
       @uploadCompleted(result.data)
+      @props.blockProps.removeLock()
+      @stopLoader()
+
       if @config.upload_callback
         @config.upload_callback(response, @)
+
     .catch (error)=>
+      @props.blockProps.removeLock()
+      @stopLoader()
+
       console.log("ERROR: got error uploading file #{error}")
       if @config.upload_error_callback
         @config.upload_error_callback(error, @)
@@ -183,10 +206,12 @@ class ImageBlock extends React.Component
     , @updateData
 
   updateProgressBar: (e)=>
-    complete = ""
+    complete = @state.loading_progress
     if (e.lengthComputable)
       complete = e.loaded / e.total * 100
       complete = complete ? complete : 0
+      @setState
+        loading_progress: complete
       console.log "complete"
       console.log complete
 
@@ -194,7 +219,7 @@ class ImageBlock extends React.Component
     return (
       <div ref="image_tag2" 
           suppressContentEditableWarning={true}>
-        <div contentEditable="false"
+        <div
           className="aspectRatioPlaceholder is-locked" 
           style={@coords()} 
           onClick={@handleGrafFigureSelectImg}>
@@ -206,6 +231,10 @@ class ImageBlock extends React.Component
             width={@state.aspect_ratio.width}
             className='graf-image'
           />
+          <Loader 
+            toggle={@state.loading}
+            progress={@state.loading_progress}
+          />
         </div>
         <figcaption className='imageCaption'>
           <EditorBlock {...@props} 
@@ -214,6 +243,29 @@ class ImageBlock extends React.Component
             placeholder="escrive alalal"
           />
         </figcaption>
+      </div>
+    )
+
+class Loader extends React.Component
+
+  render: ->
+    return (
+      <div>
+        { if @props.toggle
+          <div className="image-upoader-loader">
+            <p>
+              {
+                if @props.progress is 100
+                  "processing image..."
+                else
+                  <span>
+                    <span>loading</span>
+                    {@props.progress}
+                  </span>
+              }
+            </p>
+          </div>
+        }
       </div>
     )
     

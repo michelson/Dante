@@ -9,7 +9,7 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-utils = require("../../utils/utils")
+#utils = require("../../utils/utils")
 
 
 class PlaceholderBlock extends React.Component
@@ -17,10 +17,16 @@ class PlaceholderBlock extends React.Component
     super props
     @state =
       enabled: false
+      data: @.props.blockProps.data.toJS()
 
   placeholderText: =>
     return "" if @state.enabled
-    if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
+    @.props.blockProps.data.toJS().placeholder || @placeholderFromProps() || @defaultText()
+    #if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
+
+
+  placeholderFromProps: =>
+    @.props.block.toJS().placeholder
 
   defaultText: =>
     "write something "
@@ -36,7 +42,10 @@ class PlaceholderBlock extends React.Component
 
   classForDefault: =>
     if !@state.enabled then "defaultValue defaultValue--root" else ""
+
   render: ->
+    console.log(@.state)
+    console.log(@props)
     return(
       <span className={@classForDefault()}
         onMouseDown={@handleFocus}>

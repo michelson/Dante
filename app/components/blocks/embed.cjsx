@@ -9,14 +9,14 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-utils = require("../../utils/utils")
+axios = require("axios")
 
-{ updateDataOfBlock } = require('../../model/index.js.es6')
+{ updateDataOfBlock } = require('../../model/index.js')
 
 class EmbedBlock extends React.Component
   constructor: (props) ->
     super props
-    api_key = "86c28a410a104c8bb58848733c82f840"
+    #api_key = "86c28a410a104c8bb58848733c82f840"
 
     @state = 
       embed_data: @defaultData()
@@ -25,7 +25,7 @@ class EmbedBlock extends React.Component
     existing_data = @.props.block.getData().toJS()
     existing_data.embed_data || {}
 
-    # will update block state
+  # will update block state
   updateData: =>
     blockProps = @.props.blockProps
     block = @.props.block
@@ -35,18 +35,38 @@ class EmbedBlock extends React.Component
     newData = data.merge(@state)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
-  componentDidMount: =>
-    return unless @.props.blockProps.data
-    utils.ajax
-      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
-      (data)=>
-        if data.status is 200
-          @setState
-            embed_data: JSON.parse(data.responseText)
-          , @updateData  
+  dataForUpdate: =>
 
+    @.props.blockProps.data.toJS()
+
+  componentDidMount: =>
+    
+    return unless @.props.blockProps.data
+    
+    # ensure data isnt already loaded
+    # unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+      
+    unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+      #debugger
+      return
+
+    axios
+      method: 'get'
+      url: "#{@dataForUpdate().endpoint}#{@dataForUpdate().provisory_text}&scheme=https"
+    .then (result)=> 
+      
+      @setState
+        embed_data: result.data #JSON.parse(data.responseText)
+      , @updateData    
+    .catch (error)=>
+      console.log("TODO: error")
+      
   classForImage: ->
-    if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
+    if @state.embed_data.images then "" else "mixtapeImage--empty u-ignoreBlock"
+    #if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
+
+  picture: ->
+    if @state.embed_data.images then @state.embed_data.images[0].url else ""
 
   render: ->
     #block = @.props;
@@ -57,7 +77,7 @@ class EmbedBlock extends React.Component
         <a target='_blank'
           className="js-mixtapeImage mixtapeImage #{@classForImage()}"
           href={@state.embed_data.url} 
-          style={{backgroundImage: "url('#{@state.embed_data.thumbnail_url}')"}}>
+          style={{backgroundImage: "url('#{@picture()}')"}}>
         </a>
         <a className='markup--anchor markup--mixtapeEmbed-anchor' 
           target='_blank' href={@state.embed_data.url}>

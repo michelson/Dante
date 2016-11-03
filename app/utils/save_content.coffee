@@ -1,50 +1,62 @@
 axios = require("axios")
 Immutable = require('immutable')
-# ReactDOM = require('react-dom')
 
 class SaveBehavior 
   constructor: (options)->
+    @getLocks = options.getLocks
     @config = options.config
     @editorContent = options.editorContent
+    @editorState = options.editorState
 
   handleStore: (ev)->
     @store()
 
   store: (content)->
-    return unless @config.store_url
-    
+    return unless @config.data_storage.url
+    console.log "CHECK FOR LOCKS", @getLocks()
+    if @getLocks() > 0
+      console.log "LOCKED!!"
+    return if @getLocks() > 0
+
     clearTimeout(@timeout)
     
     @timeout = setTimeout =>
       @checkforStore(content)
-    , @config.store_interval
+    , @config.data_storage.interval
+
+  getTextFromEditor: ->
+    c = @editorState.getCurrentContent()
+    out = c.getBlocksAsArray().map (o)=>
+        o.getText()
+      .join("\n")
+    
+    console.log out
+    return out
 
   checkforStore: (content)->
-    console.log "ENTER DATA STORE"
-  
-    # TODO check of content was changed!!
-    # console.log 'editor:', @.editorContent
-    # console.log 'content', content
+    # ENTER DATA STORE
 
     isChanged = !Immutable.is(Immutable.fromJS(@.editorContent), Immutable.fromJS(content))
     console.log("CONTENT CHANGED:", isChanged)
     
     return unless isChanged
 
-    @config.before_xhr_handler() if @config.before_xhr_handler
-
+    @config.xhr.before_handler() if @config.xhr.before_handler
+    console.log "SAVING TO: #{@config.data_storage.url}"
+    
     axios
-      method: @config.store_method
-      url: @config.store_url
+      method: @config.data_storage.method
+      url: @config.data_storage.url
       data: 
-        data: JSON.stringify(content)
+        editor_content: JSON.stringify(content)
+        text_content: @getTextFromEditor()
     .then (result)=> 
       console.log "STORING CONTENT", result
-      @config.store_success_handler(result) if @config.store_success_handler
-      @config.success_xhr_handler(result) if @config.success_xhr_handler
+      @config.data_storage.success_handler(result) if @config.data_storage.success_handler
+      @config.xhr.success_handler(result) if @config.xhr.success_handler
     .catch (error)=>
-      console.log("ERROR: got error uploading file #{error}")
-      @config.failure_xhr_handler(error) if @config.failure_xhr_handler
+      console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
+      @config.xhr.failure_handler(error) if @config.xhr.failure_handler
 
 
 module.exports = SaveBehavior

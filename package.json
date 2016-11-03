@@ -1,17 +1,14 @@
 {
   "name": "Dante2",
+  "version": "0.1.3",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
-  "license": "mit",
-  "version": "0.0.1",
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
+  "main": "app/initialize.js",
   "scripts": {
-    "watcher": "brunch watch --server",
-    "start": "brunch watch --server",
-    "build": "brunch build --production"
+    "build": "node_modules/.bin/webpack --mode=build",
+    "dev": "node_modules/.bin/webpack --progress --colors --watch --mode=dev",
+    "test": "node_modules/.bin/mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js",
+    "start": "node_modules/.bin/webpack-dev-server"
   },
   "dependencies": {
     "axios": "^0.15.2",
@@ -23,21 +20,46 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "babel-brunch": "~6.0.0",
-    "copycat-brunch": "^1.1.0",
-    "auto-reload-brunch": "^2.0.0",
-    "babel-preset-es2015": "^6.16.0",
-    "babel-preset-react": "~6.11.1",
-    "brunch": "^2.4.0",
-    "clean-css-brunch": "^2.0.0",
-    "sass-brunch": "^2.0",
-    "postcss-brunch": "^0.5",
-    "autoprefixer": "^6.0",
-    "javascript-brunch": "^2.0.0",
-    "uglify-js-brunch": "^2.0.0",
-    "coffee-reactify": "^5.0.0",
-    "coffee-script-brunch": "^2.0.0",
-    "coffeeify": "~0.6",
-    "react-coffee-brunch": "^1.8.0"
-  }
+    "coffee-script": "^1.11.1",
+    "node-sass": "^3.10.1",
+    "style-loader": "^0.13.1",
+    "babel": "6.3.13",
+    "babel-core": "6.1.18",
+    "babel-eslint": "5.0.0",
+    "babel-loader": "6.1.0",
+    "babel-plugin-add-module-exports": "0.1.2",
+    "babel-preset-es2015": "6.3.13",
+    "chai": "3.4.1",
+    "cjsx-loader": "^3.0.0",
+    "coffee-loader": "^0.7.2",
+    "css-loader": "^0.25.0",
+    "eslint": "1.7.2",
+    "eslint-loader": "1.1.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.9.0",
+    "html-webpack-plugin": "^2.24.1",
+    "mocha": "2.3.4",
+    "sass-loader": "^4.0.2",
+    "webpack": "1.12.9",
+    "webpack-dev-server": "^1.16.2",
+    "yargs": "3.32.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michelson/Dante2.git"
+  },
+  "keywords": [
+    "webpack",
+    "es6",
+    "starter",
+    "library",
+    "universal",
+    "umd",
+    "commonjs"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Michelson/Dante2/issues"
+  },
+  "homepage": "https://github.com/michelson/Dante2"
 }

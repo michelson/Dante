@@ -9,14 +9,14 @@ ReactDOM = require('react-dom')
   EditorBlock
 } = require('draft-js')
 
-utils = require("../../utils/utils")
+{ updateDataOfBlock } = require('../../model/index.js')
 
-{ updateDataOfBlock } = require('../../model/index.js.es6')
+axios = require("axios")
 
 class VideoBlock extends React.Component
   constructor: (props) ->
     super props
-    api_key = "86c28a410a104c8bb58848733c82f840"
+    #api_key = "86c28a410a104c8bb58848733c82f840"
     
     @state = 
       embed_data: @defaultData()
@@ -35,15 +35,24 @@ class VideoBlock extends React.Component
     newData = data.merge(@state)
     setEditorState(updateDataOfBlock(getEditorState(), block, newData))
 
+  dataForUpdate: =>
+    @.props.blockProps.data.toJS()
+
   componentDidMount: ->
+
     return unless @.props.blockProps.data
-    utils.ajax
-      url: "#{@.props.blockProps.data.embed_url}#{@.props.blockProps.data.provisory_text}&scheme=https"
-      (data)=>
-        if data.status is 200
-          @setState
-            embed_data: JSON.parse(data.responseText)   
-          , @updateData 
+    # ensure data isnt already loaded
+    return unless @dataForUpdate().endpoint or @dataForUpdate().provisory_text
+
+    axios
+      method: 'get'
+      url: "#{@.dataForUpdate().endpoint}#{@.dataForUpdate().provisory_text}&scheme=https"
+    .then (result)=>
+      @setState
+        embed_data: result.data #JSON.parse(data.responseText)
+      , @updateData    
+    .catch (error)=>
+      console.log("TODO: error")
 
   classForImage: ->
     if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
@@ -58,7 +67,6 @@ class VideoBlock extends React.Component
           className='imageCaption'>
             <EditorBlock {...@props} 
               className="imageCaption"
-              placeholder="escrive alalal"
             />
         </figcaption>
       </figure>

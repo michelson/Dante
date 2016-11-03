@@ -67,6 +67,7 @@ customHTML2Content = (HTML, blockRn)->
 
   # use DraftJS converter to do initial conversion. I don't provide DOMBuilder and
   # blockRenderMap arguments here since it should fall back to its default ones, which are fine
+  console.log tempDoc.body.innerHTML
   contentBlocks = convertFromHTML(tempDoc.body.innerHTML, 
         getSafeBodyFromHTML, 
         blockRn
@@ -74,9 +75,11 @@ customHTML2Content = (HTML, blockRn)->
 
   # now replace <blockquote /> ContentBlocks with 'atomic' ones
   contentBlocks = contentBlocks.map (block)->
+    console.log "CHECK BLOCK", block.getType()
     if (block.getType() isnt 'blockquote')
       return block
 
+    json = ""
     try
       json = JSON.parse(block.getText())
     catch
@@ -87,7 +90,7 @@ customHTML2Content = (HTML, blockRn)->
       text: ""
       data: 
         url: json.imgSrc
-
+        forceUpload: true
     });
 
   tempDoc = null

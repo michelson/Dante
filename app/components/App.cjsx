@@ -31,7 +31,7 @@ DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor')
   convertFromHTML
 } = require('draft-convert')
 
-toHTML = require("../utils/convert_html.js.es6")
+#toHTML = require("../utils/convert_html.js")
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 
@@ -39,12 +39,11 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
   addNewBlock
   resetBlockWithType
   updateDataOfBlock
+  updateTextOfBlock
   getCurrentBlock
   addNewBlockAt
-} = require('../model/index.js.es6')
-
-createEditorState = require('../model/content.js.es6')
-{ updateDataOfBlock } = require('../model/index.js.es6')
+  updateDataOfBlock
+} = require('../model/index.js')
 
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
@@ -59,14 +58,14 @@ KeyCodes =
   RIGHTARROW: 39
   DOWNARROW: 40
 
-window.utils = require('../utils/utils.coffee')
+# window.utils = require('../utils/utils.coffee')
 { 
   getSelectionRect
   getSelection
-} = require("../utils/selection.js.es6")
-DanteInlineTooltip = require('./inlineTooltip.cjsx')
-DanteTooltip = require('./toolTip.cjsx')
-Link = require('./link.cjsx')
+} = require("../utils/selection.js")
+DanteInlineTooltip = require('./popovers/addButton.cjsx')
+DanteTooltip = require('./popovers/toolTip.cjsx')
+Link = require('./decorators/link.cjsx')
 findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./blocks/image.cjsx')
 EmbedBlock = require('./blocks/embed.cjsx')
@@ -78,42 +77,212 @@ customHTML2Content = require('../utils/convert_html2.coffee')
 
 PocData = require('../data/poc.js')
 
-class Dante 
+class Dante
   constructor: (options={})->
     console.log "init editor!"
     @options = options
     @options.el = options.el || 'app'
-
+    @options.poc = options.poc
+    @options.content = options.content
     @options.read_only = options.read_only || false
     @options.spellcheck = options.spellcheck || false
     @options.title_placeholder = options.title_placeholder || "Title"
     @options.body_placeholder = options.body_placeholder || "Write your story"
+    @options.api_key = options.api_key || "86c28a410a104c8bb58848733c82f840"
 
-    @options.widgets = ["uploader", "embed", "embed-extract"]
-    
-    @options.store_url = options.store_url || null
-    @options.store_method = options.store_method || "POST"
-    @options.store_success_handler = options.store_success_handler || null
-    @options.store_failure_handler = options.store_failure_handler || null
-    @options.store_interval = options.store_interval || 1500
-    @options.before_xhr_handler = options.before_xhr_handler
-    @options.success_xhr_handler = options.success_xhr_handler
-    
+    @options.widgets = [
+      {
+        title: 'add a image'
+        icon: 'image'
+        type: 'image'
+        block: 'ImageBlock'
+        renderable: true
+        breakOnContinuous: true
+        wrapper_class: "graf graf--figure"
+        selected_class:" is-selected is-mediaFocused"
+        selectedFn: (block)=>
+          direction = block.getData().toJS().direction
+          switch direction
+            when "left" then "graf--layoutOutsetLeft"
+            when "center" then ""
+            when "wide" then "sectionLayout--fullWidth"
+            when "fill" then "graf--layoutFillWidth"
+            else
+        handleEnterWithoutText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+        widget_options:
+          displayOnInlineTooltip: true
+          insertion: "upload"
+          insert_block: "image"
+        options:
+          upload_url: options.upload_url or 'uploads.json'
+          upload_callback: @options.image_upload_callabck
+          image_delete_callback: @options.image_delete_callback
+          image_caption_placeholder: options.image_caption_placeholder
+      }
+      {
+        icon: 'embed'
+        title: 'insert embed'
+        type: 'embed'
+        block: 'EmbedBlock'
+        renderable: true
+        breakOnContinuous: true
+        wrapper_class: "graf graf--mixtapeEmbed"
+        selected_class: "is-selected is-mediaFocused"
+        widget_options:
+          displayOnInlineTooltip: true
+          insertion: "placeholder"
+          insert_block: "embed"
+        options:
+          endpoint: "http://api.embed.ly/1/extract?key=#{@options.api_key}&url="
+          placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+        handleEnterWithoutText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      }
+      {
+        icon: 'video'
+        title: 'insert video'
 
-    @options.upload_url = options.upload_url || 'uploads.json'
-    @options.upload_callback = @options.image_upload_callabck
-    @options.image_delete_callback =  @options.image_delete_callback
-    @options.image_caption_placeholder = options.image_caption_placeholder
+        type: 'video'
+        block: 'VideoBlock'
+        renderable: true
+        breakOnContinuous: true
+        wrapper_class: "graf--figure graf--iframe" 
+        selected_class:" is-selected is-mediaFocused"
+        widget_options:
+          displayOnInlineTooltip: true
+          insertion: "placeholder"
+          insert_block: "video"
+        options:
+          endpoint: "http://api.embed.ly/1/oembed?key=#{@options.api_key}&url="
+          placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
+          caption: 'Type caption for embed (optional)'
 
-    @options.oembed_url = "http://api.embed.ly/1/oembed?url="
-    @options.extract_url = "http://api.embed.ly/1/extract?url="
-    @options.embed_placeholder = 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
-    @options.embed_caption_placeholder = "Type caption for embed (optional)"
-    @options.extract_placeholder = 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+        handleEnterWithoutText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      }
+      {
+        renderable: true
+        block: 'PlaceholderBlock'
+        type: 'placeholder'
+        wrapper_class: "is-embedable"
+        selected_class:" is-selected is-mediaFocused"
+        widget_options:
+          displayOnInlineTooltip: false
+        handleEnterWithText: (ctx, block)->
+          editorState = ctx.state.editorState
+          data =
+            provisory_text: block.getText()
+            endpoint: block.getData().get('endpoint')
+            type: block.getData().get('type')
+
+          ctx.onChange(resetBlockWithType(
+            editorState, 
+            data.type, 
+            data)
+          )   
+      }
+    ]
+
+    @options.tooltips = [
+        {
+          type: 'menu'
+          ref: 'insert_tooltip'
+          display: false
+          component: DanteTooltip
+          displayOnSelection: true
+          selectionElements: [
+            "unstyled"
+            "blockquote"
+            "ordered-list"
+            "unordered-list"
+            "unordered-list-item"
+            "ordered-list-item"
+            "code-block"
+            'header-one'
+            'header-two'
+            'header-three'        
+          ]
+        }
+        {
+          type: 'inline_tooltip'
+          ref: 'add_tooltip'
+          display: false
+          component: DanteInlineTooltip
+        }
+        {
+          type: 'anchor'
+          ref: 'anchor_popover'
+          display: false
+          component: DanteAnchorPopover
+        }
+        {
+          type: 'image',
+          ref: 'image_popover'
+          display: false
+          component: DanteImagePopover
+        }
+      ]
+
+    @options.xhr = {
+      before_handler: options.before_xhr_handler
+      success_handler: options.success_xhr_handler
+      error_handler: options.success_xhr_handler
+    }
+
+    @options.data_storage = {
+      url: options.store_url || null
+      method: options.store_method || "POST"
+      success_handler: options.store_success_handler || null
+      failure_handler: options.store_failure_handler || null
+      interval: options.store_interval || 1500
+    }
+
+    @options.continuousBlocks = [
+      "unstyled"
+      "blockquote"
+      "ordered-list"
+      "unordered-list"
+      "unordered-list-item"
+      "ordered-list-item"
+      "code-block"
+    ]
+
+    @options.block_types = [
+      # {label: 'p', style: 'unstyled'},
+      {label: 'h3', style: 'header-one', type: "block"},
+      {label: 'h4', style: 'header-two', type: "block"},
+      {label: 'blockquote', style: 'blockquote', type: "block"},
+      {label: 'insertunorderedlist', style: 'unordered-list-item', type: "block"},
+      {label: 'insertorderedlist', style: 'ordered-list-item', type: "block"},
+      {label: 'code', style: 'code-block', type: "block"}
+      {label: 'bold', style: 'BOLD', type: "inline"},
+      {label: 'italic', style: 'ITALIC', type: "inline"},
+      # {label: 'underline', style: 'UNDERLINE', type: "inline"},
+      # {label: 'monospace', style: 'CODE', type: "inline"},
+      # {label: 'strikethrough', style: 'STRIKETHROUGH', type: "inline"}
+    ]
 
   getContent: ->
-    PocData
-    ""
+    console.log @options.content
+    console.log "IS POC DATA?", @options.content is PocData
+    return PocData if @options.poc
+    #console.log @options.content , PocData
+    #PocData
+    @options.content
 
   render: ->
     ReactDOM.render(<DanteEditor content={@getContent()} 
@@ -134,8 +303,6 @@ class DanteEditor extends React.Component
     @.blockRenderMap = Map({
         "image":
           element: 'figure'
-        "avv":
-          element: 'figure'
         "video":
           element: 'figure'
         "embed":
@@ -150,92 +317,31 @@ class DanteEditor extends React.Component
           wrapper: null
           element: 'div'
     }) 
-    #.merge(DefaultDraftBlockRenderMap);
 
     @extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(@blockRenderMap);
 
     @state = 
-      editorState: @initializeState() #EditorState.createEmpty(@decorator)
-      display_toolbar: false
-      showURLInput: false
-      blockRenderMap: @extendedBlockRenderMap #@blockRenderMap
-      current_input: ""
-      inlineTooltip:
-        show: true
-        position: {}
+      editorState: @initializeState()
+      read_only: @props.read_only
+      blockRenderMap: @extendedBlockRenderMap
+      locks: 0
+      debug: true
+      debug_json: null
 
-      current_component: ""
+    @widgets  = props.config.widgets
+    @tooltips = props.config.tooltips
 
-      display_tooltip: false      
-      position:  
-        top: 0
-        left: 0
+    @continuousBlocks = @props.config.continuousBlocks
 
-      display_image_popover: false
-      image_popover_position:
-        top: 0
-        left: 0 
-
-      anchor_popover_url: ""
-      display_anchor_popover: false 
-      anchor_popover_position: 
-        left: 0
-        top: 0
-
-      menu:
-        show: false
-        position: {}
-
-      embed_url: ""
-
-      continuousBlocks: [
-        "unstyled"
-        "blockquote"
-        "ordered-list"
-        "unordered-list"
-        "unordered-list-item"
-        "ordered-list-item"
-        "code-block"
-      ]
-
-      tooltipables: [
-        "unstyled"
-        "blockquote"
-        "ordered-list"
-        "unordered-list"
-        "unordered-list-item"
-        "ordered-list-item"
-        "code-block"
-        'header-one'
-        'header-two'
-        'header-three'        
-      ]
-
-    @.BLOCK_TYPES = [
-      # {label: 'p', style: 'unstyled'},
-      {label: 'h3', style: 'header-one'},
-      {label: 'h4', style: 'header-two'},
-      {label: 'blockquote', style: 'blockquote'},
-      {label: 'insertunorderedlist', style: 'unordered-list-item'},
-      {label: 'insertorderedlist', style: 'ordered-list-item'},
-      {label: 'code', style: 'code-block'}
-    ];
-
-    @.INLINE_STYLES = [
-      {label: 'bold', style: 'BOLD'},
-      {label: 'italic', style: 'ITALIC'},
-      # {label: 'underline', style: 'UNDERLINE'},
-      # {label: 'monospace', style: 'CODE'},
-      # {label: 'strikethrough', style: 'STRIKETHROUGH'}
-    ];
+    @block_types = @props.config.block_types
 
     @save = new SaveBehavior
-      config: @props.config
+      getLocks: @getLocks
+      config: 
+        xhr: @props.config.xhr
+        data_storage: @props.config.data_storage
       editorState: @state.editorState
       editorContent: @emitSerializedOutput()
-
-    optionsForDecorator: ()->
-      @state
 
   initializeState: ()=>
     if @.props.content #and @.props.content.trim() isnt ""
@@ -261,10 +367,7 @@ class DanteEditor extends React.Component
 
       #editorState = EditorState.createWithContent(html, @decorator)
 
-      @decodeEditorContent(@props.content)
-            
-      #debugger
-      #createEditorState.default(@props.content, @decorator)
+      @decodeEditorContent(@props.content)    
     else 
       EditorState.createEmpty(@decorator)
 
@@ -289,28 +392,11 @@ class DanteEditor extends React.Component
     @onChange(newState)
   
   forceRender: (editorState)=>
-    #editorState     = @.state.editorState
     selection       = @.state.editorState.getSelection()
     content         = editorState.getCurrentContent()
     newEditorState  = EditorState.createWithContent(content, @decorator)
 
-    # @onChange(newEditorState)
-
     @refreshSelection(newEditorState)
-    
-    #setTimeout =>
-    #  @getPositionForCurrent()
-    #, 0
-
-  parseDirection: (direction)=>
-    #console.log(direction)
-    switch direction
-      when "left" then "graf--layoutOutsetLeft"
-      when "center" then ""
-      when "wide" then "sectionLayout--fullWidth"
-      when "fill" then "graf--layoutFillWidth"
-      else
-        ""
   
   onChange: (editorState) =>
     @setPreContent()
@@ -324,26 +410,18 @@ class DanteEditor extends React.Component
     blockType = currentBlock.getType()
 
     if (!editorState.getSelection().isCollapsed())
+ 
+      tooltip = @tooltipsWithProp('displayOnSelection')[0] 
+      return unless @tooltipHasSelectionElement(tooltip, blockType)
 
-      return if @.state.tooltipables.indexOf(blockType) < 0
-
-      @.setState
-        menu:
-          show: true
-          position: @state.menu.position
-        display_tooltip: false
-      , @handleOnChange
+      @handleTooltipDisplayOn('displayOnSelection')
     else
-      @.setState
-        menu:
-          show: false
-          position: @state.menu.position
+      @handleTooltipDisplayOn('displayOnSelection', false)
 
     setTimeout ()=>
-      @getPositionForCurrent()
+      @relocateTooltips()
     , 0
     
-    # @setState({ editorState });
     @dispatchChangesToSave()    
   
     console.log "CHANGES!"
@@ -359,6 +437,7 @@ class DanteEditor extends React.Component
     # console.log "SET PRE CONTENT", content
     @save.editorContent = content
 
+  ###
   emitHTML: (editorState)=>
 
     options =
@@ -383,6 +462,7 @@ class DanteEditor extends React.Component
 
     console.log html
     return false
+  ###
 
   emitSerializedOutput: =>
     #s = @state.editorState.getCurrentContent()
@@ -396,6 +476,7 @@ class DanteEditor extends React.Component
     raw
 
   decodeEditorContent: (raw_as_json)=>
+    console.log "CONTENT", raw_as_json
     #new_content = convertFromRaw(JSON.parse(raw_as_json))
     new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)
@@ -405,8 +486,12 @@ class DanteEditor extends React.Component
 
     @setState
       editorState: @decodeEditorContent(raw_as_json)
-
+    , @logState(raw_as_json)
     false
+
+  logState: (raw)=>
+    @setState
+      debug_json: raw
 
   emitHTML2: ()->
 
@@ -420,11 +505,26 @@ class DanteEditor extends React.Component
     )(@.state.editorState.getCurrentContent())
     #html = convertToHTML(@.state.editorState.getCurrentContent())
 
-  setCurrentComponent: (component)=>
+  getLocks: =>
+    @state.locks
+
+  addLock: =>
     @setState
-      current_component: component
+      locks: @state.locks +=1
+
+  removeLock: =>
+    #return unless @state.locks < 0
+    @setState
+      locks: @state.locks -=1
+
+  renderableBlocks: =>
+    @widgets.filter (o)->
+      o.renderable
+    .map (o)->
+      o.type
 
   blockRenderer: (block)=>
+
     switch block.getType()
 
       when "atomic"
@@ -434,71 +534,54 @@ class DanteEditor extends React.Component
         #return null unless entity
         entity_type = Entity.get(entity).getType()
 
-      when 'image'
-        return (
-            component: ImageBlock
-            editable: true
-            props:
-              data:
-                src: if @state.current_input isnt "" then URL.createObjectURL(@state.current_input) else ""
-                file: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-              config: @props.config
-          )
-
-      when 'embed'
-        return (
-            component: EmbedBlock
-            editable: true
-            props:
-              data: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-          )
-
-      when 'video'
-        return (
-            component: VideoBlock
-            editable: true
-            props:
-              data: @state.current_input
-              getEditorState: @getEditorState
-              setEditorState: @onChange
-          )
-
-      when 'placeholder'
-        return (
-            component: PlaceholderBlock
-            #editable: true
-            props:
-              data: @state.current_input
-          )
+    if @renderableBlocks().includes(block.getType())
+      return @handleBlockRenderer(block)
 
     return null;
 
+  handleBlockRenderer: (block)=>
+    dataBlock = @getDataBlock(block)
+    #debugger if dataBlock.type is "placeholder"
+    return null unless dataBlock
+    return (
+      component: eval(dataBlock.block)
+      editable: !@state.read_only
+      props:
+        data: block.getData()
+        getEditorState: @getEditorState
+        setEditorState: @onChange
+        addLock: @addLock
+        removeLock: @removeLock
+        getLocks: @getLocks
+        config: dataBlock.options 
+    )
+    
+    return null
+   
   blockStyleFn: (block)=>
     currentBlock = getCurrentBlock(@.state.editorState)
     is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
     
     console.log "BLOCK STYLE:", block.getType()
 
-    switch block.getType()
-      when "image"
-        direction_class = @parseDirection(block.getData().toJS().direction)
-        console.log "direction_class: ", direction_class 
-        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-        return "graf graf--figure #{is_selected} #{direction_class}"
-      when "video"
-        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-        return "graf--figure graf--iframe #{is_selected}"
-      when "embed"
-        is_selected = if currentBlock.getKey() is block.getKey() then "is-selected is-mediaFocused" else ""
-        return "graf graf--mixtapeEmbed #{is_selected}"
-      when "placeholder"
-        return "is-embedable #{is_selected}"
-      else
-        return "graf graf--p #{is_selected}"
+    if @renderableBlocks().includes(block.getType())
+      return @styleForBlock(block, currentBlock, is_selected) 
+    else
+      return "graf graf--p #{is_selected}"
+
+  getDataBlock: (block)=>
+    @widgets.find (o)=>
+      o.type is block.getType()
+
+  styleForBlock: (block, currentBlock, is_selected)=>
+    dataBlock = @getDataBlock(block)
+
+    return null unless dataBlock
+
+    selectedFn = if dataBlock.selectedFn then dataBlock.selectedFn(block) else null
+    selected_class = if is_selected then dataBlock.selected_class else ''
+    
+    return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
 
   ### from medium-draft
   By default, it handles return key for inserting soft breaks (BRs in HTML) and
@@ -514,31 +597,31 @@ class DanteEditor extends React.Component
         return true;
 
     editorState = @state.editorState
+    ###
     #if (isSoftNewlineEvent(e)) {
     #  this.onChange(RichUtils.insertSoftNewline(editorState));
     #  return true;
     #}
+    ###
     if !e.altKey && !e.metaKey && !e.ctrlKey
-      currentBlock = getCurrentBlock(editorState);
-      blockType = currentBlock.getType();
+      currentBlock = getCurrentBlock(editorState)
+      blockType = currentBlock.getType()
 
-      #console.log "Handle return #{blockType} length #{currentBlock.getLength()}"
+      config_block = @getDataBlock(currentBlock)
 
-      if blockType.indexOf('atomic') is 0
-        @.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-        return true;
+      #if blockType.indexOf('atomic') is 0
+      #  @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+      #  return true;
       
       if currentBlock.getText().length is 0
-        #console.log "Handle return #{blockType} 2"
+
+        if config_block && config_block.handleEnterWithoutText
+          config_block.handleEnterWithText(@, currentBlock)
+          @closePopOvers()
+          return true 
+
+        #TODO turn this in configurable
         switch (blockType)
-          when "image", "embed", "video"
-            @setState
-              display_tooltip: false
-            @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-            return true
-          #when "placeholder"
-          #  @.onChange(resetBlockWithType(editorState, "embed"));
-          #  return true
           when "header-one"
             @.onChange(resetBlockWithType(editorState, "unstyled"));
             return true;
@@ -546,327 +629,49 @@ class DanteEditor extends React.Component
             return false;
       
       if currentBlock.getText().length > 0
-        #console.log "Handle return #{blockType} with text"
-        switch (blockType)
-          when "video", "image"
-            @setState
-              display_tooltip: false
-            @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-            return true       
-          when "placeholder"
-            @setState
-              display_tooltip: false
-              current_input:
-                provisory_text: currentBlock.getText()
-                embed_url: @state.current_input.embed_url
+        if config_block && config_block.handleEnterWithText
+          config_block.handleEnterWithText(@, currentBlock)
+          @closePopOvers()
+          return true 
 
-            @.onChange(resetBlockWithType(editorState, @state.current_input.type));
-            return true    
+        return false
 
       selection = editorState.getSelection();
       
-      if selection.isCollapsed() and currentBlock.getLength() is selection.getStartOffset()
-        if @.state.continuousBlocks.indexOf(blockType) < 0
+      # selection.isCollapsed() and # should we check collapsed here?
+      if ( currentBlock.getLength() is selection.getStartOffset()) #or (config_block && config_block.breakOnContinuous))
+        # it will match the unstyled for custom blocks
+        if @continuousBlocks.indexOf(blockType) < 0
           @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true;
-        
-        return false;
+          return true
+        return false
       
-      if selection.isCollapsed() and currentBlock.getType() is "embed" and currentBlock.getLength() > 0
-        
-        if @.state.continuousBlocks.indexOf(blockType) < 0
-          #console.log "adding block on embed inner text enter "
-          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true;
-        
-        return false;
-      return false;
+      return false
     
-    return false;
+    return false
 
   handleBeforeInput: (chars)=>
     currentBlock = getCurrentBlock(@state.editorState);
 
     if currentBlock.getText().length isnt 0
-      @closeInlineButton()
+      #@closeInlineButton()
+      @closePopOvers()
 
-    ###
-    switch currentBlock.getType()
-      when "placeholder"
-        @setState
-          current_input: 
-            placeholder: "aa"
-            embed_url:"http://api.embed.ly/1/oembed?key=86c28a410a104c8bb58848733c82f840&url="
-            provisory_text:"http://twitter.com/michelson"
-        
-        @.onChange(resetBlockWithType(@state.editorState, "placeholder"));
-        return false
-    ###
     return false
 
-  handleClick: =>
-    console.log "oli!!!!"
-
-  focus: () => 
-    #@.refs.editor.focus()
-    document.getElementById('richEditor').focus()
-
+  focus: () =>
+    #@props.refs.richEditor.focus()
+    
   getEditorState: =>
     @state.editorState
 
-  handleOnChange: ->
-    @relocateMenu()
-
-  # send new blocks to changes
-  dispatchChanges: (body)=>
-    @onChange(body)
-
-  stateHandler: (option)=>
-    @.setState
-      editorState: option
-
-  _toggleBlockType: (blockType)=>
-    
-    @onChange(
-      RichUtils.toggleInlineStyle(
-        @state.editorState,
-        blockType
-      )
-    )
-
-  disableMenu: =>
-    @setState
-      display_toolbar: false
-
-  handleKeyCommand: (command)=>
-    #console.log "command:",  command
-    if command is 'dante-save'
-      # Perform a request to save your contents, set
-      # a new `editorState`, etc.
-      console.log "SAVING!!"
-      return 'not-handled'
-    if command is 'dante-keyup'
-      return 'not-handled'
-    if command is 'dante-uparrow'
-      debugger
-      return 'not-handled'
-      #return 'not-handled'
-    #if command is 'dante-enter'
-    #  #@relocateTooltipPosition()
-    #  return 'handled'
-    #return 'not-handled'
-    newState = RichUtils.handleKeyCommand(@state.editorState, command);
-    if newState
-      @.onChange(newState);
-      return true;
-    
-    return false;
-
-  closeInlineButton: =>
-    @setState
-      display_tooltip: false
-
-  KeyBindingFn: (e)=>
-    #console.log "KEY CODE: #{e.keyCode}"
-    if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
-      #return 'dante-save'
-      console.log "TODO: save in this point"
-
-    if e.keyCode is KeyCodes.UPARROW
-      console.log "UPARROW"
-      return 'dante-uparrow'
-    #if e.keyCode is KeyCodes.ENTER
-    #  @closeInlineButton()
-    #  #return 'dante-enteriji' 
-
-    return getDefaultKeyBinding(e)
-   
-  relocateMenu: =>
-
-    currentBlock = getCurrentBlock(@state.editorState);
-    blockType    = currentBlock.getType()
-    # display tooltip only for unstyled
-    if @.state.tooltipables.indexOf(blockType) < 0
-      @disableMenu()
-      return
-
-    return if !@state.menu.show
-    el = document.querySelector("#dante-menu")
-    padd   = el.offsetWidth / 2
-
-    # eslint-disable-next-line no-undef
-    nativeSelection = getSelection(window);
-    if !nativeSelection.rangeCount
-      return;
-    
-    selectionBoundary = getSelectionRect(nativeSelection);
-
-    # eslint-disable-next-line react/no-find-dom-node
-    toolbarNode = ReactDOM.findDOMNode(@);
-    toolbarBoundary = toolbarNode.getBoundingClientRect();
-
-    # eslint-disable-next-line react/no-find-dom-node
-    parent = ReactDOM.findDOMNode(@);
-    parentBoundary = parent.getBoundingClientRect();
-
-    top    = selectionBoundary.top - parentBoundary.top - -90 - 5
-    left   = selectionBoundary.left + (selectionBoundary.width / 2) - padd
-
-    if !top or !left
-      return
-
-    @setState
-      menu:
-        show: true
-        position: { left: left , top: top }
-
-  getPositionForCurrent: ->
-    
-    if @state.editorState.getSelection().isCollapsed()
-
-      currentBlock = getCurrentBlock(@state.editorState)
-      blockType = currentBlock.getType()
-      
-      # console.log  "POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
-
-      contentState = @state.editorState.getCurrentContent()
-      selectionState = @state.editorState.getSelection()
-      # console.log contentState
-      # console.log selectionState
-      block = contentState.getBlockForKey(selectionState.anchorKey);
-      # console.log block.getText().length, block.getText()
-
-      # eslint-disable-next-line no-undef
-      nativeSelection = getSelection(window);
-      if !nativeSelection.rangeCount
-        return;
-      #selectionBoundary = getSelectionRect(nativeSelection);
-      #debugger
-      
-      node = utils.getNode()
-      #console.log "ANCHOR NODE", node.anchorNode
-      #console.log "PARENT ANCHOR", node.anchorNode.parentNode.parentNode.parentNode
-
-      selectionBoundary = getSelectionRect(nativeSelection);
-      coords = selectionBoundary #utils.getSelectionDimensions(node)
-      if blockType is "image"
-        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
-        el = document.querySelector("#dante_image_popover")
-        padd   = el.offsetWidth / 2
-      # eslint-disable-next-line react/no-find-dom-node
-      toolbarNode = ReactDOM.findDOMNode(@);
-      toolbarBoundary = toolbarNode.getBoundingClientRect();
-
-      # eslint-disable-next-line react/no-find-dom-node
-      parent = ReactDOM.findDOMNode(@);
-      parentBoundary = parent.getBoundingClientRect();
-
-      #console.log "SB", selectionBoundary
-      #console.log "PB", parentBoundary
-      # checkeamos si esta vacio
-      @setState
-        display_tooltip: block.getText().length is 0 and blockType is "unstyled"
-        position:  
-          top: coords.top + window.scrollY
-          left: coords.left + window.scrollX - 60
-        display_image_popover: blockType is "image"
-
-      if blockType is "image"
-        @setState
-          image_popover_position: 
-            top: selectionBoundary.top - parentBoundary.top + 60
-            left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-
-    else
-      @closeInlineButton()
-
-  setCurrentInput: (data, cb)=>
-    #debugger
-    @setState
-      current_input: data
-    , cb
-    #console.log "current in put" , data
-
-  relocateImageTooltipPosition: (coords)=>
-    @setState
-      display_image_popover: true
-
-  # will update block state
-  updateBlockData: (block, options)=>
-    data = block.getData()
-    newData = data.merge(options)
-    newState = updateDataOfBlock(@state.editorState, block, newData)
-    # @onChange(newState)
-    # this fixes enter from image caption
-    @forceRender(newState)
-
-  setDirection: (direction_type)=>
-    
-    contentState = @state.editorState.getCurrentContent()
-    selectionState = @state.editorState.getSelection()
-    block = contentState.getBlockForKey(selectionState.anchorKey);
-
-    @updateBlockData(block, {direction: direction_type})
-
-  handleShowPopLinkOver: (e)=>
-    @showPopLinkOver()
-
-  handleHidePopLinkOver: (e)=>
-    @hidePopLinkOver()
-
-  showPopLinkOver: (el)=>
-    # handles popover display 
-    # using anchor or from popover
-    coords = @positionForTooltip(el) if el
-    @isHover = true
-    @cancelHide()
-    @setState
-      anchor_popover_url: if el then el.href else @state.anchor_popover_url
-      display_anchor_popover: true
-      anchor_popover_position: if el then coords else @state.anchor_popover_position
-
-  hidePopLinkOver: ()=>
-    @hideTimeout = setTimeout ()=>
-      @setState
-        display_anchor_popover: false
-    , 300
-
-  cancelHide: ()->
-    console.log "Cancel Hide"
-    clearTimeout @hideTimeout
-
-  positionForTooltip: (node)=>
-    #debugger
-    #if !@state.editorState.getSelection().isCollapsed()
-
-    currentBlock = getCurrentBlock(@state.editorState)
-    blockType = currentBlock.getType()
-    
-    # console.log  "ANCHOR POSITION CURRENT BLOCK", currentBlock.getType(), currentBlock.getKey()
-
-    contentState = @state.editorState.getCurrentContent()
-    selectionState = @state.editorState.getSelection()
-
-    selectionBoundary = node.getBoundingClientRect() #getSelectionRect(nativeSelection);
-    coords = selectionBoundary #utils.getSelectionDimensions(node)
-    #if blockType is "image"
-    #selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
-    el = document.querySelector("#dante-popover")
-    padd   = el.offsetWidth / 2
-    # eslint-disable-next-line react/no-find-dom-node
-    toolbarNode = ReactDOM.findDOMNode(@)
-    toolbarBoundary = toolbarNode.getBoundingClientRect()
-
-    # eslint-disable-next-line react/no-find-dom-node
-    parent = ReactDOM.findDOMNode(@);
-    parentBoundary = parent.getBoundingClientRect()
-
-
-    # selectionBoundary.left + (selectionBoundary.width / 2) - padd
-    {
-      top: selectionBoundary.top - parentBoundary.top + 160
-      left: selectionBoundary.left - (selectionBoundary.width) #- padd
-    }
+  handleTooltipDisplayOn: (prop, display=true)->
+    setTimeout =>
+      items = @tooltipsWithProp(prop)
+      items.map (o)=>
+        @refs[o.ref].display(display)
+        @refs[o.ref].relocate()
+    , 20
 
   handlePasteText: (text, html)=>
 
@@ -879,8 +684,41 @@ class DanteEditor extends React.Component
     ###
 
     # if not html then fallback to default handler
-    return false unless html
 
+    return @handleTXTPaste(text, html) unless html
+    return @handleHTMLPaste(text, html) if html
+
+  handleTXTPaste: (text, html)=>
+    currentBlock = getCurrentBlock(@state.editorState)
+    
+    editorState = @state.editorState
+    
+    switch currentBlock.getType()
+      when "placeholder"
+
+        newContent = Modifier.replaceText(
+          editorState.getCurrentContent(),
+          new SelectionState({
+            anchorKey: currentBlock.getKey(),
+            anchorOffset: 0,
+            focusKey: currentBlock.getKey(),
+            focusOffset: 2
+          }),
+          text)
+
+        editorState = EditorState.push(
+          editorState,
+          newContent,
+          'replace-text'
+        );
+
+        @onChange(editorState)
+
+        return true
+      else
+        return false
+
+  handleHTMLPaste: (text, html)=>
     newContentState = customHTML2Content(html, @extendedBlockRenderMap)
 
     currentBlock = getCurrentBlock(@state.editorState)
@@ -920,18 +758,20 @@ class DanteEditor extends React.Component
 
     true
 
-    
-
   handlePasteImage: (files)=>
     #TODO: check file types
     files.map (file)=>
-      @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image'))
+      opts =  
+        url: URL.createObjectURL(file)
+
+      @onChange(addNewBlock(@state.editorState, 'image', opts))
 
   handleDroppedFiles: (state, files)=>
     files.map (file)=>
-      @setCurrentInput file, ()=>
-        @onChange(addNewBlock(@state.editorState, 'image'))
+      opts =  
+        url: URL.createObjectURL(file)
+
+      @onChange(addNewBlock(@state.editorState, 'image', opts))
 
   handleUpArrow: (e)=>
     setTimeout =>
@@ -942,6 +782,133 @@ class DanteEditor extends React.Component
     setTimeout =>
       @forceRender(@state.editorState)
     , 10
+
+  ## title utils
+  getTextFromEditor: =>
+    c = @.state.editorState.getCurrentContent()
+    out = c.getBlocksAsArray().map (o)=>
+        o.getText()
+      .join("\n")
+    
+    console.log out
+    return out
+
+  handleKeyCommand: (command)=>
+    #console.log "command:",  command
+    if command is 'dante-save'
+      # Perform a request to save your contents, set
+      # a new `editorState`, etc.
+      console.log "SAVING!!"
+      return 'not-handled'
+    if command is 'dante-keyup'
+      return 'not-handled'
+    if command is 'dante-uparrow'
+      debugger
+      return 'not-handled'
+      #return 'not-handled'
+    #if command is 'dante-enter'
+    #  #@relocateTooltipPosition()
+    #  return 'handled'
+    #return 'not-handled'
+    newState = RichUtils.handleKeyCommand(@state.editorState, command);
+    if newState
+      @.onChange(newState);
+      return true;
+    
+    return false;
+
+  KeyBindingFn: (e)=>
+    #console.log "KEY CODE: #{e.keyCode}"
+    if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
+      #return 'dante-save'
+      console.log "TODO: save in this point"
+
+    if e.keyCode is KeyCodes.UPARROW
+      console.log "UPARROW"
+      return 'dante-uparrow'
+
+    return getDefaultKeyBinding(e)
+
+  # will update block state todo: movo to utils
+  updateBlockData: (block, options)=>
+    data = block.getData()
+    newData = data.merge(options)
+    newState = updateDataOfBlock(@state.editorState, block, newData)
+    # this fixes enter from image caption
+    @forceRender(newState)
+
+  setDirection: (direction_type)=>
+    
+    contentState = @state.editorState.getCurrentContent()
+    selectionState = @state.editorState.getSelection()
+    block = contentState.getBlockForKey(selectionState.anchorKey);
+
+    @updateBlockData(block, {direction: direction_type})
+
+  ## read only utils
+  toggleReadOnly: (e)=>
+    e.preventDefault()
+    @toggleEditable()
+  
+  toggleEditable: =>
+    @closePopOvers()
+
+    @setState
+      read_only: !@state.read_only
+    , @testEmitAndDecode
+
+  closePopOvers: ()=>
+    @tooltips.map (o)=>
+      @refs[o.ref].hide()
+
+  relocateTooltips: ()=>
+    @tooltips.map (o)=>
+      @refs[o.ref].relocate()
+
+  tooltipsWithProp: (prop)=>
+    @tooltips.filter (o)=>
+      o[prop]
+
+  tooltipHasSelectionElement: (tooltip, element)=>
+    tooltip.selectionElements.includes(element)
+
+  #################################
+  # TODO: this methods belongs to popovers/link
+  #################################
+  
+  handleShowPopLinkOver: (e)=>
+    @showPopLinkOver()
+
+  handleHidePopLinkOver: (e)=>
+    @hidePopLinkOver()
+
+  showPopLinkOver: (el)=>
+    # handles popover display 
+    # using anchor or from popover
+    parent_el = ReactDOM.findDOMNode(@);
+    coords = @refs.anchor_popover.relocate(
+      el
+    ) if el
+
+    @refs.anchor_popover.setPosition coords if coords
+
+    @refs.anchor_popover.setState
+      show: true
+      url: if el then el.href else @refs.anchor_popover.state.url
+
+    @isHover = true
+    @cancelHide()
+
+  hidePopLinkOver: ()=>
+    @hideTimeout = setTimeout ()=>
+      @refs.anchor_popover.hide()
+    , 300
+
+  cancelHide: ()->
+    console.log "Cancel Hide"
+    clearTimeout @hideTimeout
+
+  ###############################
 
   render: =>
 
@@ -960,7 +927,9 @@ class DanteEditor extends React.Component
                   </div> 
 
                   <div className="section-content"> 
-                    <div id="richEditor" className="section-inner layoutSingleColumn" onClick={@.focus}>
+                    <div ref="richEditor" 
+                      className="section-inner layoutSingleColumn" 
+                      onClick={@.focus}>
                       <Editor 
                         blockRendererFn={@.blockRenderer}
                         editorState={@state.editorState} 
@@ -976,11 +945,8 @@ class DanteEditor extends React.Component
                         handleKeyCommand={@.handleKeyCommand}
                         keyBindingFn={@KeyBindingFn}
                         handleBeforeInput={@.handleBeforeInput}
-                        readOnly={@props.config.read_only}
-                        onClick={@handleClick}
-                        suppressContentEditableWarning={true}
+                        readOnly={@state.read_only}
                         placeholder={@props.config.body_placeholder}
-
                         ref="editor"
                       />
                     </div> 
@@ -992,63 +958,57 @@ class DanteEditor extends React.Component
           </div>
         </article>
 
-        <DanteTooltip
-          editorState={@state.editorState} 
-          setStateHandler={@stateHandler}
-          toggleBlockType={@_toggleBlockType}
-          block_types={@BLOCK_TYPES}
-          inline_styles={@INLINE_STYLES}
-          confirmLink={@_confirmLink}
-          options={@state.menu}
-          disableMenu={@disableMenu}
-          dispatchChanges={@dispatchChanges}
-          handleKeyCommand={@.handleKeyCommand}
-          keyBindingFn={@KeyBindingFn}
-          relocateMenu={@relocateMenu}
-          showPopLinkOver={@showPopLinkOver} 
-          hidePopLinkOver={@hidePopLinkOver}
-        />
+        {
+          @tooltips.map (o, i)=>
+            <o.component 
+              ref={o.ref}
+              key={i}
+              editor={@}
+              editorState={@state.editorState}
+              onChange={@onChange}
+              configTooltip={o}
+              
+              showPopLinkOver={@showPopLinkOver} 
+              hidePopLinkOver={@hidePopLinkOver}
+              handleOnMouseOver={@handleShowPopLinkOver}
+              handleOnMouseOut={@handleHidePopLinkOver}
+            />
+        }
 
-        <DanteInlineTooltip
-          options={@state.inlineTooltip}
-          editorState={@state.editorState}
-          style={@state.position}
-          onChange={@onChange}
-          dispatchChanges={@dispatchChanges}
-          setCurrentInput={@setCurrentInput}
-          display_tooltip={@state.display_tooltip}
-          closeInlineButton={@closeInlineButton}
-        />
-      
-        <DanteImagePopover
-          display_image_popover={@state.display_image_popover}
-          relocateImageTooltipPosition={@relocateImageTooltipPosition}
-          position={@state.image_popover_position}
-          setDirection={@setDirection}
-          setCurrentComponent={@setCurrentComponent}
-        />
-      
-        <DanteAnchorPopover
-          display_anchor_popover={@state.display_anchor_popover}
-          url={@state.anchor_popover_url}
-          position={@state.anchor_popover_position}
-          handleOnMouseOver={@handleShowPopLinkOver}
-          handleOnMouseOut={@handleHidePopLinkOver}
-        />   
+        {
+          if @state.debug
+            <div>
+              <hr/> 
+              <ul>
+                <li>LOCKS: {@state.locks}</li>
+                <li>
+                  <a href="#" onClick={@toggleReadOnly}>
+                    READ ONLY: {if @state.read_only then 'YES' else 'NO'}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={@getTextFromEditor}>
+                    get Text From Editor
+                  </a>
+                </li>
+                
+                <li>
+                  <a href="#" onClick={@testEmitAndDecode}>
+                    serialize and set content
+                  </a>
+                </li>
 
-        <ul>
-          <li>
-            <a href="#" onClick={@emitHTML}>
-              get content
-            </a>
-          </li>
-          <li>
-            <a href="#" onClick={@testEmitAndDecode}>
-              serialize and set content
-            </a>
-          </li>
-        </ul>
+                <pre>
+                  {JSON.stringify(@.state.debug_json)}
+                </pre>
+              </ul>
+            </div>
+        }
+
       </div>
     ) 
+
+#debugger
+#window.Dante = Dante
 
 module.exports = Dante
