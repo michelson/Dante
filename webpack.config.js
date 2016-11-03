@@ -36,7 +36,7 @@ var config = {
   entry: __dirname + '/app/initialize.js',
   devtool: 'source-map',
   output: {
-    path: __dirname + '/dist',
+    path: __dirname + '/docs',
     filename: outputFile,
     library: libraryName,
     libraryTarget: 'umd',
