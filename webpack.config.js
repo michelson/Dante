@@ -33,11 +33,18 @@ if (env === 'build') {
 }
 
 var config = {
-  entry: __dirname + '/app/initialize.js',
+  //entry: __dirname + '/app/initialize.js',
+
+  entry: {
+    'app': './app/demo.js',
+    'dante': './app/initialize.js',
+  },
+
   devtool: 'source-map',
   output: {
     path: __dirname + '/docs',
-    filename: outputFile,
+    filename: '[name].js',
+    //filename: outputFile,
     library: libraryName,
     libraryTarget: 'umd',
     umdNamedDefine: true

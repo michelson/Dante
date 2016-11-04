@@ -75,8 +75,6 @@ PlaceholderBlock = require('./blocks/placeholder.cjsx')
 SaveBehavior = require('../utils/save_content.coffee')
 customHTML2Content = require('../utils/convert_html2.coffee')
 
-PocData = require('../data/poc.js')
-
 class Dante
   constructor: (options={})->
     console.log "init editor!"
@@ -277,9 +275,9 @@ class Dante
     ]
 
   getContent: ->
-    console.log @options.content
-    console.log "IS POC DATA?", @options.content is PocData
-    return PocData if @options.poc
+    #console.log @options.content
+    #console.log "IS POC DATA?", @options.content is PocData
+    #return PocData if @options.poc
     #console.log @options.content , PocData
     #PocData
     @options.content
