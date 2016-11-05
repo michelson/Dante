@@ -66,6 +66,8 @@ KeyCodes =
 DanteInlineTooltip = require('./popovers/addButton.cjsx')
 DanteTooltip = require('./popovers/toolTip.cjsx')
 Link = require('./decorators/link.cjsx')
+
+Debug = require('./debug.cjsx')
 findEntities = require('../utils/find_entities.coffee')
 ImageBlock = require('./blocks/image.cjsx')
 EmbedBlock = require('./blocks/embed.cjsx')
@@ -325,6 +327,7 @@ class DanteEditor extends React.Component
       locks: 0
       debug: true
       debug_json: null
+      debug_text: null
 
     @widgets  = props.config.widgets
     @tooltips = props.config.tooltips
@@ -479,17 +482,37 @@ class DanteEditor extends React.Component
     new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)
 
-  testEmitAndDecode: =>
+  testEmitAndDecode: (e)=>
+    e.preventDefault()
     raw_as_json = @emitSerializedOutput()
 
     @setState
       editorState: @decodeEditorContent(raw_as_json)
-    , @logState(raw_as_json)
+    , @logStateJSON(raw_as_json)
     false
 
-  logState: (raw)=>
+  testEmitTEXT: (e)=>
+    e.preventDefault()
+    text = @getTextFromEditor()
+    @logStateText(text)
+
+  ## title utils
+  getTextFromEditor: =>
+    c = @.state.editorState.getCurrentContent()
+    out = c.getBlocksAsArray().map (o)=>
+        o.getText()
+      .join("\n")
+    
+    console.log out
+    return out
+
+  logStateJSON: (raw)=>
     @setState
       debug_json: raw
+
+  logStateText: (raw)=>
+    @setState
+      debug_text: raw
 
   emitHTML2: ()->
 
@@ -650,10 +673,31 @@ class DanteEditor extends React.Component
 
   handleBeforeInput: (chars)=>
     currentBlock = getCurrentBlock(@state.editorState);
-
+    selection = @.state.editorState.getSelection()
+    editorState = @state.editorState
+    
+    #TODO: make this configurable
+    
     if currentBlock.getText().length isnt 0
       #@closeInlineButton()
       @closePopOvers()
+
+    endOffset = selection.getEndOffset()
+    endKey = currentBlock.getEntityAt(endOffset - 1)
+    endEntityType = endKey && Entity.get(endKey).getType()
+    afterEndKey = currentBlock.getEntityAt(endOffset)
+    afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
+    
+    # will insert blank space when link found
+    if (chars is ' ' && endEntityType is 'link' && afterEndEntityType isnt 'link')
+      newContentState = Modifier.insertText(
+        editorState.getCurrentContent(), 
+        selection,
+        ' '
+      )
+      newEditorState = EditorState.push(editorState, newContentState, 'insert-characters')
+      @.onChange(newEditorState)
+      return true
 
     return false
 
@@ -780,16 +824,6 @@ class DanteEditor extends React.Component
     setTimeout =>
       @forceRender(@state.editorState)
     , 10
-
-  ## title utils
-  getTextFromEditor: =>
-    c = @.state.editorState.getCurrentContent()
-    out = c.getBlocksAsArray().map (o)=>
-        o.getText()
-      .join("\n")
-    
-    console.log out
-    return out
 
   handleKeyCommand: (command)=>
     #console.log "command:",  command
@@ -975,32 +1009,13 @@ class DanteEditor extends React.Component
 
         {
           if @state.debug
-            <div>
-              <hr/> 
-              <ul>
-                <li>LOCKS: {@state.locks}</li>
-                <li>
-                  <a href="#" onClick={@toggleReadOnly}>
-                    READ ONLY: {if @state.read_only then 'YES' else 'NO'}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" onClick={@getTextFromEditor}>
-                    get Text From Editor
-                  </a>
-                </li>
-                
-                <li>
-                  <a href="#" onClick={@testEmitAndDecode}>
-                    serialize and set content
-                  </a>
-                </li>
-
-                <pre>
-                  {JSON.stringify(@.state.debug_json)}
-                </pre>
-              </ul>
-            </div>
+            <Debug locks={@state.locks}
+              read_only={@state.read_only}
+              testEmitTEXT={@testEmitTEXT}
+              testEmitAndDecode={@testEmitAndDecode}
+              debug_json={@state.debug_json}
+              debug_text={@state.debug_text}
+            />
         }
 
       </div>

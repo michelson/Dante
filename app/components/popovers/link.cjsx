@@ -58,7 +58,7 @@ class DanteAnchorPopover extends React.Component
 
   render: =>
     position = @state.position #@props.getPosition() || 
-    console.log "POSITIOM", position
+    console.log "POSITION", position
     style = {
               left: position.left, 
               top: position.top, 
