@@ -8,7 +8,7 @@
     "build": "node_modules/.bin/webpack --mode=build",
     "dev": "node_modules/.bin/webpack --progress --colors --watch --mode=dev",
     "test": "node_modules/.bin/mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js",
-    "start": "node_modules/.bin/webpack-dev-server"
+    "start": "node_modules/.bin/webpack-dev-server  --hot --inline"
   },
   "dependencies": {
     "axios": "^0.15.2",

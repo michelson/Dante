@@ -276,6 +276,22 @@ class Dante
       # {label: 'strikethrough', style: 'STRIKETHROUGH', type: "inline"}
     ]
 
+    @options.key_commands = {
+      "alt-shift": [
+        { key: 65, cmd: 'add-new-block'}
+      ],
+      "alt-cmd": [
+        { key: 49, cmd: 'toggle_block:header-one'}
+        { key: 50, cmd: 'toggle_block:header-two'}
+        { key: 53, cmd: 'toggle_block:blockquote'}
+      ],
+      "cmd": [
+        { key: 66, cmd: 'toggle_inline:BOLD'}
+        { key: 73, cmd: 'toggle_inline:ITALIC'}
+        { key: 75, cmd: 'insert:link'}
+      ]
+    }
+
   getContent: ->
     #console.log @options.content
     #console.log "IS POC DATA?", @options.content is PocData
@@ -332,6 +348,8 @@ class DanteEditor extends React.Component
     @widgets  = props.config.widgets
     @tooltips = props.config.tooltips
 
+    @key_commands = props.config.key_commands
+
     @continuousBlocks = @props.config.continuousBlocks
 
     @block_types = @props.config.block_types
@@ -381,7 +399,7 @@ class DanteEditor extends React.Component
     selectionState = SelectionState.createEmpty(s.getAnchorKey())
     focusOffset = s.getFocusOffset()
     anchorKey = s.getAnchorKey()
-    console.log anchorKey, focusOffset
+    # console.log anchorKey, focusOffset
     selectionState = selectionState.merge({
       anchorOffset: focusOffset,
       focusKey: anchorKey,
@@ -425,7 +443,7 @@ class DanteEditor extends React.Component
     
     @dispatchChangesToSave()    
   
-    console.log "CHANGES!"
+    # console.log "CHANGES!"
 
   dispatchChangesToSave: =>
     clearTimeout @saveTimeout
@@ -465,6 +483,12 @@ class DanteEditor extends React.Component
     return false
   ###
 
+  focus: () =>
+    #@props.refs.richEditor.focus()
+    
+  getEditorState: =>
+    @state.editorState
+
   emitSerializedOutput: =>
     #s = @state.editorState.getCurrentContent()
     
@@ -477,8 +501,8 @@ class DanteEditor extends React.Component
     raw
 
   decodeEditorContent: (raw_as_json)=>
-    console.log "CONTENT", raw_as_json
-    #new_content = convertFromRaw(JSON.parse(raw_as_json))
+    # console.log "CONTENT", raw_as_json
+    # new_content = convertFromRaw(JSON.parse(raw_as_json))
     new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)
 
@@ -583,8 +607,6 @@ class DanteEditor extends React.Component
     currentBlock = getCurrentBlock(@.state.editorState)
     is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
     
-    console.log "BLOCK STYLE:", block.getType()
-
     if @renderableBlocks().includes(block.getType())
       return @styleForBlock(block, currentBlock, is_selected) 
     else
@@ -611,101 +633,6 @@ class DanteEditor extends React.Component
   simply converted to an unstyled empty block. If RETURN is pressed on an unstyled block
   default behavior is executed.
   ###
-
-  handleReturn: (e) =>
-    if this.props.handleReturn
-      if this.props.handleReturn()
-        return true;
-
-    editorState = @state.editorState
-    ###
-    #if (isSoftNewlineEvent(e)) {
-    #  this.onChange(RichUtils.insertSoftNewline(editorState));
-    #  return true;
-    #}
-    ###
-    if !e.altKey && !e.metaKey && !e.ctrlKey
-      currentBlock = getCurrentBlock(editorState)
-      blockType = currentBlock.getType()
-
-      config_block = @getDataBlock(currentBlock)
-
-      #if blockType.indexOf('atomic') is 0
-      #  @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-      #  return true;
-      
-      if currentBlock.getText().length is 0
-
-        if config_block && config_block.handleEnterWithoutText
-          config_block.handleEnterWithText(@, currentBlock)
-          @closePopOvers()
-          return true 
-
-        #TODO turn this in configurable
-        switch (blockType)
-          when "header-one"
-            @.onChange(resetBlockWithType(editorState, "unstyled"));
-            return true;
-          else
-            return false;
-      
-      if currentBlock.getText().length > 0
-        if config_block && config_block.handleEnterWithText
-          config_block.handleEnterWithText(@, currentBlock)
-          @closePopOvers()
-          return true 
-
-        return false
-
-      selection = editorState.getSelection();
-      
-      # selection.isCollapsed() and # should we check collapsed here?
-      if ( currentBlock.getLength() is selection.getStartOffset()) #or (config_block && config_block.breakOnContinuous))
-        # it will match the unstyled for custom blocks
-        if @continuousBlocks.indexOf(blockType) < 0
-          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true
-        return false
-      
-      return false
-    
-    return false
-
-  handleBeforeInput: (chars)=>
-    currentBlock = getCurrentBlock(@state.editorState);
-    selection = @.state.editorState.getSelection()
-    editorState = @state.editorState
-    
-    #TODO: make this configurable
-    
-    if currentBlock.getText().length isnt 0
-      #@closeInlineButton()
-      @closePopOvers()
-
-    endOffset = selection.getEndOffset()
-    endKey = currentBlock.getEntityAt(endOffset - 1)
-    endEntityType = endKey && Entity.get(endKey).getType()
-    afterEndKey = currentBlock.getEntityAt(endOffset)
-    afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
-    
-    # will insert blank space when link found
-    if (chars is ' ' && endEntityType is 'link' && afterEndEntityType isnt 'link')
-      newContentState = Modifier.insertText(
-        editorState.getCurrentContent(), 
-        selection,
-        ' '
-      )
-      newEditorState = EditorState.push(editorState, newContentState, 'insert-characters')
-      @.onChange(newEditorState)
-      return true
-
-    return false
-
-  focus: () =>
-    #@props.refs.richEditor.focus()
-    
-  getEditorState: =>
-    @state.editorState
 
   handleTooltipDisplayOn: (prop, display=true)->
     setTimeout =>
@@ -825,39 +752,197 @@ class DanteEditor extends React.Component
       @forceRender(@state.editorState)
     , 10
 
+  handleReturn: (e) =>
+    if this.props.handleReturn
+      if this.props.handleReturn()
+        return true;
+
+    editorState = @state.editorState
+    ###
+    #if (isSoftNewlineEvent(e)) {
+    #  this.onChange(RichUtils.insertSoftNewline(editorState));
+    #  return true;
+    #}
+    ###
+    if !e.altKey && !e.metaKey && !e.ctrlKey
+      currentBlock = getCurrentBlock(editorState)
+      blockType = currentBlock.getType()
+
+      config_block = @getDataBlock(currentBlock)
+
+      #if blockType.indexOf('atomic') is 0
+      #  @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+      #  return true;
+      
+      if currentBlock.getText().length is 0
+
+        if config_block && config_block.handleEnterWithoutText
+          config_block.handleEnterWithText(@, currentBlock)
+          @closePopOvers()
+          return true 
+
+        #TODO turn this in configurable
+        switch (blockType)
+          when "header-one"
+            @.onChange(resetBlockWithType(editorState, "unstyled"));
+            return true;
+          else
+            return false;
+      
+      if currentBlock.getText().length > 0
+        if config_block && config_block.handleEnterWithText
+          config_block.handleEnterWithText(@, currentBlock)
+          @closePopOvers()
+          return true 
+
+        return false
+
+      selection = editorState.getSelection();
+      
+      # selection.isCollapsed() and # should we check collapsed here?
+      if ( currentBlock.getLength() is selection.getStartOffset()) #or (config_block && config_block.breakOnContinuous))
+        # it will match the unstyled for custom blocks
+        if @continuousBlocks.indexOf(blockType) < 0
+          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true
+        return false
+      
+      return false
+    
+    return false
+
+  # TODO: make this configurable
+  handleBeforeInput: (chars)=>
+    currentBlock = getCurrentBlock(@state.editorState)
+    blockType = currentBlock.getType()
+    selection = @.state.editorState.getSelection()
+    editorState = @state.editorState
+    
+    # close popovers
+    if currentBlock.getText().length isnt 0
+      #@closeInlineButton()
+      @closePopOvers()
+
+    # handle space on link
+    endOffset = selection.getEndOffset()
+    endKey = currentBlock.getEntityAt(endOffset - 1)
+    endEntityType = endKey && Entity.get(endKey).getType()
+    afterEndKey = currentBlock.getEntityAt(endOffset)
+    afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
+    
+    # will insert blank space when link found
+    if (chars is ' ' && endEntityType is 'link' && afterEndEntityType isnt 'link')
+      newContentState = Modifier.insertText(
+        editorState.getCurrentContent(), 
+        selection,
+        ' '
+      )
+      newEditorState = EditorState.push(editorState, newContentState, 'insert-characters')
+      @.onChange(newEditorState)
+      return true
+
+    # block transform
+    if blockType.indexOf('atomic') is 0
+      return false;
+  
+    blockLength = currentBlock.getLength()
+    if selection.getAnchorOffset() > 1 || blockLength > 1
+      return false
+
+    mapping = {
+      '> ': "blockquote"
+      '*.': "unordered-list-item"
+      '* ': "unordered-list-item"
+      '- ': "unordered-list-item"
+      '1.': "ordered-list-item"
+      '# ': 'header-one'
+      '##': 'header-two'
+      '==': "unstyled"
+      '` ': "code-block"
+    }
+
+    blockTo = mapping[currentBlock.getText() + chars]
+
+    console.log "BLOCK TO SHOW: #{blockTo}"
+
+    if !blockTo
+      return false
+    
+    @onChange(resetBlockWithType(editorState, blockTo))
+
+    return true
+  
+  # TODO: make this configurable
   handleKeyCommand: (command)=>
-    #console.log "command:",  command
-    if command is 'dante-save'
-      # Perform a request to save your contents, set
-      # a new `editorState`, etc.
-      console.log "SAVING!!"
-      return 'not-handled'
-    if command is 'dante-keyup'
-      return 'not-handled'
-    if command is 'dante-uparrow'
-      debugger
-      return 'not-handled'
-      #return 'not-handled'
-    #if command is 'dante-enter'
-    #  #@relocateTooltipPosition()
-    #  return 'handled'
-    #return 'not-handled'
+    editorState = @.state.editorState
+
+    if @.props.handleKeyCommand && @.props.handleKeyCommand(command)
+      return true
+    
+    if command is 'add-new-block'
+      @.onChange(addNewBlock(editorState, 'blockquote'))
+      return true
+
+    block = getCurrentBlock(editorState);
+
+    if command.indexOf('toggle_inline:') is 0
+      newBlockType = command.split(':')[1]
+      currentBlockType = block.getType()
+      @onChange(
+        RichUtils.toggleInlineStyle(editorState, newBlockType)
+      )
+      return true
+
+    if command.indexOf('toggle_block:') is 0
+      newBlockType = command.split(':')[1]
+      currentBlockType = block.getType()
+      
+      @onChange(
+        RichUtils.toggleBlockType(editorState, newBlockType)
+      )
+      return true;
+
     newState = RichUtils.handleKeyCommand(@state.editorState, command);
     if newState
       @.onChange(newState);
       return true;
     
     return false;
+  
+
+  findCommandKey: (opt, command)=>
+    # console.log "COMMAND find: #{opt} #{command}"
+    @key_commands[opt].find (o)->
+      o.key is command
 
   KeyBindingFn: (e)=>
-    #console.log "KEY CODE: #{e.keyCode}"
-    if e.keyCode is 83 # `S` key */ && hasCommandModifier(e)) {
-      #return 'dante-save'
-      console.log "TODO: save in this point"
 
-    if e.keyCode is KeyCodes.UPARROW
-      console.log "UPARROW"
-      return 'dante-uparrow'
+    #⌘ + B / Ctrl + B   Bold
+    #⌘ + I / Ctrl + I   Italic
+    #⌘ + K / Ctrl + K   Turn into link
+    #⌘ + Alt + 1 / Ctrl + Alt + 1   Header
+    #⌘ + Alt + 2 / Ctrl + Alt + 2   Sub-Header
+    #⌘ + Alt + 5 / Ctrl + Alt + 5   Quote (Press once for a block quote, again for a pull quote and a third time to turn off quote)
+    
+    # console.log "CTRL #{e.ctrlKey} #{e.which} alt: #{e.altKey} shift #{e.shiftKey}"
+    # console.log('in window::'+ e.ctrlKey+'in mac os'+e.metaKey+'####'+e.META_MASK+'##$&&'+e.CTRL_MASK);
+
+    if (e.altKey)
+      if (e.shiftKey)
+        cmd = @findCommandKey("alt-shift", e.which)
+        return cmd.cmd if cmd
+        
+        return getDefaultKeyBinding(e)
+
+      if e.ctrlKey or e.metaKey
+        cmd = @findCommandKey("alt-cmd", e.which)
+        return cmd.cmd if cmd
+        return getDefaultKeyBinding(e)
+
+    else if e.ctrlKey or e.metaKey
+      cmd = @findCommandKey("cmd", e.which)
+      return cmd.cmd if cmd
+      return getDefaultKeyBinding(e)
 
     return getDefaultKeyBinding(e)
 
@@ -937,7 +1022,7 @@ class DanteEditor extends React.Component
     , 300
 
   cancelHide: ()->
-    console.log "Cancel Hide"
+    # console.log "Cancel Hide"
     clearTimeout @hideTimeout
 
   ###############################

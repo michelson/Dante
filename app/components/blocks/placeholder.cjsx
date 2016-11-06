@@ -34,7 +34,7 @@ class PlaceholderBlock extends React.Component
   componentDidMount: ->
 
   handleFocus: (e)=>
-    console.log "focus on placeholder"
+    # console.log "focus on placeholder"
     setTimeout =>
       @setState
         enabled: true
@@ -44,8 +44,6 @@ class PlaceholderBlock extends React.Component
     if !@state.enabled then "defaultValue defaultValue--root" else ""
 
   render: ->
-    console.log(@.state)
-    console.log(@props)
     return(
       <span className={@classForDefault()}
         onMouseDown={@handleFocus}>

@@ -91,7 +91,7 @@ class ImageBlock extends React.Component
 
     fill_ratio = height / width * 100
     result = { width: width, height: height, ratio: fill_ratio }
-    console.log result
+    # console.log result
     result
 
   # will update block state
@@ -113,10 +113,6 @@ class ImageBlock extends React.Component
     # exit only when not blob and not forceUload
     return if !@img.src.includes("blob") and !@props.block.data.get("forceUpload")
     @img.onload = ()=>
-      console.log @img
-      console.log this
-      console.log self
-      console.log @
       @setState
         width: @img.width
         height: @img.height
