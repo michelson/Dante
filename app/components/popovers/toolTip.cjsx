@@ -92,7 +92,7 @@ class DanteTooltip extends React.Component
     if !top or !left
       return
 
-    console.log "SET SHOW FOR TOOLTIP INSERT MENU"
+    # console.log "SET SHOW FOR TOOLTIP INSERT MENU"
     @setState
       show: true
       position: { left: left , top: top }

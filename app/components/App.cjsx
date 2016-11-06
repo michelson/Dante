@@ -276,6 +276,22 @@ class Dante
       # {label: 'strikethrough', style: 'STRIKETHROUGH', type: "inline"}
     ]
 
+    @options.key_commands = {
+      "alt-shift": [
+        { key: 65, cmd: 'add-new-block'}
+      ],
+      "alt-cmd": [
+        { key: 49, cmd: 'toggle_block:header-one'}
+        { key: 50, cmd: 'toggle_block:header-two'}
+        { key: 53, cmd: 'toggle_block:blockquote'}
+      ],
+      "cmd": [
+        { key: 66, cmd: 'toggle_inline:BOLD'}
+        { key: 73, cmd: 'toggle_inline:ITALIC'}
+        { key: 75, cmd: 'insert:link'}
+      ]
+    }
+
   getContent: ->
     #console.log @options.content
     #console.log "IS POC DATA?", @options.content is PocData
@@ -332,6 +348,8 @@ class DanteEditor extends React.Component
     @widgets  = props.config.widgets
     @tooltips = props.config.tooltips
 
+    @key_commands = props.config.key_commands
+
     @continuousBlocks = @props.config.continuousBlocks
 
     @block_types = @props.config.block_types
@@ -381,7 +399,7 @@ class DanteEditor extends React.Component
     selectionState = SelectionState.createEmpty(s.getAnchorKey())
     focusOffset = s.getFocusOffset()
     anchorKey = s.getAnchorKey()
-    console.log anchorKey, focusOffset
+    # console.log anchorKey, focusOffset
     selectionState = selectionState.merge({
       anchorOffset: focusOffset,
       focusKey: anchorKey,
@@ -425,7 +443,7 @@ class DanteEditor extends React.Component
     
     @dispatchChangesToSave()    
   
-    console.log "CHANGES!"
+    # console.log "CHANGES!"
 
   dispatchChangesToSave: =>
     clearTimeout @saveTimeout
@@ -483,8 +501,8 @@ class DanteEditor extends React.Component
     raw
 
   decodeEditorContent: (raw_as_json)=>
-    console.log "CONTENT", raw_as_json
-    #new_content = convertFromRaw(JSON.parse(raw_as_json))
+    # console.log "CONTENT", raw_as_json
+    # new_content = convertFromRaw(JSON.parse(raw_as_json))
     new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)
 
@@ -589,8 +607,6 @@ class DanteEditor extends React.Component
     currentBlock = getCurrentBlock(@.state.editorState)
     is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
     
-    # console.log "BLOCK STYLE:", block.getType()
-
     if @renderableBlocks().includes(block.getType())
       return @styleForBlock(block, currentBlock, is_selected) 
     else
@@ -795,19 +811,17 @@ class DanteEditor extends React.Component
     
     return false
 
+  # TODO: make this configurable
   handleBeforeInput: (chars)=>
     currentBlock = getCurrentBlock(@state.editorState)
     blockType = currentBlock.getType()
     selection = @.state.editorState.getSelection()
     editorState = @state.editorState
     
-    #TODO: make this configurable
-
     # close popovers
     if currentBlock.getText().length isnt 0
       #@closeInlineButton()
       @closePopOvers()
-
 
     # handle space on link
     endOffset = selection.getEndOffset()
@@ -833,7 +847,6 @@ class DanteEditor extends React.Component
   
     blockLength = currentBlock.getLength()
     if selection.getAnchorOffset() > 1 || blockLength > 1
-      console.log "RETURN IN THIS PONT"
       return false
 
     mapping = {
@@ -858,7 +871,8 @@ class DanteEditor extends React.Component
     @onChange(resetBlockWithType(editorState, blockTo))
 
     return true
-
+  
+  # TODO: make this configurable
   handleKeyCommand: (command)=>
     editorState = @.state.editorState
 
@@ -874,8 +888,8 @@ class DanteEditor extends React.Component
     if command.indexOf('toggle_inline:') is 0
       newBlockType = command.split(':')[1]
       currentBlockType = block.getType()
-      @props.onChange(
-        RichUtils.toggleBlockType(@props.editorState, style)
+      @onChange(
+        RichUtils.toggleInlineStyle(editorState, newBlockType)
       )
       return true
 
@@ -883,7 +897,9 @@ class DanteEditor extends React.Component
       newBlockType = command.split(':')[1]
       currentBlockType = block.getType()
       
-      @.onChange(RichUtils.toggleBlockType(editorState, newBlockType));
+      @onChange(
+        RichUtils.toggleBlockType(editorState, newBlockType)
+      )
       return true;
 
     newState = RichUtils.handleKeyCommand(@state.editorState, command);
@@ -892,6 +908,12 @@ class DanteEditor extends React.Component
       return true;
     
     return false;
+  
+
+  findCommandKey: (opt, command)=>
+    # console.log "COMMAND find: #{opt} #{command}"
+    @key_commands[opt].find (o)->
+      o.key is command
 
   KeyBindingFn: (e)=>
 
@@ -901,43 +923,26 @@ class DanteEditor extends React.Component
     #⌘ + Alt + 1 / Ctrl + Alt + 1   Header
     #⌘ + Alt + 2 / Ctrl + Alt + 2   Sub-Header
     #⌘ + Alt + 5 / Ctrl + Alt + 5   Quote (Press once for a block quote, again for a pull quote and a third time to turn off quote)
-    console.log "CTRL #{e.ctrlKey} #{e.which} alrt: #{e.altKey} shift #{e.shiftKey}"
+    
+    # console.log "CTRL #{e.ctrlKey} #{e.which} alt: #{e.altKey} shift #{e.shiftKey}"
+    # console.log('in window::'+ e.ctrlKey+'in mac os'+e.metaKey+'####'+e.META_MASK+'##$&&'+e.CTRL_MASK);
 
-    if e.ctrlKey
-      switch e.which
-        when 49
-          # ⌘ + B / Ctrl + B
-          'toggle_inline:BOLD'
-        when 51 
-          # ⌘ + I / Ctrl + I   Italic 
-          'toggle_inline:ITALIC'
-        when 1
-          # ⌘ + K / Ctrl + K
-          'insert:link'
-        else
-          getDefaultKeyBinding(e)
-      
     if (e.altKey)
       if (e.shiftKey)
-        switch (e.which)
-          # Alt + Shift + A
-          when 65 
-            return 'add-new-block'
-          else getDefaultKeyBinding(e)
+        cmd = @findCommandKey("alt-shift", e.which)
+        return cmd.cmd if cmd
+        
+        return getDefaultKeyBinding(e)
 
-      if e.ctrlKey
-        switch e.which
-          when 49
-            # ⌘ + Alt + 1 / Ctrl + Alt + 1   Header
-            return 'toggle_block:header-one'
-          when 51 
-            # ⌘ + Alt + 2 / Ctrl + Alt + 2   Sub-Header
-            return 'toggle_block:header-two'
-          when 53
-            # ⌘ + Alt + 5 / Ctrl + Alt + 5   Quote 
-            return 'toggle_block:blockquote'
-          else
-            getDefaultKeyBinding(e)
+      if e.ctrlKey or e.metaKey
+        cmd = @findCommandKey("alt-cmd", e.which)
+        return cmd.cmd if cmd
+        return getDefaultKeyBinding(e)
+
+    else if e.ctrlKey or e.metaKey
+      cmd = @findCommandKey("cmd", e.which)
+      return cmd.cmd if cmd
+      return getDefaultKeyBinding(e)
 
     return getDefaultKeyBinding(e)
 
@@ -1017,7 +1022,7 @@ class DanteEditor extends React.Component
     , 300
 
   cancelHide: ()->
-    console.log "Cancel Hide"
+    # console.log "Cancel Hide"
     clearTimeout @hideTimeout
 
   ###############################
