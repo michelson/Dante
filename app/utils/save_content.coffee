@@ -21,12 +21,10 @@ class SaveBehavior
       @checkforStore(content)
     , @config.data_storage.interval
 
-  getTextFromEditor: ->
-    c = @editorState.getCurrentContent()
-    out = c.getBlocksAsArray().map (o)=>
-        o.getText()
+  getTextFromEditor: (content)->
+    content.blocks.map (o)=>
+        o.text
       .join("\n")
-    return out
 
   checkforStore: (content)->
     # ENTER DATA STORE
@@ -38,13 +36,12 @@ class SaveBehavior
 
     @config.xhr.before_handler() if @config.xhr.before_handler
     # console.log "SAVING TO: #{@config.data_storage.url}"
-    
     axios
       method: @config.data_storage.method
       url: @config.data_storage.url
       data: 
         editor_content: JSON.stringify(content)
-        text_content: @getTextFromEditor()
+        text_content: @getTextFromEditor(content)
     .then (result)=> 
       # console.log "STORING CONTENT", result
       @config.data_storage.success_handler(result) if @config.data_storage.success_handler
