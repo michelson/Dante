@@ -341,7 +341,7 @@ class DanteEditor extends React.Component
       read_only: @props.read_only
       blockRenderMap: @extendedBlockRenderMap
       locks: 0
-      debug: @props.debug
+      debug: @props.config.debug
       debug_json: null
       debug_text: null
 
