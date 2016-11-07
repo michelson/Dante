@@ -79,7 +79,7 @@ customHTML2Content = require('../utils/convert_html2.coffee')
 
 class Dante
   constructor: (options={})->
-    console.log "init editor!"
+    console.log "init editor Dante!"
     @options = options
     @options.el = options.el || 'app'
     @options.poc = options.poc
@@ -909,7 +909,6 @@ class DanteEditor extends React.Component
     
     return false;
   
-
   findCommandKey: (opt, command)=>
     # console.log "COMMAND find: #{opt} #{command}"
     @key_commands[opt].find (o)->
@@ -1105,8 +1104,5 @@ class DanteEditor extends React.Component
 
       </div>
     ) 
-
-#debugger
-#window.Dante = Dante
 
 module.exports = Dante

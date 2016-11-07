@@ -3,9 +3,9 @@ module DanteEditor
 
     config.generators do |g|
 
-      config.assets.paths << DanteEditor::Engine.root.join("dante", "fonts")
-      config.assets.paths << DanteEditor::Engine.root.join("dante", "images")
-      config.assets.paths << DanteEditor::Engine.root.join("dante")
+      config.assets.paths << DanteEditor::Engine.root.join("docs", "fonts")
+      config.assets.paths << DanteEditor::Engine.root.join("docs", "images")
+      config.assets.paths << DanteEditor::Engine.root.join("docs")
 
     end
 
