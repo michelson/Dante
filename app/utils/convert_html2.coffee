@@ -43,10 +43,18 @@ wrapBlockSpec = (blockSpec)=>
 replaceElement = (oldEl, newEl)=>
   if !(newEl instanceof HTMLElement)
     return
-  
-  parentNode = oldEl.parentNode
-  return parentNode.replaceChild(newEl, oldEl)
 
+  upEl = getUpEl(oldEl)
+  #parentNode = oldEl.parentNode
+  #return parentNode.replaceChild(newEl, oldEl)
+  return upEl.parentNode.insertBefore(newEl, upEl);
+
+getUpEl = (el)=>
+  original_el = el
+  while el.parentNode
+    if el.parentNode.tagName isnt 'BODY'
+      el = el.parentNode 
+    return el if el.parentNode.tagName is 'BODY'
 
 elementToBlockSpecElement = compose(wrapBlockSpec, getBlockSpecForElement)
 
@@ -61,6 +69,7 @@ imgReplacer = (imgElement)=>
 customHTML2Content = (HTML, blockRn)->
   tempDoc = new DOMParser().parseFromString(HTML, 'text/html')
   # replace all <img /> with <blockquote /> elements
+
   a = tempDoc.querySelectorAll('img').forEach( (item)->
     return imgReplacer(item)
   )

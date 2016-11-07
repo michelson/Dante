@@ -57,12 +57,19 @@ new Dante(
 
 ### Installation for development
 
-node + brunch
+node + webpack
 
 + `npm install`
-+ `npm start`
 
-then open http://localhost:3333
+#### web dev server
+
++ `yarn start`
+
+#### build
+
++ yarn build
+
+then open http://localhost:8080
 
 #### upload test server (ruby, optional)
 
