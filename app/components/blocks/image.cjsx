@@ -178,11 +178,18 @@ class ImageBlock extends React.Component
 
   formatData: ->
     formData = new FormData()
-    formData.append('file', @.props.blockProps.data.get('file'))
-    return formData
+    if file = @.props.blockProps.data.get('file')
+      formData.append('file', @.props.blockProps.data.get('file'))
+      return formData
+    else
+      formData.append('url',
+        @.props.blockProps.data.get("url")
+      )
+      return formData
+    
 
   uploadFile: =>
-    # console.log "FORM DATA: #{@formatData()}"
+    console.log "FORM DATA:" , @formatData()
     axios
       method: 'post'
       url: @config.upload_url
