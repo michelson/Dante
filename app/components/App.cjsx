@@ -138,7 +138,7 @@ class Dante
           insertion: "placeholder"
           insert_block: "embed"
         options:
-          endpoint: "http://api.embed.ly/1/extract?key=#{@options.api_key}&url="
+          endpoint: "//api.embed.ly/1/extract?key=#{@options.api_key}&url="
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
         handleEnterWithoutText: (ctx, block)->
           editorState = ctx.state.editorState
@@ -162,7 +162,7 @@ class Dante
           insertion: "placeholder"
           insert_block: "video"
         options:
-          endpoint: "http://api.embed.ly/1/oembed?key=#{@options.api_key}&url="
+          endpoint: "//api.embed.ly/1/oembed?key=#{@options.api_key}&url="
           placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
           caption: 'Type caption for embed (optional)'
 
