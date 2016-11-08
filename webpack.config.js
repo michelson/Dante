@@ -3,16 +3,17 @@ var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 var path = require('path');
 var env = require('yargs').argv.mode;
 
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin  = require("extract-text-webpack-plugin");
+var HtmlWebpackPlugin  = require('html-webpack-plugin');
+var CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
+
 
 var libraryName = 'Dante2';
 
 var plugins = [
-// Use the plugin to specify the resulting filename (and add needed behavior to the compiler)
-  new ExtractTextPlugin("dante.css", {
-    allChunks: true
-  }),
+  // Use the plugin to specify the resulting filename (and add needed behavior to the compiler)
+  new ExtractTextPlugin("[name].css"),
+
   new HtmlWebpackPlugin({
     title: 'Dante Demo',
     template: 'app/assets/index.html',
@@ -22,7 +23,21 @@ var plugins = [
         type: 'module'
       }
     ],
+  }),
+
+  new CommonsChunkPlugin({
+    name: 'dante-vendors',
+    minChunks: function(module) {
+      return isExternal(module);
+    }
+  }),
+
+  new webpack.DefinePlugin({
+    'process.env': {
+      'NODE_ENV': JSON.stringify('production')
+    }
   })
+
 ], outputFile;
 
 if (env === 'build') {
@@ -30,6 +45,18 @@ if (env === 'build') {
   outputFile = libraryName + '.min.js';
 } else {
   outputFile = libraryName + '.js';
+}
+
+function isExternal(module) {
+  var userRequest = module.userRequest;
+
+  if (typeof userRequest !== 'string') {
+    return false;
+  }
+
+  return userRequest.indexOf('bower_components') >= 0 ||
+         userRequest.indexOf('node_modules') >= 0 ||
+         userRequest.indexOf('libraries') >= 0;
 }
 
 var config = {
@@ -40,14 +67,15 @@ var config = {
     'dante': './app/initialize.js',
   },
 
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
   output: {
     path: __dirname + '/docs',
     filename: '[name].js',
+    chunkFilename: "[id].js"
     //filename: outputFile,
-    library: libraryName,
-    libraryTarget: 'umd',
-    umdNamedDefine: true
+    //library: libraryName,
+    //libraryTarget: 'umd',
+    //umdNamedDefine: true
   },
   resolve: {
     root: path.resolve('./app'),
