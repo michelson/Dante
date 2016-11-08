@@ -89,6 +89,7 @@ class DanteInlineTooltip extends React.Component
   insertImage: (file) =>
     opts =  
       url: URL.createObjectURL(file)
+      file: file
 
     @props.onChange(addNewBlock(@props.editorState, 'image', opts));
 

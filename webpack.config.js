@@ -10,6 +10,19 @@ var CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
 
 var libraryName = 'Dante2';
 
+function isExternal(module) {
+  var userRequest = module.userRequest;
+
+  if (typeof userRequest !== 'string') {
+    return false;
+  }
+
+  return userRequest.indexOf('bower_components') >= 0 ||
+         userRequest.indexOf('node_modules') >= 0 ||
+         userRequest.indexOf('libraries') >= 0;
+}
+
+
 var plugins = [
   // Use the plugin to specify the resulting filename (and add needed behavior to the compiler)
   new ExtractTextPlugin("[name].css"),
@@ -45,18 +58,6 @@ if (env === 'build') {
   outputFile = libraryName + '.min.js';
 } else {
   outputFile = libraryName + '.js';
-}
-
-function isExternal(module) {
-  var userRequest = module.userRequest;
-
-  if (typeof userRequest !== 'string') {
-    return false;
-  }
-
-  return userRequest.indexOf('bower_components') >= 0 ||
-         userRequest.indexOf('node_modules') >= 0 ||
-         userRequest.indexOf('libraries') >= 0;
 }
 
 var config = {

@@ -165,12 +165,24 @@ class ImageBlock extends React.Component
     maxWidth: "#{@state.aspect_ratio.width}px"
     maxHeight: "#{@state.aspect_ratio.height}px"
 
+
+  getBase64Image: (img) ->
+    canvas = document.createElement("canvas")
+    canvas.width = img.width
+    canvas.height = img.height
+    ctx = canvas.getContext("2d")
+    ctx.drawImage img, 0, 0
+    dataURL = canvas.toDataURL("image/png")
+
+    return dataURL
+
   formatData: ->
     formData = new FormData()
-    formData.append('file', @props.blockProps.data.file)
+    formData.append('file', @.props.blockProps.data.get('file'))
     return formData
 
   uploadFile: =>
+    # console.log "FORM DATA: #{@formatData()}"
     axios
       method: 'post'
       url: @config.upload_url
@@ -208,8 +220,7 @@ class ImageBlock extends React.Component
       complete = complete ? complete : 0
       @setState
         loading_progress: complete
-      console.log "complete"
-      console.log complete
+      console.log "complete: #{complete}"
 
   render: =>
     return (
