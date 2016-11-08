@@ -7,6 +7,9 @@ module DanteEditor
       config.assets.paths << DanteEditor::Engine.root.join("docs", "images")
       config.assets.paths << DanteEditor::Engine.root.join("docs")
 
+      config.assets.paths << DanteEditor::Engine.root.join("app", "styles")
+
+
     end
 
   end
