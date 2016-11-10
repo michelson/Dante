@@ -117,6 +117,14 @@ class DanteInlineTooltip extends React.Component
     @widgets().filter (o)=>
       o.widget_options.displayOnInlineTooltip
   
+  isDescendant: (parent, child)->
+    node = child.parentNode
+    while node != null
+       if (node is parent)
+           return true
+       node = node.parentNode
+    return false
+
   relocate: ()=>
     editorState = @props.editorState
     
@@ -141,6 +149,14 @@ class DanteInlineTooltip extends React.Component
       
       parent = ReactDOM.findDOMNode(@props.editor);
       parentBoundary = parent.getBoundingClientRect();
+
+      # hide if selected node is not in editor
+      # debugger
+      #console.log @isDescendant(parent, nativeSelection.anchorNode)
+
+      if !@isDescendant(parent, nativeSelection.anchorNode)
+        @hide()
+        return
 
       # checkeamos si esta vacio
       @display block.getText().length is 0 and blockType is "unstyled"
