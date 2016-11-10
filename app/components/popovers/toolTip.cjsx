@@ -61,6 +61,15 @@ class DanteTooltip extends React.Component
     @setState
       position: coords
   
+
+  isDescendant: (parent, child)->
+    node = child.parentNode
+    while node != null
+       if (node is parent)
+           return true
+       node = node.parentNode
+    return false
+
   relocate: ()=>
 
     currentBlock = getCurrentBlock(@props.editorState);
@@ -74,17 +83,24 @@ class DanteTooltip extends React.Component
     return if @state.link_mode
     return if !@state.show
 
+
     el = @refs.dante_menu 
     padd   = el.offsetWidth / 2
 
     nativeSelection = getSelection(window);
     if !nativeSelection.rangeCount
-      return;
+      return
     
     selectionBoundary = getSelectionRect(nativeSelection);
 
     parent = ReactDOM.findDOMNode(@props.editor);
     parentBoundary = parent.getBoundingClientRect();
+
+    # hide if selected node is not in editor
+    if !@isDescendant(parent, nativeSelection.anchorNode)
+      @hide()
+      return
+
 
     top    = selectionBoundary.top - parentBoundary.top - -90 - 5
     left   = selectionBoundary.left + (selectionBoundary.width / 2) - padd
