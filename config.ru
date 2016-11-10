@@ -38,7 +38,7 @@ class UploadServer < Sinatra::Base
 
   def handleUrl
     ext  = File.extname(URI.parse(params["url"]).path)
-    @name = [Time.now.to_i , ext].join("-")
+    @name = [Random.new_seed , ext].join("-")
     path = File.join(File.dirname(__FILE__), 'tmp/images', @name)
     File.open(path, "wb") do |f|
       f.write(open(params["url"]).read)
@@ -46,11 +46,11 @@ class UploadServer < Sinatra::Base
   end
 
   def handleFile
-    @name = [Time.now.to_i , params['file'][:filename]].join("-")
+    @name = [Random.new_seed , params['file'][:filename]].join("-")
     path = File.join(File.dirname(__FILE__), 'tmp/images', @name)
     
     File.open(path, "wb") do |f|
-      f.write(params['url'][:tempfile].read)
+      f.write(params['file'][:tempfile].read)
     end
   end
 

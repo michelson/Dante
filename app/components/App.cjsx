@@ -732,6 +732,7 @@ class DanteEditor extends React.Component
     files.map (file)=>
       opts =  
         url: URL.createObjectURL(file)
+        file: file
 
       @onChange(addNewBlock(@state.editorState, 'image', opts))
 
@@ -739,6 +740,7 @@ class DanteEditor extends React.Component
     files.map (file)=>
       opts =  
         url: URL.createObjectURL(file)
+        file: file
 
       @onChange(addNewBlock(@state.editorState, 'image', opts))
 
