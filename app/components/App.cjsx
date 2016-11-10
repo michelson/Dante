@@ -311,7 +311,7 @@ class DanteEditor extends React.Component
 
     @decorator = new CompositeDecorator([
       {
-        strategy: findEntities.bind(null, 'link'),
+        strategy: findEntities.bind(null, 'LINK'),
         component: Link
       }
     ])
@@ -332,6 +332,7 @@ class DanteEditor extends React.Component
         'placeholder':
           wrapper: null
           element: 'div'
+          
     }) 
 
     @extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(@blockRenderMap);
@@ -833,7 +834,7 @@ class DanteEditor extends React.Component
     afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
     
     # will insert blank space when link found
-    if (chars is ' ' && endEntityType is 'link' && afterEndEntityType isnt 'link')
+    if (chars is ' ' && endEntityType is 'LINK' && afterEndEntityType isnt 'LINK')
       newContentState = Modifier.insertText(
         editorState.getCurrentContent(), 
         selection,

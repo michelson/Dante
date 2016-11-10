@@ -145,7 +145,7 @@ class DanteTooltip extends React.Component
       hidePopLinkOver: @props.hidePopLinkOver
     }
 
-    entityKey = Entity.create('link', 'MUTABLE', opts);
+    entityKey = Entity.create('LINK', 'MUTABLE', opts);
 
     if selection.isCollapsed()
       console.log "COLLAPSED SKIPPN LINK"
