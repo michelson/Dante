@@ -311,7 +311,7 @@ class DanteEditor extends React.Component
 
     @decorator = new CompositeDecorator([
       {
-        strategy: findEntities.bind(null, 'LINK'),
+        strategy: findEntities.bind(null, 'LINK', @),
         component: Link
       }
     ])
