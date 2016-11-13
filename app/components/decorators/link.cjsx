@@ -38,15 +38,15 @@ class Link extends React.Component
 
 
   _showPopLinkOver: (e)=>
+    return unless @data.showPopLinkOver
     @data.showPopLinkOver(@refs.link)
 
   _hidePopLinkOver: (e)=>
+    return unless @data.hidePopLinkOver
     @data.hidePopLinkOver()
 
   render: ->
     @data = Entity.get(@props.entityKey).getData();
-    console.log @props
-    console.log "ENTITY", @data
 
     return (
       <a ref="link" 

@@ -61,6 +61,15 @@ class DanteTooltip extends React.Component
     @setState
       position: coords
   
+
+  isDescendant: (parent, child)->
+    node = child.parentNode
+    while node != null
+       if (node is parent)
+           return true
+       node = node.parentNode
+    return false
+
   relocate: ()=>
 
     currentBlock = getCurrentBlock(@props.editorState);
@@ -74,17 +83,24 @@ class DanteTooltip extends React.Component
     return if @state.link_mode
     return if !@state.show
 
+
     el = @refs.dante_menu 
     padd   = el.offsetWidth / 2
 
     nativeSelection = getSelection(window);
     if !nativeSelection.rangeCount
-      return;
+      return
     
     selectionBoundary = getSelectionRect(nativeSelection);
 
     parent = ReactDOM.findDOMNode(@props.editor);
     parentBoundary = parent.getBoundingClientRect();
+
+    # hide if selected node is not in editor
+    if !@isDescendant(parent, nativeSelection.anchorNode)
+      @hide()
+      return
+
 
     top    = selectionBoundary.top - parentBoundary.top - -90 - 5
     left   = selectionBoundary.left + (selectionBoundary.width / 2) - padd
@@ -145,7 +161,7 @@ class DanteTooltip extends React.Component
       hidePopLinkOver: @props.hidePopLinkOver
     }
 
-    entityKey = Entity.create('link', 'MUTABLE', opts);
+    entityKey = Entity.create('LINK', 'MUTABLE', opts);
 
     if selection.isCollapsed()
       console.log "COLLAPSED SKIPPN LINK"
@@ -173,6 +189,29 @@ class DanteTooltip extends React.Component
     @props.editor.block_types.filter (o)=>
       o.type is "block"
 
+  getDefaultValue: =>
+    @refs.dante_menu_input.value = "" if @refs.dante_menu_input
+
+    currentBlock = getCurrentBlock(@props.editorState);
+    blockType    = currentBlock.getType()
+    selection    = @props.editor.state.editorState.getSelection()
+    selectedEntity = null
+    defaultUrl = null
+    currentBlock.findEntityRanges (character) =>
+      entityKey = character.getEntity()
+      selectedEntity = entityKey
+      return entityKey isnt null && Entity.get(entityKey).getType() is 'LINK'
+    , (start, end) =>
+      selStart = selection.getAnchorOffset()
+      selEnd = selection.getFocusOffset()
+      if selection.getIsBackward() 
+        selStart = selection.getFocusOffset()
+        selEnd = selection.getAnchorOffset()
+      
+      if start is selStart && end is selEnd
+        defaultUrl = Entity.get(selectedEntity).getData().url
+        @refs.dante_menu_input.value = defaultUrl
+
   render: ->
     return (
       <div id="dante-menu" 
@@ -182,8 +221,11 @@ class DanteTooltip extends React.Component
         
         <div className="dante-menu-linkinput">
           <input className="dante-menu-input" 
+            ref="dante_menu_input"
             placeholder="Paste or type a link" 
-            onKeyPress={@handleInputEnter}/>
+            onKeyPress={@handleInputEnter}
+            defaultValue={@getDefaultValue()}
+          />
 
           <div className="dante-menu-button" 
             onMouseDown={@_disableLinkMode}>

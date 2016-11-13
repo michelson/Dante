@@ -311,7 +311,7 @@ class DanteEditor extends React.Component
 
     @decorator = new CompositeDecorator([
       {
-        strategy: findEntities.bind(null, 'link'),
+        strategy: findEntities.bind(null, 'LINK', @),
         component: Link
       }
     ])
@@ -332,6 +332,7 @@ class DanteEditor extends React.Component
         'placeholder':
           wrapper: null
           element: 'div'
+          
     }) 
 
     @extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(@blockRenderMap);
@@ -833,7 +834,7 @@ class DanteEditor extends React.Component
     afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
     
     # will insert blank space when link found
-    if (chars is ' ' && endEntityType is 'link' && afterEndEntityType isnt 'link')
+    if (chars is ' ' && endEntityType is 'LINK' && afterEndEntityType isnt 'LINK')
       newContentState = Modifier.insertText(
         editorState.getCurrentContent(), 
         selection,
@@ -1003,6 +1004,11 @@ class DanteEditor extends React.Component
   showPopLinkOver: (el)=>
     # handles popover display 
     # using anchor or from popover
+
+    # set url first in order to calculate popover width
+    @refs.anchor_popover.setState
+      url: if el then el.href else @refs.anchor_popover.state.url
+
     parent_el = ReactDOM.findDOMNode(@);
     coords = @refs.anchor_popover.relocate(
       el
@@ -1012,7 +1018,6 @@ class DanteEditor extends React.Component
 
     @refs.anchor_popover.setState
       show: true
-      url: if el then el.href else @refs.anchor_popover.state.url
 
     @isHover = true
     @cancelHide()

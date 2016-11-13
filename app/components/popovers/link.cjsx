@@ -36,6 +36,7 @@ class DanteAnchorPopover extends React.Component
   
   relocate: (node=null)=>
     return unless node
+    
     editorState = @props.editorState
     currentBlock = getCurrentBlock(editorState)
     blockType = currentBlock.getType()
@@ -45,23 +46,25 @@ class DanteAnchorPopover extends React.Component
 
     selectionBoundary = node.getBoundingClientRect()
     coords = selectionBoundary 
+
     el = @refs.dante_popover
     padd   = el.offsetWidth / 2
 
     parent = ReactDOM.findDOMNode(@props.editor);
     parentBoundary = parent.getBoundingClientRect()
-
+  
     {
       top: selectionBoundary.top - parentBoundary.top + 160
-      left: selectionBoundary.left - (selectionBoundary.width) #- padd
+      left: selectionBoundary.left + (selectionBoundary.width/2) - (padd)
     }
+
 
   render: =>
     position = @state.position
     style = {
               left: position.left, 
               top: position.top, 
-              display: "#{if @state.show then 'block' else 'none'}"
+              visibility: "#{if @state.show then 'visible' else 'hidden'}"
             }
     return (
       <div
