@@ -13,16 +13,13 @@
   "dependencies": {
     "axios": "^0.15.2",
     "draft-convert": "^1.2.3",
-    "draft-js": "0.9.1",
+    "draft-js": "^0.9.1",
     "draft-js-export-html": "^0.5.0",
     "react": "~15.3.0",
     "react-dom": "~15.3.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "coffee-script": "^1.11.1",
-    "node-sass": "^3.10.1",
-    "style-loader": "^0.13.1",
     "babel": "6.3.13",
     "babel-core": "6.1.18",
     "babel-eslint": "5.0.0",
@@ -32,6 +29,7 @@
     "chai": "3.4.1",
     "cjsx-loader": "^3.0.0",
     "coffee-loader": "^0.7.2",
+    "coffee-script": "^1.11.1",
     "css-loader": "^0.25.0",
     "eslint": "1.7.2",
     "eslint-loader": "1.1.0",
@@ -39,7 +37,9 @@
     "file-loader": "^0.9.0",
     "html-webpack-plugin": "^2.24.1",
     "mocha": "2.3.4",
+    "node-sass": "^3.10.1",
     "sass-loader": "^4.0.2",
+    "style-loader": "^0.13.1",
     "webpack": "1.12.9",
     "webpack-dev-server": "^1.16.2",
     "yargs": "3.32.0"
