@@ -5,9 +5,14 @@ findEntities = (entityType, instance, contentBlock, callback)->
   contentBlock.findEntityRanges (character) =>
     entityKey = character.getEntity()
     return (
-      debugger
-      entityKey isnt null &&
+      res = entityKey isnt null &&
       Entity.get(entityKey).getType() is entityType
+      if res 
+        opts =
+          showPopLinkOver: instance.showPopLinkOver 
+          hidePopLinkOver: instance.hidePopLinkOver
+        Entity.mergeData(entityKey, opts)
+      res
     );
   ,
   callback
