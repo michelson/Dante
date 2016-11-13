@@ -47,8 +47,6 @@ class Link extends React.Component
 
   render: ->
     @data = Entity.get(@props.entityKey).getData();
-    console.log @props
-    console.log "ENTITY", @data
 
     return (
       <a ref="link" 
