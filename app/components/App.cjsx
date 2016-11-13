@@ -1004,6 +1004,11 @@ class DanteEditor extends React.Component
   showPopLinkOver: (el)=>
     # handles popover display 
     # using anchor or from popover
+
+    # set url first in order to calculate popover width
+    @refs.anchor_popover.setState
+      url: if el then el.href else @refs.anchor_popover.state.url
+
     parent_el = ReactDOM.findDOMNode(@);
     coords = @refs.anchor_popover.relocate(
       el
@@ -1013,7 +1018,6 @@ class DanteEditor extends React.Component
 
     @refs.anchor_popover.setState
       show: true
-      url: if el then el.href else @refs.anchor_popover.state.url
 
     @isHover = true
     @cancelHide()
