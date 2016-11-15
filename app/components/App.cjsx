@@ -802,6 +802,25 @@ class DanteEditor extends React.Component
             return false;
       
       if currentBlock.getText().length > 0
+        if blockType is "unstyled"
+          # hack hackety hack
+          # https://github.com/facebook/draft-js/issues/304
+          newContent = Modifier.splitBlock(
+            @state.editorState.getCurrentContent(),
+            @state.editorState.getSelection()
+          )
+
+          newEditorState = EditorState.push(@state.editorState, newContent, 'insert-characters')
+          @.onChange(newEditorState)
+          
+          setTimeout =>
+            a = document.getElementsByClassName("is-selected")
+            pos = a[0].getBoundingClientRect()
+            window.scrollTo(0, pos.top + window.scrollY - 100)
+          , 0
+
+          return true
+
         if config_block && config_block.handleEnterWithText
           config_block.handleEnterWithText(@, currentBlock)
           @closePopOvers()
@@ -821,7 +840,7 @@ class DanteEditor extends React.Component
       
       return false
     
-    return false
+    #return false
 
   # TODO: make this configurable
   handleBeforeInput: (chars)=>
