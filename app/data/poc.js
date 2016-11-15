@@ -237,7 +237,7 @@ const data3 = {
   ]
 }
 
-const data4 = {"entityMap":{"0":{"type":"LINK","mutability":"MUTABLE","data":{"href":"http://vadb.org/artworks/49013","url":"http://vadb.org/artworks/49013"}},"1":{"type":"LINK","mutability":"MUTABLE","data":{"url":"oijoij"}}},"blocks":[{"key":"e0hg3","text":"","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"aspect_ratio":{"width":550,"height":330,"ratio":60},"width":550,"height":330,"forceUpload":false,"url":"https://artenlinea.s3-accelerate.amazonaws.com/10631/art_works/49013/resize/IMG-20160624-WA0001.jpg","loading_progress":0,"selected":false,"loading":false,"file":null,"direction":"center"}},{"key":"ma7r","text":"Residuos , 2016Danny Narvaez Paz test","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":15,"length":22,"style":"ITALIC"}],"entityRanges":[{"offset":0,"length":15,"key":0},{"offset":33,"length":4,"key":1}],"data":{}}]}
+const data4 = {"entityMap":{},"blocks":[{"key":"e0hg3","text":"sxvsdcasc","type":"image","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{"aspect_ratio":{"width":550,"height":733,"ratio":133.27272727272728},"width":550,"height":733,"forceUpload":false,"url":"http://localhost:9292/uploads/images/110291124359262198802258173198455527701-blob","loading_progress":100,"selected":false,"loading":true,"file":null,"direction":"center"}}]}
 const empty = null;
 
 module.exports = data4

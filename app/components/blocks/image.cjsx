@@ -111,7 +111,7 @@ class ImageBlock extends React.Component
       url: @img.src
     self = @
     # exit only when not blob and not forceUload
-    return if !@img.src.includes("blob") and !@props.block.data.get("forceUpload")
+    return if !@img.src.includes("blob:http://") and !@props.block.data.get("forceUpload")
     @img.onload = ()=>
       @setState
         width: @img.width
@@ -189,7 +189,7 @@ class ImageBlock extends React.Component
     
 
   uploadFile: =>
-    console.log "FORM DATA:" , @formatData()
+    # console.log "FORM DATA:" , @formatData()
     axios
       method: 'post'
       url: @config.upload_url

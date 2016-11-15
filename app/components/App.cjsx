@@ -662,7 +662,7 @@ class DanteEditor extends React.Component
     currentBlock = getCurrentBlock(@state.editorState)
     
     editorState = @state.editorState
-    
+
     switch currentBlock.getType()
       when "placeholder"
 
@@ -689,9 +689,18 @@ class DanteEditor extends React.Component
         return false
 
   handleHTMLPaste: (text, html)=>
-    newContentState = customHTML2Content(html, @extendedBlockRenderMap)
 
     currentBlock = getCurrentBlock(@state.editorState)
+
+    # TODO: make this configurable
+    switch currentBlock.getType()
+      when "image", "video", "placeholder"
+        return @handleTXTPaste(text, html)
+      else
+        # keep going
+
+    newContentState = customHTML2Content(html, @extendedBlockRenderMap)
+
     selection = @state.editorState.getSelection();
     endKey = selection.getEndKey()
     
