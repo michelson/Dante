@@ -62,7 +62,6 @@ KeyCodes =
 { 
   getSelectionRect
   getSelection
-  isElementInViewport
 } = require("../utils/selection.js")
 DanteInlineTooltip = require('./popovers/addButton.cjsx')
 DanteTooltip = require('./popovers/toolTip.cjsx')
@@ -819,10 +818,8 @@ class DanteEditor extends React.Component
           @.onChange(newEditorState)
           
           setTimeout =>
-
-            a = document.getElementsByClassName("is-selected")
-            isis = isElementInViewport(a[0])
-            
+            #TODO: check is element is in viewport 
+            a = document.getElementsByClassName("is-selected")            
             pos = a[0].getBoundingClientRect()
             window.scrollTo(0, pos.top + window.scrollY - 100)
           , 0
