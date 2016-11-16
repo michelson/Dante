@@ -118,7 +118,8 @@ class ImageBlock extends React.Component
         width: @img.width
         height: @img.height
         aspect_ratio: self.getAspectRatio(@img.width, @img.height)
-      , @handleUpload
+      
+      @handleUpload()
 
   startLoader: =>
     @setState
