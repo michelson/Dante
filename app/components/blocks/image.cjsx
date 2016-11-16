@@ -27,6 +27,7 @@ class ImageBlock extends React.Component
       loading: false 
       selected: false
       loading_progress: 0
+      enabled: false
       caption: @defaultPlaceholder()
       direction: existing_data.direction || "center"
       width: 0
@@ -165,7 +166,6 @@ class ImageBlock extends React.Component
     maxWidth: "#{@state.aspect_ratio.width}px"
     maxHeight: "#{@state.aspect_ratio.height}px"
 
-
   getBase64Image: (img) ->
     canvas = document.createElement("canvas")
     canvas.width = img.width
@@ -229,7 +229,19 @@ class ImageBlock extends React.Component
         loading_progress: complete
       console.log "complete: #{complete}"
 
+  placeholderText: =>
+    return "" if @state.enabled or @.props.block.getText()
+    "Write caption for image (optional)"
+
+  handleFocus: (e)=>
+    # console.log "focus on placeholder"
+    setTimeout =>
+      @setState
+        enabled: true
+    , 0
+
   render: =>
+
     return (
       <div ref="image_tag2" 
           suppressContentEditableWarning={true}>
@@ -250,11 +262,14 @@ class ImageBlock extends React.Component
             progress={@state.loading_progress}
           />
         </div>
-        <figcaption className='imageCaption'>
+        <figcaption className='imageCaption'
+          onMouseDown={@handleFocus}>
+
+          {@placeholderText()}
+           
           <EditorBlock {...@props} 
             editable=true
             className="imageCaption"
-            placeholder="escrive alalal"
           />
         </figcaption>
       </div>
@@ -274,7 +289,7 @@ class Loader extends React.Component
                 else
                   <span>
                     <span>loading</span>
-                    {@props.progress}
+                    {Math.round @props.progress}
                   </span>
               }
             </p>
