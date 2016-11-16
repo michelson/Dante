@@ -62,6 +62,7 @@ KeyCodes =
 { 
   getSelectionRect
   getSelection
+  isElementInViewport
 } = require("../utils/selection.js")
 DanteInlineTooltip = require('./popovers/addButton.cjsx')
 DanteTooltip = require('./popovers/toolTip.cjsx')
@@ -96,6 +97,7 @@ class Dante
         icon: 'image'
         type: 'image'
         block: 'ImageBlock'
+        editable: true
         renderable: true
         breakOnContinuous: true
         wrapper_class: "graf graf--figure"
@@ -129,6 +131,7 @@ class Dante
         title: 'insert embed'
         type: 'embed'
         block: 'EmbedBlock'
+        editable: true
         renderable: true
         breakOnContinuous: true
         wrapper_class: "graf graf--mixtapeEmbed"
@@ -150,7 +153,7 @@ class Dante
       {
         icon: 'video'
         title: 'insert video'
-
+        editable: true
         type: 'video'
         block: 'VideoBlock'
         renderable: true
@@ -176,6 +179,7 @@ class Dante
       }
       {
         renderable: true
+        editable: true
         block: 'PlaceholderBlock'
         type: 'placeholder'
         wrapper_class: "is-embedable"
@@ -307,7 +311,7 @@ class Dante
 class DanteEditor extends React.Component
   constructor: (props) ->
     super props
-    window.main_editor = @
+    #window.main_editor = @
 
     @decorator = new CompositeDecorator([
       {
@@ -591,7 +595,7 @@ class DanteEditor extends React.Component
     return null unless dataBlock
     return (
       component: eval(dataBlock.block)
-      editable: !@state.read_only
+      editable: dataBlock.editable
       props:
         data: block.getData()
         getEditorState: @getEditorState
@@ -802,6 +806,7 @@ class DanteEditor extends React.Component
             return false;
       
       if currentBlock.getText().length > 0
+        
         if blockType is "unstyled"
           # hack hackety hack
           # https://github.com/facebook/draft-js/issues/304
@@ -814,13 +819,16 @@ class DanteEditor extends React.Component
           @.onChange(newEditorState)
           
           setTimeout =>
+
             a = document.getElementsByClassName("is-selected")
+            isis = isElementInViewport(a[0])
+            
             pos = a[0].getBoundingClientRect()
             window.scrollTo(0, pos.top + window.scrollY - 100)
           , 0
 
           return true
-
+        
         if config_block && config_block.handleEnterWithText
           config_block.handleEnterWithText(@, currentBlock)
           @closePopOvers()

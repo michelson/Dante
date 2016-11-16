@@ -20,6 +20,7 @@ class EmbedBlock extends React.Component
 
     @state = 
       embed_data: @defaultData()
+      error: ""
 
   defaultData: ->
     existing_data = @.props.block.getData().toJS()
@@ -59,6 +60,9 @@ class EmbedBlock extends React.Component
         embed_data: result.data #JSON.parse(data.responseText)
       , @updateData    
     .catch (error)=>
+      
+      @setState
+        error: error.response.data.error_message
       console.log("TODO: error")
       
   classForImage: ->
@@ -66,19 +70,29 @@ class EmbedBlock extends React.Component
     #if @state.embed_data.thumbnail_url then "" else "mixtapeImage--empty u-ignoreBlock"
 
   picture: ->
-    if @state.embed_data.images then @state.embed_data.images[0].url else ""
+    if @state.embed_data.images and @state.embed_data.images.length > 0 then @state.embed_data.images[0].url else ""
 
   render: ->
     #block = @.props;
     #foo = @.props.blockProps;
     #data = Entity.get(block.block.getEntityAt(0)).getData();
+    console.log "ERROR", @state.error
     return(
       <span>
-        <a target='_blank'
-          className="js-mixtapeImage mixtapeImage #{@classForImage()}"
-          href={@state.embed_data.url} 
-          style={{backgroundImage: "url('#{@picture()}')"}}>
-        </a>
+        {
+          if @picture()
+            <a target='_blank'
+              className="js-mixtapeImage mixtapeImage #{@classForImage()}"
+              href={@state.embed_data.url} 
+              style={{backgroundImage: "url('#{@picture()}')"}}>
+            </a>
+        }
+
+        {
+          if @state.error
+            <h2>{@state.error}</h2>
+        }
+        
         <a className='markup--anchor markup--mixtapeEmbed-anchor' 
           target='_blank' href={@state.embed_data.url}>
           <strong className='markup--strong markup--mixtapeEmbed-strong'>
