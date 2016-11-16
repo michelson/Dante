@@ -55,6 +55,7 @@ class DanteTooltip extends React.Component
 
   hide: =>
     @setState
+      link_mode: false
       show: false
 
   setPosition: (coords)->
