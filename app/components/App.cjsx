@@ -831,6 +831,10 @@ class DanteEditor extends React.Component
           @closePopOvers()
           return true 
 
+        if @continuousBlocks.indexOf(blockType) < 0
+          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true
+
         return false
 
       selection = editorState.getSelection();

@@ -112,7 +112,9 @@ class DanteTooltip extends React.Component
     # console.log "SET SHOW FOR TOOLTIP INSERT MENU"
     @setState
       show: true
-      position: { left: left , top: top }
+      position: 
+        left: left
+        top: top
 
   _clickBlockHandler: (ev, style)=>
     ev.preventDefault()
