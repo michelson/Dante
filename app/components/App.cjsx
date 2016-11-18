@@ -361,8 +361,6 @@ class DanteEditor extends React.Component
       blockRenderMap: @extendedBlockRenderMap
       locks: 0
       debug: @props.config.debug
-      debug_json: null
-      debug_text: null
 
     @widgets  = @props.config.widgets
     @tooltips = @props.config.tooltips
@@ -527,20 +525,6 @@ class DanteEditor extends React.Component
     new_content = convertFromRaw(raw_as_json)
     editorState = EditorState.createWithContent(new_content, @decorator)
 
-  testEmitAndDecode: (e)=>
-    e.preventDefault()
-    raw_as_json = @emitSerializedOutput()
-
-    @setState
-      editorState: @decodeEditorContent(raw_as_json)
-    , @logStateJSON(raw_as_json)
-    false
-
-  testEmitTEXT: (e)=>
-    e.preventDefault()
-    text = @getTextFromEditor()
-    @logStateText(text)
-
   ## title utils
   getTextFromEditor: =>
     c = @.state.editorState.getCurrentContent()
@@ -550,14 +534,6 @@ class DanteEditor extends React.Component
     
     console.log out
     return out
-
-  logStateJSON: (raw)=>
-    @setState
-      debug_json: raw
-
-  logStateText: (raw)=>
-    @setState
-      debug_text: raw
 
   emitHTML2: ()->
 
@@ -1039,10 +1015,6 @@ class DanteEditor extends React.Component
     @updateBlockData(block, {direction: direction_type})
 
   ## read only utils
-  toggleReadOnly: (e)=>
-    e.preventDefault()
-    @toggleEditable()
-  
   toggleEditable: =>
     @closePopOvers()
 
@@ -1176,11 +1148,7 @@ class DanteEditor extends React.Component
         {
           if @state.debug
             <Debug locks={@state.locks}
-              read_only={@state.read_only}
-              testEmitTEXT={@testEmitTEXT}
-              testEmitAndDecode={@testEmitAndDecode}
-              debug_json={@state.debug_json}
-              debug_text={@state.debug_text}
+              editor={@}
             />
         }
 

@@ -2,46 +2,94 @@ React = require('react')
 
 class Debug extends React.Component
 
+  constructor: (options={})->
+    @state = 
+      output: ""
+      display: "none"
+
+  handleToggleReadOnly: (e)=>
+    e.preventDefault()
+    @props.editor.toggleEditable()
+    return false
+
+  handleTestEmitAndDecode: (e)=>
+    e.preventDefault()
+    @.testEmitAndDecode()
+
+  handleTestEmitTEXT: (e)=>
+    e.preventDefault()
+    @.testEmitTEXT()
+
+  testEmitAndDecode: (e)=>
+    raw_as_json = @props.editor.emitSerializedOutput()
+    @props.editor.setState
+      editorState: @props.editor.decodeEditorContent(raw_as_json)
+    , @logState(JSON.stringify(raw_as_json))
+    false
+
+  testEmitTEXT: ()=>
+    text = @props.editor.getTextFromEditor()
+    @logState(text)
+
+  logState: (raw)=>
+    @setState
+      output: raw
+    , @open
+
+  toggleDisplay: (e)=>
+    e.preventDefault()
+    d = if @state.display is "block" then "none" else @state.display
+    @setState
+      display: d
+
+  open: =>
+    @setState
+      display: "block"
+
   render: =>
     return (
 
       <div>
-        <hr/> 
-        <ul>
-          <li>LOCKS: {@props.locks}</li>
-          <li>
-            <a href="#" onClick={@props.toggleReadOnly}>
-              READ ONLY: {if @props.read_only then 'YES' else 'NO'}
-            </a>
-          </li>
-          <li>
-            <a href="#" onClick={@props.testEmitTEXT}>
-              get Text From Editor
-            </a>
-          </li>
-          
-          <li>
-            <a href="#" onClick={@props.testEmitAndDecode}>
-              serialize and set content
-            </a>
-          </li>
+        <div className="debugControls">
+          <ul>
+            <li>LOCKS: {@props.editor.state.locks}</li>
+            <li>
+              <a href="#" onClick={@handleToggleReadOnly}>
+                EDITABLE: {if @props.editor.state.read_only then 'NO' else 'YES'}
+              </a>
+            </li>
+            <li>
+              <a href="#" onClick={@handleTestEmitTEXT}>
+                EDITOR TEXT
+              </a>
+            </li>
+            
+            <li>
+              <a href="#" onClick={@handleTestEmitAndDecode}>
+                EDITOR STATE
+              </a>
+            </li>
 
-          <div style={{float: 'left', width:'40%', marginRight: '10px'}}>
-            <h3>JSON</h3>
-            <pre>
-              {JSON.stringify(@.props.debug_json)}
-            </pre>
-          </div>
+          </ul>
+        </div>
 
-          <div style={{float: 'left', width:'50%'}}>
-            <h3>TEXT</h3>
-            <pre>
-              {@.props.debug_text}
-            </pre>
+        <div className="debugZone" style={display: @state.display}>
+          <a href="#" 
+            className="dante-debug-close close"
+            onClick={@toggleDisplay}
+          />
+
+          <div className="debugOutput">
+            <h2>EDITOR OUTPUT</h2>
+            {
+              if @state.output.length > 0
+                <pre>
+                  {@state.output}
+                </pre>
+            }
           </div>
-        </ul>
+        </div>
       </div>
-
     )
 
 
