@@ -95,8 +95,13 @@ class DanteInlineTooltip extends React.Component
 
   handleFileInput: (e)=>
     fileList = e.target.files
-    file = fileList[0]
-    @.insertImage(file)
+    # TODO: support multiple file uploads
+    ###
+    Object.keys(fileList).forEach (o)=>
+      @.insertImage(fileList[0])
+    ###
+    @.insertImage(fileList[0])
+
 
   widgets: =>
     @.props.editor.widgets
