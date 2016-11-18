@@ -92,7 +92,7 @@ class Dante
 
     @options.widgets = [
       {
-        title: 'add a image'
+        title: 'add an image'
         icon: 'image'
         type: 'image'
         block: 'ImageBlock'
@@ -217,8 +217,25 @@ class Dante
             "code-block"
             'header-one'
             'header-two'
-            'header-three'        
+            'header-three'  
+            'header-four'      
           ]
+          widget_options: 
+            block_types: [
+              # {label: 'p', style: 'unstyled'},
+              {label: 'h2', style: 'header-one', type: "block"},
+              {label: 'h3', style: 'header-two', type: "block"},
+              {label: 'h4', style: 'header-three', type: "block"},
+              {label: 'blockquote', style: 'blockquote', type: "block"},
+              {label: 'insertunorderedlist', style: 'unordered-list-item', type: "block"},
+              {label: 'insertorderedlist', style: 'ordered-list-item', type: "block"},
+              {label: 'code', style: 'code-block', type: "block"}
+              {label: 'bold', style: 'BOLD', type: "inline"},
+              {label: 'italic', style: 'ITALIC', type: "inline"},
+              # {label: 'underline', style: 'UNDERLINE', type: "inline"},
+              # {label: 'monospace', style: 'CODE', type: "inline"},
+              # {label: 'strikethrough', style: 'STRIKETHROUGH', type: "inline"}
+            ]
         }
         {
           type: 'inline_tooltip'
@@ -254,6 +271,19 @@ class Dante
       interval: options.store_interval || 1500
     }
 
+    @options.default_wrappers = [
+      {className: 'graf--p', block: 'unstyled'},
+      {className: 'graf--h2', block: 'header-one'},
+      {className: 'graf--h3', block: 'header-two'},
+      {className: 'graf--h4', block: 'header-three'},
+      {className: 'graf--blockquote', block: 'blockquote'},
+      {className: 'graf--insertunorderedlist', block: 'unordered-list-item'},
+      {className: 'graf--insertorderedlist', block: 'ordered-list-item'},
+      {className: 'graf--code', block: 'code-block'}
+      {className: 'graf--bold', block: 'BOLD'},
+      {className: 'graf--italic', block: 'ITALIC'},
+    ]
+
     @options.continuousBlocks = [
       "unstyled"
       "blockquote"
@@ -262,21 +292,6 @@ class Dante
       "unordered-list-item"
       "ordered-list-item"
       "code-block"
-    ]
-
-    @options.block_types = [
-      # {label: 'p', style: 'unstyled'},
-      {label: 'h3', style: 'header-one', type: "block"},
-      {label: 'h4', style: 'header-two', type: "block"},
-      {label: 'blockquote', style: 'blockquote', type: "block"},
-      {label: 'insertunorderedlist', style: 'unordered-list-item', type: "block"},
-      {label: 'insertorderedlist', style: 'ordered-list-item', type: "block"},
-      {label: 'code', style: 'code-block', type: "block"}
-      {label: 'bold', style: 'BOLD', type: "inline"},
-      {label: 'italic', style: 'ITALIC', type: "inline"},
-      # {label: 'underline', style: 'UNDERLINE', type: "inline"},
-      # {label: 'monospace', style: 'CODE', type: "inline"},
-      # {label: 'strikethrough', style: 'STRIKETHROUGH', type: "inline"}
     ]
 
     @options.key_commands = {
@@ -349,14 +364,16 @@ class DanteEditor extends React.Component
       debug_json: null
       debug_text: null
 
-    @widgets  = props.config.widgets
-    @tooltips = props.config.tooltips
+    @widgets  = @props.config.widgets
+    @tooltips = @props.config.tooltips
 
-    @key_commands = props.config.key_commands
+    @key_commands = @props.config.key_commands
 
     @continuousBlocks = @props.config.continuousBlocks
 
     @block_types = @props.config.block_types
+
+    @default_wrappers = @props.config.default_wrappers
 
     @save = new SaveBehavior
       getLocks: @getLocks
@@ -572,6 +589,13 @@ class DanteEditor extends React.Component
     .map (o)->
       o.type
 
+
+  defaultWrappers: (blockType)=>
+    @default_wrappers.filter (o)=>
+      o.block is blockType
+    .map (o)->
+      o.className
+
   blockRenderer: (block)=>
 
     switch block.getType()
@@ -612,9 +636,13 @@ class DanteEditor extends React.Component
     is_selected = if currentBlock.getKey() is block.getKey() then "is-selected" else ""
     
     if @renderableBlocks().includes(block.getType())
-      return @styleForBlock(block, currentBlock, is_selected) 
+      return @styleForBlock(block, currentBlock, is_selected)
+    
+    defaultBlockClass = @defaultWrappers(block.getType())
+    if defaultBlockClass.length > 0
+      return "graf #{defaultBlockClass[0]} #{is_selected}"
     else
-      return "graf graf--p #{is_selected}"
+      return "graf nana #{is_selected}"
 
   getDataBlock: (block)=>
     @widgets.find (o)=>
@@ -629,6 +657,14 @@ class DanteEditor extends React.Component
     selected_class = if is_selected then dataBlock.selected_class else ''
     
     return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
+
+  styleForDefaultBlock: (block, currentBlock, is_selected)=>
+    @defaultWrappers(block.getType())
+    debugger
+    return null unless dataBlock
+
+    return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
+
 
   ### from medium-draft
   By default, it handles return key for inserting soft breaks (BRs in HTML) and
@@ -782,6 +818,7 @@ class DanteEditor extends React.Component
     if !e.altKey && !e.metaKey && !e.ctrlKey
       currentBlock = getCurrentBlock(editorState)
       blockType = currentBlock.getType()
+      selection = editorState.getSelection()
 
       config_block = @getDataBlock(currentBlock)
 
@@ -831,13 +868,12 @@ class DanteEditor extends React.Component
           @closePopOvers()
           return true 
 
-        if @continuousBlocks.indexOf(blockType) < 0
-          @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
-          return true
+        if ( currentBlock.getLength() is selection.getStartOffset())
+          if @continuousBlocks.indexOf(blockType) < 0
+            @.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+            return true
 
         return false
-
-      selection = editorState.getSelection();
       
       # selection.isCollapsed() and # should we check collapsed here?
       if ( currentBlock.getLength() is selection.getStartOffset()) #or (config_block && config_block.breakOnContinuous))
@@ -889,6 +925,7 @@ class DanteEditor extends React.Component
     if selection.getAnchorOffset() > 1 || blockLength > 1
       return false
 
+    # TODO: configure here
     mapping = {
       '> ': "blockquote"
       '*.': "unordered-list-item"
@@ -1127,6 +1164,7 @@ class DanteEditor extends React.Component
               editorState={@state.editorState}
               onChange={@onChange}
               configTooltip={o}
+              widget_options={o.widget_options}
               
               showPopLinkOver={@showPopLinkOver} 
               hidePopLinkOver={@hidePopLinkOver}

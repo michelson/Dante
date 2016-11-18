@@ -185,11 +185,11 @@ class DanteTooltip extends React.Component
     pos
 
   inlineItems: =>
-    @props.editor.block_types.filter (o)=>
+    @props.widget_options.block_types.filter (o)=>
       o.type is "inline"
 
   blockItems: =>
-    @props.editor.block_types.filter (o)=>
+    @props.widget_options.block_types.filter (o)=>
       o.type is "block"
 
   getDefaultValue: =>
