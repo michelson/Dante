@@ -22,7 +22,7 @@ class ImageBlock extends React.Component
     existing_data = @.props.block.getData().toJS()
 
     @config = @props.blockProps.config
-
+    @file = @props.blockProps.data.get('file')
     @state =
       loading: false 
       selected: false
@@ -35,7 +35,6 @@ class ImageBlock extends React.Component
       file: null
       url: @blockPropsSrc() || @defaultUrl(existing_data)
       aspect_ratio: @defaultAspectRatio(existing_data)
-
 
   blockPropsSrc: ()=>
     # console.log @.props.blockProps.data.src
@@ -179,8 +178,10 @@ class ImageBlock extends React.Component
 
   formatData: ->
     formData = new FormData()
-    if file = @.props.blockProps.data.get('file')
-      formData.append('file', @.props.blockProps.data.get('file'))
+    if @file
+      #file = @.props.blockProps.data.get('file')
+
+      formData.append('file', @file)
       return formData
     else
       formData.append('url',
@@ -188,7 +189,6 @@ class ImageBlock extends React.Component
       )
       return formData
     
-
   uploadFile: =>
     # console.log "FORM DATA:" , @formatData()
     axios
@@ -201,6 +201,7 @@ class ImageBlock extends React.Component
       @uploadCompleted(result.data)
       @props.blockProps.removeLock()
       @stopLoader()
+      @file = null
 
       if @config.upload_callback
         @config.upload_callback(response, @)

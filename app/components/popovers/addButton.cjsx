@@ -102,7 +102,6 @@ class DanteInlineTooltip extends React.Component
     ###
     @.insertImage(fileList[0])
 
-
   widgets: =>
     @.props.editor.widgets
 

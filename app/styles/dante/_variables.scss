@@ -2,7 +2,7 @@
 
 // General
 
-$font-family-sans-serif: 'comic-sans';
+$dante-font-family-sans-serif: 'comic-sans';
 
 $dante-visual-debugger:        false !default;
 
@@ -42,12 +42,12 @@ $dante-menu-caret-size:        8px !default;
 
 // OLD VARIABLES
 
-$font-family-sans:              'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-$font-family-serif:             'freight-text-pro', 'Merriweather', Georgia,Cambria, "Times New Roman", Times,serif;
-$font-family-mono:              Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;
+$dante-font-family-sans:              'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+$dante-font-family-serif:             'freight-text-pro', 'Merriweather', Georgia,Cambria, "Times New Roman", Times,serif;
+$dante-font-family-mono:              Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;
 
-$font-family-base:              $font-family-sans;
-$font-size-base:                14px;
+$dante-font-family-base:              $dante-font-family-sans;
+$dante-font-size-base:                14px;
 $line-height-base:              1.428571429; // 20/14
 
 /* DEPRECATED */ $active-color: $dante-accent-color;
