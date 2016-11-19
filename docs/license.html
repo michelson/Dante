@@ -27,8 +27,9 @@
         editor = new Dante(
           {
             el: "app",
-            content: window.PocDataLicense, //window.PocData,
-            debug: true
+            content: window.PocDataLicense,
+            debug: false,
+            read_only: true
           }
         )
         editor.render()
