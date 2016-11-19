@@ -14,10 +14,8 @@
     "axios": "^0.15.2",
     "draft-convert": "^1.2.3",
     "draft-js": "0.9.1",
-    "draft-js-export-html": "^0.5.0",
     "react": "~15.3.0",
-    "react-dom": "~15.3.0",
-    "underscore": "^1.8.3"
+    "react-dom": "~15.3.0"
   },
   "devDependencies": {
     "babel": "6.3.13",

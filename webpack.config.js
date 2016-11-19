@@ -50,6 +50,18 @@ var plugins = [
     ],
   }),
 
+  new HtmlWebpackPlugin({
+    title: 'Dante Demo',
+    template: 'app/assets/options.html',
+    filename: 'doc.html',
+    scripts: [
+      {
+        src: '/initialize.js',
+        type: 'module'
+      }
+    ],
+  }),
+
   new CommonsChunkPlugin({
     name: 'dante-vendors',
     minChunks: function(module) {

@@ -11,9 +11,22 @@
 
     <div id="header">
       <div class="logo">
+        <div class="menu-buttons">
+          <a class="menu-button" target="_blank" href="https://michelson.github.io/dante2/doc.html">
+            Documentation
+          </a>
+
+          <a class="menu-button" target="_blank" href="https://michelson.github.io/dante2/license.html">
+            License
+          </a>          
+        </div>
+
+
         <img src=<%= require('images/site/dante-editor-logo.png') %> alt="dante editor" height="21">
         <span>Dante Editor - Staging Area </span>
+
       </div>
+
       <a class="github tooltip-left" data-tooltip="Fork me on github" target="_blank" href="https://github.com/michelson/dante2">
         <img src=<%= require('images/site/github-logo.png') %> alt="Fork me on github" height="28">
       </a>
@@ -26,11 +39,13 @@
       document.addEventListener('DOMContentLoaded', function(){
         editor = new Dante(
           {
-            upload_url: "http://localhost:9292/uploads/new",
-            store_url: "http://localhost:3333/store.json",
+            api_key: "86c28a410a104c8bb58848733c82f840",
             el: "app",
-            content: window.PocData, //window.PocData,
-            debug: true
+            content: window.PocData,
+            debug: true,
+            data_storage: {
+              url: "http://localhost:3333/store.json"
+            }
           }
         )
         editor.render()

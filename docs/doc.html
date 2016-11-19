@@ -10,10 +10,21 @@
     <script src="/vendor.js"></script>
     <script src="/application.js"></script>
     <script>require('initialize');</script>
-  </head>
+  <link href="app.css" rel="stylesheet"><link href="dante.css" rel="stylesheet"></head>
   <body>
 
     <div id="header">
+
+      <div class="menu-buttons">
+        <a class="menu-button" target="_blank" href="https://michelson.github.io/dante2/doc.html">
+          Documentation
+        </a>
+
+        <a class="menu-button" target="_blank" href="https://michelson.github.io/dante2/license.html">
+          License
+        </a>          
+      </div>
+
       <div class="logo">
         <img src="/images/site/dante-editor-logo.png" alt="dante editor" height="21">
         <span>Dante Editor - Staging Area </span>
@@ -24,14 +35,15 @@
     </div>
 
     <div id="app"></div>
-    <h2>oli</h2>
 
     <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', function(){
         editor = new Dante(
           {
             upload_url: "http://localhost:9292/uploads/new",
-            el: "app"
+            el: "app",
+            content: window.Doc,
+            read_only: true
           }
         )
         editor.render()
@@ -39,5 +51,5 @@
       })
     </script>
 
-  </body>
+  <script type="text/javascript" src="dante-vendors.js"></script><script type="text/javascript" src="app.js"></script><script type="text/javascript" src="dante.js"></script></body>
 </html>
