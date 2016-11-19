@@ -26,6 +26,10 @@ class SaveBehavior
         o.text
       .join("\n")
 
+  getUrl: ->
+    url = @config.data_storage.url
+    typeOf(url) is "function" then url() else url
+
   checkforStore: (content)->
     # ENTER DATA STORE
 
@@ -38,7 +42,7 @@ class SaveBehavior
     # console.log "SAVING TO: #{@config.data_storage.url}"
     axios
       method: @config.data_storage.method
-      url: @config.data_storage.url
+      url: @getUrl()
       data: 
         editor_content: JSON.stringify(content)
         text_content: @getTextFromEditor(content)
