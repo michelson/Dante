@@ -21,6 +21,19 @@ $gutter: 30px;
   box-shadow: 0 0 1px rgba(0,0,0,0.15);
 }
 
+.menu-buttons{
+  float:right;
+}
+
+.menu-button{
+  display: block;
+  float: left;
+  padding: 25px;
+  text-transform: uppercase;
+  color: #0bc392;
+  font-weight: 500;
+}
+
 article {
   margin-top: 140px;
 }

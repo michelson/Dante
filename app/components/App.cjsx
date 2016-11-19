@@ -2,7 +2,7 @@
 React = require('react')
 ReactDOM = require('react-dom')
 Immutable = require('immutable')
-{ Map } = require('immutable')
+{ Map, fromJS } = require('immutable')
 {
   convertToRaw
   convertFromRaw
@@ -25,13 +25,11 @@ Immutable = require('immutable')
 
 DraftPasteProcessor = require('draft-js/lib/DraftPasteProcessor')
 
-{stateToHTML} = require('draft-js-export-html')
+# {stateToHTML} = require('draft-js-export-html')
 {
   convertToHTML
   convertFromHTML
 } = require('draft-convert')
-
-#toHTML = require("../utils/convert_html.js")
 
 isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 
@@ -48,17 +46,6 @@ isSoftNewlineEvent = require('draft-js/lib/isSoftNewlineEvent')
 DanteImagePopover = require('./popovers/image')
 DanteAnchorPopover = require('./popovers/link')
 
-KeyCodes = 
-  BACKSPACE: 8
-  TAB: 9
-  ENTER: 13
-  SPACEBAR: 32
-  LEFTARROW: 37
-  UPARROW: 38
-  RIGHTARROW: 39
-  DOWNARROW: 40
-
-# window.utils = require('../utils/utils.coffee')
 { 
   getSelectionRect
   getSelection
@@ -75,22 +62,30 @@ VideoBlock = require('./blocks/video.cjsx')
 PlaceholderBlock = require('./blocks/placeholder.cjsx')
 
 SaveBehavior = require('../utils/save_content.coffee')
-customHTML2Content = require('../utils/convert_html2.coffee')
+customHTML2Content = require('../utils/html2content.coffee')
 
 class Dante
   constructor: (options={})->
     console.log "init editor Dante!"
-    @options = options
-    @options.el = options.el || 'app'
-    @options.poc = options.poc
-    @options.content = options.content
-    @options.read_only = options.read_only || false
-    @options.spellcheck = options.spellcheck || false
-    @options.title_placeholder = options.title_placeholder || "Title"
-    @options.body_placeholder = options.body_placeholder || "Write your story"
-    @options.api_key = options.api_key || "86c28a410a104c8bb58848733c82f840"
+    
+    # deep merge on config
+    config = Map(fromJS(@defaultOptions(options)))
 
-    @options.widgets = [
+    @options = config.mergeDeep(options).toJS()
+    console.log @options
+
+  defaultOptions: (options={})->
+    # default options
+    defaultOptions = {}
+    defaultOptions.el = 'app'
+    defaultOptions.content = ""
+    defaultOptions.read_only = false
+    defaultOptions.spellcheck = false
+    defaultOptions.title_placeholder = "Title"
+    defaultOptions.body_placeholder = "Write your story"
+    # @defaultOptions.api_key = "86c28a410a104c8bb58848733c82f840"
+
+    defaultOptions.widgets = [
       {
         title: 'add an image'
         icon: 'image'
@@ -100,7 +95,7 @@ class Dante
         renderable: true
         breakOnContinuous: true
         wrapper_class: "graf graf--figure"
-        selected_class:" is-selected is-mediaFocused"
+        selected_class: "is-selected is-mediaFocused"
         selectedFn: (block)=>
           direction = block.getData().toJS().direction
           switch direction
@@ -120,9 +115,9 @@ class Dante
           insertion: "upload"
           insert_block: "image"
         options:
-          upload_url: options.upload_url or 'uploads.json'
-          upload_callback: @options.image_upload_callabck
-          image_delete_callback: @options.image_delete_callback
+          upload_url: options.upload_url
+          upload_callback: options.image_upload_callback
+          image_delete_callback: options.image_delete_callback
           image_caption_placeholder: options.image_caption_placeholder
       }
       {
@@ -140,7 +135,7 @@ class Dante
           insertion: "placeholder"
           insert_block: "embed"
         options:
-          endpoint: "//api.embed.ly/1/extract?key=#{@options.api_key}&url="
+          endpoint: "//api.embed.ly/1/extract?key=#{options.api_key}&url="
           placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
         handleEnterWithoutText: (ctx, block)->
           editorState = ctx.state.editorState
@@ -164,7 +159,7 @@ class Dante
           insertion: "placeholder"
           insert_block: "video"
         options:
-          endpoint: "//api.embed.ly/1/oembed?key=#{@options.api_key}&url="
+          endpoint: "//api.embed.ly/1/oembed?key=#{options.api_key}&url="
           placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter'
           caption: 'Type caption for embed (optional)'
 
@@ -200,11 +195,9 @@ class Dante
       }
     ]
 
-    @options.tooltips = [
+    defaultOptions.tooltips = [
         {
-          type: 'menu'
           ref: 'insert_tooltip'
-          display: false
           component: DanteTooltip
           displayOnSelection: true
           selectionElements: [
@@ -238,40 +231,34 @@ class Dante
             ]
         }
         {
-          type: 'inline_tooltip'
           ref: 'add_tooltip'
-          display: false
           component: DanteInlineTooltip
         }
         {
-          type: 'anchor'
           ref: 'anchor_popover'
-          display: false
           component: DanteAnchorPopover
         }
         {
-          type: 'image',
           ref: 'image_popover'
-          display: false
           component: DanteImagePopover
         }
       ]
 
-    @options.xhr = {
-      before_handler: options.before_xhr_handler
-      success_handler: options.success_xhr_handler
-      error_handler: options.success_xhr_handler
+    defaultOptions.xhr = {
+      before_handler: null
+      success_handler: null
+      error_handler: null
     }
 
-    @options.data_storage = {
-      url: options.store_url || null
-      method: options.store_method || "POST"
-      success_handler: options.store_success_handler || null
-      failure_handler: options.store_failure_handler || null
-      interval: options.store_interval || 1500
+    defaultOptions.data_storage = {
+      url: null
+      method: "POST"
+      success_handler: null
+      failure_handler: null
+      interval: 1500
     }
 
-    @options.default_wrappers = [
+    defaultOptions.default_wrappers = [
       {className: 'graf--p', block: 'unstyled'},
       {className: 'graf--h2', block: 'header-one'},
       {className: 'graf--h3', block: 'header-two'},
@@ -284,7 +271,7 @@ class Dante
       {className: 'graf--italic', block: 'ITALIC'},
     ]
 
-    @options.continuousBlocks = [
+    defaultOptions.continuousBlocks = [
       "unstyled"
       "blockquote"
       "ordered-list"
@@ -294,7 +281,7 @@ class Dante
       "code-block"
     ]
 
-    @options.key_commands = {
+    defaultOptions.key_commands = {
       "alt-shift": [
         { key: 65, cmd: 'add-new-block'}
       ],
@@ -309,6 +296,20 @@ class Dante
         { key: 75, cmd: 'insert:link'}
       ]
     }
+
+    defaultOptions.character_convert_mapping = {
+      '> ': "blockquote",
+      '*.': "unordered-list-item",
+      '* ': "unordered-list-item",
+      '- ': "unordered-list-item",
+      '1.': "ordered-list-item",
+      '# ': 'header-one',
+      '##': 'header-two',
+      '==': "unstyled",
+      '` ': "code-block",
+    }
+
+    defaultOptions
 
   getContent: ->
     #console.log @options.content
@@ -373,6 +374,8 @@ class DanteEditor extends React.Component
 
     @default_wrappers = @props.config.default_wrappers
 
+    @character_convert_mapping = @props.config.character_convert_mapping
+
     @save = new SaveBehavior
       getLocks: @getLocks
       config: 
@@ -383,28 +386,6 @@ class DanteEditor extends React.Component
 
   initializeState: ()=>
     if @.props.content #and @.props.content.trim() isnt ""
-      #processedHTML = DraftPasteProcessor.processHTML(@.props.content)
-      #contentState = ContentState.createFromBlockArray(processedHTML)
-      # move focus to the end. 
-      #editorState = EditorState.createWithContent(contentState)
-      #editorState = EditorState.moveFocusToEnd(editorState)
-      
-      ###
-      #TODO: support entities
-      html = convertFromHTML(
-        htmlToEntity: (nodeName, node) =>
-          if nodeName is 'avv'
-            return Entity.create(
-              'LINK',
-              'MUTABLE',
-              {url: node.href}
-            )
-      )(@.props.content)
-      ###
-
-
-      #editorState = EditorState.createWithContent(html, @decorator)
-
       @decodeEditorContent(@props.content)    
     else 
       EditorState.createEmpty(@decorator)
@@ -462,8 +443,6 @@ class DanteEditor extends React.Component
     
     @dispatchChangesToSave()    
   
-    # console.log "CHANGES!"
-
   dispatchChangesToSave: =>
     clearTimeout @saveTimeout
     @saveTimeout = setTimeout =>
@@ -474,33 +453,6 @@ class DanteEditor extends React.Component
     content = @emitSerializedOutput()
     # console.log "SET PRE CONTENT", content
     @save.editorContent = content
-
-  ###
-  emitHTML: (editorState)=>
-
-    options =
-      blockRenderers:
-        #TODO: ver como funciona con los blocks
-        ATOMIC: (block) =>
-          data = block.getData();
-          if data.foo is 'bar'
-            return '<div>' + escape(block.getText()) + '</div>'
-        image: (block) =>
-          debugger
-          return "<div>aca va tu foto oe</div>"
-
-    #.state.editorState.getCurrentContent()
-    #raw = convertToRaw( @state.editorState.getCurrentContent() )
-    #html = stateToHTML(this.state.editorState.getCurrentContent(), options)
-    #html = stateToHTML(@state.editorState);
-    #html = draftRawToHtml(raw);
-    #this.props.onChange(html);
-
-    html = toHTML(@state.editorState.getCurrentContent())
-
-    console.log html
-    return false
-  ###
 
   focus: () =>
     #@props.refs.richEditor.focus()
@@ -564,7 +516,6 @@ class DanteEditor extends React.Component
       o.renderable
     .map (o)->
       o.type
-
 
   defaultWrappers: (blockType)=>
     @default_wrappers.filter (o)=>
@@ -640,15 +591,6 @@ class DanteEditor extends React.Component
     return null unless dataBlock
 
     return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
-
-
-  ### from medium-draft
-  By default, it handles return key for inserting soft breaks (BRs in HTML) and
-  also instead of inserting a new empty block after current empty block, it first check
-  whether the current block is of a type other than `unstyled`. If yes, current block is
-  simply converted to an unstyled empty block. If RETURN is pressed on an unstyled block
-  default behavior is executed.
-  ###
 
   handleTooltipDisplayOn: (prop, display=true)->
     setTimeout =>
@@ -901,20 +843,7 @@ class DanteEditor extends React.Component
     if selection.getAnchorOffset() > 1 || blockLength > 1
       return false
 
-    # TODO: configure here
-    mapping = {
-      '> ': "blockquote"
-      '*.': "unordered-list-item"
-      '* ': "unordered-list-item"
-      '- ': "unordered-list-item"
-      '1.': "ordered-list-item"
-      '# ': 'header-one'
-      '##': 'header-two'
-      '==': "unstyled"
-      '` ': "code-block"
-    }
-
-    blockTo = mapping[currentBlock.getText() + chars]
+    blockTo = @character_convert_mapping[currentBlock.getText() + chars]
 
     console.log "BLOCK TO SHOW: #{blockTo}"
 

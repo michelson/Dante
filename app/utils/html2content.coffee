@@ -13,9 +13,20 @@
   fromJS 
 }  = require('immutable')
 
-{ compose 
-}  = require('underscore')
 
+# { compose 
+# }  = require('underscore')
+
+# underscore compose function
+compose = ->
+  args = arguments
+  start = args.length - 1
+  ->
+    i = start
+    result = args[start].apply(this, arguments)
+    while i--
+      result = args[i].call(this, result)
+    result
 
 # from https://gist.github.com/N1kto/6702e1c2d89a33a15a032c234fc4c34e
 

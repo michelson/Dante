@@ -1,8 +1,14 @@
 import { Map } from 'immutable';
 
-import { EditorState, ContentBlock, genKey } from 'draft-js';
-//import { Block } from '../util/constants';
 
+
+import { EditorState, ContentBlock, genKey } from 'draft-js';
+
+
+/*
+Used from [react-rte](https://github.com/brijeshb42/medium-draft)
+by [brijeshb42](https://github.com/brijeshb42/medium-draft)
+*/
 
 /*
 Returns default block-level metadata for various block type. Empty object otherwise.
