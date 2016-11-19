@@ -188,12 +188,17 @@ class ImageBlock extends React.Component
         @.props.blockProps.data.get("url")
       )
       return formData
+
+  getUploadUrl: =>
+    url = @config.upload_url
+    if typeof(url) is "function" then url() else url
+
     
   uploadFile: =>
     # console.log "FORM DATA:" , @formatData()
     axios
       method: 'post'
-      url: @config.upload_url
+      url: @getUploadUrl()
       data: @formatData()
       onUploadProgress: (e)=>
         @updateProgressBar(e)
