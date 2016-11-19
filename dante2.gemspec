@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'dante-editor/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "dante-editor"
+  gem.name          = "dante2-editor"
   gem.version       = DanteEditor::VERSION
   gem.authors       = ["Miguel Michelson", "Cristian Ferrari"]
   gem.email         = ["miguelmichelson@gmail.com", "cristianferrarig@gmail.com"]
