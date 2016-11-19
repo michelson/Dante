@@ -1,3 +1,9 @@
+div[contenteditable="false"] {
+  a.markup--anchor {
+    cursor: pointer;
+  }
+}
+
 figure figcaption .public-DraftStyleDefault-block {
     text-align: center;
 }

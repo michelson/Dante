@@ -38,6 +38,18 @@ var plugins = [
     ],
   }),
 
+  new HtmlWebpackPlugin({
+    title: 'Dante Demo',
+    template: 'app/assets/license.html',
+    filename: 'license.html',
+    scripts: [
+      {
+        src: '/initialize.js',
+        type: 'module'
+      }
+    ],
+  }),
+
   new CommonsChunkPlugin({
     name: 'dante-vendors',
     minChunks: function(module) {
