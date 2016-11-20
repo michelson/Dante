@@ -621,8 +621,7 @@ class DanteEditor extends React.Component
     editorState = @state.editorState
 
     switch currentBlock.getType()
-      when "placeholder"
-
+      when "image", "video", "placeholder"
         newContent = Modifier.replaceText(
           editorState.getCurrentContent(),
           new SelectionState({
