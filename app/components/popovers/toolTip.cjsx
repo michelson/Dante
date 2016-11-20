@@ -167,7 +167,7 @@ class DanteTooltip extends React.Component
     entityKey = Entity.create('LINK', 'MUTABLE', opts);
 
     if selection.isCollapsed()
-      console.log "COLLAPSED SKIPPN LINK"
+      console.log "COLLAPSED SKIPPING LINK"
       return
 
     @props.onChange(

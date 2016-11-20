@@ -541,11 +541,15 @@ class DanteEditor extends React.Component
 
   handleBlockRenderer: (block)=>
     dataBlock = @getDataBlock(block)
-    #debugger if dataBlock.type is "placeholder"
     return null unless dataBlock
+
+    read_only = if @state.read_only then false else null
+    editable  = if read_only isnt null then read_only else dataBlock.editable
+    # console.log "blockrender for #{block.getType()} #{editable}"
+    
     return (
       component: eval(dataBlock.block)
-      editable: dataBlock.editable
+      editable: editable
       props:
         data: block.getData()
         getEditorState: @getEditorState
@@ -583,13 +587,6 @@ class DanteEditor extends React.Component
     selectedFn = if dataBlock.selectedFn then dataBlock.selectedFn(block) else null
     selected_class = if is_selected then dataBlock.selected_class else ''
     
-    return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
-
-  styleForDefaultBlock: (block, currentBlock, is_selected)=>
-    @defaultWrappers(block.getType())
-    debugger
-    return null unless dataBlock
-
     return "#{dataBlock.wrapper_class} #{selected_class} #{selectedFn}"
 
   handleTooltipDisplayOn: (prop, display=true)->

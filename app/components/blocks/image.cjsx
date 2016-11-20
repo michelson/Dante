@@ -236,8 +236,11 @@ class ImageBlock extends React.Component
         loading_progress: complete
       console.log "complete: #{complete}"
 
+  placeHolderEnabled: =>
+    @state.enabled or @.props.block.getText()
+
   placeholderText: =>
-    return "" if @state.enabled or @.props.block.getText()
+    return "" if @placeHolderEnabled()
     "Write caption for image (optional)"
 
   handleFocus: (e)=>
@@ -272,7 +275,12 @@ class ImageBlock extends React.Component
         <figcaption className='imageCaption'
           onMouseDown={@handleFocus}>
 
-          {@placeholderText()}
+          {
+            if !@state.enabled
+              <span className="danteDefaultPlaceholder">
+                {@placeholderText()}
+              </span>
+          }
            
           <EditorBlock {...@props} 
             editable=true
