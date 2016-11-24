@@ -76,8 +76,7 @@ Then open http://localhost:8080
 
 + `npm build` or `yarn build`
 
-** Upload test server (ruby, optional) **
-
+#### Upload test server (ruby, optional)
 
 For development purposes we have a server, written in ruby, to handle file uploading
  
