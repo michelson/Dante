@@ -1,4 +1,4 @@
-module DanteEditor
+module Dante2Editor
   class Engine < ::Rails::Engine
 
     config.generators do |g|
