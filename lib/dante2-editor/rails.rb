@@ -3,11 +3,11 @@ module Dante2Editor
 
     config.generators do |g|
 
-      config.assets.paths << DanteEditor::Engine.root.join("docs", "fonts")
-      config.assets.paths << DanteEditor::Engine.root.join("docs", "images")
-      config.assets.paths << DanteEditor::Engine.root.join("docs")
+      config.assets.paths << Dante2Editor::Engine.root.join("docs", "fonts")
+      config.assets.paths << Dante2Editor::Engine.root.join("docs", "images")
+      config.assets.paths << Dante2Editor::Engine.root.join("docs")
 
-      config.assets.paths << DanteEditor::Engine.root.join("app", "styles")
+      config.assets.paths << Dante2Editor::Engine.root.join("app", "styles")
 
 
     end

@@ -1,5 +1,5 @@
-require "dante-editor/version"
-require 'dante-editor/rails' if defined?(Rails)
+require "dante2-editor/version"
+require 'dante2-editor/rails' if defined?(Rails)
 
-module DanteEditor
+module Dante2Editor
 end
