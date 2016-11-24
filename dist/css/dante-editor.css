@@ -21,11 +21,11 @@
 @-webkit-keyframes spinner {
   to {
     -webkit-transform: rotate(360deg); } }
-.spinner {
+.dante--spinner {
   min-width: 24px;
   min-height: 24px; }
 
-.spinner:before {
+.dante--spinner:before {
   content: 'Loading…';
   position: absolute;
   top: 50%;
@@ -35,7 +35,7 @@
   margin-top: -10px;
   margin-left: -10px; }
 
-.spinner:not(:required):before {
+.dante--spinner:not(:required):before {
   content: '';
   border-radius: 50%;
   border: 2px solid rgba(0, 0, 0, 0.3);
@@ -201,54 +201,54 @@
   text-decoration: inherit;
   text-transform: none; }
 
-.icon-h2:before {
+.dante-icon-h2:before {
   content: ""; }
 
-.icon-h3:before {
+.dante-icon-h3:before {
   content: "H1"; }
 
-.icon-h4:before {
+.dante-icon-h4:before {
   content: "H2"; }
 
-.icon-p:before {
+.dante-icon-p:before {
   content: "P"; }
 
-.icon-code:before {
+.dante-icon-code:before {
   content: ""; }
 
-.icon-insertorderedlist:before {
+.dante-icon-insertorderedlist:before {
   content: ""; }
 
-.icon-insertunorderedlist:before {
+.dante-icon-insertunorderedlist:before {
   content: ""; }
 
-.icon-inserthorizontalrule:before {
+.dante-icon-inserthorizontalrule:before {
   content: ""; }
 
-.icon-indent:before {
+.dante-icon-indent:before {
   content: ""; }
 
-.icon-outdent:before {
+.dante-icon-outdent:before {
   content: ""; }
 
-.icon-bold:before {
+.dante-icon-bold:before {
   content: ""; }
 
-.icon-italic:before {
+.dante-icon-italic:before {
   content: ""; }
 
-.icon-underline:before {
+.dante-icon-underline:before {
   content: ""; }
 
-.icon-createlink:before {
+.dante-icon-createlink:before {
   content: ""; }
 
-.icon-blockquote:before {
+.dante-icon-blockquote:before {
   content: ""; }
 
-.icon-h2:before,
-.icon-h3:before,
-.icon-h4:before {
+.dante-icon-h2:before,
+.dante-icon-h3:before,
+.dante-icon-h4:before {
   font-weight: bold; }
 
 .tooltip-icon:before {
@@ -262,28 +262,28 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
 
-.icon-image-center:before {
+.dante-icon-image-center:before {
   content: "\e900"; }
 
-.icon-image-fill:before {
+.dante-icon-image-fill:before {
   content: "\e901"; }
 
-.icon-image-left:before {
+.dante-icon-image-left:before {
   content: "\e902"; }
 
-.icon-image-wide:before {
+.dante-icon-image-wide:before {
   content: "\e903"; }
 
-.icon-video:before {
+.dante-icon-video:before {
   content: "\e600"; }
 
-.icon-image:before {
+.dante-icon-image:before {
   content: "\e601"; }
 
-.icon-plus:before {
+.dante-icon-plus:before {
   content: "\e602"; }
 
-.icon-embed:before {
+.dante-icon-embed:before {
   content: "\e603"; }
 
 .dante-menu {
@@ -359,6 +359,7 @@
   text-align: center;
   color: #FFFFFF;
   cursor: pointer;
+  vertical-align: top;
   font-size: 16px;
   line-height: 42px;
   -webkit-user-select: none;
@@ -695,7 +696,7 @@
 .graf--pullquote {
   margin-bottom: 30px; }
 
-.graf--p.spinner {
+.graf--p.dante--spinner {
   position: relative; }
 
 .graf--h2 {

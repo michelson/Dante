@@ -9,7 +9,7 @@
     defaults: {
       image_placeholder: '../images/dante/media-loading-placeholder.png'
     },
-    version: "0.1.7"
+    version: "0.1.8"
   };
 
 }).call(this);
@@ -504,6 +504,9 @@
       this.store_url = opts.store_url;
       this.store_method = opts.store_method || "POST";
       this.store_success_handler = opts.store_success_handler;
+      this.before_xhr_handler = opts.before_xhr_handler;
+      this.success_xhr_handler = opts.success_xhr_handler;
+      this.failure_xhr_handler = opts.failure_xhr_handler;
       this.spell_check = opts.spellcheck || false;
       this.disable_title = opts.disable_title || false;
       this.store_interval = opts.store_interval || 1500;
@@ -520,6 +523,7 @@
       this.widgets = [];
       this.behaviors = [];
       this.popovers = [];
+      this.locks = 0;
       window.debugMode = opts.debug || false;
       if (window.debugMode) {
         $(this.el).addClass("debug");
@@ -2376,8 +2380,21 @@
       })(this), this.editor.store_interval);
     };
 
+    Save.prototype.getLocks = function() {
+      return this.editor.locks;
+    };
+
     Save.prototype.checkforStore = function() {
       utils.log("ENTER DATA STORE");
+      if (!this.editor.store_url) {
+        return;
+      }
+      if (this.getLocks() > 0) {
+        Debug("LOCKED!!");
+      }
+      if (this.getLocks() > 0) {
+        return;
+      }
       if (this.content === this.editor.getContent()) {
         utils.log("content not changed skip store");
         return this.store();
@@ -2391,11 +2408,29 @@
           data: {
             body: this.editor.getContent()
           },
+          beforeSend: (function(_this) {
+            return function(res) {
+              if (_this.editor.before_xhr_handler) {
+                return _this.editor.before_xhr_handler(res);
+              }
+            };
+          })(this),
           success: (function(_this) {
             return function(res) {
               utils.log("STORING CONTENT");
               if (_this.editor.store_success_handler) {
-                return _this.editor.store_success_handler(res);
+                _this.editor.store_success_handler(res);
+              }
+              if (_this.editor.success_xhr_handler) {
+                return _this.editor.success_xhr_handler(res);
+              }
+            };
+          })(this),
+          error: (function(_this) {
+            return function(status) {
+              utils.log("FAIL STORING CONTENT");
+              if (_this.editor.failure_xhr_handler) {
+                return _this.editor.failure_xhr_handler(status);
               }
             };
           })(this)
@@ -2492,18 +2527,28 @@
           return _this.json_request = $.ajax({
             url: "" + _this.editor.suggest_url + "?" + _this.editor.suggest_query_param + "=" + q,
             method: "get",
-            dataType: "json"
-          }).success(function(data) {
-            if (_this.editor.suggest_handler) {
-              _this.fetch_results = _this.editor.suggest_handler(data);
-            } else {
-              _this.fetch_results = data;
+            dataType: "json",
+            beforeSend: function(res) {
+              if (_this.editor.before_xhr_handler) {
+                return _this.editor.before_xhr_handler(res);
+              }
+            },
+            success: function(data) {
+              if (_this.editor.suggest_handler) {
+                _this.fetch_results = _this.editor.suggest_handler(data);
+              } else {
+                _this.fetch_results = data;
+              }
+              if (cb) {
+                cb(e);
+              }
+              if (_this.editor.success_xhr_handler) {
+                return _this.editor.success_xhr_handler(data);
+              }
+            },
+            error: function(data, err) {
+              return console.log("error fetching results");
             }
-            if (cb) {
-              return cb(e);
-            }
-          }).error(function(data, err) {
-            return console.log("error fetching results");
           });
         };
       })(this), this.editor.suggest_query_timeout);
@@ -2608,7 +2653,6 @@
     __extends(Uploader, _super);
 
     function Uploader() {
-      this.handleBackspaceKey = __bind(this.handleBackspaceKey, this);
       this.uploadCompleted = __bind(this.uploadCompleted, this);
       this.updateProgressBar = __bind(this.updateProgressBar, this);
       this.uploadFile = __bind(this.uploadFile, this);
@@ -2808,8 +2852,8 @@
       var handleUp, n;
       n = node;
       handleUp = (function(_this) {
-        return function(jqxhr) {
-          return _this.uploadCompleted(jqxhr, n);
+        return function(json_response) {
+          return _this.uploadCompleted(json_response, n);
         };
       })(this);
       return $.ajax({
@@ -2825,16 +2869,30 @@
         })(this),
         cache: false,
         contentType: false,
+        beforeSend: (function(_this) {
+          return function(res) {
+            _this.current_editor.locks += 1;
+            if (_this.current_editor.before_xhr_handler) {
+              return _this.current_editor.before_xhr_handler(res);
+            }
+          };
+        })(this),
         success: (function(_this) {
           return function(response) {
+            _this.current_editor.locks -= 1;
             if (_this.current_editor.upload_callback) {
-              response = _this.current_editor.upload_callback(response);
+              _this.current_editor.upload_callback(response, n, _this);
+            } else {
+              handleUp(response);
             }
-            handleUp(response);
+            if (_this.current_editor.success_xhr_handler) {
+              _this.current_editor.success_xhr_handler(response);
+            }
           };
         })(this),
         error: (function(_this) {
-          return function(jqxhr) {
+          return function(jqxhr, status) {
+            _this.current_editor.locks -= 1;
             return utils.log("ERROR: got error uploading file " + jqxhr.responseText);
           };
         })(this),
@@ -2857,45 +2915,8 @@
       }
     };
 
-    Uploader.prototype.uploadCompleted = function(url, node) {
-      return node.find("img").attr("src", url).data("src", url);
-    };
-
-
-    /*
-     * Handles the behavior of deleting images when using the backspace key
-     *
-     * @param {Event} e    - The backspace event that is being handled
-     * @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
-     *
-     * @return {Boolean} true if this function should scape the default behavior
-     */
-
-    Uploader.prototype.handleBackspaceKey = function(e, node) {
-
-      /*
-      utils.log "handleBackspaceKey on uploader widget"
-         
-       * remove graf figure if is selected but not in range (not focus on caption)
-      if $(node).hasClass("is-selected") && $(node).hasClass("graf--figure")
-         * exit if selection is on caption
-        anchor_node = @current_editor.selection().anchorNode
-        
-         * return false unless backspace is in the first char
-        if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
-          if @current_editor.isFirstChar()
-            return true
-          else
-            return false
-      
-      else if $(".is-selected").hasClass("is-mediaFocused")
-         * assume that select node is the current media element
-         * if it's focused when backspace it means that it should be removed
-        utils.log("Replacing selected node")
-        @current_editor.replaceWith("p", $(".is-selected"))
-        @current_editor.setRangeAt($(".is-selected")[0])
-        return true
-       */
+    Uploader.prototype.uploadCompleted = function(json, node) {
+      return node.find("img").attr("src", json.url).data("src", json.url);
     };
 
     return Uploader;
@@ -2957,7 +2978,7 @@
       var url;
       this.node = $(node);
       this.node_name = this.node.attr("name");
-      this.node.addClass("spinner");
+      this.node.addClass("dante--spinner");
       url = "" + this.current_editor.oembed_url + ($(this.node).text()) + "&scheme=https";
       return $.getJSON(url).success((function(_this) {
         return function(data) {
@@ -2976,7 +2997,7 @@
         };
       })(this)).error((function(_this) {
         return function(res) {
-          return _this.node.removeClass("spinner");
+          return _this.node.removeClass("dante--spinner");
         };
       })(this));
     };
@@ -3040,7 +3061,7 @@
     EmbedExtract.prototype.getExtractFromNode = function(node) {
       this.node = $(node);
       this.node_name = this.node.attr("name");
-      this.node.addClass("spinner");
+      this.node.addClass("dante--spinner");
       return $.getJSON("" + this.current_editor.extract_url + ($(this.node).text())).success((function(_this) {
         return function(data) {
           var iframe_src, image_node, replaced_node, tmpl;
@@ -3063,7 +3084,7 @@
         };
       })(this)).error((function(_this) {
         return function(data) {
-          return _this.node.removeClass("spinner");
+          return _this.node.removeClass("dante--spinner");
         };
       })(this));
     };
@@ -3119,9 +3140,9 @@
       _.each(this.widgets, function(b) {
         var data_action_value;
         data_action_value = b.action_value ? "data-action-value='" + b.action_value + "'" : "";
-        return menu += "<button class='inlineTooltip-button scale' title='" + b.title + "' data-action='inline-menu-" + b.action + "' " + data_action_value + "> <span class='tooltip-icon " + b.icon + "'></span> </button>";
+        return menu += "<button class='inlineTooltip-button scale' title='" + b.title + "' data-action='inline-menu-" + b.action + "' " + data_action_value + "> <span class='tooltip-icon dante-" + b.icon + "'></span> </button>";
       });
-      return "<button class='inlineTooltip-button control' title='Close Menu' data-action='inline-menu'> <span class='tooltip-icon icon-plus'></span> </button> <div class='inlineTooltip-menu'> " + menu + " </div>";
+      return "<button class='inlineTooltip-button control' title='Close Menu' data-action='inline-menu'> <span class='tooltip-icon dante-icon-plus'></span> </button> <div class='inlineTooltip-menu'> " + menu + " </div>";
     };
 
     Tooltip.prototype.findWidgetByAction = function(name) {
@@ -3461,9 +3482,9 @@
     ImageTooltip.prototype.handleActiveClass = function() {
       this.findElement().find(".dante-menu-button").removeClass("active");
       if (this.findSelectedImage().hasClass("graf--layoutOutsetLeft")) {
-        return this.findElement().find(".icon-image-left").parent().addClass("active");
+        return this.findElement().find(".dante-icon-image-left").parent().addClass("active");
       } else {
-        return this.findElement().find(".icon-image-center").parent().addClass("active");
+        return this.findElement().find(".dante-icon-image-center").parent().addClass("active");
       }
     };
 
@@ -3480,7 +3501,7 @@
     };
 
     ImageTooltip.prototype.template = function() {
-      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon icon-image-fill'></span> </li> <li class='dante-menu-button align-center'> <span class='tooltip-icon icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
+      return "<div class='dante-popover popover--Aligntooltip popover--top'> <div class='popover-inner'> <ul class='dante-menu-buttons'> <li class='dante-menu-button align-left'> <span class='tooltip-icon dante-icon-image-left'></span> </li> <li class='dante-menu-button align-wide hidden'> <span class='tooltip-icon dante-icon-image-wide'></span> </li> <li class='dante-menu-button align-fill hidden'> <span class='tooltip-icon dante-icon-image-fill'></span> </li> <li class='dante-menu-button align-center'> <span class='tooltip-icon dante-icon-image-center'></span> </li> </ul> </div> <div class='popover-arrow'> </div> </div>";
     };
 
     ImageTooltip.prototype.positionPopOver = function(target) {
@@ -3573,7 +3594,8 @@
       console.log("Select option here!");
       data = $(ev.currentTarget).data();
       $(".markup--query").replaceWith(this.linkTemplate(data));
-      return this.hide(0);
+      this.hide(0);
+      return this.editor.save_behavior.store();
     };
 
     PopOverTypeAhead.prototype.linkTemplate = function(data) {
@@ -3726,7 +3748,7 @@
         if (item === "divider") {
           return html += "<li class='dante-menu-divider'></li>";
         } else {
-          return html += "<li class='dante-menu-button'><i class=\"dante-icon icon-" + item + "\" data-action=\"" + item + "\"></i></li>";
+          return html += "<li class='dante-menu-button'><i class=\"dante-icon dante-icon-" + item + "\" data-action=\"" + item + "\"></i></li>";
         }
       });
       html += "</ul>";
@@ -3919,9 +3941,9 @@
               utils.log("nothing to select");
           }
           if (tag.match(/(?:h[1-6])/i)) {
-            _this.toggleMenuButtons(_this.el, ".icon-bold, .icon-italic");
+            _this.toggleMenuButtons(_this.el, ".dante-icon-bold, .dante-icon-italic");
           } else if (tag === "indent") {
-            _this.toggleMenuButtons(_this.el, ".icon-h3, .icon-h4, .icon-blockquote");
+            _this.toggleMenuButtons(_this.el, ".dante-icon-h3, .dante-icon-h4, .dante-icon-blockquote");
           }
           return _this.highlight(tag);
         };
@@ -3929,7 +3951,7 @@
     };
 
     Menu.prototype.highlight = function(tag) {
-      return $(".icon-" + tag).parent("li").addClass("active");
+      return $(".dante-icon-" + tag).parent("li").addClass("active");
     };
 
     Menu.prototype.toggleMenuButtons = function(el, buttons) {

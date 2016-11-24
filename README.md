@@ -1,5 +1,8 @@
 #Dante Editor
 
+> Hey!, Did you know there is a new version of Dante?, check it out at https://github.com/michelson/dante2
+
+
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/michelson/Dante?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 (This library is free and will stay free, but needs your support to sustain its development. There are lots of desirable new features and maintenance to do. If you work for a company using Dante or have the means to do so, please consider financial support)
