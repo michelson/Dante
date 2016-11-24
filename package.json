@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
-  "main": "app/components/App.js",
+  "main": "app/components/App.cjsx",
   "scripts": {
     "build": "node_modules/.bin/webpack --mode=build --progress -p",
     "dev": "node_modules/.bin/webpack --progress --colors --watch --mode=dev",
@@ -47,15 +47,13 @@
     "url": "https://github.com/michelson/Dante2.git"
   },
   "keywords": [
-    "webpack",
-    "es6",
-    "starter",
-    "library",
-    "universal",
-    "umd",
-    "commonjs"
+    "dante",
+    "dante2",
+    "react",
+    "wysiwyg",
+    "draft-js"
   ],
-  "license": "MIT",
+  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/Michelson/Dante2/issues"
   },
