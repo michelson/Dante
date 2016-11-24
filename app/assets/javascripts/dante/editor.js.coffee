@@ -49,6 +49,9 @@ class Dante.Editor extends Dante.View
     @store_url       = opts.store_url
     @store_method    = opts.store_method || "POST"
     @store_success_handler = opts.store_success_handler
+    @before_xhr_handler = opts.before_xhr_handler
+    @success_xhr_handler = opts.success_xhr_handler
+    @failure_xhr_handler = opts.failure_xhr_handler
     
     @spell_check     = opts.spellcheck || false
     @disable_title   = opts.disable_title || false
@@ -70,6 +73,8 @@ class Dante.Editor extends Dante.View
     @widgets   = []
     @behaviors = []
     @popovers  = []
+
+    @locks = 0
 
     window.debugMode = opts.debug || false
 

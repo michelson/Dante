@@ -40,7 +40,7 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
   getEmbedFromNode: (node)=>
     @node = $(node)
     @node_name = @node.attr("name")
-    @node.addClass("spinner")
+    @node.addClass("dante--spinner")
     url = "#{@current_editor.oembed_url}#{$(@node).text()}&scheme=https"
     $.getJSON(url)
       .success (data)=>
@@ -56,5 +56,5 @@ class Dante.View.TooltipWidget.Embed extends Dante.View.TooltipWidget
         replaced_node.find(".markup--anchor").attr("href", url ).text(url)
         @hide()
       .error (res)=>
-        @node.removeClass("spinner")
+        @node.removeClass("dante--spinner")
 

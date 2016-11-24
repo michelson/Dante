@@ -13,6 +13,7 @@ gem "wdm", "~> 0.1.0", :platforms => [:mswin, :mingw]
 gem "github-markup"
 gem "redcarpet"
 gem "sinatra"
+gem 'sinatra-contrib'
 gem "pry"
 
 gemspec

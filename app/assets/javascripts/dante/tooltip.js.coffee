@@ -17,11 +17,11 @@ class Dante.Editor.Tooltip extends Dante.View
     _.each @widgets, (b)->
       data_action_value = if b.action_value then "data-action-value='#{b.action_value}'" else  ""
       menu += "<button class='inlineTooltip-button scale' title='#{b.title}' data-action='inline-menu-#{b.action}' #{data_action_value}>
-        <span class='tooltip-icon #{b.icon}'></span>
+        <span class='tooltip-icon dante-#{b.icon}'></span>
       </button>"
 
     "<button class='inlineTooltip-button control' title='Close Menu' data-action='inline-menu'>
-        <span class='tooltip-icon icon-plus'></span>
+        <span class='tooltip-icon dante-icon-plus'></span>
     </button>
     <div class='inlineTooltip-menu'>
       #{menu}

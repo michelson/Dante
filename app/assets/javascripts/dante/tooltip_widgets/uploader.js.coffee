@@ -183,8 +183,8 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
 
   uploadFile: (file, node)=>
     n = node
-    handleUp = (jqxhr)=>
-      @uploadCompleted jqxhr, n
+    handleUp = (json_response)=>
+      @uploadCompleted json_response, n
 
     $.ajax
       type: "post"
@@ -196,11 +196,24 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       cache: false
       contentType: false
 
+      beforeSend: (res)=>
+        @current_editor.locks += 1
+
+        @current_editor.before_xhr_handler(res) if @current_editor.before_xhr_handler
+
       success: (response) =>
-        response = @current_editor.upload_callback(response) if @current_editor.upload_callback
-        handleUp(response)
+        @current_editor.locks -= 1
+
+        if @current_editor.upload_callback
+          @current_editor.upload_callback(response, n, @)
+        else
+          handleUp(response)
+        
+        @current_editor.success_xhr_handler(response) if @current_editor.success_xhr_handler
+
         return
-      error: (jqxhr)=>
+      error: (jqxhr, status)=>
+        @current_editor.locks -= 1
         utils.log("ERROR: got error uploading file #{jqxhr.responseText}")
 
       processData: false
@@ -218,42 +231,8 @@ class Dante.View.TooltipWidget.Uploader extends Dante.View.TooltipWidget
       utils.log "complete"
       utils.log complete
 
-  uploadCompleted: (url, node)=>
+  uploadCompleted: (json, node)=>
     node.find("img")
-    .attr("src", url)
-    .data("src", url)
+    .attr("src", json.url)
+    .data("src", json.url)
     #return false
-
-  ###
-  # Handles the behavior of deleting images when using the backspace key
-  #
-  # @param {Event} e    - The backspace event that is being handled
-  # @param {Node}  node - The node the backspace was used in, assumed to be from te editor's getNode() function
-  #
-  # @return {Boolean} true if this function should scape the default behavior
-  ###
-  handleBackspaceKey: (e, node) =>
-    # this is not needed here since we are handling backspace for images in image behavior
-    ###
-    utils.log "handleBackspaceKey on uploader widget"
-   
-    # remove graf figure if is selected but not in range (not focus on caption)
-    if $(node).hasClass("is-selected") && $(node).hasClass("graf--figure")
-      # exit if selection is on caption
-      anchor_node = @current_editor.selection().anchorNode
-      
-      # return false unless backspace is in the first char
-      if ( anchor_node? && $(anchor_node.parentNode).hasClass("imageCaption"))
-        if @current_editor.isFirstChar()
-          return true
-        else
-          return false
-
-    else if $(".is-selected").hasClass("is-mediaFocused")
-      # assume that select node is the current media element
-      # if it's focused when backspace it means that it should be removed
-      utils.log("Replacing selected node")
-      @current_editor.replaceWith("p", $(".is-selected"))
-      @current_editor.setRangeAt($(".is-selected")[0])
-      return true
-    ###

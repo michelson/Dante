@@ -46,7 +46,7 @@ class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
   getExtractFromNode: (node)=>
     @node = $(node)
     @node_name = @node.attr("name")
-    @node.addClass("spinner")
+    @node.addClass("dante--spinner")
 
     $.getJSON("#{@current_editor.extract_url}#{$(@node).text()}")
     .success (data)=>
@@ -66,7 +66,7 @@ class Dante.View.TooltipWidget.EmbedExtract extends Dante.View.TooltipWidget
         image_node.removeClass("mixtapeImage--empty u-ignoreBlock")
       @hide()
     .error (data)=>
-      @node.removeClass("spinner")
+      @node.removeClass("dante--spinner")
 
   getExtract: (url)=>
     $.getJSON("#{@current_editor.extract_url}#{url}").done (data)->

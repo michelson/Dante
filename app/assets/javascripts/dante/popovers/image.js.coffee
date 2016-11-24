@@ -32,9 +32,9 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
   handleActiveClass: ->
     @findElement().find(".dante-menu-button").removeClass("active")
     if @findSelectedImage().hasClass("graf--layoutOutsetLeft")
-      @findElement().find(".icon-image-left").parent().addClass("active")
+      @findElement().find(".dante-icon-image-left").parent().addClass("active")
     else
-      @findElement().find(".icon-image-center").parent().addClass("active")
+      @findElement().find(".dante-icon-image-center").parent().addClass("active")
 
   activateLink: (element)->
     setTimeout =>
@@ -53,19 +53,19 @@ class Dante.Editor.ImageTooltip extends Dante.Editor.PopOver
         <ul class='dante-menu-buttons'>
 
           <li class='dante-menu-button align-left'>
-            <span class='tooltip-icon icon-image-left'></span>
+            <span class='tooltip-icon dante-icon-image-left'></span>
           </li>
 
           <li class='dante-menu-button align-wide hidden'>
-            <span class='tooltip-icon icon-image-wide'></span>
+            <span class='tooltip-icon dante-icon-image-wide'></span>
           </li>
 
           <li class='dante-menu-button align-fill hidden'>
-            <span class='tooltip-icon icon-image-fill'></span>
+            <span class='tooltip-icon dante-icon-image-fill'></span>
           </li>
 
           <li class='dante-menu-button align-center'>
-            <span class='tooltip-icon icon-image-center'></span>
+            <span class='tooltip-icon dante-icon-image-center'></span>
           </li>
 
         </ul>
