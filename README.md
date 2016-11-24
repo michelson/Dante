@@ -4,14 +4,18 @@
 
 > Dante II is a complete rewrite of [DanteEditor](https://michelson.github.io/Dante). This version is built on top of Facebook's Draft-Js and reaches all Dante's features with a shiny ultra mega super uber maintainable architecture.
 
+See the demo at: [https://michelson.github.io/dante2/](https://michelson.github.io/dante2/)
+
 ## Why rewrite a new version of Dante?
 
-The previous version of Dante relies a lot on DOM manipulation which causes a mix of presentation and logic. Even with their modular plugin system this condition suppose an sphagetti maintanance mode to work on every feature. The biggest problem with this approach is: if you want to make a change that affects the presentation of your users posts, you probably end updating all your content in your database, because dealing with "DOM only" suppose the you are going to save html into database, right ?
+The previous version of Dante relies a lot on DOM manipulation which causes a mix of presentation and logic. Even with their modular plugin system this condition suppose an sphagetti model to work with on every feature. The biggest problem with this approach is: if you want to make a change that affects the presentation of your users content, let's say you might want to change the default markup for paragraphs, you'll probably end updating all your content in your database, because dealing with "DOM only" suppose that you are going to save html into database, right ?
 
 
 ## A redesign was needed!
 
-Draft-Js handles selection, ranges and markup blocks as a data layer contained in a structure known as editorState, with a clear separation on how rendering, styling and interaction works. Then, every change provided from user input on the editor text is stacked in this editorState building an history of changes, out of the box. This means that pasting, undo/redo and replace/insert blocks at certain selection points are finally calls to the DraftJs API that updates the editorState without DOM manipulation. Also all the custom blocks are composed as React components!. So, this version have some dependencies which are included in source. DraftJs, React, Immutable. no Jquery.
+Draft-Js handles selection, ranges and markup blocks as a data layer contained in a structure known as editorState, with a clear separation on how rendering, styling and interaction works. So you save content data, not html. That's awesome because you can change the appearance of articles (styles & markup) without database changes.
+
+In Draft every change provided from user input is stacked in this editorState building an history of changes, out of the box. This means that pasting, undo/redo and replace/insert blocks at certain selection points are basically calls to the DraftJs API that updates the editorState without DOM manipulation. Also, all the custom blocks are composed as React components!. So, this version have some dependencies which are included in source. DraftJs, React, Immutable. no Jquery.
 
 **New Features:**
 + Improved undo/redo.
