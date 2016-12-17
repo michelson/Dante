@@ -320,7 +320,7 @@ class Dante
     @options.content
 
   render: ->
-    ReactDOM.render(<DanteEditor content={@getContent()} 
+    @editor = ReactDOM.render(<DanteEditor content={@getContent()} 
       config={@options}/>, document.getElementById(@options.el))
 
 class DanteEditor extends React.Component
