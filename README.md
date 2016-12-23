@@ -43,7 +43,7 @@ Until now We´ve implemented the following features:
 
 ## Usage:
 
-### HTML:
+### HTML on new.html.erb:
 
 ```html
   <div id="editor">
@@ -51,7 +51,7 @@ Until now We´ve implemented the following features:
   </div>
 ```
 
-### Javascript:
+### Javascript on new.html.erb:
 
 ```html
   <script type="text/javascript">
@@ -65,6 +65,39 @@ Until now We´ve implemented the following features:
     );
     editor.start()
   </script>
+```
+
+### Ruby:
+
+Dante sends params from the view to the controller within a "body" key, with the HTML (in string form) as the value. 
+With Rails' strong params, you will need to rename it to whatever that method will accept. To post
+successfully to the controller, you will probably need to modify the params within the "create" action. 
+For example, if you had a resource called "Story", with each Story having 1 text field called "content",
+you would rename and merge the params like so:
+
+```ruby
+  def create
+    story = {:story => {:content => params[:body]}}
+    params.merge!(story)
+    @story = Story.new(story_params)
+
+    respond_to do |format|
+      if @story.save
+        format.html { redirect_to @story, notice: 'Story was successfully created.' }
+        format.json { render :show, status: :created, location: @story }
+      else
+        format.html { render :new }
+        format.json { render json: @story.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+```
+### HTML on the show.html.erb page:
+
+To display the content from the editor within a view,
+
+```html
+  <%= @story.content.html_safe %>
 ```
 
 ### Configuration options:
