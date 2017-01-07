@@ -1,7 +1,9 @@
-require("styles/layout/layout");
-require("styles/layout/normalize");
-require("styles/layout/scaffold");
+import 'styles/layout/layout'
+import 'styles/layout/normalize'
+import 'styles/layout/scaffold'
 
-window.PocData = require('./data/poc.js').Readme
-window.PocDataLicense = require('./data/poc.js').License
-window.Doc = require('./data/poc.js').Doc
+import { Readme, License, Doc } from './data/poc.js'
+
+window.PocData = Readme
+window.PocDataLicense = License
+window.Doc = Doc

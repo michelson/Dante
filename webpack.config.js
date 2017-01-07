@@ -104,23 +104,24 @@ var config = {
   },
   resolve: {
     root: path.resolve('./app'),
-    extensions: ['', '.js','.es6', '.cjsx', '.coffee', '.css', '.scss']
+    extensions: ['', '.js', '.jsx', '.es6', '.cjsx', '.coffee', '.css', '.scss']
   },
   module: {
     loaders: [
-      { test: /\.cjsx$/, 
-        loaders: ['coffee', 'cjsx'], 
+      { test: /\.cjsx$/,
+        loaders: ['coffee', 'cjsx'],
         exclude: /(node_modules|bower_components)/
       },
-      { test: /\.coffee$/, 
-        loader: 'coffee', 
+      { test: /\.coffee$/,
+        loader: 'coffee',
         exclude: /(node_modules|bower_components)/ },
       {
         test: /(\.jsx|\.js|\.es6)$/,
         loader: 'babel-loader',
         exclude: /(node_modules|bower_components)/,
         query: {
-          presets: ['es2015']
+          presets: ['es2015'],
+          "plugins": ["transform-react-jsx"]
         }
       },
       {
