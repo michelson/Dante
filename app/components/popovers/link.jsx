@@ -1,19 +1,19 @@
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import { getCurrentBlock } from '../../model/index.js';
+import { getCurrentBlock } from '../../model/index.js'
 
 class DanteAnchorPopover extends React.Component {
 
   constructor(props) {
 
-    super(props);
-    this.display = this.display.bind(this);
-    this.show = this.show.bind(this);
-    this.hide = this.hide.bind(this);
-    this.relocate = this.relocate.bind(this);
-    this.render = this.render.bind(this);
+    super(props)
+    this.display = this.display.bind(this)
+    this.show = this.show.bind(this)
+    this.hide = this.hide.bind(this)
+    this.relocate = this.relocate.bind(this)
+    this.render = this.render.bind(this)
     this.state = {
       position: {
         top: 0,
@@ -21,72 +21,87 @@ class DanteAnchorPopover extends React.Component {
       },
       show: false,
       url: ""
-    };
+    }
   }
 
   display(b) {
     if (b) {
-      return this.show();
+      return this.show()
     } else {
-      return this.hide();
+      return this.hide()
     }
   }
 
   show() {
     return this.setState({
-      show: true });
+      show: true })
   }
 
   hide() {
     return this.setState({
-      show: false });
+      show: false })
   }
 
   setPosition(coords) {
     return this.setState({
-      position: coords });
+      position: coords })
   }
 
   relocate(node) {
     if (node == null) {
-      node = null;
+      node = null
     }
     if (!node) {
-      return;
+      return
     }
 
-    let { editorState } = this.props;
-    let currentBlock = getCurrentBlock(editorState);
-    let blockType = currentBlock.getType();
+    let { editorState } = this.props
+    let currentBlock = getCurrentBlock(editorState)
+    let blockType = currentBlock.getType()
 
-    let contentState = editorState.getCurrentContent();
-    let selectionState = editorState.getSelection();
+    let contentState = editorState.getCurrentContent()
+    let selectionState = editorState.getSelection()
 
-    let selectionBoundary = node.getBoundingClientRect();
-    let coords = selectionBoundary;
+    let selectionBoundary = node.getBoundingClientRect()
+    let coords = selectionBoundary
 
-    let el = this.refs.dante_popover;
-    let padd = el.offsetWidth / 2;
+    let el = this.refs.dante_popover
+    let padd = el.offsetWidth / 2
 
-    let parent = ReactDOM.findDOMNode(this.props.editor);
-    let parentBoundary = parent.getBoundingClientRect();
+    let parent = ReactDOM.findDOMNode(this.props.editor)
+    let parentBoundary = parent.getBoundingClientRect()
 
     return {
       top: selectionBoundary.top - parentBoundary.top + 160,
       left: selectionBoundary.left + selectionBoundary.width / 2 - padd
-    };
+    }
   }
 
   render() {
-    let { position } = this.state;
+    let { position } = this.state
     let style = {
       left: position.left,
       top: position.top,
       visibility: `${ this.state.show ? 'visible' : 'hidden' }`
-    };
-    return <div ref="dante_popover" className='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active' style={style} onMouseOver={this.props.handleOnMouseOver} onMouseOut={this.props.handleOnMouseOut}><div className='popover-inner'><a href={this.props.url} target='_blank'>{this.state.url}</a></div><div className='popover-arrow' /></div>;
+    }
+    return (
+      <div
+        ref="dante_popover"
+        className='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active'
+        style={ style }
+        onMouseOver={ this.props.handleOnMouseOver }
+        onMouseOut={ this.props.handleOnMouseOut }
+      >
+        <div className='popover-inner'>
+          <a href={ this.props.url } target='_blank'>
+            { this.state.url }
+          </a>
+        </div>
+        <div className='popover-arrow' />
+      </div>
+    )
   }
 }
 
-export default DanteAnchorPopover;
+export default DanteAnchorPopover
 

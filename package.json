@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
-  "main": "app/components/App.cjsx",
+  "main": "app/components/App.jsx",
   "scripts": {
     "build": "node_modules/.bin/webpack --mode=build --progress -p",
     "dev": "node_modules/.bin/webpack --progress --colors --watch --mode=dev",

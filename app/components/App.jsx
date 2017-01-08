@@ -1,62 +1,62 @@
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Immutable from 'immutable';
-import { Map, fromJS } from 'immutable';
-import { convertToRaw, convertFromRaw, CompositeDecorator, getVisibleSelectionRect, getDefaultKeyBinding, getSelectionOffsetKeyForNode, KeyBindingUtil, ContentState, Editor, EditorState, Entity, RichUtils, DefaultDraftBlockRenderMap, SelectionState, Modifier, BlockMapBuilder, getSafeBodyFromHTML } from 'draft-js';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import Immutable from 'immutable'
+import { Map, fromJS } from 'immutable'
+import { convertToRaw, convertFromRaw, CompositeDecorator, getVisibleSelectionRect, getDefaultKeyBinding, getSelectionOffsetKeyForNode, KeyBindingUtil, ContentState, Editor, EditorState, Entity, RichUtils, DefaultDraftBlockRenderMap, SelectionState, Modifier, BlockMapBuilder, getSafeBodyFromHTML } from 'draft-js'
 
-import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor';
+import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor'
 
-import { convertToHTML, convertFromHTML } from 'draft-convert';
+import { convertToHTML, convertFromHTML } from 'draft-convert'
 
-import isSoftNewlineEvent from 'draft-js/lib/isSoftNewlineEvent';
+import isSoftNewlineEvent from 'draft-js/lib/isSoftNewlineEvent'
 
-import { addNewBlock, resetBlockWithType, updateDataOfBlock, updateTextOfBlock, getCurrentBlock, addNewBlockAt } from '../model/index.js';
+import { addNewBlock, resetBlockWithType, updateDataOfBlock, updateTextOfBlock, getCurrentBlock, addNewBlockAt } from '../model/index.js'
 
-import DanteImagePopover from './popovers/image';
-import DanteAnchorPopover from './popovers/link';
+import DanteImagePopover from './popovers/image'
+import DanteAnchorPopover from './popovers/link'
 
-import { getSelectionRect, getSelection } from "../utils/selection.js";
-import DanteInlineTooltip from './popovers/addButton';
-import DanteTooltip from './popovers/toolTip';
-import Link from './decorators/link';
+import { getSelectionRect, getSelection } from "../utils/selection.js"
+import DanteInlineTooltip from './popovers/addButton'
+import DanteTooltip from './popovers/toolTip'
+import Link from './decorators/link'
 
-import Debug from './debug';
-import findEntities from '../utils/find_entities';
-import ImageBlock from './blocks/image';
-import EmbedBlock from './blocks/embed';
-import VideoBlock from './blocks/video';
-import PlaceholderBlock from './blocks/placeholder';
+import Debug from './debug'
+import findEntities from '../utils/find_entities'
+import ImageBlock from './blocks/image'
+import EmbedBlock from './blocks/embed'
+import VideoBlock from './blocks/video'
+import PlaceholderBlock from './blocks/placeholder'
 
-import SaveBehavior from '../utils/save_content';
-import customHTML2Content from '../utils/html2content';
+import SaveBehavior from '../utils/save_content'
+import customHTML2Content from '../utils/html2content'
 
 const Dante = class {
   constructor(options) {
     if (options == null) {
-      options = {};
+      options = {}
     }
-    console.log("init editor Dante!");
+    console.log("init editor Dante!")
 
     // deep merge on config
-    let config = Map(fromJS(this.defaultOptions(options)));
+    let config = Map(fromJS(this.defaultOptions(options)))
 
-    this.options = config.mergeDeep(options).toJS();
-    console.log(this.options);
+    this.options = config.mergeDeep(options).toJS()
+    console.log(this.options)
   }
 
   defaultOptions(options) {
     // default options
     if (options == null) {
-      options = {};
+      options = {}
     }
-    let defaultOptions = {};
-    defaultOptions.el = 'app';
-    defaultOptions.content = "";
-    defaultOptions.read_only = false;
-    defaultOptions.spellcheck = false;
-    defaultOptions.title_placeholder = "Title";
-    defaultOptions.body_placeholder = "Write your story";
+    let defaultOptions = {}
+    defaultOptions.el = 'app'
+    defaultOptions.content = ""
+    defaultOptions.read_only = false
+    defaultOptions.spellcheck = false
+    defaultOptions.title_placeholder = "Title"
+    defaultOptions.body_placeholder = "Write your story"
     // @defaultOptions.api_key = "86c28a410a104c8bb58848733c82f840"
 
     defaultOptions.widgets = [{
@@ -70,25 +70,25 @@ const Dante = class {
       wrapper_class: "graf graf--figure",
       selected_class: "is-selected is-mediaFocused",
       selectedFn: block => {
-        const { direction } = block.getData().toJS();
+        const { direction } = block.getData().toJS()
         switch (direction) {
           case "left":
-            return "graf--layoutOutsetLeft";
+            return "graf--layoutOutsetLeft"
           case "center":
-            return "";
+            return ""
           case "wide":
-            return "sectionLayout--fullWidth";
+            return "sectionLayout--fullWidth"
           case "fill":
-            return "graf--layoutFillWidth";
+            return "graf--layoutFillWidth"
         }
       },
       handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state;
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       },
       handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state;
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       },
       widget_options: {
         displayOnInlineTooltip: true,
@@ -121,12 +121,12 @@ const Dante = class {
         placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
       },
       handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state;
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       },
       handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state;
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       }
     }, {
       icon: 'video',
@@ -150,13 +150,13 @@ const Dante = class {
       },
 
       handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state;
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       },
 
       handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state;
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       }
     }, {
       renderable: true,
@@ -169,16 +169,16 @@ const Dante = class {
         displayOnInlineTooltip: false
       },
       handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state;
+        const { editorState } = ctx.state
         const data = {
           provisory_text: block.getText(),
           endpoint: block.getData().get('endpoint'),
           type: block.getData().get('type')
-        };
+        }
 
-        return ctx.onChange(resetBlockWithType(editorState, data.type, data));
+        return ctx.onChange(resetBlockWithType(editorState, data.type, data))
       }
-    }];
+    }]
 
     defaultOptions.tooltips = [{
       ref: 'insert_tooltip',
@@ -199,13 +199,13 @@ const Dante = class {
     }, {
       ref: 'image_popover',
       component: DanteImagePopover
-    }];
+    }]
 
     defaultOptions.xhr = {
       before_handler: null,
       success_handler: null,
       error_handler: null
-    };
+    }
 
     defaultOptions.data_storage = {
       url: null,
@@ -213,17 +213,17 @@ const Dante = class {
       success_handler: null,
       failure_handler: null,
       interval: 1500
-    };
+    }
 
-    defaultOptions.default_wrappers = [{ className: 'graf--p', block: 'unstyled' }, { className: 'graf--h2', block: 'header-one' }, { className: 'graf--h3', block: 'header-two' }, { className: 'graf--h4', block: 'header-three' }, { className: 'graf--blockquote', block: 'blockquote' }, { className: 'graf--insertunorderedlist', block: 'unordered-list-item' }, { className: 'graf--insertorderedlist', block: 'ordered-list-item' }, { className: 'graf--code', block: 'code-block' }, { className: 'graf--bold', block: 'BOLD' }, { className: 'graf--italic', block: 'ITALIC' }];
+    defaultOptions.default_wrappers = [{ className: 'graf--p', block: 'unstyled' }, { className: 'graf--h2', block: 'header-one' }, { className: 'graf--h3', block: 'header-two' }, { className: 'graf--h4', block: 'header-three' }, { className: 'graf--blockquote', block: 'blockquote' }, { className: 'graf--insertunorderedlist', block: 'unordered-list-item' }, { className: 'graf--insertorderedlist', block: 'ordered-list-item' }, { className: 'graf--code', block: 'code-block' }, { className: 'graf--bold', block: 'BOLD' }, { className: 'graf--italic', block: 'ITALIC' }]
 
-    defaultOptions.continuousBlocks = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"];
+    defaultOptions.continuousBlocks = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"]
 
     defaultOptions.key_commands = {
       "alt-shift": [{ key: 65, cmd: 'add-new-block' }],
       "alt-cmd": [{ key: 49, cmd: 'toggle_block:header-one' }, { key: 50, cmd: 'toggle_block:header-two' }, { key: 53, cmd: 'toggle_block:blockquote' }],
       "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' }, { key: 73, cmd: 'toggle_inline:ITALIC' }, { key: 75, cmd: 'insert:link' }]
-    };
+    }
 
     defaultOptions.character_convert_mapping = {
       '> ': "blockquote",
@@ -235,9 +235,9 @@ const Dante = class {
       '##': 'header-two',
       '==': "unstyled",
       '` ': "code-block"
-    };
+    }
 
-    return defaultOptions;
+    return defaultOptions
   }
 
   getContent() {
@@ -246,68 +246,71 @@ const Dante = class {
     //return PocData if @options.poc
     //console.log @options.content , PocData
     //PocData
-    return this.options.content;
+    return this.options.content
   }
 
   render() {
-    return this.editor = ReactDOM.render(<DanteEditor content={this.getContent()} config={this.options} />, document.getElementById(this.options.el));
+    return this.editor = ReactDOM.render(
+      <DanteEditor content={this.getContent()} config={this.options} />,
+      document.getElementById(this.options.el)
+    )
   }
-};
+}
 
 const DanteEditor = class extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     //window.main_editor = @
 
-    this.initializeState = this.initializeState.bind(this);
-    this.refreshSelection = this.refreshSelection.bind(this);
-    this.forceRender = this.forceRender.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.dispatchChangesToSave = this.dispatchChangesToSave.bind(this);
-    this.setPreContent = this.setPreContent.bind(this);
-    this.focus = this.focus.bind(this);
-    this.getEditorState = this.getEditorState.bind(this);
-    this.emitSerializedOutput = this.emitSerializedOutput.bind(this);
-    this.decodeEditorContent = this.decodeEditorContent.bind(this);
-    this.getTextFromEditor = this.getTextFromEditor.bind(this);
-    this.getLocks = this.getLocks.bind(this);
-    this.addLock = this.addLock.bind(this);
-    this.removeLock = this.removeLock.bind(this);
-    this.renderableBlocks = this.renderableBlocks.bind(this);
-    this.defaultWrappers = this.defaultWrappers.bind(this);
-    this.blockRenderer = this.blockRenderer.bind(this);
-    this.handleBlockRenderer = this.handleBlockRenderer.bind(this);
-    this.blockStyleFn = this.blockStyleFn.bind(this);
-    this.getDataBlock = this.getDataBlock.bind(this);
-    this.styleForBlock = this.styleForBlock.bind(this);
-    this.handlePasteText = this.handlePasteText.bind(this);
-    this.handleTXTPaste = this.handleTXTPaste.bind(this);
-    this.handleHTMLPaste = this.handleHTMLPaste.bind(this);
-    this.handlePasteImage = this.handlePasteImage.bind(this);
-    this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
-    this.handleUpArrow = this.handleUpArrow.bind(this);
-    this.handleDownArrow = this.handleDownArrow.bind(this);
-    this.handleReturn = this.handleReturn.bind(this);
-    this.handleBeforeInput = this.handleBeforeInput.bind(this);
-    this.handleKeyCommand = this.handleKeyCommand.bind(this);
-    this.findCommandKey = this.findCommandKey.bind(this);
-    this.KeyBindingFn = this.KeyBindingFn.bind(this);
-    this.updateBlockData = this.updateBlockData.bind(this);
-    this.setDirection = this.setDirection.bind(this);
-    this.toggleEditable = this.toggleEditable.bind(this);
-    this.closePopOvers = this.closePopOvers.bind(this);
-    this.relocateTooltips = this.relocateTooltips.bind(this);
-    this.tooltipsWithProp = this.tooltipsWithProp.bind(this);
-    this.tooltipHasSelectionElement = this.tooltipHasSelectionElement.bind(this);
-    this.handleShowPopLinkOver = this.handleShowPopLinkOver.bind(this);
-    this.handleHidePopLinkOver = this.handleHidePopLinkOver.bind(this);
-    this.showPopLinkOver = this.showPopLinkOver.bind(this);
-    this.hidePopLinkOver = this.hidePopLinkOver.bind(this);
-    this.render = this.render.bind(this);
+    this.initializeState = this.initializeState.bind(this)
+    this.refreshSelection = this.refreshSelection.bind(this)
+    this.forceRender = this.forceRender.bind(this)
+    this.onChange = this.onChange.bind(this)
+    this.dispatchChangesToSave = this.dispatchChangesToSave.bind(this)
+    this.setPreContent = this.setPreContent.bind(this)
+    this.focus = this.focus.bind(this)
+    this.getEditorState = this.getEditorState.bind(this)
+    this.emitSerializedOutput = this.emitSerializedOutput.bind(this)
+    this.decodeEditorContent = this.decodeEditorContent.bind(this)
+    this.getTextFromEditor = this.getTextFromEditor.bind(this)
+    this.getLocks = this.getLocks.bind(this)
+    this.addLock = this.addLock.bind(this)
+    this.removeLock = this.removeLock.bind(this)
+    this.renderableBlocks = this.renderableBlocks.bind(this)
+    this.defaultWrappers = this.defaultWrappers.bind(this)
+    this.blockRenderer = this.blockRenderer.bind(this)
+    this.handleBlockRenderer = this.handleBlockRenderer.bind(this)
+    this.blockStyleFn = this.blockStyleFn.bind(this)
+    this.getDataBlock = this.getDataBlock.bind(this)
+    this.styleForBlock = this.styleForBlock.bind(this)
+    this.handlePasteText = this.handlePasteText.bind(this)
+    this.handleTXTPaste = this.handleTXTPaste.bind(this)
+    this.handleHTMLPaste = this.handleHTMLPaste.bind(this)
+    this.handlePasteImage = this.handlePasteImage.bind(this)
+    this.handleDroppedFiles = this.handleDroppedFiles.bind(this)
+    this.handleUpArrow = this.handleUpArrow.bind(this)
+    this.handleDownArrow = this.handleDownArrow.bind(this)
+    this.handleReturn = this.handleReturn.bind(this)
+    this.handleBeforeInput = this.handleBeforeInput.bind(this)
+    this.handleKeyCommand = this.handleKeyCommand.bind(this)
+    this.findCommandKey = this.findCommandKey.bind(this)
+    this.KeyBindingFn = this.KeyBindingFn.bind(this)
+    this.updateBlockData = this.updateBlockData.bind(this)
+    this.setDirection = this.setDirection.bind(this)
+    this.toggleEditable = this.toggleEditable.bind(this)
+    this.closePopOvers = this.closePopOvers.bind(this)
+    this.relocateTooltips = this.relocateTooltips.bind(this)
+    this.tooltipsWithProp = this.tooltipsWithProp.bind(this)
+    this.tooltipHasSelectionElement = this.tooltipHasSelectionElement.bind(this)
+    this.handleShowPopLinkOver = this.handleShowPopLinkOver.bind(this)
+    this.handleHidePopLinkOver = this.handleHidePopLinkOver.bind(this)
+    this.showPopLinkOver = this.showPopLinkOver.bind(this)
+    this.hidePopLinkOver = this.hidePopLinkOver.bind(this)
+    this.render = this.render.bind(this)
     this.decorator = new CompositeDecorator([{
       strategy: findEntities.bind(null, 'LINK', this),
       component: Link
-    }]);
+    }])
 
     this.blockRenderMap = Map({
       "image": {
@@ -332,9 +335,9 @@ const DanteEditor = class extends React.Component {
         element: 'div'
       }
 
-    });
+    })
 
-    this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap);
+    this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap)
 
     this.state = {
       editorState: this.initializeState(),
@@ -342,20 +345,20 @@ const DanteEditor = class extends React.Component {
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
       debug: this.props.config.debug
-    };
+    }
 
-    this.widgets = this.props.config.widgets;
-    this.tooltips = this.props.config.tooltips;
+    this.widgets = this.props.config.widgets
+    this.tooltips = this.props.config.tooltips
 
-    this.key_commands = this.props.config.key_commands;
+    this.key_commands = this.props.config.key_commands
 
-    this.continuousBlocks = this.props.config.continuousBlocks;
+    this.continuousBlocks = this.props.config.continuousBlocks
 
-    this.block_types = this.props.config.block_types;
+    this.block_types = this.props.config.block_types
 
-    this.default_wrappers = this.props.config.default_wrappers;
+    this.default_wrappers = this.props.config.default_wrappers
 
-    this.character_convert_mapping = this.props.config.character_convert_mapping;
+    this.character_convert_mapping = this.props.config.character_convert_mapping
 
     this.save = new SaveBehavior({
       getLocks: this.getLocks,
@@ -365,153 +368,153 @@ const DanteEditor = class extends React.Component {
       },
       editorState: this.state.editorState,
       editorContent: this.emitSerializedOutput()
-    });
+    })
   }
 
   initializeState() {
     if (this.props.content) {
       //and @.props.content.trim() isnt ""
-      return this.decodeEditorContent(this.props.content);
+      return this.decodeEditorContent(this.props.content)
     } else {
-      return EditorState.createEmpty(this.decorator);
+      return EditorState.createEmpty(this.decorator)
     }
   }
 
   refreshSelection(newEditorState) {
-    const { editorState } = this.state;
+    const { editorState } = this.state
     // Setting cursor position after inserting to content
-    const s = this.state.editorState.getSelection();
-    const c = editorState.getCurrentContent();
-    const focusOffset = s.getFocusOffset();
-    const anchorKey = s.getAnchorKey();
+    const s = this.state.editorState.getSelection()
+    const c = editorState.getCurrentContent()
+    const focusOffset = s.getFocusOffset()
+    const anchorKey = s.getAnchorKey()
 
-    let selectionState = SelectionState.createEmpty(s.getAnchorKey());
+    let selectionState = SelectionState.createEmpty(s.getAnchorKey())
 
     // console.log anchorKey, focusOffset
     selectionState = selectionState.merge({
       anchorOffset: focusOffset,
       focusKey: anchorKey,
       focusOffset
-    });
+    })
 
-    let newState = EditorState.forceSelection(newEditorState, selectionState);
+    let newState = EditorState.forceSelection(newEditorState, selectionState)
 
-    return this.onChange(newState);
+    return this.onChange(newState)
   }
 
   forceRender(editorState) {
-    const selection = this.state.editorState.getSelection();
-    const content = editorState.getCurrentContent();
-    const newEditorState = EditorState.createWithContent(content, this.decorator);
+    const selection = this.state.editorState.getSelection()
+    const content = editorState.getCurrentContent()
+    const newEditorState = EditorState.createWithContent(content, this.decorator)
 
-    return this.refreshSelection(newEditorState);
+    return this.refreshSelection(newEditorState)
   }
 
   onChange(editorState) {
-    this.setPreContent();
-    this.setState({ editorState });
+    this.setPreContent()
+    this.setState({ editorState })
 
-    const currentBlock = getCurrentBlock(this.state.editorState);
-    const blockType = currentBlock.getType();
+    const currentBlock = getCurrentBlock(this.state.editorState)
+    const blockType = currentBlock.getType()
 
     if (!editorState.getSelection().isCollapsed()) {
 
-      const tooltip = this.tooltipsWithProp('displayOnSelection')[0];
+      const tooltip = this.tooltipsWithProp('displayOnSelection')[0]
       if (!this.tooltipHasSelectionElement(tooltip, blockType)) {
-        return;
+        return
       }
 
-      this.handleTooltipDisplayOn('displayOnSelection');
+      this.handleTooltipDisplayOn('displayOnSelection')
     } else {
-      this.handleTooltipDisplayOn('displayOnSelection', false);
+      this.handleTooltipDisplayOn('displayOnSelection', false)
     }
 
     setTimeout(() => {
-      return this.relocateTooltips();
-    }, 0);
+      return this.relocateTooltips()
+    }, 0)
 
-    return this.dispatchChangesToSave();
+    return this.dispatchChangesToSave()
   }
 
   dispatchChangesToSave() {
-    clearTimeout(this.saveTimeout);
+    clearTimeout(this.saveTimeout)
     return this.saveTimeout = setTimeout(() => {
-      return this.save.store(this.emitSerializedOutput());
-    }, 100);
+      return this.save.store(this.emitSerializedOutput())
+    }, 100)
   }
 
   setPreContent() {
-    const content = this.emitSerializedOutput();
-    return this.save.editorContent = content;
+    const content = this.emitSerializedOutput()
+    return this.save.editorContent = content
   }
 
   focus() {}
   //@props.refs.richEditor.focus()
 
   getEditorState() {
-    return this.state.editorState;
+    return this.state.editorState
   }
 
   emitSerializedOutput() {
-    const raw = convertToRaw(this.state.editorState.getCurrentContent());
+    const raw = convertToRaw(this.state.editorState.getCurrentContent())
 
-    return raw;
+    return raw
   }
 
   decodeEditorContent(raw_as_json) {
-    const new_content = convertFromRaw(raw_as_json);
-    let editorState;
+    const new_content = convertFromRaw(raw_as_json)
+    let editorState
 
-    return editorState = EditorState.createWithContent(new_content, this.decorator);
+    return editorState = EditorState.createWithContent(new_content, this.decorator)
   }
 
   //# title utils
   getTextFromEditor() {
-    const c = this.state.editorState.getCurrentContent();
+    const c = this.state.editorState.getCurrentContent()
     const out = c.getBlocksAsArray().map(o => {
-      return o.getText();
-    }).join("\n");
+      return o.getText()
+    }).join("\n")
 
-    return out;
+    return out
   }
 
   emitHTML2() {
-    let html;
+    let html
 
     return html = convertToHTML({
       entityToHTML: (entity, originalText) => {
         if (entity.type === 'LINK') {
-          return `<a href=\"${ entity.data.url }\">${ originalText }</a>`;
+          return `<a href=\"${ entity.data.url }\">${ originalText }</a>`
         } else {
-          return originalText;
+          return originalText
         }
       }
 
-    })(this.state.editorState.getCurrentContent());
+    })(this.state.editorState.getCurrentContent())
   }
 
   getLocks() {
-    return this.state.locks;
+    return this.state.locks
   }
 
   addLock() {
     return this.setState({
-      locks: this.state.locks += 1 });
+      locks: this.state.locks += 1 })
   }
 
   removeLock() {
     return this.setState({
-      locks: this.state.locks -= 1 });
+      locks: this.state.locks -= 1 })
   }
 
   renderableBlocks() {
-    return this.widgets.filter(o => o.renderable).map(o => o.type);
+    return this.widgets.filter(o => o.renderable).map(o => o.type)
   }
 
   defaultWrappers(blockType) {
     return this.default_wrappers.filter(o => {
-      return o.block === blockType;
-    }).map(o => o.className);
+      return o.block === blockType
+    }).map(o => o.className)
   }
 
   blockRenderer(block) {
@@ -520,27 +523,27 @@ const DanteEditor = class extends React.Component {
 
       case "atomic":
 
-        const entity = block.getEntityAt(0);
-        const entity_type = Entity.get(entity).getType();
+        const entity = block.getEntityAt(0)
+        const entity_type = Entity.get(entity).getType()
 
-        break;
+        break
     }
 
     if (this.renderableBlocks().includes(block.getType())) {
-      return this.handleBlockRenderer(block);
+      return this.handleBlockRenderer(block)
     }
 
-    return null;
+    return null
   }
 
   handleBlockRenderer(block) {
-    const dataBlock = this.getDataBlock(block);
+    const dataBlock = this.getDataBlock(block)
     if (!dataBlock) {
-      return null;
+      return null
     }
 
-    const read_only = this.state.read_only ? false : null;
-    const editable = read_only !== null ? read_only : dataBlock.editable;
+    const read_only = this.state.read_only ? false : null
+    const editable = read_only !== null ? read_only : dataBlock.editable
 
     return {
       component: eval(dataBlock.block),
@@ -554,17 +557,17 @@ const DanteEditor = class extends React.Component {
         getLocks: this.getLocks,
         config: dataBlock.options
       }
-    };
+    }
 
-    return null;
+    return null
   }
 
   blockStyleFn(block) {
-    const currentBlock = getCurrentBlock(this.state.editorState);
-    const is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : "";
+    const currentBlock = getCurrentBlock(this.state.editorState)
+    const is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : ""
 
     if (this.renderableBlocks().includes(block.getType())) {
-      return this.styleForBlock(block, currentBlock, is_selected);
+      return this.styleForBlock(block, currentBlock, is_selected)
     }
 
     const defaultBlockClass = this.defaultWrappers(block.getType());
@@ -1048,10 +1051,71 @@ const DanteEditor = class extends React.Component {
   //##############################
 
   render() {
+    return (
+      <div id="content" suppressContentEditableWarning={ true }>
+        <article className="postArticle">
+          <div className="postContent">
+            <div className="notesSource">
+              <div id="editor" className="postField postField--body">
+                <section className="section--first section--last">
+                  <div className="section-divider layoutSingleColumn">
+                    <hr className="section-divider" />
+                  </div>
+                  <div className="section-content">
+                    <div ref="richEditor" className="section-inner layoutSingleColumn" onClick={ this.focus }>
+                      <Editor
+                        blockRendererFn={ this.blockRenderer }
+                        editorState={ this.state.editorState }
+                        onChange={ this.onChange }
+                        onUpArrow={ this.handleUpArrow }
+                        onDownArrow={ this.handleDownArrow }
+                        handleReturn={ this.handleReturn }
+                        blockRenderMap={ this.state.blockRenderMap }
+                        blockStyleFn={ this.blockStyleFn }
+                        handlePastedText={ this.handlePasteText }
+                        handlePastedFiles={ this.handlePasteImage }
+                        handleDroppedFiles={ this.handleDroppedFiles }
+                        handleKeyCommand={ this.handleKeyCommand }
+                        keyBindingFn={ this.KeyBindingFn }
+                        handleBeforeInput={ this.handleBeforeInput }
+                        readOnly={ this.state.read_only }
+                        placeholder={ this.props.config.body_placeholder }
+                        ref="editor"
+                      />
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </article>
+        {
+          this.tooltips.map( (o, i) => {
+            return (
+              <o.component
+                ref={ o.ref }
+                key={ i }
+                editor={ this }
+                editorState={ this.state.editorState }
+                onChange={ this.onChange }
+                configTooltip={ o }
+                widget_options={ o.widget_options }
+                showPopLinkOver={ this.showPopLinkOver }
+                hidePopLinkOver={ this.hidePopLinkOver }
+                handleOnMouseOver={ this.handleShowPopLinkOver }
+                handleOnMouseOut={ this.handleHidePopLinkOver }
+              />
+            )
+          })
+        }
+        {
+          this.state.debug
+          ? <Debug locks={ this.state.locks } editor={ this } />
+          : undefined
+        }
+      </div>
 
-    return <div id="content" suppressContentEditableWarning={true}><article className="postArticle"><div className="postContent"><div className="notesSource"><div id="editor" className="postField postField--body"><section className="section--first section--last"><div className="section-divider layoutSingleColumn"><hr className="section-divider" /></div><div className="section-content"><div ref="richEditor" className="section-inner layoutSingleColumn" onClick={this.focus}><Editor blockRendererFn={this.blockRenderer} editorState={this.state.editorState} onChange={this.onChange} onUpArrow={this.handleUpArrow} onDownArrow={this.handleDownArrow} handleReturn={this.handleReturn} blockRenderMap={this.state.blockRenderMap} blockStyleFn={this.blockStyleFn} handlePastedText={this.handlePasteText} handlePastedFiles={this.handlePasteImage} handleDroppedFiles={this.handleDroppedFiles} handleKeyCommand={this.handleKeyCommand} keyBindingFn={this.KeyBindingFn} handleBeforeInput={this.handleBeforeInput} readOnly={this.state.read_only} placeholder={this.props.config.body_placeholder} ref="editor" /></div></div></section></div></div></div></article>{this.tooltips.map((o, i) => {
-        return <o.component ref={o.ref} key={i} editor={this} editorState={this.state.editorState} onChange={this.onChange} configTooltip={o} widget_options={o.widget_options} showPopLinkOver={this.showPopLinkOver} hidePopLinkOver={this.hidePopLinkOver} handleOnMouseOver={this.handleShowPopLinkOver} handleOnMouseOut={this.handleHidePopLinkOver} />;
-      })}{this.state.debug ? <Debug locks={this.state.locks} editor={this} /> : undefined}</div>;
+    );
   }
 };
 

@@ -1,116 +1,116 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import { Entity, RichUtils, AtomicBlockUtils, EditorState } from 'draft-js';
+import { Entity, RichUtils, AtomicBlockUtils, EditorState } from 'draft-js'
 
-import { addNewBlock, resetBlockWithType, updateDataOfBlock, getCurrentBlock, getNode } from '../../model/index.js';
+import { addNewBlock, resetBlockWithType, updateDataOfBlock, getCurrentBlock, getNode } from '../../model/index.js'
 
-import { getSelectionRect, getSelection } from "../../utils/selection.js";
+import { getSelectionRect, getSelection } from "../../utils/selection.js"
 
 class DanteInlineTooltip extends React.Component {
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.display = this.display.bind(this);
-    this.show = this.show.bind(this);
-    this.hide = this.hide.bind(this);
-    this._toggleScaled = this._toggleScaled.bind(this);
-    this.scale = this.scale.bind(this);
-    this.collapse = this.collapse.bind(this);
-    this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
-    this.clickOnFileUpload = this.clickOnFileUpload.bind(this);
-    this.handlePlaceholder = this.handlePlaceholder.bind(this);
-    this.insertImage = this.insertImage.bind(this);
-    this.handleFileInput = this.handleFileInput.bind(this);
-    this.widgets = this.widgets.bind(this);
-    this.clickHandler = this.clickHandler.bind(this);
-    this.relocate = this.relocate.bind(this);
+    this.display = this.display.bind(this)
+    this.show = this.show.bind(this)
+    this.hide = this.hide.bind(this)
+    this._toggleScaled = this._toggleScaled.bind(this)
+    this.scale = this.scale.bind(this)
+    this.collapse = this.collapse.bind(this)
+    this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this)
+    this.clickOnFileUpload = this.clickOnFileUpload.bind(this)
+    this.handlePlaceholder = this.handlePlaceholder.bind(this)
+    this.insertImage = this.insertImage.bind(this)
+    this.handleFileInput = this.handleFileInput.bind(this)
+    this.widgets = this.widgets.bind(this)
+    this.clickHandler = this.clickHandler.bind(this)
+    this.relocate = this.relocate.bind(this)
     this.state = {
       position: { top: 0, left: 0 },
       show: false,
       scaled: false
-    };
+    }
   }
 
   display(b) {
     if (b) {
-      return this.show();
+      return this.show()
     } else {
-      return this.hide();
+      return this.hide()
     }
   }
 
   show() {
     return this.setState({
-      show: true });
+      show: true })
   }
 
   hide() {
     return this.setState({
-      show: false });
+      show: false })
   }
 
   setPosition(coords) {
     return this.setState({
-      position: coords });
+      position: coords })
   }
 
   _toggleScaled(ev) {
     if (this.state.scaled) {
-      return this.collapse();
+      return this.collapse()
     } else {
-      return this.scale();
+      return this.scale()
     }
   }
 
   scale() {
     return this.setState({
-      scaled: true });
+      scaled: true })
   }
 
   collapse() {
     return this.setState({
-      scaled: false });
+      scaled: false })
   }
 
   componentWillReceiveProps(newProps) {
-    return this.collapse();
+    return this.collapse()
   }
 
   activeClass() {
     //if @props.show then "is-active" else ""
     if (this.isActive()) {
-      return "is-active";
+      return "is-active"
     } else {
-      return "";
+      return ""
     }
   }
 
   isActive() {
-    return this.state.show;
+    return this.state.show
   }
 
   scaledClass() {
     if (this.state.scaled) {
-      return "is-scaled";
+      return "is-scaled"
     } else {
-      return "";
+      return ""
     }
   }
 
   scaledWidth() {
     if (this.state.scaled) {
-      return "124";
+      return "124"
     } else {
-      return "0";
+      return "0"
     }
   }
 
   clickOnFileUpload() {
-    this.refs.fileInput.click();
-    this.collapse();
-    return this.hide();
+    this.refs.fileInput.click()
+    this.collapse()
+    return this.hide()
   }
 
   handlePlaceholder(input) {
@@ -118,105 +118,105 @@ class DanteInlineTooltip extends React.Component {
       type: input.widget_options.insert_block,
       placeholder: input.options.placeholder,
       endpoint: input.options.endpoint
-    };
+    }
 
-    return this.props.onChange(resetBlockWithType(this.props.editorState, 'placeholder', opts));
+    return this.props.onChange(resetBlockWithType(this.props.editorState, 'placeholder', opts))
   }
 
   insertImage(file) {
     let opts = {
       url: URL.createObjectURL(file),
       file
-    };
+    }
 
-    return this.props.onChange(addNewBlock(this.props.editorState, 'image', opts));
+    return this.props.onChange(addNewBlock(this.props.editorState, 'image', opts))
   }
 
   handleFileInput(e) {
-    let fileList = e.target.files;
+    let fileList = e.target.files
     // TODO: support multiple file uploads
     /*
     Object.keys(fileList).forEach (o)=>
       @.insertImage(fileList[0])
     */
-    return this.insertImage(fileList[0]);
+    return this.insertImage(fileList[0])
   }
 
   widgets() {
-    return this.props.editor.widgets;
+    return this.props.editor.widgets
   }
 
   clickHandler(e, type) {
-    let request_block = this.widgets().find(o => o.icon === type);
+    let request_block = this.widgets().find(o => o.icon === type)
 
     switch (request_block.widget_options.insertion) {
       case "upload":
-        return this.clickOnFileUpload(e, request_block);
+        return this.clickOnFileUpload(e, request_block)
       case "placeholder":
-        return this.handlePlaceholder(request_block);
+        return this.handlePlaceholder(request_block)
       default:
-        return console.log(`WRONG TYPE FOR ${ request_block.widget_options.insertion }`);
+        return console.log(`WRONG TYPE FOR ${ request_block.widget_options.insertion }`)
     }
   }
 
   getItems() {
     return this.widgets().filter(o => {
-      return o.widget_options.displayOnInlineTooltip;
-    });
+      return o.widget_options.displayOnInlineTooltip
+    })
   }
 
   isDescendant(parent, child) {
-    let node = child.parentNode;
+    let node = child.parentNode
     while (node !== null) {
       if (node === parent) {
-        return true;
+        return true
       }
-      node = node.parentNode;
+      node = node.parentNode
     }
-    return false;
+    return false
   }
 
   relocate() {
-    let { editorState } = this.props;
+    let { editorState } = this.props
 
     if (editorState.getSelection().isCollapsed()) {
 
-      let currentBlock = getCurrentBlock(editorState);
-      let blockType = currentBlock.getType();
+      let currentBlock = getCurrentBlock(editorState)
+      let blockType = currentBlock.getType()
 
-      let contentState = editorState.getCurrentContent();
-      let selectionState = editorState.getSelection();
+      let contentState = editorState.getCurrentContent()
+      let selectionState = editorState.getSelection()
 
-      let block = contentState.getBlockForKey(selectionState.anchorKey);
+      let block = contentState.getBlockForKey(selectionState.anchorKey)
 
-      let nativeSelection = getSelection(window);
+      let nativeSelection = getSelection(window)
       if (!nativeSelection.rangeCount) {
-        return;
+        return
       }
 
-      let node = getNode();
+      let node = getNode()
 
-      let selectionBoundary = getSelectionRect(nativeSelection);
-      let coords = selectionBoundary; //utils.getSelectionDimensions(node)
+      let selectionBoundary = getSelectionRect(nativeSelection)
+      let coords = selectionBoundary //utils.getSelectionDimensions(node)
 
-      let parent = ReactDOM.findDOMNode(this.props.editor);
-      let parentBoundary = parent.getBoundingClientRect();
+      let parent = ReactDOM.findDOMNode(this.props.editor)
+      let parentBoundary = parent.getBoundingClientRect()
 
       // hide if selected node is not in editor
       // debugger
       //console.log @isDescendant(parent, nativeSelection.anchorNode)
 
       if (!this.isDescendant(parent, nativeSelection.anchorNode)) {
-        this.hide();
-        return;
+        this.hide()
+        return
       }
 
       // checkeamos si esta vacio
-      this.display(block.getText().length === 0 && blockType === "unstyled");
+      this.display(block.getText().length === 0 && blockType === "unstyled")
       return this.setPosition({
         top: coords.top + window.scrollY,
         left: coords.left + window.scrollX - 60
-      });
+      })
 
       /*
       @refs.image_popover.display(blockType is "image")
@@ -228,41 +228,81 @@ class DanteInlineTooltip extends React.Component {
         @refs.image_popover.setPosition
           top: selectionBoundary.top - parentBoundary.top + 60
           left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-         
+
         *@setState
-        *  image_popover_position: 
+        *  image_popover_position:
         *    top: selectionBoundary.top - parentBoundary.top + 60
         *    left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
         *
       */
     } else {
-      return this.hide();
+      return this.hide()
     }
   }
 
   render() {
-    return <div className={`inlineTooltip ${ this.activeClass() } ${ this.scaledClass() }`} style={this.state.position}><button className="inlineTooltip-button control" title="Close Menu" data-action="inline-menu" onClick={this._toggleScaled}><span className="tooltip-icon dante-icon-plus" /></button><div className="inlineTooltip-menu" style={{ width: `${ this.scaledWidth() }px` }}>{this.getItems().map((item, i) => {
-          return <InlineTooltipItem item={item} key={i} clickHandler={this.clickHandler} />;
-        })}<input type="file" style={{ display: 'none' }} ref="fileInput" multiple="multiple" onChange={this.handleFileInput} /></div></div>;
+    return (
+      <div
+        className={ `inlineTooltip ${ this.activeClass() } ${ this.scaledClass() }` }
+        style={ this.state.position }
+      >
+        <button
+          className="inlineTooltip-button control"
+          title="Close Menu"
+          data-action="inline-menu"
+          onClick={ this._toggleScaled }
+        >
+          <span className="tooltip-icon dante-icon-plus" />
+        </button>
+        <div
+           className="inlineTooltip-menu"
+           style={ { width: `${ this.scaledWidth() }px` } }
+         >
+          { this.getItems().map( (item, i) => {
+            return  <InlineTooltipItem
+                      item={ item }
+                      key={ i }
+                      clickHandler={ this.clickHandler }
+                    />
+            })
+          }
+          <input
+           type="file"
+           style={ { display: 'none' } }
+           ref="fileInput"
+           multiple="multiple"
+           onChange={ this.handleFileInput }
+         />
+        </div>
+      </div>
+    )
   }
 }
 
 class InlineTooltipItem extends React.Component {
 
   constructor(...args) {
-    super(...args);
-    this.clickHandler = this.clickHandler.bind(this);
+    super(...args)
+    this.clickHandler = this.clickHandler.bind(this)
   }
 
   clickHandler(e) {
-    e.preventDefault();
-    return this.props.clickHandler(e, this.props.item.icon);
+    e.preventDefault()
+    return this.props.clickHandler(e, this.props.item.icon)
   }
 
   render() {
-    return <button className="inlineTooltip-button scale" title={this.props.title} onMouseDown={this.clickHandler}><span className={`tooltip-icon dante-icon-${ this.props.item.icon }`} /></button>;
+    return (
+      <button
+        className="inlineTooltip-button scale"
+        title={ this.props.title }
+        onMouseDown={ this.clickHandler }
+      >
+        <span className={ `tooltip-icon dante-icon-${ this.props.item.icon }` } />
+      </button>
+    )
   }
 }
 
-export default DanteInlineTooltip;
+export default DanteInlineTooltip
 
