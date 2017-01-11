@@ -225,9 +225,9 @@ export default class ImageBlock extends React.Component {
   formatData() {
     let formData = new FormData()
     if (this.file) {
-      //file = @.props.blockProps.data.get('file')
+      let formName = this.config.formName || 'file'
 
-      formData.append('file', this.file)
+      formData.append(formName, this.file)
       return formData
     } else {
       formData.append('url', this.props.blockProps.data.get("url"))
@@ -244,12 +244,16 @@ export default class ImageBlock extends React.Component {
     }
   }
 
+  getUploadHeaders()  {
+   return this.config.upload_headers || {}
+  }
+
   uploadFile() {
-    // console.log "FORM DATA:" , @formatData()
     let handleUp
     axios({
       method: 'post',
       url: this.getUploadUrl(),
+      headers: this.getUploadHeaders(),
       data: this.formatData(),
       onUploadProgress: e => {
         return this.updateProgressBar(e)

@@ -31,7 +31,7 @@ import PlaceholderBlock from './blocks/placeholder'
 import SaveBehavior from '../utils/save_content'
 import customHTML2Content from '../utils/html2content'
 
-const Dante = class {
+export class Dante {
   constructor(options) {
     if (options == null) {
       options = {}
@@ -97,6 +97,7 @@ const Dante = class {
       },
       options: {
         upload_url: options.upload_url,
+        upload_headers: options.upload_headers,
         upload_callback: options.image_upload_callback,
         image_delete_callback: options.image_delete_callback,
         image_caption_placeholder: options.image_caption_placeholder
@@ -257,7 +258,7 @@ const Dante = class {
   }
 }
 
-const DanteEditor = class extends React.Component {
+export class DanteEditor extends React.Component {
   constructor(props) {
     super(props)
     //window.main_editor = @
@@ -1118,6 +1119,3 @@ const DanteEditor = class extends React.Component {
     )
   }
 }
-
-export { Dante, DanteEditor }
-
