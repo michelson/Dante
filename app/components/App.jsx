@@ -31,7 +31,7 @@ import PlaceholderBlock from './blocks/placeholder'
 import SaveBehavior from '../utils/save_content'
 import customHTML2Content from '../utils/html2content'
 
-const Dante = class {
+export class Dante {
   constructor(options) {
     if (options == null) {
       options = {}
@@ -97,6 +97,7 @@ const Dante = class {
       },
       options: {
         upload_url: options.upload_url,
+        upload_headers: options.upload_headers,
         upload_callback: options.image_upload_callback,
         image_delete_callback: options.image_delete_callback,
         image_caption_placeholder: options.image_caption_placeholder
@@ -257,7 +258,7 @@ const Dante = class {
   }
 }
 
-const DanteEditor = class extends React.Component {
+export class DanteEditor extends React.Component {
   constructor(props) {
     super(props)
     //window.main_editor = @
@@ -671,12 +672,12 @@ const DanteEditor = class extends React.Component {
     const endKey = selection.getEndKey()
 
     const content = this.state.editorState.getCurrentContent()
-    const blocksBefore = content.blockMap.toSeq().takeUntil(v => v.key === endKey);
-    const blocksAfter = content.blockMap.toSeq().skipUntil(v => v.key === endKey).rest();
+    const blocksBefore = content.blockMap.toSeq().takeUntil(v => v.key === endKey)
+    const blocksAfter = content.blockMap.toSeq().skipUntil(v => v.key === endKey).rest()
 
-    const newBlockKey = newContentState.blockMap.first().getKey();
+    const newBlockKey = newContentState.blockMap.first().getKey()
 
-    const newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap();
+    const newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap()
 
     const newContent = content.merge({
       blockMap: newBlockMap,
@@ -688,13 +689,13 @@ const DanteEditor = class extends React.Component {
         focusOffset: 0,
         isBackward: false
       })
-    });
+    })
 
-    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment');
+    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment')
 
-    this.onChange(pushedContentState);
+    this.onChange(pushedContentState)
 
-    return true;
+    return true
   }
 
   handlePasteImage(files) {
@@ -703,10 +704,10 @@ const DanteEditor = class extends React.Component {
       let opts = {
         url: URL.createObjectURL(file),
         file
-      };
+      }
 
-      return this.onChange(addNewBlock(this.state.editorState, 'image', opts));
-    });
+      return this.onChange(addNewBlock(this.state.editorState, 'image', opts))
+    })
   }
 
   handleDroppedFiles(state, files) {
@@ -714,56 +715,56 @@ const DanteEditor = class extends React.Component {
       let opts = {
         url: URL.createObjectURL(file),
         file
-      };
+      }
 
-      return this.onChange(addNewBlock(this.state.editorState, 'image', opts));
-    });
+      return this.onChange(addNewBlock(this.state.editorState, 'image', opts))
+    })
   }
 
   handleUpArrow(e) {
     return setTimeout(() => {
-      return this.forceRender(this.state.editorState);
-    }, 10);
+      return this.forceRender(this.state.editorState)
+    }, 10)
   }
 
   handleDownArrow(e) {
     return setTimeout(() => {
-      return this.forceRender(this.state.editorState);
-    }, 10);
+      return this.forceRender(this.state.editorState)
+    }, 10)
   }
 
   handleReturn(e) {
     if (this.props.handleReturn) {
       if (this.props.handleReturn()) {
-        return true;
+        return true
       }
     }
 
-    let { editorState } = this.state;
+    let { editorState } = this.state
 
     if (!e.altKey && !e.metaKey && !e.ctrlKey) {
-      const currentBlock = getCurrentBlock(editorState);
-      const blockType = currentBlock.getType();
-      const selection = editorState.getSelection();
+      const currentBlock = getCurrentBlock(editorState)
+      const blockType = currentBlock.getType()
+      const selection = editorState.getSelection()
 
-      const config_block = this.getDataBlock(currentBlock);
+      const config_block = this.getDataBlock(currentBlock)
 
       if (currentBlock.getText().length === 0) {
 
         if (config_block && config_block.handleEnterWithoutText) {
-          config_block.handleEnterWithText(this, currentBlock);
-          this.closePopOvers();
-          return true;
+          config_block.handleEnterWithText(this, currentBlock)
+          this.closePopOvers()
+          return true
         }
 
         //TODO turn this in configurable
         switch (blockType) {
           case "header-one":
-            this.onChange(resetBlockWithType(editorState, "unstyled"));
-            return true;
-            break;
+            this.onChange(resetBlockWithType(editorState, "unstyled"))
+            return true
+            break
           default:
-            return false;
+            return false
         }
       }
 
@@ -772,35 +773,35 @@ const DanteEditor = class extends React.Component {
         if (blockType === "unstyled") {
           // hack hackety hack
           // https://github.com/facebook/draft-js/issues/304
-          const newContent = Modifier.splitBlock(this.state.editorState.getCurrentContent(), this.state.editorState.getSelection());
+          const newContent = Modifier.splitBlock(this.state.editorState.getCurrentContent(), this.state.editorState.getSelection())
 
-          const newEditorState = EditorState.push(this.state.editorState, newContent, 'insert-characters');
-          this.onChange(newEditorState);
+          const newEditorState = EditorState.push(this.state.editorState, newContent, 'insert-characters')
+          this.onChange(newEditorState)
 
           setTimeout(() => {
             //TODO: check is element is in viewport
-            const a = document.getElementsByClassName("is-selected");
-            const pos = a[0].getBoundingClientRect();
-            return window.scrollTo(0, pos.top + window.scrollY - 100);
-          }, 0);
+            const a = document.getElementsByClassName("is-selected")
+            const pos = a[0].getBoundingClientRect()
+            return window.scrollTo(0, pos.top + window.scrollY - 100)
+          }, 0)
 
-          return true;
+          return true
         }
 
         if (config_block && config_block.handleEnterWithText) {
-          config_block.handleEnterWithText(this, currentBlock);
-          this.closePopOvers();
-          return true;
+          config_block.handleEnterWithText(this, currentBlock)
+          this.closePopOvers()
+          return true
         }
 
         if (currentBlock.getLength() === selection.getStartOffset()) {
           if (this.continuousBlocks.indexOf(blockType) < 0) {
-            this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-            return true;
+            this.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+            return true
           }
         }
 
-        return false;
+        return false
       }
 
       // selection.isCollapsed() and # should we check collapsed here?
@@ -808,13 +809,13 @@ const DanteEditor = class extends React.Component {
         //or (config_block && config_block.breakOnContinuous))
         // it will match the unstyled for custom blocks
         if (this.continuousBlocks.indexOf(blockType) < 0) {
-          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-          return true;
+          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true
         }
-        return false;
+        return false
       }
 
-      return false;
+      return false
     }
   }
 
@@ -822,23 +823,23 @@ const DanteEditor = class extends React.Component {
 
   // TODO: make this configurable
   handleBeforeInput(chars) {
-    const currentBlock = getCurrentBlock(this.state.editorState);
-    const blockType = currentBlock.getType();
-    const selection = this.state.editorState.getSelection();
+    const currentBlock = getCurrentBlock(this.state.editorState)
+    const blockType = currentBlock.getType()
+    const selection = this.state.editorState.getSelection()
 
-    let { editorState } = this.state;
+    let { editorState } = this.state
 
     // close popovers
     if (currentBlock.getText().length !== 0) {
       //@closeInlineButton()
-      this.closePopOvers();
+      this.closePopOvers()
     }
 
     // handle space on link
-    const endOffset = selection.getEndOffset();
-    const endKey = currentBlock.getEntityAt(endOffset - 1);
-    const endEntityType = endKey && Entity.get(endKey).getType();
-    const afterEndKey = currentBlock.getEntityAt(endOffset);
+    const endOffset = selection.getEndOffset()
+    const endKey = currentBlock.getEntityAt(endOffset - 1)
+    const endEntityType = endKey && Entity.get(endKey).getType()
+    const afterEndKey = currentBlock.getEntityAt(endOffset)
     const afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
 
     // will insert blank space when link found
@@ -1118,6 +1119,3 @@ const DanteEditor = class extends React.Component {
     )
   }
 }
-
-export { Dante, DanteEditor }
-
