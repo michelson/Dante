@@ -570,44 +570,44 @@ const DanteEditor = class extends React.Component {
       return this.styleForBlock(block, currentBlock, is_selected)
     }
 
-    const defaultBlockClass = this.defaultWrappers(block.getType());
+    const defaultBlockClass = this.defaultWrappers(block.getType())
     if (defaultBlockClass.length > 0) {
-      return `graf ${ defaultBlockClass[0] } ${ is_selected }`;
+      return `graf ${ defaultBlockClass[0] } ${ is_selected }`
     } else {
-      return `graf nana ${ is_selected }`;
+      return `graf nana ${ is_selected }`
     }
   }
 
   getDataBlock(block) {
     return this.widgets.find(o => {
-      return o.type === block.getType();
-    });
+      return o.type === block.getType()
+    })
   }
 
   styleForBlock(block, currentBlock, is_selected) {
-    const dataBlock = this.getDataBlock(block);
+    const dataBlock = this.getDataBlock(block)
 
     if (!dataBlock) {
-      return null;
+      return null
     }
 
-    const selectedFn = dataBlock.selectedFn ? dataBlock.selectedFn(block) : null;
-    const selected_class = is_selected ? dataBlock.selected_class : '';
+    const selectedFn = dataBlock.selectedFn ? dataBlock.selectedFn(block) : null
+    const selected_class = is_selected ? dataBlock.selected_class : ''
 
-    return `${ dataBlock.wrapper_class } ${ selected_class } ${ selectedFn }`;
+    return `${ dataBlock.wrapper_class } ${ selected_class } ${ selectedFn }`
   }
 
   handleTooltipDisplayOn(prop, display) {
     if (display == null) {
-      display = true;
+      display = true
     }
     return setTimeout(() => {
-      const items = this.tooltipsWithProp(prop);
+      const items = this.tooltipsWithProp(prop)
       return items.map(o => {
-        this.refs[o.ref].display(display);
-        return this.refs[o.ref].relocate();
-      });
-    }, 20);
+        this.refs[o.ref].display(display)
+        return this.refs[o.ref].relocate()
+      })
+    }, 20)
   }
 
   handlePasteText(text, html) {
@@ -623,17 +623,17 @@ const DanteEditor = class extends React.Component {
     // if not html then fallback to default handler
 
     if (!html) {
-      return this.handleTXTPaste(text, html);
+      return this.handleTXTPaste(text, html)
     }
     if (html) {
-      return this.handleHTMLPaste(text, html);
+      return this.handleHTMLPaste(text, html)
     }
   }
 
   handleTXTPaste(text, html) {
-    const currentBlock = getCurrentBlock(this.state.editorState);
+    const currentBlock = getCurrentBlock(this.state.editorState)
 
-    let { editorState } = this.state;
+    let { editorState } = this.state
 
     switch (currentBlock.getType()) {
       case "image":case "video":case "placeholder":
@@ -642,41 +642,41 @@ const DanteEditor = class extends React.Component {
           anchorOffset: 0,
           focusKey: currentBlock.getKey(),
           focusOffset: 2
-        }), text);
+        }), text)
 
-        editorState = EditorState.push(editorState, newContent, 'replace-text');
+        editorState = EditorState.push(editorState, newContent, 'replace-text')
 
-        this.onChange(editorState);
+        this.onChange(editorState)
 
-        return true;
+        return true
       default:
-        return false;
+        return false
     }
   }
 
   handleHTMLPaste(text, html) {
 
-    const currentBlock = getCurrentBlock(this.state.editorState);
+    const currentBlock = getCurrentBlock(this.state.editorState)
 
     // TODO: make this configurable
     switch (currentBlock.getType()) {
       case "image":case "video":case "placeholder":
-        return this.handleTXTPaste(text, html);
-        break;
+        return this.handleTXTPaste(text, html)
+        break
     }
 
-    const newContentState = customHTML2Content(html, this.extendedBlockRenderMap);
+    const newContentState = customHTML2Content(html, this.extendedBlockRenderMap)
 
-    const selection = this.state.editorState.getSelection();
-    const endKey = selection.getEndKey();
+    const selection = this.state.editorState.getSelection()
+    const endKey = selection.getEndKey()
 
-    const content = this.state.editorState.getCurrentContent();
-    const blocksBefore = content.blockMap.toSeq().takeUntil(v => v.key === endKey);
-    const blocksAfter = content.blockMap.toSeq().skipUntil(v => v.key === endKey).rest();
+    const content = this.state.editorState.getCurrentContent()
+    const blocksBefore = content.blockMap.toSeq().takeUntil(v => v.key === endKey)
+    const blocksAfter = content.blockMap.toSeq().skipUntil(v => v.key === endKey).rest()
 
-    const newBlockKey = newContentState.blockMap.first().getKey();
+    const newBlockKey = newContentState.blockMap.first().getKey()
 
-    const newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap();
+    const newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap()
 
     const newContent = content.merge({
       blockMap: newBlockMap,
@@ -688,13 +688,13 @@ const DanteEditor = class extends React.Component {
         focusOffset: 0,
         isBackward: false
       })
-    });
+    })
 
-    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment');
+    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment')
 
-    this.onChange(pushedContentState);
+    this.onChange(pushedContentState)
 
-    return true;
+    return true
   }
 
   handlePasteImage(files) {
@@ -703,10 +703,10 @@ const DanteEditor = class extends React.Component {
       let opts = {
         url: URL.createObjectURL(file),
         file
-      };
+      }
 
-      return this.onChange(addNewBlock(this.state.editorState, 'image', opts));
-    });
+      return this.onChange(addNewBlock(this.state.editorState, 'image', opts))
+    })
   }
 
   handleDroppedFiles(state, files) {
@@ -714,56 +714,56 @@ const DanteEditor = class extends React.Component {
       let opts = {
         url: URL.createObjectURL(file),
         file
-      };
+      }
 
-      return this.onChange(addNewBlock(this.state.editorState, 'image', opts));
-    });
+      return this.onChange(addNewBlock(this.state.editorState, 'image', opts))
+    })
   }
 
   handleUpArrow(e) {
     return setTimeout(() => {
-      return this.forceRender(this.state.editorState);
-    }, 10);
+      return this.forceRender(this.state.editorState)
+    }, 10)
   }
 
   handleDownArrow(e) {
     return setTimeout(() => {
-      return this.forceRender(this.state.editorState);
-    }, 10);
+      return this.forceRender(this.state.editorState)
+    }, 10)
   }
 
   handleReturn(e) {
     if (this.props.handleReturn) {
       if (this.props.handleReturn()) {
-        return true;
+        return true
       }
     }
 
-    let { editorState } = this.state;
+    let { editorState } = this.state
 
     if (!e.altKey && !e.metaKey && !e.ctrlKey) {
-      const currentBlock = getCurrentBlock(editorState);
-      const blockType = currentBlock.getType();
-      const selection = editorState.getSelection();
+      const currentBlock = getCurrentBlock(editorState)
+      const blockType = currentBlock.getType()
+      const selection = editorState.getSelection()
 
-      const config_block = this.getDataBlock(currentBlock);
+      const config_block = this.getDataBlock(currentBlock)
 
       if (currentBlock.getText().length === 0) {
 
         if (config_block && config_block.handleEnterWithoutText) {
-          config_block.handleEnterWithText(this, currentBlock);
-          this.closePopOvers();
-          return true;
+          config_block.handleEnterWithText(this, currentBlock)
+          this.closePopOvers()
+          return true
         }
 
         //TODO turn this in configurable
         switch (blockType) {
           case "header-one":
-            this.onChange(resetBlockWithType(editorState, "unstyled"));
-            return true;
-            break;
+            this.onChange(resetBlockWithType(editorState, "unstyled"))
+            return true
+            break
           default:
-            return false;
+            return false
         }
       }
 
@@ -772,35 +772,35 @@ const DanteEditor = class extends React.Component {
         if (blockType === "unstyled") {
           // hack hackety hack
           // https://github.com/facebook/draft-js/issues/304
-          const newContent = Modifier.splitBlock(this.state.editorState.getCurrentContent(), this.state.editorState.getSelection());
+          const newContent = Modifier.splitBlock(this.state.editorState.getCurrentContent(), this.state.editorState.getSelection())
 
-          const newEditorState = EditorState.push(this.state.editorState, newContent, 'insert-characters');
-          this.onChange(newEditorState);
+          const newEditorState = EditorState.push(this.state.editorState, newContent, 'insert-characters')
+          this.onChange(newEditorState)
 
           setTimeout(() => {
             //TODO: check is element is in viewport
-            const a = document.getElementsByClassName("is-selected");
-            const pos = a[0].getBoundingClientRect();
-            return window.scrollTo(0, pos.top + window.scrollY - 100);
-          }, 0);
+            const a = document.getElementsByClassName("is-selected")
+            const pos = a[0].getBoundingClientRect()
+            return window.scrollTo(0, pos.top + window.scrollY - 100)
+          }, 0)
 
-          return true;
+          return true
         }
 
         if (config_block && config_block.handleEnterWithText) {
-          config_block.handleEnterWithText(this, currentBlock);
-          this.closePopOvers();
-          return true;
+          config_block.handleEnterWithText(this, currentBlock)
+          this.closePopOvers()
+          return true
         }
 
         if (currentBlock.getLength() === selection.getStartOffset()) {
           if (this.continuousBlocks.indexOf(blockType) < 0) {
-            this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-            return true;
+            this.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+            return true
           }
         }
 
-        return false;
+        return false
       }
 
       // selection.isCollapsed() and # should we check collapsed here?
@@ -808,13 +808,13 @@ const DanteEditor = class extends React.Component {
         //or (config_block && config_block.breakOnContinuous))
         // it will match the unstyled for custom blocks
         if (this.continuousBlocks.indexOf(blockType) < 0) {
-          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()));
-          return true;
+          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
+          return true
         }
-        return false;
+        return false
       }
 
-      return false;
+      return false
     }
   }
 
@@ -822,99 +822,99 @@ const DanteEditor = class extends React.Component {
 
   // TODO: make this configurable
   handleBeforeInput(chars) {
-    const currentBlock = getCurrentBlock(this.state.editorState);
-    const blockType = currentBlock.getType();
-    const selection = this.state.editorState.getSelection();
+    const currentBlock = getCurrentBlock(this.state.editorState)
+    const blockType = currentBlock.getType()
+    const selection = this.state.editorState.getSelection()
 
-    let { editorState } = this.state;
+    let { editorState } = this.state
 
     // close popovers
     if (currentBlock.getText().length !== 0) {
       //@closeInlineButton()
-      this.closePopOvers();
+      this.closePopOvers()
     }
 
     // handle space on link
-    const endOffset = selection.getEndOffset();
-    const endKey = currentBlock.getEntityAt(endOffset - 1);
-    const endEntityType = endKey && Entity.get(endKey).getType();
-    const afterEndKey = currentBlock.getEntityAt(endOffset);
-    const afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType();
+    const endOffset = selection.getEndOffset()
+    const endKey = currentBlock.getEntityAt(endOffset - 1)
+    const endEntityType = endKey && Entity.get(endKey).getType()
+    const afterEndKey = currentBlock.getEntityAt(endOffset)
+    const afterEndEntityType = afterEndKey && Entity.get(afterEndKey).getType()
 
     // will insert blank space when link found
     if (chars === ' ' && endEntityType === 'LINK' && afterEndEntityType !== 'LINK') {
-      const newContentState = Modifier.insertText(editorState.getCurrentContent(), selection, ' ');
-      const newEditorState = EditorState.push(editorState, newContentState, 'insert-characters');
-      this.onChange(newEditorState);
-      return true;
+      const newContentState = Modifier.insertText(editorState.getCurrentContent(), selection, ' ')
+      const newEditorState = EditorState.push(editorState, newContentState, 'insert-characters')
+      this.onChange(newEditorState)
+      return true
     }
 
     // block transform
     if (blockType.indexOf('atomic') === 0) {
-      return false;
+      return false
     }
 
-    const blockLength = currentBlock.getLength();
+    const blockLength = currentBlock.getLength()
     if (selection.getAnchorOffset() > 1 || blockLength > 1) {
-      return false;
+      return false
     }
 
-    const blockTo = this.character_convert_mapping[currentBlock.getText() + chars];
+    const blockTo = this.character_convert_mapping[currentBlock.getText() + chars]
 
-    console.log(`BLOCK TO SHOW: ${ blockTo }`);
+    console.log(`BLOCK TO SHOW: ${ blockTo }`)
 
     if (!blockTo) {
-      return false;
+      return false
     }
 
-    this.onChange(resetBlockWithType(editorState, blockTo));
+    this.onChange(resetBlockWithType(editorState, blockTo))
 
-    return true;
+    return true
   }
 
   // TODO: make this configurable
   handleKeyCommand(command) {
-    const { editorState } = this.state;
-    let currentBlockType, newBlockType;
+    const { editorState } = this.state
+    let currentBlockType, newBlockType
 
     if (this.props.handleKeyCommand && this.props.handleKeyCommand(command)) {
-      return true;
+      return true
     }
 
     if (command === 'add-new-block') {
-      this.onChange(addNewBlock(editorState, 'blockquote'));
-      return true;
+      this.onChange(addNewBlock(editorState, 'blockquote'))
+      return true
     }
 
-    const block = getCurrentBlock(editorState);
+    const block = getCurrentBlock(editorState)
 
     if (command.indexOf('toggle_inline:') === 0) {
-      newBlockType = command.split(':')[1];
-      currentBlockType = block.getType();
-      this.onChange(RichUtils.toggleInlineStyle(editorState, newBlockType));
-      return true;
+      newBlockType = command.split(':')[1]
+      currentBlockType = block.getType()
+      this.onChange(RichUtils.toggleInlineStyle(editorState, newBlockType))
+      return true
     }
 
     if (command.indexOf('toggle_block:') === 0) {
-      newBlockType = command.split(':')[1];
-      currentBlockType = block.getType();
+      newBlockType = command.split(':')[1]
+      currentBlockType = block.getType()
 
-      this.onChange(RichUtils.toggleBlockType(editorState, newBlockType));
-      return true;
+      this.onChange(RichUtils.toggleBlockType(editorState, newBlockType))
+      return true
     }
 
-    const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
+    const newState = RichUtils.handleKeyCommand(this.state.editorState, command)
     if (newState) {
-      this.onChange(newState);
-      return true;
+      this.onChange(newState)
+      return true
     }
 
-    return false;
+    return false
   }
 
   findCommandKey(opt, command) {
     // console.log "COMMAND find: #{opt} #{command}"
-    return this.key_commands[opt].find(o => o.key === command);
+    return this.key_commands[opt].find(o => o.key === command)
   }
 
   KeyBindingFn(e) {
@@ -926,79 +926,79 @@ const DanteEditor = class extends React.Component {
     //⌘ + Alt + 2 / Ctrl + Alt + 2   Sub-Header
     //⌘ + Alt + 5 / Ctrl + Alt + 5   Quote (Press once for a block quote, again for a pull quote and a third time to turn off quote)
 
-    let cmd;
+    let cmd
     if (e.altKey) {
       if (e.shiftKey) {
-        cmd = this.findCommandKey("alt-shift", e.which);
+        cmd = this.findCommandKey("alt-shift", e.which)
         if (cmd) {
-          return cmd.cmd;
+          return cmd.cmd
         }
 
-        return getDefaultKeyBinding(e);
+        return getDefaultKeyBinding(e)
       }
 
       if (e.ctrlKey || e.metaKey) {
-        cmd = this.findCommandKey("alt-cmd", e.which);
+        cmd = this.findCommandKey("alt-cmd", e.which)
         if (cmd) {
-          return cmd.cmd;
+          return cmd.cmd
         }
-        return getDefaultKeyBinding(e);
+        return getDefaultKeyBinding(e)
       }
     } else if (e.ctrlKey || e.metaKey) {
-      cmd = this.findCommandKey("cmd", e.which);
+      cmd = this.findCommandKey("cmd", e.which)
       if (cmd) {
-        return cmd.cmd;
+        return cmd.cmd
       }
-      return getDefaultKeyBinding(e);
+      return getDefaultKeyBinding(e)
     }
 
-    return getDefaultKeyBinding(e);
+    return getDefaultKeyBinding(e)
   }
 
   // will update block state todo: movo to utils
   updateBlockData(block, options) {
-    const data = block.getData();
-    const newData = data.merge(options);
-    const newState = updateDataOfBlock(this.state.editorState, block, newData);
+    const data = block.getData()
+    const newData = data.merge(options)
+    const newState = updateDataOfBlock(this.state.editorState, block, newData)
     // this fixes enter from image caption
-    return this.forceRender(newState);
+    return this.forceRender(newState)
   }
 
   setDirection(direction_type) {
-    const contentState = this.state.editorState.getCurrentContent();
-    const selectionState = this.state.editorState.getSelection();
-    const block = contentState.getBlockForKey(selectionState.anchorKey);
+    const contentState = this.state.editorState.getCurrentContent()
+    const selectionState = this.state.editorState.getSelection()
+    const block = contentState.getBlockForKey(selectionState.anchorKey)
 
-    return this.updateBlockData(block, { direction: direction_type });
+    return this.updateBlockData(block, { direction: direction_type })
   }
 
   //# read only utils
   toggleEditable() {
-    this.closePopOvers();
+    this.closePopOvers()
 
-    return this.setState({ read_only: !this.state.read_only }, this.testEmitAndDecode);
+    return this.setState({ read_only: !this.state.read_only }, this.testEmitAndDecode)
   }
 
   closePopOvers() {
     return this.tooltips.map(o => {
-      return this.refs[o.ref].hide();
-    });
+      return this.refs[o.ref].hide()
+    })
   }
 
   relocateTooltips() {
     return this.tooltips.map(o => {
-      return this.refs[o.ref].relocate();
-    });
+      return this.refs[o.ref].relocate()
+    })
   }
 
   tooltipsWithProp(prop) {
     return this.tooltips.filter(o => {
-      return o[prop];
-    });
+      return o[prop]
+    })
   }
 
   tooltipHasSelectionElement(tooltip, element) {
-    return tooltip.selectionElements.includes(element);
+    return tooltip.selectionElements.includes(element)
   }
 
   //################################
@@ -1006,46 +1006,46 @@ const DanteEditor = class extends React.Component {
   //################################
 
   handleShowPopLinkOver(e) {
-    return this.showPopLinkOver();
+    return this.showPopLinkOver()
   }
 
   handleHidePopLinkOver(e) {
-    return this.hidePopLinkOver();
+    return this.hidePopLinkOver()
   }
 
   showPopLinkOver(el) {
     // handles popover display
     // using anchor or from popover
 
-    const parent_el = ReactDOM.findDOMNode(this);
+    const parent_el = ReactDOM.findDOMNode(this)
 
     // set url first in order to calculate popover width
-    let coords;
-    this.refs.anchor_popover.setState({ url: el ? el.href : this.refs.anchor_popover.state.url });
+    let coords
+    this.refs.anchor_popover.setState({ url: el ? el.href : this.refs.anchor_popover.state.url })
 
     if (el) {
-      coords = this.refs.anchor_popover.relocate(el);
+      coords = this.refs.anchor_popover.relocate(el)
     }
 
     if (coords) {
-      this.refs.anchor_popover.setPosition(coords);
+      this.refs.anchor_popover.setPosition(coords)
     }
 
-    this.refs.anchor_popover.setState({ show: true });
+    this.refs.anchor_popover.setState({ show: true })
 
-    this.isHover = true;
-    return this.cancelHide();
+    this.isHover = true
+    return this.cancelHide()
   }
 
   hidePopLinkOver() {
     return this.hideTimeout = setTimeout(() => {
-      return this.refs.anchor_popover.hide();
-    }, 300);
+      return this.refs.anchor_popover.hide()
+    }, 300)
   }
 
   cancelHide() {
     // console.log "Cancel Hide"
-    return clearTimeout(this.hideTimeout);
+    return clearTimeout(this.hideTimeout)
   }
 
   //##############################
@@ -1115,9 +1115,9 @@ const DanteEditor = class extends React.Component {
         }
       </div>
 
-    );
+    )
   }
-};
+}
 
-export { Dante, DanteEditor };
+export { Dante, DanteEditor }
 
