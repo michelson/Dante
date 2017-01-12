@@ -225,7 +225,7 @@ export default class ImageBlock extends React.Component {
   formatData() {
     let formData = new FormData()
     if (this.file) {
-      let formName = this.config.formName || 'file'
+      let formName = this.config.upload_formName || 'file'
 
       formData.append(formName, this.file)
       return formData
