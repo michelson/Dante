@@ -1,4 +1,5 @@
+import 'styles/dante'
+import { Dante, DanteEditor } from './components/App'
 
-require("styles/dante");
-
-window.Dante = require('./components/App.cjsx');
+window.Dante = Dante
+window.Dante.DanteEditor = DanteEditor
