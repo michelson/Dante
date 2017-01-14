@@ -68,7 +68,8 @@ export default class VideoBlock extends React.Component {
   render() {
     return (
       <figure className='graf--figure graf--iframe graf--first' tabIndex='0'>
-        <div className='iframeContainer' dangerouslySetInnerHTML={ { __html: this.state.embed_data.html } } />
+        <div className='iframeContainer' 
+          dangerouslySetInnerHTML={ { __html: this.state.embed_data.html } } />
         <figcaption className='imageCaption'>
           <EditorBlock {...Object.assign({}, this.props, { "className": "imageCaption" })} />
         </figcaption>

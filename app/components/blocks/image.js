@@ -1,7 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { Entity, RichUtils, AtomicBlockUtils, EditorBlock, EditorState } from 'draft-js'
+import {
+  Entity, 
+  RichUtils, 
+  AtomicBlockUtils, 
+  EditorBlock, 
+  EditorState } from 'draft-js'
 
 import axios from "axios"
 
@@ -320,14 +325,27 @@ export default class ImageBlock extends React.Component {
 
     return (
       <div ref="image_tag2" suppressContentEditableWarning={true}>
-        <div className="aspectRatioPlaceholder is-locked" style={this.coords()} onClick={this.handleGrafFigureSelectImg}>
-          <div style={{ paddingBottom: `${ this.state.aspect_ratio.ratio }%` }} className='aspect-ratio-fill' />
-          <img src={this.state.url} ref="image_tag" height={this.state.aspect_ratio.height} width={this.state.aspect_ratio.width} className='graf-image' />
-          <Loader toggle={this.state.loading} progress={this.state.loading_progress} />
+        <div className="aspectRatioPlaceholder is-locked" 
+          style={this.coords()} 
+          onClick={this.handleGrafFigureSelectImg}>
+          <div style={{ paddingBottom: `${ this.state.aspect_ratio.ratio }%` }} 
+            className='aspect-ratio-fill' />
+          <img src={this.state.url} 
+            ref="image_tag" 
+            height={this.state.aspect_ratio.height} 
+            width={this.state.aspect_ratio.width} 
+            className='graf-image' />
+          <Loader toggle={this.state.loading} 
+            progress={this.state.loading_progress} />
         </div>
         <figcaption className='imageCaption' onMouseDown={this.handleFocus}>
-          { !this.state.enabled ? <span className="danteDefaultPlaceholder">{this.placeholderText()}</span> : undefined}
-          <EditorBlock {...Object.assign({}, this.props, { "editable": true, "className": "imageCaption" })} />
+          { !this.state.enabled ? 
+            <span className="danteDefaultPlaceholder">
+              {this.placeholderText()}
+            </span> : undefined}
+          <EditorBlock {...Object.assign({}, this.props, { 
+            "editable": true, "className": "imageCaption" })
+            } />
         </figcaption>
       </div>
     )

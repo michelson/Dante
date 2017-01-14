@@ -3,7 +3,24 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import Immutable from 'immutable'
 import { Map, fromJS } from 'immutable'
-import { convertToRaw, convertFromRaw, CompositeDecorator, getVisibleSelectionRect, getDefaultKeyBinding, getSelectionOffsetKeyForNode, KeyBindingUtil, ContentState, Editor, EditorState, Entity, RichUtils, DefaultDraftBlockRenderMap, SelectionState, Modifier, BlockMapBuilder, getSafeBodyFromHTML } from 'draft-js'
+import { 
+  convertToRaw, 
+  convertFromRaw, 
+  CompositeDecorator, 
+  getVisibleSelectionRect, 
+  getDefaultKeyBinding, 
+  getSelectionOffsetKeyForNode, 
+  KeyBindingUtil, 
+  ContentState, 
+  Editor, 
+  EditorState, 
+  Entity, 
+  RichUtils, 
+  DefaultDraftBlockRenderMap, 
+  SelectionState, 
+  Modifier, 
+  BlockMapBuilder, 
+  getSafeBodyFromHTML } from 'draft-js'
 
 import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor'
 
@@ -11,7 +28,13 @@ import { convertToHTML, convertFromHTML } from 'draft-convert'
 
 import isSoftNewlineEvent from 'draft-js/lib/isSoftNewlineEvent'
 
-import { addNewBlock, resetBlockWithType, updateDataOfBlock, updateTextOfBlock, getCurrentBlock, addNewBlockAt } from '../model/index.js'
+import { 
+  addNewBlock, 
+  resetBlockWithType, 
+  updateDataOfBlock, 
+  updateTextOfBlock, 
+  getCurrentBlock, 
+  addNewBlockAt } from '../model/index.js'
 
 import DanteImagePopover from './popovers/image'
 import DanteAnchorPopover from './popovers/link'
@@ -186,11 +209,30 @@ export class Dante {
       ref: 'insert_tooltip',
       component: DanteTooltip,
       displayOnSelection: true,
-      selectionElements: ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block", 'header-one', 'header-two', 'header-three', 'header-four'],
+      selectionElements: [
+      "unstyled", 
+      "blockquote", 
+      "ordered-list", 
+      "unordered-list", 
+      "unordered-list-item", 
+      "ordered-list-item", 
+      "code-block", 
+      'header-one', 
+      'header-two', 
+      'header-three', 
+      'header-four'],
       widget_options: {
         block_types: [
         // {label: 'p', style: 'unstyled'},
-        { label: 'h2', style: 'header-one', type: "block" }, { label: 'h3', style: 'header-two', type: "block" }, { label: 'h4', style: 'header-three', type: "block" }, { label: 'blockquote', style: 'blockquote', type: "block" }, { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block" }, { label: 'insertorderedlist', style: 'ordered-list-item', type: "block" }, { label: 'code', style: 'code-block', type: "block" }, { label: 'bold', style: 'BOLD', type: "inline" }, { label: 'italic', style: 'ITALIC', type: "inline" }]
+        { label: 'h2', style: 'header-one', type: "block" }, 
+        { label: 'h3', style: 'header-two', type: "block" }, 
+        { label: 'h4', style: 'header-three', type: "block" }, 
+        { label: 'blockquote', style: 'blockquote', type: "block" },
+        { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block" }, 
+        { label: 'insertorderedlist', style: 'ordered-list-item', type: "block" }, 
+        { label: 'code', style: 'code-block', type: "block" }, 
+        { label: 'bold', style: 'BOLD', type: "inline" }, 
+        { label: 'italic', style: 'ITALIC', type: "inline" }]
       }
     }, {
       ref: 'add_tooltip',
@@ -217,14 +259,36 @@ export class Dante {
       interval: 1500
     }
 
-    defaultOptions.default_wrappers = [{ className: 'graf--p', block: 'unstyled' }, { className: 'graf--h2', block: 'header-one' }, { className: 'graf--h3', block: 'header-two' }, { className: 'graf--h4', block: 'header-three' }, { className: 'graf--blockquote', block: 'blockquote' }, { className: 'graf--insertunorderedlist', block: 'unordered-list-item' }, { className: 'graf--insertorderedlist', block: 'ordered-list-item' }, { className: 'graf--code', block: 'code-block' }, { className: 'graf--bold', block: 'BOLD' }, { className: 'graf--italic', block: 'ITALIC' }]
+    defaultOptions.default_wrappers = [
+    { className: 'graf--p', block: 'unstyled' }, 
+    { className: 'graf--h2', block: 'header-one' },
+    { className: 'graf--h3', block: 'header-two' }, 
+    { className: 'graf--h4', block: 'header-three' }, 
+    { className: 'graf--blockquote', block: 'blockquote' }, 
+    { className: 'graf--insertunorderedlist', block: 'unordered-list-item' }, 
+    { className: 'graf--insertorderedlist', block: 'ordered-list-item' }, 
+    { className: 'graf--code', block: 'code-block' }, 
+    { className: 'graf--bold', block: 'BOLD' }, 
+    { className: 'graf--italic', block: 'ITALIC' }]
 
-    defaultOptions.continuousBlocks = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"]
+    defaultOptions.continuousBlocks = [
+    "unstyled", 
+    "blockquote", 
+    "ordered-list", 
+    "unordered-list", 
+    "unordered-list-item", 
+    "ordered-list-item", 
+    "code-block"
+    ]
 
     defaultOptions.key_commands = {
       "alt-shift": [{ key: 65, cmd: 'add-new-block' }],
-      "alt-cmd": [{ key: 49, cmd: 'toggle_block:header-one' }, { key: 50, cmd: 'toggle_block:header-two' }, { key: 53, cmd: 'toggle_block:blockquote' }],
-      "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' }, { key: 73, cmd: 'toggle_inline:ITALIC' }, { key: 75, cmd: 'insert:link' }]
+      "alt-cmd": [{ key: 49, cmd: 'toggle_block:header-one' }, 
+                  { key: 50, cmd: 'toggle_block:header-two' }, 
+                  { key: 53, cmd: 'toggle_block:blockquote' }],
+      "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' }, 
+              { key: 73, cmd: 'toggle_inline:ITALIC' }, 
+              { key: 75, cmd: 'insert:link' }]
     }
 
     defaultOptions.character_convert_mapping = {
@@ -258,7 +322,6 @@ export class Dante {
     )
   }
 }
-
 export class DanteEditor extends React.Component {
   constructor(props) {
     super(props)
@@ -774,9 +837,12 @@ export class DanteEditor extends React.Component {
         if (blockType === "unstyled") {
           // hack hackety hack
           // https://github.com/facebook/draft-js/issues/304
-          const newContent = Modifier.splitBlock(this.state.editorState.getCurrentContent(), this.state.editorState.getSelection())
+          const newContent = Modifier.splitBlock(
+            this.state.editorState.getCurrentContent(), 
+            this.state.editorState.getSelection())
 
-          const newEditorState = EditorState.push(this.state.editorState, newContent, 'insert-characters')
+          const newEditorState = EditorState.push(this.state.editorState, 
+                                                  newContent, 'insert-characters')
           this.onChange(newEditorState)
 
           setTimeout(() => {
@@ -1064,7 +1130,8 @@ export class DanteEditor extends React.Component {
                     <hr className="section-divider" />
                   </div>
                   <div className="section-content">
-                    <div ref="richEditor" className="section-inner layoutSingleColumn" onClick={ this.focus }>
+                    <div ref="richEditor" className="section-inner layoutSingleColumn"
+                        onClick={ this.focus }>
                       <Editor
                         blockRendererFn={ this.blockRenderer }
                         editorState={ this.state.editorState }

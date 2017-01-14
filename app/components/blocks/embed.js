@@ -103,8 +103,8 @@ export default class EmbedBlock extends React.Component {
             />
           : undefined
         }
-        { this.state.error
-          ? <h2>{ this.state.error }</h2>
+        { this.state.error ? 
+          <h2>{ this.state.error }</h2>
           : undefined
         }
         <a

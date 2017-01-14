@@ -29,7 +29,10 @@ class DanteImagePopover extends React.Component {
       },
       show: false,
       scaled: false,
-      buttons: [{ type: "left" }, { type: "center" }, { type: "fill" }, { type: "wide" }]
+      buttons: [{ type: "left" }, 
+                { type: "center"}, 
+                { type: "fill" }, 
+                { type: "wide" }]
     }
   }
 
@@ -103,7 +106,8 @@ class DanteImagePopover extends React.Component {
       this.display(blockType === "image")
 
       if (blockType === "image") {
-        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
+        selectionBoundary = node.anchorNode.parentNode.parentNode
+                                           .parentNode.getBoundingClientRect()
         let el = this.refs.image_popover
         let padd = el.offsetWidth / 2
         return this.setPosition({
@@ -135,7 +139,10 @@ class DanteImagePopover extends React.Component {
       <div
         ref="image_popover"
         className={ `dante-popover popover--Aligntooltip popover--top popover--animated ${ this.state.show ? 'is-active' : undefined }` }
-        style={ { top: this.state.position.top, left: this.state.position.left } }
+        style={ 
+          { top: this.state.position.top,
+            left: this.state.position.left }
+          }
       >
         <div className='popover-inner'>
           <ul className='dante-menu-buttons'>
@@ -169,7 +176,11 @@ class DanteImagePopoverItem extends React.Component {
   }
 
   render() {
-    return <li className={`dante-menu-button align-${ this.props.item.type }`} onMouseDown={this.handleClick}><span className={`tooltip-icon dante-icon-image-${ this.props.item.type }`} /></li>
+    return <li 
+      className={`dante-menu-button align-${ this.props.item.type }`} 
+      onMouseDown={this.handleClick}>
+        <span className={`tooltip-icon dante-icon-image-${ this.props.item.type }`} />
+    </li>
   }
 }
 

@@ -1,7 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { convertToRaw, CompositeDecorator, getVisibleSelectionRect, getDefaultKeyBinding, getSelectionOffsetKeyForNode, KeyBindingUtil, ContentState, Editor, EditorState, Entity, RichUtils } from 'draft-js'
+import { 
+  convertToRaw, 
+  CompositeDecorator, 
+  getVisibleSelectionRect, 
+  getDefaultKeyBinding, 
+  getSelectionOffsetKeyForNode, 
+  KeyBindingUtil, 
+  ContentState, 
+  Editor, 
+  EditorState, 
+  Entity, 
+  RichUtils } from 'draft-js'
 
 import { getSelectionRect, getSelection } from "../../utils/selection.js"
 

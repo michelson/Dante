@@ -38,7 +38,9 @@ class Debug extends React.Component {
 
   testEmitAndDecode(e) {
     const raw_as_json = this.props.editor.emitSerializedOutput()
-    this.props.editor.setState({ editorState: this.props.editor.decodeEditorContent(raw_as_json) }, this.logState(JSON.stringify(raw_as_json)))
+    this.props.editor.setState({ 
+      editorState: this.props.editor.decodeEditorContent(raw_as_json) }, 
+      this.logState(JSON.stringify(raw_as_json)))
     return false
   }
 

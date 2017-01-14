@@ -1,9 +1,19 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { Entity, RichUtils, AtomicBlockUtils, EditorState } from 'draft-js'
+import { 
+  Entity, 
+  RichUtils, 
+  AtomicBlockUtils, 
+  EditorState 
+  } from 'draft-js'
 
-import { addNewBlock, resetBlockWithType, updateDataOfBlock, getCurrentBlock, getNode } from '../../model/index.js'
+import { 
+  addNewBlock, 
+  resetBlockWithType, 
+  updateDataOfBlock, 
+  getCurrentBlock, 
+  getNode } from '../../model/index.js'
 
 import { getSelectionRect, getSelection } from "../../utils/selection.js"
 
