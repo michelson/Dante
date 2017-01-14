@@ -4,7 +4,7 @@ export default {
   ...baseConfig,
 
   entry: {
-    'Dante2': './app/index.js',
+    'Dante2': './src/index.js',
   },
 
   output: {

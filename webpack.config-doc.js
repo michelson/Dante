@@ -85,7 +85,6 @@ if (env === 'build') {
 }
 
 var config = {
-  //entry: __dirname + '/app/initialize.js',
 
   entry: {
     'app': './demo/demo.js',
@@ -103,7 +102,7 @@ var config = {
     //umdNamedDefine: true
   },
   resolve: {
-    root: path.resolve('./app'),
+    root: path.resolve('./src'),
     extensions: ['', '.js', '.jsx', '.es6', '.cjsx', '.coffee', '.css', '.scss']
   },
   module: {
