@@ -41,7 +41,8 @@ es/
 !tools/es/
 dist/
 !tools/dist/
-docs-built/
+docs/
+!tools/docs/
 tmp-bower-repo/
 tmp-docs-repo/
 .babel-cache/
