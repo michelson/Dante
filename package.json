@@ -3,9 +3,12 @@
   "version": "0.3.0",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
-  "main": "dist/Dante2.min.js",
+  "license": "GPL-3.0",
+
+  "main": "lib/index.js",
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
+
   "files": [
     "app",
     "dist/Dante2.js"
@@ -81,7 +84,6 @@
     "wysiwyg",
     "draft-js"
   ],
-  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/Michelson/Dante2/issues"
   },
