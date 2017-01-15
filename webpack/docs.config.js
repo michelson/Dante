@@ -93,7 +93,7 @@ var config = {
 
   devtool: 'cheap-module-source-map',
   output: {
-    path: __dirname + '/docs',
+    path:  './docs',
     filename: '[name].js',
     chunkFilename: "[id].js"
     //filename: outputFile,
