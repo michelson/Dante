@@ -7,4 +7,4 @@ export const distRoot = path.join(repoRoot, 'dist/');
 export const libRoot = path.join(repoRoot, 'lib/');
 export const esRoot = path.join(repoRoot, 'es/');
 export const bowerRoot = path.join(repoRoot, 'amd/');
-export const docsRoot = path.join(repoRoot, 'docs-built/');
+export const docsRoot = path.join(repoRoot, 'docs/');
