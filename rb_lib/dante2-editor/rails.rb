@@ -6,16 +6,9 @@ module Dante2Editor
       find_root_with_flag "rb_lib", from
     end
 
-    config.generators do |g|
-
-      config.assets.paths << Dante2Editor::Engine.root.join("docs", "fonts")
-      config.assets.paths << Dante2Editor::Engine.root.join("docs", "images")
-      config.assets.paths << Dante2Editor::Engine.root.join("docs")
-
-      config.assets.paths << Dante2Editor::Engine.root.join("app", "styles")
-
-
-    end
+    # Make the compiled assets in docs/* available to the AssetPipeline
+    config.assets.paths << Dante2Editor::Engine.root.join("docs", "fonts")
+    config.assets.paths << Dante2Editor::Engine.root.join("docs")
 
   end
 end
