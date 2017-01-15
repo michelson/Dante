@@ -41,7 +41,7 @@ es/
 !tools/es/
 dist/
 !tools/dist/
-docs/
+/docs/
 !tools/docs/
 tmp-bower-repo/
 tmp-docs-repo/
