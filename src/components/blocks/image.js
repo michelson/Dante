@@ -270,7 +270,7 @@ export default class ImageBlock extends React.Component {
       this.file = null
 
       if (this.config.upload_callback) {
-        return this.config.upload_callback(response, this)
+        return this.config.upload_callback(result, this)
       }
     }).catch(error => {
       this.props.blockProps.removeLock()
