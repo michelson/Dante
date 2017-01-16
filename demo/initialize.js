@@ -1,5 +1,9 @@
 import 'styles/dante'
-import { Dante, DanteEditor } from '../src/components/App'
+import { Dante, DanteEditor } from '../src/index'
 
-window.Dante = Dante
-window.Dante.DanteEditor = DanteEditor
+import 'expose?Dante2!../src/index.js';
+
+
+
+//window.Dante = Dante
+//window.Dante.DanteEditor = DanteEditor

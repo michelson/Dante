@@ -1,7 +1,15 @@
 
-export {Dante, DanteEditor} from './components/App'
+import {Dante, DanteEditor} from './components/App'
+import dantecss from './styles/dante.scss';
+import draftcss from './styles/draft.css';
 
-//module.exports.DanteEditor = require('./components/App.jsx').DanteEditor
+module.exports = {
+  Dante, 
+  DanteEditor
+};
+
+//window.Dante = Dante
+//window.Dante.DanteEditor = DanteEditor
 
 /*
 export default class Dante2 {

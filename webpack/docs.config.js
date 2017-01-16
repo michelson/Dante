@@ -107,13 +107,6 @@ var config = {
   },
   module: {
     loaders: [
-      { test: /\.cjsx$/,
-        loaders: ['coffee', 'cjsx'],
-        exclude: /(node_modules|bower_components)/
-      },
-      { test: /\.coffee$/,
-        loader: 'coffee',
-        exclude: /(node_modules|bower_components)/ },
       {
         test: /(\.jsx|\.js|\.es6)$/,
         loader: 'babel-loader',
@@ -123,6 +116,10 @@ var config = {
           "plugins": ["transform-react-jsx"]
         }
       },
+      { test: "./index.js", loader: "expose-loader?Dante" },
+      { test: "./index.js", loader: "expose-loader?DanteEditor" },
+      { test: "./demo/initialize.js", loader: "expose-loader?Dante" },
+      { test: "./demo/initialize.js", loader: "expose-loader?DanteEditor" },
       {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract("style-loader", "css-loader")

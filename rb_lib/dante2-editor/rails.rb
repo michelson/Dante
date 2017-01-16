@@ -7,10 +7,9 @@ module Dante2Editor
     end
 
     # Make the compiled assets in docs/* available to the AssetPipeline
-    config.assets.paths << Dante2Editor::Engine.root.join("docs", "fonts")
-    config.assets.paths << Dante2Editor::Engine.root.join("docs", "images")
-    config.assets.paths << Dante2Editor::Engine.root.join("docs")
+    config.assets.paths << Dante2Editor::Engine.root.join("dist")
     config.assets.paths << Dante2Editor::Engine.root.join("src", "styles")
-
+    config.assets.paths << Dante2Editor::Engine.root.join("src", "styles", "fonts")
+    config.assets.paths << Dante2Editor::Engine.root.join("src", "images")
   end
 end
