@@ -5,7 +5,7 @@
   "author": "<%= pkg.author %>",
   "license": "<%= pkg.license %>",
   "main": [
-    "dante2.js"
+    "Dante2.js"
   ],
   "keywords": [
     <%= pkg.keywords.map(keyword => `"${keyword}"`).join(',\n    ') %>
