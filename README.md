@@ -105,3 +105,7 @@ If you are creating an open source application under a license compatible with t
 ### Alternatives
 
 If you are looking for alternatives you can always use the [MIT licensed Dante (1)](https://michelson.github.io/Dante) or choose along others [medium clones](http://howtox.com/medium-editor-clones-in-js) or check out [many many awesome draft-js based editors](https://github.com/nikgraf/awesome-draft-js)
+
+### Acknowledgments
+
+The code from `tools` is based on the build tools from [ReactBoostrap](https://github.com/react-bootstrap/react-bootstrap)
