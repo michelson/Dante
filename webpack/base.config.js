@@ -34,8 +34,6 @@ const baseConfig = {
   module: {
     loaders: [
       { test: /\.js/, loader: jsLoader, exclude: /node_modules/ },
-      { test: "./src/index.js", loader: "expose-loader?Dante" },
-      { test: "./src/index.js", loader: "expose-loader?DanteEditor" },
       {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract("style-loader", "css-loader")
@@ -44,6 +42,13 @@ const baseConfig = {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
       },
+
+      { test: path.resolve("./src/components/dante_editor.js"), 
+        loaders: ["expose?DanteEditor", "babel-loader?presets[]=es2015"]},
+        
+      { test: path.resolve("./src/components/dante.js"), 
+        loaders: ["expose?Dante", "babel-loader?presets[]=es2015"]},
+
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         loader: 'file?name=fonts/[name].[ext]',

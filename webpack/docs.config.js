@@ -118,8 +118,12 @@ var config = {
       },
       { test: "./index.js", loader: "expose-loader?Dante" },
       { test: "./index.js", loader: "expose-loader?DanteEditor" },
-      { test: "./demo/initialize.js", loader: "expose-loader?Dante" },
-      { test: "./demo/initialize.js", loader: "expose-loader?DanteEditor" },
+      
+      { test: path.resolve("./src/components/dante_editor.js"), 
+        loaders: ["expose?DanteEditor", "babel-loader?presets[]=es2015"]},
+      { test: path.resolve("./src/components/dante.js"), 
+        loaders: ["expose?Dante", "babel-loader?presets[]=es2015"]},
+      
       {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract("style-loader", "css-loader")
