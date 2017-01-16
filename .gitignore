@@ -34,18 +34,15 @@ bower_components/
 
 # Build stuff
 amd/
-!tools/amd/
 lib/
-!tools/lib/
 es/
+!tools/amd/
+!tools/lib/
 !tools/es/
-dist/
 !tools/dist/
-/docs/
 !tools/docs/
 tmp-bower-repo/
 tmp-docs-repo/
 .babel-cache/
 
-
-docs/*
+.npmignore
