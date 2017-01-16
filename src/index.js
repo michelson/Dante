@@ -1,22 +1,10 @@
 
-import {Dante, DanteEditor} from './components/App'
+import Dante from './components/dante'
+import DanteEditor from './components/dante_editor'
 import dantecss from './styles/dante.scss';
 import draftcss from './styles/draft.css';
 
 module.exports = {
   Dante, 
   DanteEditor
-};
-
-//window.Dante = Dante
-//window.Dante.DanteEditor = DanteEditor
-
-/*
-export default class Dante2 {
-  constructor() {
-    this._name = 'Dante2';
-  }
-  get name() {
-    return this._name;
-  }
-}*/
+}
