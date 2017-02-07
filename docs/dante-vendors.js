@@ -535,9 +535,13 @@
 
 	var _placeholder2 = _interopRequireDefault(_placeholder);
 
+	var _index = __webpack_require__(403);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	//import { getSelectionRect, getSelection } from "../utils/selection.js"
+	//import Debug from './debug'
+
+	//import Immutable from 'immutable'
 	var Dante = function () {
 	  function Dante(options) {
 	    (0, _classCallCheck3['default'])(this, Dante);
@@ -598,12 +602,12 @@
 	        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 	        handleEnterWithText: function handleEnterWithText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 
 	        widget_options: {
@@ -641,12 +645,12 @@
 	        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 	        handleEnterWithText: function handleEnterWithText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        }
 	      }, {
 	        icon: 'video',
@@ -672,12 +676,12 @@
 	        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 	        handleEnterWithText: function handleEnterWithText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        }
 	      }, {
 	        renderable: true,
@@ -698,7 +702,7 @@
 	            type: block.getData().get('type')
 	          };
 
-	          return ctx.onChange(resetBlockWithType(editorState, data.type, data));
+	          return ctx.onChange((0, _index.resetBlockWithType)(editorState, data.type, data));
 	        }
 	      }];
 
@@ -780,9 +784,7 @@
 	  return Dante;
 	}();
 
-	//import Debug from './debug'
-
-	//import Immutable from 'immutable'
+	//import { getSelectionRect, getSelection } from "../utils/selection.js"
 
 
 		module.exports = Dante;
@@ -49551,23 +49553,6 @@
 	module.exports = function stringify(it){ // eslint-disable-line no-unused-vars
 	  return $JSON.stringify.apply($JSON, arguments);
 	};
-
-/***/ },
-/* 471 */,
-/* 472 */,
-/* 473 */,
-/* 474 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(3)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "/**\n * @providesModule DraftEditor\n * @permanent\n */\n\n/**\n * We inherit the height of the container by default\n */\n\n.DraftEditor-root,\n.DraftEditor-editorContainer,\n.public-DraftEditor-content {\n  height: inherit;\n  text-align: initial;\n}\n\n.DraftEditor-root {\n  position: relative;\n}\n\n/**\n * Zero-opacity background used to allow focus in IE. Otherwise, clicks\n * fall through to the placeholder.\n */\n\n.DraftEditor-editorContainer {\n  background-color: rgba(255, 255, 255, 0);\n  /* Repair mysterious missing Safari cursor */\n  border-left: 0.1px solid transparent;\n  position: relative;\n  z-index: 1;\n}\n\n.public-DraftEditor-content {\n  outline: none;\n  white-space: pre-wrap;\n}\n\n.public-DraftEditor-block {\n  position: relative;\n}\n\n.DraftEditor-alignLeft .public-DraftStyleDefault-block {\n  text-align: left;\n}\n\n.DraftEditor-alignLeft .public-DraftEditorPlaceholder-root {\n  left: 0;\n  text-align: left;\n}\n\n.DraftEditor-alignCenter .public-DraftStyleDefault-block {\n  text-align: center;\n}\n\n.DraftEditor-alignCenter .public-DraftEditorPlaceholder-root {\n  margin: 0 auto;\n  text-align: center;\n  width: 100%;\n}\n\n.DraftEditor-alignRight .public-DraftStyleDefault-block {\n  text-align: right;\n}\n\n.DraftEditor-alignRight .public-DraftEditorPlaceholder-root {\n  right: 0;\n  text-align: right;\n}\n/**\n * @providesModule DraftEditorPlaceholder\n */\n\n.public-DraftEditorPlaceholder-root {\n  color: #9197a3;\n  position: absolute;\n  z-index: 0;\n}\n\n.public-DraftEditorPlaceholder-hasFocus {\n  color: #bdc1c9;\n}\n\n.DraftEditorPlaceholder-hidden {\n  display: none;\n}\n/**\n * @providesModule DraftStyleDefault\n */\n\n.public-DraftStyleDefault-block {\n  position: relative;\n  white-space: pre-wrap;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-ltr {\n  direction: ltr;\n  text-align: left;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-rtl {\n  direction: rtl;\n  text-align: right;\n}\n\n/**\n * These rules provide appropriate text direction for counter pseudo-elements.\n */\n\n/* @noflip */\n\n.public-DraftStyleDefault-listLTR {\n  direction: ltr;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-listRTL {\n  direction: rtl;\n}\n\n/**\n * Default spacing for list container elements. Override with CSS as needed.\n */\n\n.public-DraftStyleDefault-ul,\n.public-DraftStyleDefault-ol {\n  margin: 16px 0;\n  padding: 0;\n}\n\n/**\n * Default counters and styles are provided for five levels of nesting.\n * If you require nesting beyond that level, you should use your own CSS\n * classes to do so. If you care about handling RTL languages, the rules you\n * create should look a lot like these.\n */\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listLTR {\n  margin-left: 1.5em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-listRTL {\n  margin-right: 1.5em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listLTR {\n  margin-left: 3em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-listRTL {\n  margin-right: 3em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listLTR {\n  margin-left: 4.5em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-listRTL {\n  margin-right: 4.5em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listLTR {\n  margin-left: 6em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-listRTL {\n  margin-right: 6em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listLTR {\n  margin-left: 7.5em;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-listRTL {\n  margin-right: 7.5em;\n}\n\n/**\n * Only use `square` list-style after the first two levels.\n */\n\n.public-DraftStyleDefault-unorderedListItem {\n  list-style-type: square;\n  position: relative;\n}\n\n.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth0 {\n  list-style-type: disc;\n}\n\n.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-depth1 {\n  list-style-type: circle;\n}\n\n/**\n * Ordered list item counters are managed with CSS, since all list nesting is\n * purely visual.\n */\n\n.public-DraftStyleDefault-orderedListItem {\n  list-style-type: none;\n  position: relative;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before {\n  left: -36px;\n  position: absolute;\n  text-align: right;\n  width: 30px;\n}\n\n/* @noflip */\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listRTL:before {\n  position: absolute;\n  right: -36px;\n  text-align: left;\n  width: 30px;\n}\n\n/**\n * Counters are reset in JavaScript. If you need different counter styles,\n * override these rules. If you need more nesting, create your own rules to\n * do so.\n */\n\n.public-DraftStyleDefault-orderedListItem:before {\n  content: counter(ol0) \". \";\n  counter-increment: ol0;\n}\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth1:before {\n  content: counter(ol1) \". \";\n  counter-increment: ol1;\n}\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth2:before {\n  content: counter(ol2) \". \";\n  counter-increment: ol2;\n}\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth3:before {\n  content: counter(ol3) \". \";\n  counter-increment: ol3;\n}\n\n.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-depth4:before {\n  content: counter(ol4) \". \";\n  counter-increment: ol4;\n}\n\n.public-DraftStyleDefault-depth0.public-DraftStyleDefault-reset {\n  counter-reset: ol0;\n}\n\n.public-DraftStyleDefault-depth1.public-DraftStyleDefault-reset {\n  counter-reset: ol1;\n}\n\n.public-DraftStyleDefault-depth2.public-DraftStyleDefault-reset {\n  counter-reset: ol2;\n}\n\n.public-DraftStyleDefault-depth3.public-DraftStyleDefault-reset {\n  counter-reset: ol3;\n}\n\n.public-DraftStyleDefault-depth4.public-DraftStyleDefault-reset {\n  counter-reset: ol4;\n}", ""]);
-
-	// exports
-
 
 /***/ }
 /******/ ]);

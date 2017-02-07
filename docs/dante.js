@@ -87,14 +87,6 @@ webpackJsonp([1],{
 
 	var _dante_editor2 = _interopRequireDefault(_dante_editor);
 
-	var _dante3 = __webpack_require__(10);
-
-	var _dante4 = _interopRequireDefault(_dante3);
-
-	var _draft = __webpack_require__(473);
-
-	var _draft2 = _interopRequireDefault(_draft);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	module.exports = {
@@ -3312,13 +3304,6 @@ webpackJsonp([1],{
 	};
 
 		exports['default'] = customHTML2Content;
-
-/***/ },
-
-/***/ 473:
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
 
 /***/ }
 

@@ -46,6 +46,7 @@ export default {
 
   entry: {
     'Dante2': './src/index.js',
+    'DanteStyles': './src/style.js',
   },
 
   output: {

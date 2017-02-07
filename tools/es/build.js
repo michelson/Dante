@@ -9,7 +9,6 @@ export default function BuildES() {
 
   return exec(`rimraf ${esRoot}`)
     .then(() => fsp.mkdirs(esRoot))
-    //.then(() => exec(`cp -r ${srcRoot}styles ${esRoot}`))
     .then(() => buildBabel(srcRoot, esRoot, {
       babelrc: false,
       presets: [

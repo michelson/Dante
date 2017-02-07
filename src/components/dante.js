@@ -18,6 +18,10 @@ import EmbedBlock from './blocks/embed'
 import VideoBlock from './blocks/video'
 import PlaceholderBlock from './blocks/placeholder'
 
+import { 
+  resetBlockWithType, 
+  addNewBlockAt } from '../model/index.js'
+
 class Dante {
   constructor(options) {
     if (options == null) {

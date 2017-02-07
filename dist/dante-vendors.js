@@ -30,7 +30,7 @@
 /******/ 	// "0" means "already loaded"
 /******/ 	// Array means "loading", array contains callbacks
 /******/ 	var installedChunks = {
-/******/ 		1:0
+/******/ 		2:0
 /******/ 	};
 
 /******/ 	// The require function
@@ -76,7 +76,7 @@
 /******/ 			script.charset = 'utf-8';
 /******/ 			script.async = true;
 
-/******/ 			script.src = __webpack_require__.p + "" + chunkId + "." + ({"0":"Dante2"}[chunkId]||chunkId) + ".js";
+/******/ 			script.src = __webpack_require__.p + "" + chunkId + "." + ({"0":"Dante2","1":"DanteStyles"}[chunkId]||chunkId) + ".js";
 /******/ 			head.appendChild(script);
 /******/ 		}
 /******/ 	};
@@ -157,9 +157,13 @@
 
 	var _placeholder2 = _interopRequireDefault(_placeholder);
 
+	var _index = __webpack_require__(230);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	//import { getSelectionRect, getSelection } from "../utils/selection.js"
+	//import Debug from './debug'
+
+	//import Immutable from 'immutable'
 	var Dante = function () {
 	  function Dante(options) {
 	    (0, _classCallCheck3['default'])(this, Dante);
@@ -220,12 +224,12 @@
 	        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 	        handleEnterWithText: function handleEnterWithText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 
 	        widget_options: {
@@ -263,12 +267,12 @@
 	        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 	        handleEnterWithText: function handleEnterWithText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        }
 	      }, {
 	        icon: 'video',
@@ -294,12 +298,12 @@
 	        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        },
 	        handleEnterWithText: function handleEnterWithText(ctx, block) {
 	          var editorState = ctx.state.editorState;
 
-	          return ctx.onChange(addNewBlockAt(editorState, block.getKey()));
+	          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
 	        }
 	      }, {
 	        renderable: true,
@@ -320,7 +324,7 @@
 	            type: block.getData().get('type')
 	          };
 
-	          return ctx.onChange(resetBlockWithType(editorState, data.type, data));
+	          return ctx.onChange((0, _index.resetBlockWithType)(editorState, data.type, data));
 	        }
 	      }];
 
@@ -402,9 +406,7 @@
 	  return Dante;
 	}();
 
-	//import Debug from './debug'
-
-	//import Immutable from 'immutable'
+	//import { getSelectionRect, getSelection } from "../utils/selection.js"
 
 
 	module.exports = Dante;

@@ -9,7 +9,6 @@ export default function BuildCommonJs() {
 
   return exec(`rimraf ${libRoot}`)
     .then(() => fsp.mkdirs(libRoot))
-    //.then(() => exec(`cp -r ${srcRoot}styles ${libRoot}`))
     .then(() => buildBabel(srcRoot, libRoot))
     .then(() => console.log('Built: '.cyan + 'npm module'.green));
 }
