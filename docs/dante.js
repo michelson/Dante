@@ -2211,7 +2211,7 @@ webpackJsonp([1],{
 	        _this3.file = null;
 
 	        if (_this3.config.upload_callback) {
-	          return _this3.config.upload_callback(response, _this3);
+	          return _this3.config.upload_callback(result, _this3);
 	        }
 	      })['catch'](function (error) {
 	        _this3.props.blockProps.removeLock();
