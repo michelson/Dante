@@ -19,7 +19,7 @@ return webpackJsonpDante2([0],{
 
 	var _dante2 = _interopRequireDefault(_dante);
 
-	var _dante_editor = __webpack_require__(270);
+	var _dante_editor = __webpack_require__(26);
 
 	var _dante_editor2 = _interopRequireDefault(_dante_editor);
 
@@ -59,6 +59,226 @@ return webpackJsonpDante2([0],{
 /***/ 26:
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
+
+	module.exports = global["DanteEditor"] = __webpack_require__(27);
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+
+/***/ 396:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getNode = exports.getDefaultBlockData = undefined;
+
+	var _immutable = __webpack_require__(25);
+
+	var _draftJs = __webpack_require__(94);
+
+	/*
+	Used from [react-rte](https://github.com/brijeshb42/medium-draft)
+	by [brijeshb42](https://github.com/brijeshb42/medium-draft)
+	*/
+
+	/*
+	Returns default block-level metadata for various block type. Empty object otherwise.
+	*/
+	var getDefaultBlockData = exports.getDefaultBlockData = function getDefaultBlockData(blockType) {
+	  var initialData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	  switch (blockType) {
+	    //case Block.TODO: return { checked: false };
+	    default:
+	      return initialData;
+	  }
+	};
+
+	var getNode = exports.getNode = function getNode() {
+	  var root = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
+
+	  var t = null;
+	  if (root.getSelection) {
+	    t = root.getSelection();
+	  } else if (root.document.getSelection) {
+	    t = root.document.getSelection();
+	  } else if (root.document.selection) {
+	    t = root.document.selection.createRange().text;
+	  }
+	  return t;
+	};
+
+	/*
+	Get currentBlock in the editorState.
+	*/
+	var getCurrentBlock = exports.getCurrentBlock = function getCurrentBlock(editorState) {
+	  var selectionState = editorState.getSelection();
+	  var contentState = editorState.getCurrentContent();
+	  var block = contentState.getBlockForKey(selectionState.getStartKey());
+	  return block;
+	};
+
+	/*
+	Adds a new block (currently replaces an empty block) at the current cursor position
+	of the given `newType`.
+	*/
+	var addNewBlock = exports.addNewBlock = function addNewBlock(editorState) {
+	  var newType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "unstyled";
+	  var initialData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+	  var selectionState = editorState.getSelection();
+	  if (!selectionState.isCollapsed()) {
+	    return editorState;
+	  }
+	  var contentState = editorState.getCurrentContent();
+	  var key = selectionState.getStartKey();
+	  var blockMap = contentState.getBlockMap();
+	  var currentBlock = getCurrentBlock(editorState);
+	  if (!currentBlock) {
+	    return editorState;
+	  }
+	  if (currentBlock.getLength() === 0) {
+	    if (currentBlock.getType() === newType) {
+	      return editorState;
+	    }
+	    var newBlock = currentBlock.merge({
+	      type: newType,
+	      data: getDefaultBlockData(newType, initialData)
+	    });
+	    var newContentState = contentState.merge({
+	      blockMap: blockMap.set(key, newBlock),
+	      selectionAfter: selectionState
+	    });
+	    return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
+	  }
+	  return editorState;
+	};
+
+	/*
+	Changes the block type of the current block.
+	*/
+	var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithType(editorState) {
+	  var newType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "unstyled";
+	  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+	  var contentState = editorState.getCurrentContent();
+	  var selectionState = editorState.getSelection();
+	  var key = selectionState.getStartKey();
+	  var blockMap = contentState.getBlockMap();
+	  var block = blockMap.get(key);
+
+	  var newText = '';
+	  console.log("DATA FOR PLACEHOLDER!", data);
+	  var text = block.getText();
+	  if (block.getLength() >= 2) {
+	    newText = text.substr(1);
+	  }
+
+	  /*if(data.text){
+	    newText = data.text
+	  }*/
+
+	  //let newText = data.text
+
+	  var newBlock = block.merge({
+	    text: newText,
+	    type: newType,
+	    data: getDefaultBlockData(newType, data)
+	  });
+	  var newContentState = contentState.merge({
+	    blockMap: blockMap.set(key, newBlock),
+	    selectionAfter: selectionState.merge({
+	      anchorOffset: 0,
+	      focusOffset: 0
+	    })
+	  });
+	  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
+	};
+
+	/*
+	Update block-level metadata of the given `block` to the `newData`/
+	*/
+	var updateDataOfBlock = exports.updateDataOfBlock = function updateDataOfBlock(editorState, block, newData) {
+	  var contentState = editorState.getCurrentContent();
+	  var newBlock = block.merge({
+	    data: newData
+	  });
+	  var newContentState = contentState.merge({
+	    blockMap: contentState.getBlockMap().set(block.getKey(), newBlock)
+	  });
+	  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
+	  // return editorState;
+	};
+
+	var updateTextOfBlock = exports.updateTextOfBlock = function updateTextOfBlock(editorState, block, text) {
+	  var contentState = editorState.getCurrentContent();
+	  var newBlock = block.merge({
+	    text: text
+	  });
+	  var newContentState = contentState.merge({
+	    blockMap: contentState.getBlockMap().set(block.getKey(), newBlock)
+	  });
+
+	  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
+	  // return editorState;
+	};
+
+	// const BEFORE = -1;
+	// const AFTER = 1;
+
+	/*
+	Used from [react-rte](https://github.com/sstur/react-rte/blob/master/src/lib/insertBlockAfter.js)
+	by [sstur](https://github.com/sstur)
+	*/
+	var addNewBlockAt = exports.addNewBlockAt = function addNewBlockAt(editorState, pivotBlockKey) {
+	  var newBlockType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "unstyled";
+	  var initialData = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+
+	  var content = editorState.getCurrentContent();
+	  var blockMap = content.getBlockMap();
+	  var block = blockMap.get(pivotBlockKey);
+	  var blocksBefore = blockMap.toSeq().takeUntil(function (v) {
+	    return v === block;
+	  });
+	  var blocksAfter = blockMap.toSeq().skipUntil(function (v) {
+	    return v === block;
+	  }).rest();
+	  var newBlockKey = (0, _draftJs.genKey)();
+
+	  var newBlock = new _draftJs.ContentBlock({
+	    key: newBlockKey,
+	    type: newBlockType,
+	    text: '',
+	    characterList: block.getCharacterList().slice(0, 0),
+	    depth: 0,
+	    data: (0, _immutable.Map)(getDefaultBlockData(newBlockType, initialData))
+	  });
+
+	  var newBlockMap = blocksBefore.concat([[pivotBlockKey, block], [newBlockKey, newBlock]], blocksAfter).toOrderedMap();
+
+	  var selection = editorState.getSelection();
+
+	  var newContent = content.merge({
+	    blockMap: newBlockMap,
+	    selectionBefore: selection,
+	    selectionAfter: selection.merge({
+	      anchorKey: newBlockKey,
+	      anchorOffset: 0,
+	      focusKey: newBlockKey,
+	      focusOffset: 0,
+	      isBackward: false
+	    })
+	  });
+	  return _draftJs.EditorState.push(editorState, newContent, 'split-block');
+	};
+
+/***/ },
+
+/***/ 397:
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	exports.__esModule = true;
@@ -67,11 +287,585 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(23);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _draftJs = __webpack_require__(94);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var Link = function (_React$Component) {
+	  (0, _inherits3['default'])(Link, _React$Component);
+
+	  function Link(props) {
+	    (0, _classCallCheck3['default'])(this, Link);
+
+	    var _this = (0, _possibleConstructorReturn3['default'])(this, _React$Component.call(this, props));
+
+	    _this._validateLink = _this._validateLink.bind(_this);
+	    _this._checkProtocol = _this._checkProtocol.bind(_this);
+	    _this._showPopLinkOver = _this._showPopLinkOver.bind(_this);
+	    _this._hidePopLinkOver = _this._hidePopLinkOver.bind(_this);
+	    _this.isHover = false;
+	    return _this;
+	  }
+
+	  Link.prototype._validateLink = function _validateLink() {
+	    var pattern = new RegExp('^(https?:\/\/)?' + // protocol
+	    '((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|' + // domain name
+	    '((\d{1,3}\.){3}\d{1,3}))' + // OR ip (v4) address
+	    '(\:\d+)?(\/[-a-z\d%_.~+]*)*' + // port and path
+	    '(\?[&a-z\d%_.~+=-]*)?' + // query string
+	    '(\#[-a-z\d_]*)?$', 'i'); // fragment locater
+	    if (!pattern.test(str)) {
+	      alert("Please enter a valid URL.");
+	      return false;
+	    } else {
+	      return true;
+	    }
+	  };
+
+	  Link.prototype._checkProtocol = function _checkProtocol() {
+	    return console.log("xcvd");
+	  };
+
+	  Link.prototype._showPopLinkOver = function _showPopLinkOver(e) {
+	    if (!this.data.showPopLinkOver) {
+	      return;
+	    }
+	    return this.data.showPopLinkOver(this.refs.link);
+	  };
+
+	  Link.prototype._hidePopLinkOver = function _hidePopLinkOver(e) {
+	    if (!this.data.hidePopLinkOver) {
+	      return;
+	    }
+	    return this.data.hidePopLinkOver();
+	  };
+
+	  Link.prototype.render = function render() {
+	    this.data = _draftJs.Entity.get(this.props.entityKey).getData();
+
+	    return _react2['default'].createElement(
+	      'a',
+	      {
+	        ref: 'link',
+	        href: this.data.url,
+	        className: 'markup--anchor',
+	        onMouseOver: this._showPopLinkOver,
+	        onMouseOut: this._hidePopLinkOver
+	      },
+	      this.props.children
+	    );
+	  };
+
+	  return Link;
+	}(_react2['default'].Component);
+
+	exports['default'] = Link;
+	module.exports = exports['default'];
+
+/***/ },
+
+/***/ 398:
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	var _stringify = __webpack_require__(399);
+
+	var _stringify2 = _interopRequireDefault(_stringify);
+
+	var _classCallCheck2 = __webpack_require__(3);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(39);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(86);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _react = __webpack_require__(23);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var Debug = function (_React$Component) {
+	  (0, _inherits3["default"])(Debug, _React$Component);
+
+	  function Debug() {
+	    (0, _classCallCheck3["default"])(this, Debug);
+
+	    var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this));
+
+	    _this.handleToggleReadOnly = _this.handleToggleReadOnly.bind(_this);
+	    _this.handleTestEmitAndDecode = _this.handleTestEmitAndDecode.bind(_this);
+	    _this.handleTestEmitTEXT = _this.handleTestEmitTEXT.bind(_this);
+	    _this.testEmitAndDecode = _this.testEmitAndDecode.bind(_this);
+	    _this.testEmitTEXT = _this.testEmitTEXT.bind(_this);
+	    _this.logState = _this.logState.bind(_this);
+	    _this.toggleDisplay = _this.toggleDisplay.bind(_this);
+	    _this.open = _this.open.bind(_this);
+	    _this.render = _this.render.bind(_this);
+	    _this.state = {
+	      output: "",
+	      display: "none"
+	    };
+	    return _this;
+	  }
+
+	  Debug.prototype.handleToggleReadOnly = function handleToggleReadOnly(e) {
+	    e.preventDefault();
+	    this.props.editor.toggleEditable();
+	    return false;
+	  };
+
+	  Debug.prototype.handleTestEmitAndDecode = function handleTestEmitAndDecode(e) {
+	    e.preventDefault();
+	    return this.testEmitAndDecode();
+	  };
+
+	  Debug.prototype.handleTestEmitTEXT = function handleTestEmitTEXT(e) {
+	    e.preventDefault();
+	    return this.testEmitTEXT();
+	  };
+
+	  Debug.prototype.testEmitAndDecode = function testEmitAndDecode(e) {
+	    var raw_as_json = this.props.editor.emitSerializedOutput();
+	    this.props.editor.setState({
+	      editorState: this.props.editor.decodeEditorContent(raw_as_json) }, this.logState((0, _stringify2["default"])(raw_as_json)));
+	    return false;
+	  };
+
+	  Debug.prototype.testEmitTEXT = function testEmitTEXT() {
+	    var text = this.props.editor.getTextFromEditor();
+	    return this.logState(text);
+	  };
+
+	  Debug.prototype.logState = function logState(raw) {
+	    return this.setState({ output: raw }, this.open);
+	  };
+
+	  Debug.prototype.toggleDisplay = function toggleDisplay(e) {
+	    e.preventDefault();
+	    var d = this.state.display === "block" ? "none" : this.state.display;
+	    return this.setState({
+	      display: d });
+	  };
+
+	  Debug.prototype.open = function open() {
+	    return this.setState({
+	      display: "block" });
+	  };
+
+	  Debug.prototype.render = function render() {
+	    return _react2["default"].createElement(
+	      "div",
+	      null,
+	      _react2["default"].createElement(
+	        "div",
+	        { className: "debugControls" },
+	        _react2["default"].createElement(
+	          "ul",
+	          null,
+	          _react2["default"].createElement(
+	            "li",
+	            null,
+	            " LOCKS: ",
+	            this.props.editor.state.locks,
+	            " "
+	          ),
+	          _react2["default"].createElement(
+	            "li",
+	            null,
+	            _react2["default"].createElement(
+	              "a",
+	              { href: "#", onClick: this.handleToggleReadOnly },
+	              "EDITABLE: ",
+	              this.props.editor.state.read_only ? 'NO' : 'YES'
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "li",
+	            null,
+	            _react2["default"].createElement(
+	              "a",
+	              { href: "#", onClick: this.handleTestEmitTEXT },
+	              "EDITOR TEXT"
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "li",
+	            null,
+	            _react2["default"].createElement(
+	              "a",
+	              { href: "#", onClick: this.handleTestEmitAndDecode },
+	              "EDITOR STATE"
+	            )
+	          )
+	        )
+	      ),
+	      _react2["default"].createElement(
+	        "div",
+	        { className: "debugZone", style: { display: this.state.display } },
+	        _react2["default"].createElement("a", { href: "#", className: "dante-debug-close close", onClick: this.toggleDisplay }),
+	        _react2["default"].createElement(
+	          "div",
+	          { className: "debugOutput" },
+	          _react2["default"].createElement(
+	            "h2",
+	            null,
+	            "EDITOR OUTPUT"
+	          ),
+	          this.state.output.length > 0 ? _react2["default"].createElement(
+	            "pre",
+	            null,
+	            this.state.output
+	          ) : undefined
+	        )
+	      )
+	    );
+	  };
+
+	  return Debug;
+	}(_react2["default"].Component);
+
+	exports["default"] = Debug;
+	module.exports = exports["default"];
+
+/***/ },
+
+/***/ 401:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _draftJs = __webpack_require__(94);
+
+	//TODO: what the f*ck is happening here? ;-;
+	var findEntities = function findEntities(entityType, instance, contentBlock, callback) {
+	  return contentBlock.findEntityRanges(function (_this) {
+	    return function (character) {
+	      var entityKey, opts, res;
+	      entityKey = character.getEntity();
+	      return res = entityKey !== null && _draftJs.Entity.get(entityKey).getType() === entityType, res ? (opts = {
+	        showPopLinkOver: instance.showPopLinkOver,
+	        hidePopLinkOver: instance.hidePopLinkOver
+	      }, _draftJs.Entity.mergeData(entityKey, opts)) : void 0, res;
+	    };
+	  }(undefined), callback);
+	};
+
+	exports['default'] = findEntities;
+	module.exports = exports['default'];
+
+/***/ },
+
+/***/ 402:
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	var _stringify = __webpack_require__(399);
+
+	var _stringify2 = _interopRequireDefault(_stringify);
+
+	var _classCallCheck2 = __webpack_require__(3);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _axios = __webpack_require__(403);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	var _immutable = __webpack_require__(25);
+
+	var _immutable2 = _interopRequireDefault(_immutable);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	var SaveBehavior = function () {
+	  function SaveBehavior(options) {
+	    (0, _classCallCheck3["default"])(this, SaveBehavior);
+
+	    this.getLocks = options.getLocks;
+	    this.config = options.config;
+	    this.editorContent = options.editorContent;
+	    this.editorState = options.editorState;
+	  }
+
+	  SaveBehavior.prototype.handleStore = function handleStore(ev) {
+	    return this.store();
+	  };
+
+	  SaveBehavior.prototype.store = function store(content) {
+	    var _this = this;
+
+	    if (!this.config.data_storage.url) {
+	      return;
+	    }
+	    if (this.getLocks() > 0) {
+	      return;
+	    }
+
+	    clearTimeout(this.timeout);
+
+	    return this.timeout = setTimeout(function () {
+	      return _this.checkforStore(content);
+	    }, this.config.data_storage.interval);
+	  };
+
+	  SaveBehavior.prototype.getTextFromEditor = function getTextFromEditor(content) {
+	    return content.blocks.map(function (o) {
+	      return o.text;
+	    }).join("\n");
+	  };
+
+	  SaveBehavior.prototype.getUrl = function getUrl() {
+	    var url = this.config.data_storage.url;
+
+	    if (typeof url === "function") {
+	      return url();
+	    } else {
+	      return url;
+	    }
+	  };
+
+	  SaveBehavior.prototype.getMethod = function getMethod() {
+	    var method = this.config.data_storage.method;
+
+	    if (typeof method === "function") {
+	      return method();
+	    } else {
+	      return method;
+	    }
+	  };
+
+	  SaveBehavior.prototype.checkforStore = function checkforStore(content) {
+	    var _this2 = this;
+
+	    // ENTER DATA STORE
+	    var isChanged = !_immutable2["default"].is(_immutable2["default"].fromJS(this.editorContent), _immutable2["default"].fromJS(content));
+	    // console.log("CONTENT CHANGED:", isChanged)
+
+	    if (!isChanged) {
+	      return;
+	    }
+
+	    if (this.config.xhr.before_handler) {
+	      this.config.xhr.before_handler();
+	    }
+	    // console.log "SAVING TO: #{@getMethod()} #{@getUrl()}"
+
+	    return (0, _axios2["default"])({
+	      method: this.getMethod(),
+	      url: this.getUrl(),
+	      data: {
+	        editor_content: (0, _stringify2["default"])(content),
+	        text_content: this.getTextFromEditor(content)
+	      }
+	    }).then(function (result) {
+	      // console.log "STORING CONTENT", result
+	      if (_this2.config.data_storage.success_handler) {
+	        _this2.config.data_storage.success_handler(result);
+	      }
+	      if (_this2.config.xhr.success_handler) {
+	        return _this2.config.xhr.success_handler(result);
+	      }
+	    })["catch"](function (error) {
+	      // console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
+	      if (_this2.config.xhr.failure_handler) {
+	        return _this2.config.xhr.failure_handler(error);
+	      }
+	    });
+	  };
+
+	  return SaveBehavior;
+	}();
+
+	exports["default"] = SaveBehavior;
+	module.exports = exports["default"];
+
+/***/ },
+
+/***/ 428:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _stringify = __webpack_require__(399);
+
+	var _stringify2 = _interopRequireDefault(_stringify);
+
+	var _draftJs = __webpack_require__(94);
+
+	var _immutable = __webpack_require__(25);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	// { compose
+	// }  = require('underscore')
+
+	// underscore compose function
+	var compose = function compose() {
+	  var args = arguments;
+	  var start = args.length - 1;
+	  return function () {
+	    var i = start;
+	    var result = args[start].apply(this, arguments);
+	    while (i--) {
+	      result = args[i].call(this, result);
+	    }
+	    return result;
+	  };
+	};
+
+	// from https://gist.github.com/N1kto/6702e1c2d89a33a15a032c234fc4c34e
+
+	/*
+	 * Helpers
+	 */
+
+	// Prepares img meta data object based on img attributes
+	var getBlockSpecForElement = function getBlockSpecForElement(imgElement) {
+	  return {
+	    contentType: 'image',
+	    imgSrc: imgElement.getAttribute('src')
+	  };
+	};
+
+	// Wraps meta data in HTML element which is 'understandable' by Draft, I used <blockquote />.
+	var wrapBlockSpec = function wrapBlockSpec(blockSpec) {
+	  if (blockSpec === null) {
+	    return null;
+	  }
+
+	  var tempEl = document.createElement('blockquote');
+	  // stringify meta data and insert it as text content of temp HTML element. We will later extract
+	  // and parse it.
+	  tempEl.innerText = (0, _stringify2['default'])(blockSpec);
+	  return tempEl;
+	};
+
+	// Replaces <img> element with our temp element
+	var replaceElement = function replaceElement(oldEl, newEl) {
+	  if (!(newEl instanceof HTMLElement)) {
+	    return;
+	  }
+
+	  var upEl = getUpEl(oldEl);
+	  //parentNode = oldEl.parentNode
+	  //return parentNode.replaceChild(newEl, oldEl)
+	  return upEl.parentNode.insertBefore(newEl, upEl);
+	};
+
+	var getUpEl = function getUpEl(el) {
+	  var original_el = el;
+	  while (el.parentNode) {
+	    if (el.parentNode.tagName !== 'BODY') {
+	      el = el.parentNode;
+	    }
+	    if (el.parentNode.tagName === 'BODY') {
+	      return el;
+	    }
+	  }
+	};
+
+	var elementToBlockSpecElement = compose(wrapBlockSpec, getBlockSpecForElement);
+
+	var imgReplacer = function imgReplacer(imgElement) {
+	  return replaceElement(imgElement, elementToBlockSpecElement(imgElement));
+	};
+
+	/*
+	 * Main function
+	 */
+
+	// takes HTML string and returns DraftJS ContentState
+	var customHTML2Content = function customHTML2Content(HTML, blockRn) {
+	  var tempDoc = new DOMParser().parseFromString(HTML, 'text/html');
+	  // replace all <img /> with <blockquote /> elements
+
+	  var a = tempDoc.querySelectorAll('img').forEach(function (item) {
+	    return imgReplacer(item);
+	  });
+
+	  // use DraftJS converter to do initial conversion. I don't provide DOMBuilder and
+	  // blockRenderMap arguments here since it should fall back to its default ones, which are fine
+	  console.log(tempDoc.body.innerHTML);
+	  var contentBlocks = (0, _draftJs.convertFromHTML)(tempDoc.body.innerHTML, _draftJs.getSafeBodyFromHTML, blockRn);
+
+	  // now replace <blockquote /> ContentBlocks with 'atomic' ones
+	  contentBlocks = contentBlocks.map(function (block) {
+	    var newBlock = void 0;
+	    console.log("CHECK BLOCK", block.getType());
+	    if (block.getType() !== 'blockquote') {
+	      return block;
+	    }
+
+	    var json = "";
+	    try {
+	      json = JSON.parse(block.getText());
+	    } catch (error) {
+	      return block;
+	    }
+
+	    return newBlock = block.merge({
+	      type: "image",
+	      text: "",
+	      data: {
+	        url: json.imgSrc,
+	        forceUpload: true
+	      }
+	    });
+	  });
+
+	  tempDoc = null;
+	  return _draftJs.ContentState.createFromBlockArray(contentBlocks);
+	};
+
+	exports['default'] = customHTML2Content;
+	module.exports = exports['default'];
+
+/***/ },
+
+/***/ 429:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _classCallCheck2 = __webpack_require__(3);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(39);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -83,11 +877,11 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
-	var _selection = __webpack_require__(229);
+	var _selection = __webpack_require__(430);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -291,7 +1085,7 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 229:
+/***/ 430:
 /***/ function(module, exports) {
 
 	'use strict';
@@ -353,217 +1147,7 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 230:
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getNode = exports.getDefaultBlockData = undefined;
-
-	var _immutable = __webpack_require__(25);
-
-	var _draftJs = __webpack_require__(89);
-
-	/*
-	Used from [react-rte](https://github.com/brijeshb42/medium-draft)
-	by [brijeshb42](https://github.com/brijeshb42/medium-draft)
-	*/
-
-	/*
-	Returns default block-level metadata for various block type. Empty object otherwise.
-	*/
-	var getDefaultBlockData = exports.getDefaultBlockData = function getDefaultBlockData(blockType) {
-	  var initialData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	  switch (blockType) {
-	    //case Block.TODO: return { checked: false };
-	    default:
-	      return initialData;
-	  }
-	};
-
-	var getNode = exports.getNode = function getNode() {
-	  var root = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
-
-	  var t = null;
-	  if (root.getSelection) {
-	    t = root.getSelection();
-	  } else if (root.document.getSelection) {
-	    t = root.document.getSelection();
-	  } else if (root.document.selection) {
-	    t = root.document.selection.createRange().text;
-	  }
-	  return t;
-	};
-
-	/*
-	Get currentBlock in the editorState.
-	*/
-	var getCurrentBlock = exports.getCurrentBlock = function getCurrentBlock(editorState) {
-	  var selectionState = editorState.getSelection();
-	  var contentState = editorState.getCurrentContent();
-	  var block = contentState.getBlockForKey(selectionState.getStartKey());
-	  return block;
-	};
-
-	/*
-	Adds a new block (currently replaces an empty block) at the current cursor position
-	of the given `newType`.
-	*/
-	var addNewBlock = exports.addNewBlock = function addNewBlock(editorState) {
-	  var newType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "unstyled";
-	  var initialData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-	  var selectionState = editorState.getSelection();
-	  if (!selectionState.isCollapsed()) {
-	    return editorState;
-	  }
-	  var contentState = editorState.getCurrentContent();
-	  var key = selectionState.getStartKey();
-	  var blockMap = contentState.getBlockMap();
-	  var currentBlock = getCurrentBlock(editorState);
-	  if (!currentBlock) {
-	    return editorState;
-	  }
-	  if (currentBlock.getLength() === 0) {
-	    if (currentBlock.getType() === newType) {
-	      return editorState;
-	    }
-	    var newBlock = currentBlock.merge({
-	      type: newType,
-	      data: getDefaultBlockData(newType, initialData)
-	    });
-	    var newContentState = contentState.merge({
-	      blockMap: blockMap.set(key, newBlock),
-	      selectionAfter: selectionState
-	    });
-	    return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
-	  }
-	  return editorState;
-	};
-
-	/*
-	Changes the block type of the current block.
-	*/
-	var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithType(editorState) {
-	  var newType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "unstyled";
-	  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-	  var contentState = editorState.getCurrentContent();
-	  var selectionState = editorState.getSelection();
-	  var key = selectionState.getStartKey();
-	  var blockMap = contentState.getBlockMap();
-	  var block = blockMap.get(key);
-
-	  var newText = '';
-	  console.log("DATA FOR PLACEHOLDER!", data);
-	  var text = block.getText();
-	  if (block.getLength() >= 2) {
-	    newText = text.substr(1);
-	  }
-
-	  /*if(data.text){
-	    newText = data.text
-	  }*/
-
-	  //let newText = data.text
-
-	  var newBlock = block.merge({
-	    text: newText,
-	    type: newType,
-	    data: getDefaultBlockData(newType, data)
-	  });
-	  var newContentState = contentState.merge({
-	    blockMap: blockMap.set(key, newBlock),
-	    selectionAfter: selectionState.merge({
-	      anchorOffset: 0,
-	      focusOffset: 0
-	    })
-	  });
-	  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
-	};
-
-	/*
-	Update block-level metadata of the given `block` to the `newData`/
-	*/
-	var updateDataOfBlock = exports.updateDataOfBlock = function updateDataOfBlock(editorState, block, newData) {
-	  var contentState = editorState.getCurrentContent();
-	  var newBlock = block.merge({
-	    data: newData
-	  });
-	  var newContentState = contentState.merge({
-	    blockMap: contentState.getBlockMap().set(block.getKey(), newBlock)
-	  });
-	  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
-	  // return editorState;
-	};
-
-	var updateTextOfBlock = exports.updateTextOfBlock = function updateTextOfBlock(editorState, block, text) {
-	  var contentState = editorState.getCurrentContent();
-	  var newBlock = block.merge({
-	    text: text
-	  });
-	  var newContentState = contentState.merge({
-	    blockMap: contentState.getBlockMap().set(block.getKey(), newBlock)
-	  });
-
-	  return _draftJs.EditorState.push(editorState, newContentState, 'change-block-type');
-	  // return editorState;
-	};
-
-	// const BEFORE = -1;
-	// const AFTER = 1;
-
-	/*
-	Used from [react-rte](https://github.com/sstur/react-rte/blob/master/src/lib/insertBlockAfter.js)
-	by [sstur](https://github.com/sstur)
-	*/
-	var addNewBlockAt = exports.addNewBlockAt = function addNewBlockAt(editorState, pivotBlockKey) {
-	  var newBlockType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "unstyled";
-	  var initialData = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-
-	  var content = editorState.getCurrentContent();
-	  var blockMap = content.getBlockMap();
-	  var block = blockMap.get(pivotBlockKey);
-	  var blocksBefore = blockMap.toSeq().takeUntil(function (v) {
-	    return v === block;
-	  });
-	  var blocksAfter = blockMap.toSeq().skipUntil(function (v) {
-	    return v === block;
-	  }).rest();
-	  var newBlockKey = (0, _draftJs.genKey)();
-
-	  var newBlock = new _draftJs.ContentBlock({
-	    key: newBlockKey,
-	    type: newBlockType,
-	    text: '',
-	    characterList: block.getCharacterList().slice(0, 0),
-	    depth: 0,
-	    data: (0, _immutable.Map)(getDefaultBlockData(newBlockType, initialData))
-	  });
-
-	  var newBlockMap = blocksBefore.concat([[pivotBlockKey, block], [newBlockKey, newBlock]], blocksAfter).toOrderedMap();
-
-	  var selection = editorState.getSelection();
-
-	  var newContent = content.merge({
-	    blockMap: newBlockMap,
-	    selectionBefore: selection,
-	    selectionAfter: selection.merge({
-	      anchorKey: newBlockKey,
-	      anchorOffset: 0,
-	      focusKey: newBlockKey,
-	      focusOffset: 0,
-	      isBackward: false
-	    })
-	  });
-	  return _draftJs.EditorState.push(editorState, newContent, 'split-block');
-	};
-
-/***/ },
-
-/***/ 231:
+/***/ 431:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -574,11 +1158,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -590,7 +1174,7 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -710,7 +1294,7 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 232:
+/***/ 432:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -721,11 +1305,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -737,11 +1321,11 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
-	var _selection = __webpack_require__(229);
+	var _selection = __webpack_require__(430);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -1071,7 +1655,7 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 233:
+/***/ 433:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1082,11 +1666,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -1098,11 +1682,11 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
-	var _selection = __webpack_require__(229);
+	var _selection = __webpack_require__(430);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -1535,142 +2119,14 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 234:
+/***/ 434:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _classCallCheck2 = __webpack_require__(3);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _possibleConstructorReturn2 = __webpack_require__(27);
-
-	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-	var _inherits2 = __webpack_require__(81);
-
-	var _inherits3 = _interopRequireDefault(_inherits2);
-
-	var _react = __webpack_require__(23);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _draftJs = __webpack_require__(89);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var Link = function (_React$Component) {
-	  (0, _inherits3['default'])(Link, _React$Component);
-
-	  function Link(props) {
-	    (0, _classCallCheck3['default'])(this, Link);
-
-	    var _this = (0, _possibleConstructorReturn3['default'])(this, _React$Component.call(this, props));
-
-	    _this._validateLink = _this._validateLink.bind(_this);
-	    _this._checkProtocol = _this._checkProtocol.bind(_this);
-	    _this._showPopLinkOver = _this._showPopLinkOver.bind(_this);
-	    _this._hidePopLinkOver = _this._hidePopLinkOver.bind(_this);
-	    _this.isHover = false;
-	    return _this;
-	  }
-
-	  Link.prototype._validateLink = function _validateLink() {
-	    var pattern = new RegExp('^(https?:\/\/)?' + // protocol
-	    '((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|' + // domain name
-	    '((\d{1,3}\.){3}\d{1,3}))' + // OR ip (v4) address
-	    '(\:\d+)?(\/[-a-z\d%_.~+]*)*' + // port and path
-	    '(\?[&a-z\d%_.~+=-]*)?' + // query string
-	    '(\#[-a-z\d_]*)?$', 'i'); // fragment locater
-	    if (!pattern.test(str)) {
-	      alert("Please enter a valid URL.");
-	      return false;
-	    } else {
-	      return true;
-	    }
-	  };
-
-	  Link.prototype._checkProtocol = function _checkProtocol() {
-	    return console.log("xcvd");
-	  };
-
-	  Link.prototype._showPopLinkOver = function _showPopLinkOver(e) {
-	    if (!this.data.showPopLinkOver) {
-	      return;
-	    }
-	    return this.data.showPopLinkOver(this.refs.link);
-	  };
-
-	  Link.prototype._hidePopLinkOver = function _hidePopLinkOver(e) {
-	    if (!this.data.hidePopLinkOver) {
-	      return;
-	    }
-	    return this.data.hidePopLinkOver();
-	  };
-
-	  Link.prototype.render = function render() {
-	    this.data = _draftJs.Entity.get(this.props.entityKey).getData();
-
-	    return _react2['default'].createElement(
-	      'a',
-	      {
-	        ref: 'link',
-	        href: this.data.url,
-	        className: 'markup--anchor',
-	        onMouseOver: this._showPopLinkOver,
-	        onMouseOut: this._hidePopLinkOver
-	      },
-	      this.props.children
-	    );
-	  };
-
-	  return Link;
-	}(_react2['default'].Component);
-
-	exports['default'] = Link;
-	module.exports = exports['default'];
-
-/***/ },
-
-/***/ 235:
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _draftJs = __webpack_require__(89);
-
-	//TODO: what the f*ck is happening here? ;-;
-	var findEntities = function findEntities(entityType, instance, contentBlock, callback) {
-	  return contentBlock.findEntityRanges(function (_this) {
-	    return function (character) {
-	      var entityKey, opts, res;
-	      entityKey = character.getEntity();
-	      return res = entityKey !== null && _draftJs.Entity.get(entityKey).getType() === entityType, res ? (opts = {
-	        showPopLinkOver: instance.showPopLinkOver,
-	        hidePopLinkOver: instance.hidePopLinkOver
-	      }, _draftJs.Entity.mergeData(entityKey, opts)) : void 0, res;
-	    };
-	  }(undefined), callback);
-	};
-
-	exports['default'] = findEntities;
-	module.exports = exports['default'];
-
-/***/ },
-
-/***/ 236:
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _assign = __webpack_require__(237);
+	var _assign = __webpack_require__(435);
 
 	var _assign2 = _interopRequireDefault(_assign);
 
@@ -1678,11 +2134,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -1694,13 +2150,13 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
-	var _axios = __webpack_require__(241);
+	var _axios = __webpack_require__(403);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2109,7 +2565,7 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 267:
+/***/ 439:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2120,11 +2576,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -2136,13 +2592,13 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
-	var _axios = __webpack_require__(241);
+	var _axios = __webpack_require__(403);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2288,14 +2744,14 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 268:
+/***/ 440:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _assign = __webpack_require__(237);
+	var _assign = __webpack_require__(435);
 
 	var _assign2 = _interopRequireDefault(_assign);
 
@@ -2303,11 +2759,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -2319,11 +2775,11 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
-	var _index = __webpack_require__(230);
+	var _index = __webpack_require__(396);
 
-	var _axios = __webpack_require__(241);
+	var _axios = __webpack_require__(403);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
@@ -2422,14 +2878,14 @@ return webpackJsonpDante2([0],{
 
 /***/ },
 
-/***/ 269:
+/***/ 441:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _assign = __webpack_require__(237);
+	var _assign = __webpack_require__(435);
 
 	var _assign2 = _interopRequireDefault(_assign);
 
@@ -2437,11 +2893,11 @@ return webpackJsonpDante2([0],{
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _possibleConstructorReturn2 = __webpack_require__(27);
+	var _possibleConstructorReturn2 = __webpack_require__(39);
 
 	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-	var _inherits2 = __webpack_require__(81);
+	var _inherits2 = __webpack_require__(86);
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -2453,7 +2909,7 @@ return webpackJsonpDante2([0],{
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _draftJs = __webpack_require__(89);
+	var _draftJs = __webpack_require__(94);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2530,462 +2986,6 @@ return webpackJsonpDante2([0],{
 	}(_react2['default'].Component);
 
 	exports['default'] = PlaceholderBlock;
-	module.exports = exports['default'];
-
-/***/ },
-
-/***/ 270:
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
-
-	module.exports = global["DanteEditor"] = __webpack_require__(271);
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-
-/***/ 438:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	var _stringify = __webpack_require__(439);
-
-	var _stringify2 = _interopRequireDefault(_stringify);
-
-	var _classCallCheck2 = __webpack_require__(3);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _possibleConstructorReturn2 = __webpack_require__(27);
-
-	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-	var _inherits2 = __webpack_require__(81);
-
-	var _inherits3 = _interopRequireDefault(_inherits2);
-
-	var _react = __webpack_require__(23);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	var Debug = function (_React$Component) {
-	  (0, _inherits3["default"])(Debug, _React$Component);
-
-	  function Debug() {
-	    (0, _classCallCheck3["default"])(this, Debug);
-
-	    var _this = (0, _possibleConstructorReturn3["default"])(this, _React$Component.call(this));
-
-	    _this.handleToggleReadOnly = _this.handleToggleReadOnly.bind(_this);
-	    _this.handleTestEmitAndDecode = _this.handleTestEmitAndDecode.bind(_this);
-	    _this.handleTestEmitTEXT = _this.handleTestEmitTEXT.bind(_this);
-	    _this.testEmitAndDecode = _this.testEmitAndDecode.bind(_this);
-	    _this.testEmitTEXT = _this.testEmitTEXT.bind(_this);
-	    _this.logState = _this.logState.bind(_this);
-	    _this.toggleDisplay = _this.toggleDisplay.bind(_this);
-	    _this.open = _this.open.bind(_this);
-	    _this.render = _this.render.bind(_this);
-	    _this.state = {
-	      output: "",
-	      display: "none"
-	    };
-	    return _this;
-	  }
-
-	  Debug.prototype.handleToggleReadOnly = function handleToggleReadOnly(e) {
-	    e.preventDefault();
-	    this.props.editor.toggleEditable();
-	    return false;
-	  };
-
-	  Debug.prototype.handleTestEmitAndDecode = function handleTestEmitAndDecode(e) {
-	    e.preventDefault();
-	    return this.testEmitAndDecode();
-	  };
-
-	  Debug.prototype.handleTestEmitTEXT = function handleTestEmitTEXT(e) {
-	    e.preventDefault();
-	    return this.testEmitTEXT();
-	  };
-
-	  Debug.prototype.testEmitAndDecode = function testEmitAndDecode(e) {
-	    var raw_as_json = this.props.editor.emitSerializedOutput();
-	    this.props.editor.setState({
-	      editorState: this.props.editor.decodeEditorContent(raw_as_json) }, this.logState((0, _stringify2["default"])(raw_as_json)));
-	    return false;
-	  };
-
-	  Debug.prototype.testEmitTEXT = function testEmitTEXT() {
-	    var text = this.props.editor.getTextFromEditor();
-	    return this.logState(text);
-	  };
-
-	  Debug.prototype.logState = function logState(raw) {
-	    return this.setState({ output: raw }, this.open);
-	  };
-
-	  Debug.prototype.toggleDisplay = function toggleDisplay(e) {
-	    e.preventDefault();
-	    var d = this.state.display === "block" ? "none" : this.state.display;
-	    return this.setState({
-	      display: d });
-	  };
-
-	  Debug.prototype.open = function open() {
-	    return this.setState({
-	      display: "block" });
-	  };
-
-	  Debug.prototype.render = function render() {
-	    return _react2["default"].createElement(
-	      "div",
-	      null,
-	      _react2["default"].createElement(
-	        "div",
-	        { className: "debugControls" },
-	        _react2["default"].createElement(
-	          "ul",
-	          null,
-	          _react2["default"].createElement(
-	            "li",
-	            null,
-	            " LOCKS: ",
-	            this.props.editor.state.locks,
-	            " "
-	          ),
-	          _react2["default"].createElement(
-	            "li",
-	            null,
-	            _react2["default"].createElement(
-	              "a",
-	              { href: "#", onClick: this.handleToggleReadOnly },
-	              "EDITABLE: ",
-	              this.props.editor.state.read_only ? 'NO' : 'YES'
-	            )
-	          ),
-	          _react2["default"].createElement(
-	            "li",
-	            null,
-	            _react2["default"].createElement(
-	              "a",
-	              { href: "#", onClick: this.handleTestEmitTEXT },
-	              "EDITOR TEXT"
-	            )
-	          ),
-	          _react2["default"].createElement(
-	            "li",
-	            null,
-	            _react2["default"].createElement(
-	              "a",
-	              { href: "#", onClick: this.handleTestEmitAndDecode },
-	              "EDITOR STATE"
-	            )
-	          )
-	        )
-	      ),
-	      _react2["default"].createElement(
-	        "div",
-	        { className: "debugZone", style: { display: this.state.display } },
-	        _react2["default"].createElement("a", { href: "#", className: "dante-debug-close close", onClick: this.toggleDisplay }),
-	        _react2["default"].createElement(
-	          "div",
-	          { className: "debugOutput" },
-	          _react2["default"].createElement(
-	            "h2",
-	            null,
-	            "EDITOR OUTPUT"
-	          ),
-	          this.state.output.length > 0 ? _react2["default"].createElement(
-	            "pre",
-	            null,
-	            this.state.output
-	          ) : undefined
-	        )
-	      )
-	    );
-	  };
-
-	  return Debug;
-	}(_react2["default"].Component);
-
-	exports["default"] = Debug;
-	module.exports = exports["default"];
-
-/***/ },
-
-/***/ 441:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	var _stringify = __webpack_require__(439);
-
-	var _stringify2 = _interopRequireDefault(_stringify);
-
-	var _classCallCheck2 = __webpack_require__(3);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _axios = __webpack_require__(241);
-
-	var _axios2 = _interopRequireDefault(_axios);
-
-	var _immutable = __webpack_require__(25);
-
-	var _immutable2 = _interopRequireDefault(_immutable);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	var SaveBehavior = function () {
-	  function SaveBehavior(options) {
-	    (0, _classCallCheck3["default"])(this, SaveBehavior);
-
-	    this.getLocks = options.getLocks;
-	    this.config = options.config;
-	    this.editorContent = options.editorContent;
-	    this.editorState = options.editorState;
-	  }
-
-	  SaveBehavior.prototype.handleStore = function handleStore(ev) {
-	    return this.store();
-	  };
-
-	  SaveBehavior.prototype.store = function store(content) {
-	    var _this = this;
-
-	    if (!this.config.data_storage.url) {
-	      return;
-	    }
-	    if (this.getLocks() > 0) {
-	      return;
-	    }
-
-	    clearTimeout(this.timeout);
-
-	    return this.timeout = setTimeout(function () {
-	      return _this.checkforStore(content);
-	    }, this.config.data_storage.interval);
-	  };
-
-	  SaveBehavior.prototype.getTextFromEditor = function getTextFromEditor(content) {
-	    return content.blocks.map(function (o) {
-	      return o.text;
-	    }).join("\n");
-	  };
-
-	  SaveBehavior.prototype.getUrl = function getUrl() {
-	    var url = this.config.data_storage.url;
-
-	    if (typeof url === "function") {
-	      return url();
-	    } else {
-	      return url;
-	    }
-	  };
-
-	  SaveBehavior.prototype.getMethod = function getMethod() {
-	    var method = this.config.data_storage.method;
-
-	    if (typeof method === "function") {
-	      return method();
-	    } else {
-	      return method;
-	    }
-	  };
-
-	  SaveBehavior.prototype.checkforStore = function checkforStore(content) {
-	    var _this2 = this;
-
-	    // ENTER DATA STORE
-	    var isChanged = !_immutable2["default"].is(_immutable2["default"].fromJS(this.editorContent), _immutable2["default"].fromJS(content));
-	    // console.log("CONTENT CHANGED:", isChanged)
-
-	    if (!isChanged) {
-	      return;
-	    }
-
-	    if (this.config.xhr.before_handler) {
-	      this.config.xhr.before_handler();
-	    }
-	    // console.log "SAVING TO: #{@getMethod()} #{@getUrl()}"
-
-	    return (0, _axios2["default"])({
-	      method: this.getMethod(),
-	      url: this.getUrl(),
-	      data: {
-	        editor_content: (0, _stringify2["default"])(content),
-	        text_content: this.getTextFromEditor(content)
-	      }
-	    }).then(function (result) {
-	      // console.log "STORING CONTENT", result
-	      if (_this2.config.data_storage.success_handler) {
-	        _this2.config.data_storage.success_handler(result);
-	      }
-	      if (_this2.config.xhr.success_handler) {
-	        return _this2.config.xhr.success_handler(result);
-	      }
-	    })["catch"](function (error) {
-	      // console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
-	      if (_this2.config.xhr.failure_handler) {
-	        return _this2.config.xhr.failure_handler(error);
-	      }
-	    });
-	  };
-
-	  return SaveBehavior;
-	}();
-
-	exports["default"] = SaveBehavior;
-	module.exports = exports["default"];
-
-/***/ },
-
-/***/ 442:
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _stringify = __webpack_require__(439);
-
-	var _stringify2 = _interopRequireDefault(_stringify);
-
-	var _draftJs = __webpack_require__(89);
-
-	var _immutable = __webpack_require__(25);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	// { compose
-	// }  = require('underscore')
-
-	// underscore compose function
-	var compose = function compose() {
-	  var args = arguments;
-	  var start = args.length - 1;
-	  return function () {
-	    var i = start;
-	    var result = args[start].apply(this, arguments);
-	    while (i--) {
-	      result = args[i].call(this, result);
-	    }
-	    return result;
-	  };
-	};
-
-	// from https://gist.github.com/N1kto/6702e1c2d89a33a15a032c234fc4c34e
-
-	/*
-	 * Helpers
-	 */
-
-	// Prepares img meta data object based on img attributes
-	var getBlockSpecForElement = function getBlockSpecForElement(imgElement) {
-	  return {
-	    contentType: 'image',
-	    imgSrc: imgElement.getAttribute('src')
-	  };
-	};
-
-	// Wraps meta data in HTML element which is 'understandable' by Draft, I used <blockquote />.
-	var wrapBlockSpec = function wrapBlockSpec(blockSpec) {
-	  if (blockSpec === null) {
-	    return null;
-	  }
-
-	  var tempEl = document.createElement('blockquote');
-	  // stringify meta data and insert it as text content of temp HTML element. We will later extract
-	  // and parse it.
-	  tempEl.innerText = (0, _stringify2['default'])(blockSpec);
-	  return tempEl;
-	};
-
-	// Replaces <img> element with our temp element
-	var replaceElement = function replaceElement(oldEl, newEl) {
-	  if (!(newEl instanceof HTMLElement)) {
-	    return;
-	  }
-
-	  var upEl = getUpEl(oldEl);
-	  //parentNode = oldEl.parentNode
-	  //return parentNode.replaceChild(newEl, oldEl)
-	  return upEl.parentNode.insertBefore(newEl, upEl);
-	};
-
-	var getUpEl = function getUpEl(el) {
-	  var original_el = el;
-	  while (el.parentNode) {
-	    if (el.parentNode.tagName !== 'BODY') {
-	      el = el.parentNode;
-	    }
-	    if (el.parentNode.tagName === 'BODY') {
-	      return el;
-	    }
-	  }
-	};
-
-	var elementToBlockSpecElement = compose(wrapBlockSpec, getBlockSpecForElement);
-
-	var imgReplacer = function imgReplacer(imgElement) {
-	  return replaceElement(imgElement, elementToBlockSpecElement(imgElement));
-	};
-
-	/*
-	 * Main function
-	 */
-
-	// takes HTML string and returns DraftJS ContentState
-	var customHTML2Content = function customHTML2Content(HTML, blockRn) {
-	  var tempDoc = new DOMParser().parseFromString(HTML, 'text/html');
-	  // replace all <img /> with <blockquote /> elements
-
-	  var a = tempDoc.querySelectorAll('img').forEach(function (item) {
-	    return imgReplacer(item);
-	  });
-
-	  // use DraftJS converter to do initial conversion. I don't provide DOMBuilder and
-	  // blockRenderMap arguments here since it should fall back to its default ones, which are fine
-	  console.log(tempDoc.body.innerHTML);
-	  var contentBlocks = (0, _draftJs.convertFromHTML)(tempDoc.body.innerHTML, _draftJs.getSafeBodyFromHTML, blockRn);
-
-	  // now replace <blockquote /> ContentBlocks with 'atomic' ones
-	  contentBlocks = contentBlocks.map(function (block) {
-	    var newBlock = void 0;
-	    console.log("CHECK BLOCK", block.getType());
-	    if (block.getType() !== 'blockquote') {
-	      return block;
-	    }
-
-	    var json = "";
-	    try {
-	      json = JSON.parse(block.getText());
-	    } catch (error) {
-	      return block;
-	    }
-
-	    return newBlock = block.merge({
-	      type: "image",
-	      text: "",
-	      data: {
-	        url: json.imgSrc,
-	        forceUpload: true
-	      }
-	    });
-	  });
-
-	  tempDoc = null;
-	  return _draftJs.ContentState.createFromBlockArray(contentBlocks);
-	};
-
-	exports['default'] = customHTML2Content;
 	module.exports = exports['default'];
 
 /***/ }

@@ -3,16 +3,18 @@ import ReactDOM from 'react-dom'
 //import Immutable from 'immutable'
 import { Map, fromJS } from 'immutable'
 
+import DanteEditor from './dante_editor.js'
+
 import DanteImagePopover from './popovers/image'
 import DanteAnchorPopover from './popovers/link'
 
 //import { getSelectionRect, getSelection } from "../utils/selection.js"
 import DanteInlineTooltip from './popovers/addButton'
 import DanteTooltip from './popovers/toolTip'
-import Link from './decorators/link'
+//import Link from './decorators/link'
 
 //import Debug from './debug'
-import findEntities from '../utils/find_entities'
+//import findEntities from '../utils/find_entities'
 import ImageBlock from './blocks/image'
 import EmbedBlock from './blocks/embed'
 import VideoBlock from './blocks/video'
@@ -275,11 +277,6 @@ class Dante {
   }
 
   getContent() {
-    //console.log @options.content
-    //console.log "IS POC DATA?", @options.content is PocData
-    //return PocData if @options.poc
-    //console.log @options.content , PocData
-    //PocData
     return this.options.content
   }
 

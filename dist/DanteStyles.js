@@ -15,11 +15,11 @@ return webpackJsonpDante2([1],{
 
 	'use strict';
 
-	var _dante = __webpack_require__(443);
+	var _dante = __webpack_require__(442);
 
 	var _dante2 = _interopRequireDefault(_dante);
 
-	var _draft = __webpack_require__(455);
+	var _draft = __webpack_require__(454);
 
 	var _draft2 = _interopRequireDefault(_draft);
 
@@ -27,70 +27,70 @@ return webpackJsonpDante2([1],{
 
 /***/ },
 
-/***/ 443:
+/***/ 442:
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
 
-/***/ 446:
+/***/ 445:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/fontello.eot";
 
 /***/ },
 
-/***/ 447:
+/***/ 446:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/fontello.woff";
 
 /***/ },
 
-/***/ 448:
+/***/ 447:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/fontello.ttf";
 
 /***/ },
 
-/***/ 449:
+/***/ 448:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/fontello.svg";
 
 /***/ },
 
-/***/ 450:
+/***/ 449:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/dante.eot";
 
 /***/ },
 
-/***/ 451:
+/***/ 450:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/dante.woff";
 
 /***/ },
 
-/***/ 452:
+/***/ 451:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/dante.ttf";
 
 /***/ },
 
-/***/ 453:
+/***/ 452:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "fonts/dante.svg";
 
 /***/ },
 
-/***/ 455:
+/***/ 454:
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

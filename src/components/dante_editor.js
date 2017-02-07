@@ -7,10 +7,10 @@ import {
   convertToRaw, 
   convertFromRaw, 
   CompositeDecorator, 
-  getVisibleSelectionRect, 
+  //getVisibleSelectionRect, 
   getDefaultKeyBinding, 
-  getSelectionOffsetKeyForNode, 
-  KeyBindingUtil, 
+  //getSelectionOffsetKeyForNode, 
+  //KeyBindingUtil, 
   ContentState, 
   Editor, 
   EditorState, 
@@ -19,27 +19,32 @@ import {
   DefaultDraftBlockRenderMap, 
   SelectionState, 
   Modifier, 
-  BlockMapBuilder, 
-  getSafeBodyFromHTML } from 'draft-js'
+  //BlockMapBuilder, 
+  //getSafeBodyFromHTML 
+} from 'draft-js'
 
-import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor'
+//import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor'
 
-import { convertToHTML, convertFromHTML } from 'draft-convert'
+import { 
+  convertToHTML,
+  //, convertFromHTML 
+} from 'draft-convert'
 
-import isSoftNewlineEvent from 'draft-js/lib/isSoftNewlineEvent'
+//import isSoftNewlineEvent from 'draft-js/lib/isSoftNewlineEvent'
 
 import { 
   addNewBlock, 
   resetBlockWithType, 
   updateDataOfBlock, 
-  updateTextOfBlock, 
+  //updateTextOfBlock, 
   getCurrentBlock, 
-  addNewBlockAt } from '../model/index.js'
+  addNewBlockAt 
+} from '../model/index.js'
 
 //import DanteImagePopover from './popovers/image'
 //import DanteAnchorPopover from './popovers/link'
 
-import { getSelectionRect, getSelection } from "../utils/selection.js"
+//import { getSelectionRect, getSelection } from "../utils/selection.js"
 //import DanteInlineTooltip from './popovers/addButton'
 //import DanteTooltip from './popovers/toolTip'
 import Link from './decorators/link'
@@ -59,7 +64,6 @@ import customHTML2Content from '../utils/html2content'
 class DanteEditor extends React.Component {
   constructor(props) {
     super(props)
-    //window.main_editor = @
 
     this.initializeState = this.initializeState.bind(this)
     this.refreshSelection = this.refreshSelection.bind(this)
@@ -343,7 +347,6 @@ class DanteEditor extends React.Component {
 
     const read_only = this.state.read_only ? false : null
     const editable = read_only !== null ? read_only : dataBlock.editable
-
     return {
       component: eval(dataBlock.block),
       editable,
