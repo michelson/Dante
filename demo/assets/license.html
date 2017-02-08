@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <title>Dante2</title>
+  </head>
+  <body>
+
+
+    <div id="header">
+      <div class="logo">
+        <div class="menu-buttons">
+          <a class="menu-button" target="_blank" href="https://michelson.github.io/dante2/doc.html">
+            Documentation
+          </a>
+
+          <a class="menu-button" target="_blank" href="https://michelson.github.io/dante2/license.html">
+            License
+          </a>          
+        </div>
+
+        <img src='https://michelson.github.io/dante2/images/dante-editor-logo.png' alt="dante editor" height="21">
+        <span>Dante Editor - 0.3.1 </span>
+
+      </div>
+
+      <a class="github tooltip-left" data-tooltip="Fork me on github" target="_blank" href="https://github.com/michelson/dante2">
+        <img src='https://michelson.github.io/dante2/images/github-logo.png' alt="Fork me on github" height="28">
+      </a>
+    </div>
+
+    <div class="danteArticle"></div>
+    <div id="app"></div>
+
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function(){
+        editor = new Dante(
+          {
+            el: "app",
+            content: window.PocDataLicense,
+            debug: false,
+            read_only: true
+          }
+        )
+        editor.render()
+      })
+    </script>
+  </body>
+</html>

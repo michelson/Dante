@@ -31,3 +31,18 @@ public/
 
 # Bower stuff.
 bower_components/
+
+# Build stuff
+amd/
+lib/
+es/
+!tools/amd/
+!tools/lib/
+!tools/es/
+!tools/dist/
+!tools/docs/
+tmp-bower-repo/
+tmp-docs-repo/
+.babel-cache/
+
+.npmignore
