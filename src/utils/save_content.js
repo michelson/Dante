@@ -50,7 +50,11 @@ class SaveBehavior {
     // console.log("CONTENT CHANGED:", isChanged)
 
     if (!isChanged) { return }
+      
+    this.save(content)
+  }
 
+  save(content){
     if (this.config.xhr.before_handler) { this.config.xhr.before_handler() }
     // console.log "SAVING TO: #{@getMethod()} #{@getUrl()}"
 
