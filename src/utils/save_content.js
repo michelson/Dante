@@ -50,11 +50,18 @@ class SaveBehavior {
     // console.log("CONTENT CHANGED:", isChanged)
 
     if (!isChanged) { return }
-      
+
     this.save(content)
   }
 
   save(content){
+
+    // use save handler from config if exists
+    if (this.config.data_storage.save_handler){
+      this.data_storage.save_handler(JSON.stringify(content))
+      return 
+    }
+
     if (this.config.xhr.before_handler) { this.config.xhr.before_handler() }
     // console.log "SAVING TO: #{@getMethod()} #{@getUrl()}"
 
