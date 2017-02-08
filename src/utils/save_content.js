@@ -58,7 +58,7 @@ class SaveBehavior {
 
     // use save handler from config if exists
     if (this.config.data_storage.save_handler){
-      this.data_storage.save_handler(JSON.stringify(content))
+      this.config.data_storage.save_handler(this, content)
       return 
     }
 

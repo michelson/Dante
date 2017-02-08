@@ -44,7 +44,14 @@
             content: window.PocData,
             debug: true,
             data_storage: {
-              url: "http://localhost:3333/store.json"
+              url: "http://localhost:3333/store.json",
+              save_handler: function(ctx, content){
+                console.log("SAVING DATA!!");
+                console.info({
+                  editor_content: JSON.stringify(content),
+                  text_content: ctx.getTextFromEditor(content)
+                });
+              },
             }
           }
         )
