@@ -45,7 +45,6 @@ const baseConfig = {
 
       { test: path.resolve("./src/components/dante_editor.js"), 
         loaders: ["expose?DanteEditor", "babel-loader?presets[]=es2015"]},
-        
       { test: path.resolve("./src/components/dante.js"), 
         loaders: ["expose?Dante", "babel-loader?presets[]=es2015"]},
 

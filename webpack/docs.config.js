@@ -116,9 +116,7 @@ var config = {
           "plugins": ["transform-react-jsx"]
         }
       },
-      { test: "./index.js", loader: "expose-loader?Dante" },
-      { test: "./index.js", loader: "expose-loader?DanteEditor" },
-      
+
       { test: path.resolve("./src/components/dante_editor.js"), 
         loaders: ["expose?DanteEditor", "babel-loader?presets[]=es2015"]},
       { test: path.resolve("./src/components/dante.js"), 
