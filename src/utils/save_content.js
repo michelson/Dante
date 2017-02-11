@@ -43,6 +43,15 @@ class SaveBehavior {
     if (typeof(method) === "function") { return method() } else { return method }
   }
 
+  getWithCredentials(){
+    let { withCredentials } = this.config.data_storage
+    if (typeof(withCredentials) === "function") { return withCredentials() } else { return withCredentials }
+  }
+
+  getCrossDomain(){
+    let { crossDomain } = this.config.data_storage
+    if (typeof(crossDomain) === "function") { return crossDomain() } else { return crossDomain }
+  }
 
   checkforStore(content){
     // ENTER DATA STORE
@@ -60,7 +69,9 @@ class SaveBehavior {
       data: {
         editor_content: JSON.stringify(content),
         text_content: this.getTextFromEditor(content)
-      }
+      },
+      withCredentials: this.getWithCredentials(),
+      crossDomain: this.getCrossDomain()
     })
     .then(result=> {
       // console.log "STORING CONTENT", result

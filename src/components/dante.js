@@ -226,7 +226,9 @@ class Dante {
       method: "POST",
       success_handler: null,
       failure_handler: null,
-      interval: 1500
+      interval: 1500,
+      withCredentials: false,
+      crossDomain: false,
     }
 
     defaultOptions.default_wrappers = [
