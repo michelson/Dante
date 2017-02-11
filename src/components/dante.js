@@ -229,6 +229,7 @@ class Dante {
       interval: 1500,
       withCredentials: false,
       crossDomain: false,
+      headers: {},
     }
 
     defaultOptions.default_wrappers = [

@@ -53,6 +53,11 @@ class SaveBehavior {
     if (typeof(crossDomain) === "function") { return crossDomain() } else { return crossDomain }
   }
 
+  getHeaders(){
+    let { headers } = this.config.data_storage
+    if (typeof(headers) === "function") { return headers() } else { return headers }
+  }
+
   checkforStore(content){
     // ENTER DATA STORE
     let isChanged = !Immutable.is(Immutable.fromJS(this.editorContent), Immutable.fromJS(content))
@@ -71,7 +76,8 @@ class SaveBehavior {
         text_content: this.getTextFromEditor(content)
       },
       withCredentials: this.getWithCredentials(),
-      crossDomain: this.getCrossDomain()
+      crossDomain: this.getCrossDomain(),
+      headers: this.getHeaders(),
     })
     .then(result=> {
       // console.log "STORING CONTENT", result
