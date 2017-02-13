@@ -353,7 +353,10 @@
 	        method: "POST",
 	        success_handler: null,
 	        failure_handler: null,
-	        interval: 1500
+	        interval: 1500,
+	        withCredentials: false,
+	        crossDomain: false,
+	        headers: {}
 	      };
 
 	      defaultOptions.default_wrappers = [{ className: 'graf--p', block: 'unstyled' }, { className: 'graf--h2', block: 'header-one' }, { className: 'graf--h3', block: 'header-two' }, { className: 'graf--h4', block: 'header-three' }, { className: 'graf--blockquote', block: 'blockquote' }, { className: 'graf--insertunorderedlist', block: 'unordered-list-item' }, { className: 'graf--insertorderedlist', block: 'ordered-list-item' }, { className: 'graf--code', block: 'code-block' }, { className: 'graf--bold', block: 'BOLD' }, { className: 'graf--italic', block: 'ITALIC' }];

@@ -759,15 +759,59 @@ webpackJsonp([1],{
 	      }
 	    }
 	  }, {
+	    key: "getWithCredentials",
+	    value: function getWithCredentials() {
+	      var withCredentials = this.config.data_storage.withCredentials;
+
+	      if (typeof withCredentials === "function") {
+	        return withCredentials();
+	      } else {
+	        return withCredentials;
+	      }
+	    }
+	  }, {
+	    key: "getCrossDomain",
+	    value: function getCrossDomain() {
+	      var crossDomain = this.config.data_storage.crossDomain;
+
+	      if (typeof crossDomain === "function") {
+	        return crossDomain();
+	      } else {
+	        return crossDomain;
+	      }
+	    }
+	  }, {
+	    key: "getHeaders",
+	    value: function getHeaders() {
+	      var headers = this.config.data_storage.headers;
+
+	      if (typeof headers === "function") {
+	        return headers();
+	      } else {
+	        return headers;
+	      }
+	    }
+	  }, {
 	    key: "checkforStore",
 	    value: function checkforStore(content) {
-	      var _this2 = this;
-
 	      // ENTER DATA STORE
 	      var isChanged = !_immutable2["default"].is(_immutable2["default"].fromJS(this.editorContent), _immutable2["default"].fromJS(content));
 	      // console.log("CONTENT CHANGED:", isChanged)
 
 	      if (!isChanged) {
+	        return;
+	      }
+
+	      this.save(content);
+	    }
+	  }, {
+	    key: "save",
+	    value: function save(content) {
+	      var _this2 = this;
+
+	      // use save handler from config if exists
+	      if (this.config.data_storage.save_handler) {
+	        this.config.data_storage.save_handler(this, content);
 	        return;
 	      }
 
@@ -782,7 +826,10 @@ webpackJsonp([1],{
 	        data: {
 	          editor_content: (0, _stringify2["default"])(content),
 	          text_content: this.getTextFromEditor(content)
-	        }
+	        },
+	        withCredentials: this.getWithCredentials(),
+	        crossDomain: this.getCrossDomain(),
+	        headers: this.getHeaders()
 	      }).then(function (result) {
 	        // console.log "STORING CONTENT", result
 	        if (_this2.config.data_storage.success_handler) {

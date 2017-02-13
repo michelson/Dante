@@ -23,7 +23,7 @@
 
 
         <img src=images/dante-editor-logo.png alt="dante editor" height="21">
-        <span>Dante Editor - 0.3.1 </span>
+        <span>Dante Editor - 0.3.2 </span>
 
       </div>
 
@@ -44,7 +44,14 @@
             content: window.PocData,
             debug: true,
             data_storage: {
-              url: "http://localhost:3333/store.json"
+              url: "http://localhost:3333/store.json",
+              save_handler: function(ctx, content){
+                console.log("SAVING DATA!!");
+                console.info({
+                  editor_content: JSON.stringify(content),
+                  text_content: ctx.getTextFromEditor(content)
+                });
+              },
             }
           }
         )
