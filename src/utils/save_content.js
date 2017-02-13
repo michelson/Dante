@@ -35,14 +35,48 @@ class SaveBehavior {
 
   getUrl() {
     let { url } = this.config.data_storage
-    if (typeof(url) === "function") { return url() } else { return url }
+    if (typeof(url) === "function") { 
+      return url() 
+    } else { 
+      return url 
+    }
   }
 
   getMethod() {
     let { method } = this.config.data_storage
-    if (typeof(method) === "function") { return method() } else { return method }
+    if (typeof(method) === "function") { 
+      return method() 
+    } else { 
+      return method 
+    }
   }
 
+  getWithCredentials(){
+    let { withCredentials } = this.config.data_storage
+    if (typeof(withCredentials) === "function") { 
+      return withCredentials() 
+    } else { 
+      return withCredentials 
+    }
+  }
+
+  getCrossDomain(){
+    let { crossDomain } = this.config.data_storage
+    if (typeof(crossDomain) === "function") { 
+      return crossDomain()
+    } else { 
+      return crossDomain 
+    }
+  }
+
+  getHeaders(){
+    let { headers } = this.config.data_storage
+    if (typeof(headers) === "function") { 
+      return headers() 
+    } else { 
+      return headers 
+    }
+  }
 
   checkforStore(content){
     // ENTER DATA STORE
@@ -71,7 +105,10 @@ class SaveBehavior {
       data: {
         editor_content: JSON.stringify(content),
         text_content: this.getTextFromEditor(content)
-      }
+      },
+      withCredentials: this.getWithCredentials(),
+      crossDomain: this.getCrossDomain(),
+      headers: this.getHeaders(),
     })
     .then(result=> {
       // console.log "STORING CONTENT", result
