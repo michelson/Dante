@@ -35,27 +35,47 @@ class SaveBehavior {
 
   getUrl() {
     let { url } = this.config.data_storage
-    if (typeof(url) === "function") { return url() } else { return url }
+    if (typeof(url) === "function") { 
+      return url() 
+    } else { 
+      return url 
+    }
   }
 
   getMethod() {
     let { method } = this.config.data_storage
-    if (typeof(method) === "function") { return method() } else { return method }
+    if (typeof(method) === "function") { 
+      return method() 
+    } else { 
+      return method 
+    }
   }
 
   getWithCredentials(){
     let { withCredentials } = this.config.data_storage
-    if (typeof(withCredentials) === "function") { return withCredentials() } else { return withCredentials }
+    if (typeof(withCredentials) === "function") { 
+      return withCredentials() 
+    } else { 
+      return withCredentials 
+    }
   }
 
   getCrossDomain(){
     let { crossDomain } = this.config.data_storage
-    if (typeof(crossDomain) === "function") { return crossDomain() } else { return crossDomain }
+    if (typeof(crossDomain) === "function") { 
+      return crossDomain()
+    } else { 
+      return crossDomain 
+    }
   }
 
   getHeaders(){
     let { headers } = this.config.data_storage
-    if (typeof(headers) === "function") { return headers() } else { return headers }
+    if (typeof(headers) === "function") { 
+      return headers() 
+    } else { 
+      return headers 
+    }
   }
 
   checkforStore(content){
