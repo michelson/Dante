@@ -11,7 +11,6 @@ function isExternal(module) {
   if (typeof userRequest !== 'string') {
     return false;
   }
-
   return userRequest.indexOf('bower_components') >= 0 ||
          userRequest.indexOf('node_modules') >= 0 ||
          userRequest.indexOf('libraries') >= 0;
@@ -22,12 +21,12 @@ var plugins = [
 
   new ExtractTextPlugin("[name].css"),
 
-  new CommonsChunkPlugin({
+  /*new CommonsChunkPlugin({
     name: 'dante-vendors',
     minChunks: function(module) {
       return isExternal(module);
     }
-  }),
+  }),*/
 
   new webpack.DefinePlugin({
     'process.env': {
@@ -47,6 +46,13 @@ export default {
   entry: {
     'Dante2': './src/index.js',
     'DanteStyles': './src/style.js',
+    'dante-vendors': [
+        'axios',
+        'draft-js',
+        'react',
+        'react-dom'
+    ]
+
   },
 
   output: {
@@ -56,6 +62,7 @@ export default {
     libraryTarget: 'umd',
   },
 
+  /*
   externals: [
     {
       react: {
@@ -74,5 +81,6 @@ export default {
       },
     },
   ],
+  */
   plugins: plugins
 };
