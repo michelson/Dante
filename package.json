@@ -8,6 +8,7 @@
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
   "files": [
+    "amd",
     "lib",
     "dist",
     "es"
