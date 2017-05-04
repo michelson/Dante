@@ -221,6 +221,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          upload_url: options.upload_url,
 	          upload_headers: options.upload_headers,
 	          upload_formName: options.upload_formName,
+	          upload_handler: options.image_upload_handler,
 	          upload_callback: options.image_upload_callback,
 	          image_delete_callback: options.image_delete_callback,
 	          image_caption_placeholder: options.image_caption_placeholder
@@ -812,15 +813,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 25 */
 /***/ function(module, exports) {
 
-	/*
-	object-assign
-	(c) Sindre Sorhus
-	@license MIT
-	*/
-
 	'use strict';
 	/* eslint-disable no-unused-vars */
-	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -841,7 +835,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// Detect buggy property enumeration order in older V8 versions.
 
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+			var test1 = new String('abc');  // eslint-disable-line
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -870,7 +864,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			return true;
-		} catch (err) {
+		} catch (e) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -890,8 +884,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			}
 
-			if (getOwnPropertySymbols) {
-				symbols = getOwnPropertySymbols(from);
+			if (Object.getOwnPropertySymbols) {
+				symbols = Object.getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -34327,15 +34321,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 267 */
 /***/ function(module, exports) {
 
-	/*
-	object-assign
-	(c) Sindre Sorhus
-	@license MIT
-	*/
-
 	'use strict';
 	/* eslint-disable no-unused-vars */
-	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -34356,7 +34343,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// Detect buggy property enumeration order in older V8 versions.
 
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+			var test1 = new String('abc');  // eslint-disable-line
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -34385,7 +34372,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			return true;
-		} catch (err) {
+		} catch (e) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -34405,8 +34392,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			}
 
-			if (getOwnPropertySymbols) {
-				symbols = getOwnPropertySymbols(from);
+			if (Object.getOwnPropertySymbols) {
+				symbols = Object.getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -51224,6 +51211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.handleGrafFigureSelectImg = _this.handleGrafFigureSelectImg.bind(_this);
 	    _this.getUploadUrl = _this.getUploadUrl.bind(_this);
 	    _this.uploadFile = _this.uploadFile.bind(_this);
+	    _this.uploadFailed = _this.uploadFailed.bind(_this);
 	    _this.uploadCompleted = _this.uploadCompleted.bind(_this);
 	    _this.updateProgressBar = _this.updateProgressBar.bind(_this);
 	    _this.placeHolderEnabled = _this.placeHolderEnabled.bind(_this);
@@ -51460,6 +51448,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _this3 = this;
 
 	    var handleUp = void 0;
+	    // custom upload handler
+	    if (this.config.upload_handler) {
+	      return this.config.upload_handler(this.formatData().get('file'), this);
+	    }
+
 	    (0, _axios2['default'])({
 	      method: 'post',
 	      url: this.getUploadUrl(),
@@ -51469,17 +51462,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _this3.updateProgressBar(e);
 	      }
 	    }).then(function (result) {
-	      _this3.uploadCompleted(result.data);
-	      _this3.props.blockProps.removeLock();
-	      _this3.stopLoader();
-	      _this3.file = null;
+	      _this3.uploadCompleted(result.data.url);
 
 	      if (_this3.config.upload_callback) {
 	        return _this3.config.upload_callback(result, _this3);
 	      }
 	    })['catch'](function (error) {
-	      _this3.props.blockProps.removeLock();
-	      _this3.stopLoader();
+	      _this3.uploadFailed();
 
 	      console.log('ERROR: got error uploading file ' + error);
 	      if (_this3.config.upload_error_callback) {
@@ -51488,12 +51477,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 
 	    return handleUp = function handleUp(json_response) {
-	      return _this3.uploadCompleted(json_response, n);
+	      return _this3.uploadCompleted(json_response.url, n);
 	    };
 	  };
 
-	  ImageBlock.prototype.uploadCompleted = function uploadCompleted(json) {
-	    return this.setState({ url: json.url }, this.updateData);
+	  ImageBlock.prototype.uploadFailed = function uploadFailed() {
+	    this.props.blockProps.removeLock();
+	    this.stopLoader();
+	  };
+
+	  ImageBlock.prototype.uploadCompleted = function uploadCompleted(url) {
+	    this.setState({ url: url }, this.updateData);
+	    this.props.blockProps.removeLock();
+	    this.stopLoader();
+	    this.file = null;
 	  };
 
 	  ImageBlock.prototype.updateProgressBar = function updateProgressBar(e) {

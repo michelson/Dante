@@ -92,6 +92,7 @@ class Dante {
         upload_url: options.upload_url,
         upload_headers: options.upload_headers,
         upload_formName: options.upload_formName,
+        upload_handler: options.image_upload_handler,
         upload_callback: options.image_upload_callback,
         image_delete_callback: options.image_delete_callback,
         image_caption_placeholder: options.image_caption_placeholder

@@ -2464,6 +2464,7 @@ webpackJsonp([1],{
 	    _this.handleGrafFigureSelectImg = _this.handleGrafFigureSelectImg.bind(_this);
 	    _this.getUploadUrl = _this.getUploadUrl.bind(_this);
 	    _this.uploadFile = _this.uploadFile.bind(_this);
+	    _this.uploadFailed = _this.uploadFailed.bind(_this);
 	    _this.uploadCompleted = _this.uploadCompleted.bind(_this);
 	    _this.updateProgressBar = _this.updateProgressBar.bind(_this);
 	    _this.placeHolderEnabled = _this.placeHolderEnabled.bind(_this);
@@ -2723,6 +2724,11 @@ webpackJsonp([1],{
 	      var _this3 = this;
 
 	      var handleUp = void 0;
+	      // custom upload handler
+	      if (this.config.upload_handler) {
+	        return this.config.upload_handler(this.formatData().get('file'), this);
+	      }
+
 	      (0, _axios2['default'])({
 	        method: 'post',
 	        url: this.getUploadUrl(),
@@ -2732,17 +2738,13 @@ webpackJsonp([1],{
 	          return _this3.updateProgressBar(e);
 	        }
 	      }).then(function (result) {
-	        _this3.uploadCompleted(result.data);
-	        _this3.props.blockProps.removeLock();
-	        _this3.stopLoader();
-	        _this3.file = null;
+	        _this3.uploadCompleted(result.data.url);
 
 	        if (_this3.config.upload_callback) {
 	          return _this3.config.upload_callback(result, _this3);
 	        }
 	      })['catch'](function (error) {
-	        _this3.props.blockProps.removeLock();
-	        _this3.stopLoader();
+	        _this3.uploadFailed();
 
 	        console.log('ERROR: got error uploading file ' + error);
 	        if (_this3.config.upload_error_callback) {
@@ -2751,13 +2753,22 @@ webpackJsonp([1],{
 	      });
 
 	      return handleUp = function handleUp(json_response) {
-	        return _this3.uploadCompleted(json_response, n);
+	        return _this3.uploadCompleted(json_response.url, n);
 	      };
 	    }
 	  }, {
+	    key: 'uploadFailed',
+	    value: function uploadFailed() {
+	      this.props.blockProps.removeLock();
+	      this.stopLoader();
+	    }
+	  }, {
 	    key: 'uploadCompleted',
-	    value: function uploadCompleted(json) {
-	      return this.setState({ url: json.url }, this.updateData);
+	    value: function uploadCompleted(url) {
+	      this.setState({ url: url }, this.updateData);
+	      this.props.blockProps.removeLock();
+	      this.stopLoader();
+	      this.file = null;
 	    }
 	  }, {
 	    key: 'updateProgressBar',

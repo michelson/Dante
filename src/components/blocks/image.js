@@ -30,6 +30,7 @@ export default class ImageBlock extends React.Component {
     this.handleGrafFigureSelectImg = this.handleGrafFigureSelectImg.bind(this)
     this.getUploadUrl = this.getUploadUrl.bind(this)
     this.uploadFile = this.uploadFile.bind(this)
+    this.uploadFailed = this.uploadFailed.bind(this)
     this.uploadCompleted = this.uploadCompleted.bind(this)
     this.updateProgressBar = this.updateProgressBar.bind(this)
     this.placeHolderEnabled = this.placeHolderEnabled.bind(this)
@@ -255,6 +256,11 @@ export default class ImageBlock extends React.Component {
 
   uploadFile() {
     let handleUp
+    // custom upload handler
+    if (this.config.upload_handler) {
+      return this.config.upload_handler(this.formatData().get('file'), this)
+    }
+
     axios({
       method: 'post',
       url: this.getUploadUrl(),
@@ -264,17 +270,13 @@ export default class ImageBlock extends React.Component {
         return this.updateProgressBar(e)
       }
     }).then(result => {
-      this.uploadCompleted(result.data)
-      this.props.blockProps.removeLock()
-      this.stopLoader()
-      this.file = null
+      this.uploadCompleted(result.data.url)
 
       if (this.config.upload_callback) {
         return this.config.upload_callback(result, this)
       }
     }).catch(error => {
-      this.props.blockProps.removeLock()
-      this.stopLoader()
+      this.uploadFailed()
 
       console.log(`ERROR: got error uploading file ${ error }`)
       if (this.config.upload_error_callback) {
@@ -283,12 +285,20 @@ export default class ImageBlock extends React.Component {
     })
 
     return handleUp = json_response => {
-      return this.uploadCompleted(json_response, n)
+      return this.uploadCompleted(json_response.url, n)
     }
   }
 
-  uploadCompleted(json) {
-    return this.setState({ url: json.url }, this.updateData)
+  uploadFailed() {
+    this.props.blockProps.removeLock()
+    this.stopLoader()
+  }
+
+  uploadCompleted(url) {
+    this.setState({ url }, this.updateData)
+    this.props.blockProps.removeLock()
+    this.stopLoader()
+    this.file = null
   }
 
   updateProgressBar(e) {
@@ -374,4 +384,5 @@ class Loader extends React.Component {
     )
   }
 }
+
 
