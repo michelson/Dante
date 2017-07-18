@@ -278,7 +278,7 @@ class DanteTooltip extends React.Component {
           <input
             className="dante-menu-input"
             ref="dante_menu_input"
-            placeholder="Paste or type a link"
+            placeholder={this.props.widget_options.placeholder}
             onKeyPress={ this.handleInputEnter }
             defaultValue={ this.getDefaultValue() }
           />
