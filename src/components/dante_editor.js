@@ -226,7 +226,6 @@ class DanteEditor extends React.Component {
       if (!this.tooltipHasSelectionElement(tooltip, blockType)) {
         return
       }
-
       this.handleTooltipDisplayOn('displayOnSelection')
     } else {
       this.handleTooltipDisplayOn('displayOnSelection', false)
@@ -403,6 +402,7 @@ class DanteEditor extends React.Component {
     if (display == null) {
       display = true
     }
+    
     return setTimeout(() => {
       const items = this.tooltipsWithProp(prop)
       return items.map(o => {
@@ -791,6 +791,9 @@ class DanteEditor extends React.Component {
   }
 
   relocateTooltips() {
+    if (this.state.read_only)
+      return 
+
     return this.tooltips.map(o => {
       return this.refs[o.ref].relocate()
     })
