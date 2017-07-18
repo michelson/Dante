@@ -17,7 +17,7 @@ export const options = yargs
   })
   .argv;
 
-export const jsLoader = 'babel?cacheDirectory';
+export const jsLoader = 'babel-loader?cacheDirectory';
 
 const baseConfig = {
   entry: undefined,

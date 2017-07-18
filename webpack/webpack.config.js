@@ -1,5 +1,6 @@
 import baseConfig, { options } from './base.config';
 import webpack from 'webpack';
+var path = require('path');
 
 var ExtractTextPlugin  = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin  = require('html-webpack-plugin');
@@ -56,7 +57,7 @@ export default {
   },
 
   output: {
-    path: './dist',
+    path: path.resolve('./dist'),
     filename: options.optimizeMinimize ? '[name].min.js' : '[name].js',
     library: 'Dante2',
     libraryTarget: 'umd',
