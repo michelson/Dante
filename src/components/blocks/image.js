@@ -320,7 +320,7 @@ export default class ImageBlock extends React.Component {
     if (this.placeHolderEnabled()) {
       return ""
     }
-    return "Write caption for image (optional)"
+    return this.config.image_caption_placeholder
   }
 
   handleFocus(e) {

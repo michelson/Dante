@@ -95,7 +95,7 @@ class Dante {
         upload_handler: options.image_upload_handler,
         upload_callback: options.image_upload_callback,
         image_delete_callback: options.image_delete_callback,
-        image_caption_placeholder: options.image_caption_placeholder
+        image_caption_placeholder: options.image_caption_placeholder || "Write caption for image (optional)"
       }
     }, {
       icon: 'embed',
