@@ -102,11 +102,16 @@ var config = {
     //umdNamedDefine: true
   },
   resolve: {
-    root: path.resolve('./src'),
-    extensions: ['', '.js', '.jsx', '.es6', '.cjsx', '.coffee', '.css', '.scss']
+
+    modules: [
+         path.resolve('./src'),
+         //path.join(__dirname, "src"),
+         "node_modules"
+       ],
+    extensions: ['.js', '.jsx', '.es6', '.cjsx', '.coffee', '.css', '.scss']
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /(\.jsx|\.js|\.es6)$/,
         loader: 'babel-loader',
@@ -118,26 +123,26 @@ var config = {
       },
 
       { test: path.resolve("./src/components/dante_editor.js"), 
-        loaders: ["expose?DanteEditor", "babel-loader?presets[]=es2015"]},
+        loaders: ["expose-loader?DanteEditor", "babel-loader?presets[]=es2015"]},
       { test: path.resolve("./src/components/dante.js"), 
-        loaders: ["expose?Dante", "babel-loader?presets[]=es2015"]},
+        loaders: ["expose-loader?Dante", "babel-loader?presets[]=es2015"]},
       
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader!sass-loader' })
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
-        loader: 'file?name=fonts/[name].[ext]',
+        loader: 'file-loader?name=fonts/[name].[ext]',
         exclude: /node_modules/
       },
       {
         test: /\.(png|jpg)$/,
-        loader:'file?limit=1024&name=images/[name].[ext]'
+        loader:'file-loader?limit=1024&name=images/[name].[ext]'
       }
     ]
   },

@@ -27,35 +27,40 @@ const baseConfig = {
   externals: undefined,
 
   resolve: {
-    root: path.resolve('./src'),
-    extensions: ['', '.js', '.jsx', '.es6', '.css', '.scss']
+    modules: [
+      path.resolve('./src'),
+      //path.join(__dirname, "src"),
+      "node_modules"
+    ],
+    extensions: ['.js', '.jsx', '.es6', '.css', '.scss']
   },  
 
   module: {
-    loaders: [
+    rules: [
       { test: /\.js/, loader: jsLoader, exclude: /node_modules/ },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader!sass-loader' })
       },
 
       { test: path.resolve("./src/components/dante_editor.js"), 
-        loaders: ["expose?DanteEditor", "babel-loader?presets[]=es2015"]},
+        loaders: ["expose-loader?DanteEditor", "babel-loader?presets[]=es2015"]},
+      
       { test: path.resolve("./src/components/dante.js"), 
-        loaders: ["expose?Dante", "babel-loader?presets[]=es2015"]},
+        loaders: ["expose-loader?Dante", "babel-loader?presets[]=es2015"]},
 
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
-        loader: 'file?name=fonts/[name].[ext]',
+        loader: 'file-loader?name=fonts/[name].[ext]',
         exclude: /node_modules/
       },
       {
         test: /\.(png|jpg)$/,
-        loader:'file?limit=1024&name=images/[name].[ext]'
+        loader:'file-loader?limit=1024&name=images/[name].[ext]'
       }
 
     ]
