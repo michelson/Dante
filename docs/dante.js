@@ -1,41 +1,41 @@
 webpackJsonp([0],{
 
-/***/ 146:
+/***/ 144:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
-module.exports = global["DanteEditor"] = __webpack_require__(263);
+module.exports = global["DanteEditor"] = __webpack_require__(261);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35)))
 
 /***/ }),
 
-/***/ 192:
+/***/ 190:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.eot";
 
 /***/ }),
 
-/***/ 193:
+/***/ 191:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.eot";
 
 /***/ }),
 
-/***/ 224:
+/***/ 222:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _dante = __webpack_require__(248);
+var _dante = __webpack_require__(246);
 
 var _dante2 = _interopRequireDefault(_dante);
 
-var _dante_editor = __webpack_require__(146);
+var _dante_editor = __webpack_require__(144);
 
 var _dante_editor2 = _interopRequireDefault(_dante_editor);
 
@@ -48,37 +48,37 @@ module.exports = {
 
 /***/ }),
 
-/***/ 228:
+/***/ 226:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
 
-/***/ 247:
+/***/ 245:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(228);
+__webpack_require__(226);
 
-var _index = __webpack_require__(224);
+var _index = __webpack_require__(222);
 
 /***/ }),
 
-/***/ 248:
+/***/ 246:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
-module.exports = global["Dante"] = __webpack_require__(262);
+module.exports = global["Dante"] = __webpack_require__(260);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35)))
 
 /***/ }),
 
-/***/ 249:
+/***/ 247:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -108,7 +108,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -118,7 +118,7 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _draftJs = __webpack_require__(9);
 
-var _axios = __webpack_require__(65);
+var _axios = __webpack_require__(62);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -197,8 +197,8 @@ var EmbedBlock = function (_React$Component) {
         url: '' + this.dataForUpdate().endpoint + this.dataForUpdate().provisory_text + '&scheme=https'
       }).then(function (result) {
 
-        return _this2.setState({ embed_data: result.data } //JSON.parse(data.responseText)
-        , _this2.updateData);
+        return _this2.setState({ embed_data: result.data //JSON.parse(data.responseText)
+        }, _this2.updateData);
       })['catch'](function (error) {
 
         _this2.setState({
@@ -276,7 +276,7 @@ exports['default'] = EmbedBlock;
 
 /***/ }),
 
-/***/ 250:
+/***/ 248:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -310,7 +310,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -320,7 +320,7 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _draftJs = __webpack_require__(9);
 
-var _axios = __webpack_require__(65);
+var _axios = __webpack_require__(62);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -454,9 +454,9 @@ var ImageBlock = function (_React$Component) {
       }
 
       var fill_ratio = height / width * 100;
-      var result = { width: width, height: height, ratio: fill_ratio };
-      // console.log result
-      return result;
+      var result = { width: width, height: height, ratio: fill_ratio
+        // console.log result
+      };return result;
     }
 
     // will update block state
@@ -773,7 +773,7 @@ var Loader = function (_React$Component2) {
 
 /***/ }),
 
-/***/ 251:
+/***/ 249:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -807,7 +807,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -904,7 +904,7 @@ exports['default'] = PlaceholderBlock;
 
 /***/ }),
 
-/***/ 252:
+/***/ 250:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -938,7 +938,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -950,7 +950,7 @@ var _draftJs = __webpack_require__(9);
 
 var _index = __webpack_require__(27);
 
-var _axios = __webpack_require__(65);
+var _axios = __webpack_require__(62);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -1017,8 +1017,8 @@ var VideoBlock = function (_React$Component) {
         method: 'get',
         url: '' + this.dataForUpdate().endpoint + this.dataForUpdate().provisory_text + '&scheme=https'
       }).then(function (result) {
-        return _this2.setState({ embed_data: result.data } //JSON.parse(data.responseText)
-        , _this2.updateData);
+        return _this2.setState({ embed_data: result.data //JSON.parse(data.responseText)
+        }, _this2.updateData);
       })['catch'](function (error) {
         return console.log("TODO: error");
       });
@@ -1055,7 +1055,7 @@ exports['default'] = VideoBlock;
 
 /***/ }),
 
-/***/ 253:
+/***/ 251:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1089,7 +1089,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -1249,7 +1249,7 @@ exports["default"] = Debug;
 
 /***/ }),
 
-/***/ 254:
+/***/ 252:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1279,7 +1279,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -1365,7 +1365,7 @@ exports['default'] = Link;
 
 /***/ }),
 
-/***/ 255:
+/***/ 253:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1395,7 +1395,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -1764,7 +1764,7 @@ exports['default'] = DanteInlineTooltip;
 
 /***/ }),
 
-/***/ 256:
+/***/ 254:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1794,7 +1794,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -2027,7 +2027,7 @@ exports['default'] = DanteImagePopover;
 
 /***/ }),
 
-/***/ 257:
+/***/ 255:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2057,7 +2057,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -2191,7 +2191,7 @@ exports['default'] = DanteAnchorPopover;
 
 /***/ }),
 
-/***/ 258:
+/***/ 256:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2221,7 +2221,7 @@ var _inherits2 = __webpack_require__(19);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(4);
+var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -2700,7 +2700,7 @@ exports['default'] = DanteTooltip;
 
 /***/ }),
 
-/***/ 259:
+/***/ 257:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2730,7 +2730,7 @@ exports['default'] = findEntities;
 
 /***/ }),
 
-/***/ 260:
+/***/ 258:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2746,7 +2746,7 @@ var _stringify2 = _interopRequireDefault(_stringify);
 
 var _draftJs = __webpack_require__(9);
 
-var _immutable = __webpack_require__(51);
+var _immutable = __webpack_require__(3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2875,7 +2875,7 @@ exports['default'] = customHTML2Content;
 
 /***/ }),
 
-/***/ 261:
+/***/ 259:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2897,11 +2897,11 @@ var _createClass2 = __webpack_require__(14);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _axios = __webpack_require__(65);
+var _axios = __webpack_require__(62);
 
 var _axios2 = _interopRequireDefault(_axios);
 
-var _immutable = __webpack_require__(51);
+var _immutable = __webpack_require__(3);
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
@@ -3075,7 +3075,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getNode = exports.getDefaultBlockData = undefined;
 
-var _immutable = __webpack_require__(51);
+var _immutable = __webpack_require__(3);
 
 var _draftJs = __webpack_require__(9);
 
@@ -3277,42 +3277,42 @@ var addNewBlockAt = exports.addNewBlockAt = function addNewBlockAt(editorState, 
 
 /***/ }),
 
-/***/ 399:
+/***/ 397:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.svg";
 
 /***/ }),
 
-/***/ 400:
+/***/ 398:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.ttf";
 
 /***/ }),
 
-/***/ 401:
+/***/ 399:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.woff";
 
 /***/ }),
 
-/***/ 402:
+/***/ 400:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.svg";
 
 /***/ }),
 
-/***/ 403:
+/***/ 401:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.ttf";
 
 /***/ }),
 
-/***/ 404:
+/***/ 402:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.woff";
@@ -3384,5 +3384,5 @@ var getSelectedBlockNode = exports.getSelectedBlockNode = function getSelectedBl
 
 /***/ })
 
-},[247]);
+},[245]);
 //# sourceMappingURL=dante.js.map

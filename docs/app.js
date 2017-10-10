@@ -1,6 +1,6 @@
 webpackJsonp([1],{
 
-/***/ 223:
+/***/ 221:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21,6 +21,20 @@ var Doc = exports.Doc = { "entityMap": { "0": { "type": "LINK", "mutability": "M
 
 /***/ }),
 
+/***/ 223:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ 224:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
 /***/ 225:
 /***/ (function(module, exports) {
 
@@ -28,33 +42,19 @@ var Doc = exports.Doc = { "entityMap": { "0": { "type": "LINK", "mutability": "M
 
 /***/ }),
 
-/***/ 226:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 227:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 246:
+/***/ 244:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(226);
+__webpack_require__(224);
+
+__webpack_require__(223);
 
 __webpack_require__(225);
 
-__webpack_require__(227);
-
-var _poc = __webpack_require__(223);
+var _poc = __webpack_require__(221);
 
 window.PocData = _poc.Readme;
 window.PocDataLicense = _poc.License;
@@ -62,5 +62,5 @@ window.Doc = _poc.Doc;
 
 /***/ })
 
-},[246]);
+},[244]);
 //# sourceMappingURL=app.js.map
