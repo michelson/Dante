@@ -110,6 +110,7 @@ class DanteEditor extends React.Component {
     this.showPopLinkOver = this.showPopLinkOver.bind(this)
     this.hidePopLinkOver = this.hidePopLinkOver.bind(this)
     this.render = this.render.bind(this)
+
     this.decorator = new CompositeDecorator([{
       strategy: findEntities.bind(null, 'LINK', this),
       component: Link
@@ -143,7 +144,7 @@ class DanteEditor extends React.Component {
     this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap)
 
     this.state = {
-      editorState: this.initializeState(),
+      editorState: EditorState.createWithContent(convertFromRaw(this.props.content)),
       read_only: this.props.config.read_only,
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
@@ -172,6 +173,14 @@ class DanteEditor extends React.Component {
       editorState: this.state.editorState,
       editorContent: this.emitSerializedOutput()
     })
+
+    // TODO: fix this amateur mode
+    // here we add a new contentstate with the decorator in order to get contentState
+    setTimeout(()=>{
+      let newEditorState = EditorState.set(this.decodeEditorContent(this.props.content), {decorator: this.decorator});
+      this.onChange( newEditorState)      
+    }, 0)
+
   }
 
   initializeState() {
@@ -181,6 +190,12 @@ class DanteEditor extends React.Component {
     } else {
       return EditorState.createEmpty(this.decorator)
     }
+  }
+
+  decodeEditorContent(raw_as_json) {
+    const new_content = convertFromRaw(raw_as_json)
+    let editorState
+    return editorState = EditorState.createWithContent(new_content, this.decorator)
   }
 
   refreshSelection(newEditorState) {
@@ -261,13 +276,6 @@ class DanteEditor extends React.Component {
     const raw = convertToRaw(this.state.editorState.getCurrentContent())
 
     return raw
-  }
-
-  decodeEditorContent(raw_as_json) {
-    const new_content = convertFromRaw(raw_as_json)
-    let editorState
-
-    return editorState = EditorState.createWithContent(new_content, this.decorator)
   }
 
   //# title utils
