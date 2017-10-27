@@ -47,10 +47,10 @@ const baseConfig = {
         loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader!sass-loader' })
       },
 
-      { test: path.resolve("./src/components/dante_editor.js"), 
+      { test: path.resolve("./src/components/core/dante_editor.js"), 
         loaders: ["expose-loader?DanteEditor", "babel-loader?presets[]=es2015"]},
       
-      { test: path.resolve("./src/components/dante.js"), 
+      { test: path.resolve("./src/components/core/dante.js"), 
         loaders: ["expose-loader?Dante", "babel-loader?presets[]=es2015"]},
 
       {

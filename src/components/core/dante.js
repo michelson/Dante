@@ -1,28 +1,24 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-//import Immutable from 'immutable'
 import { Map, fromJS } from 'immutable'
+import DanteEditor from './editor.js'
+import DanteImagePopover from '../popovers/image'
+import DanteAnchorPopover from '../popovers/link'
+import DanteInlineTooltip from '../popovers/addButton'
+import DanteTooltip from '../popovers/toolTip'
 
-import DanteEditor from './dante_editor.js'
-
-import DanteImagePopover from './popovers/image'
-import DanteAnchorPopover from './popovers/link'
-
-//import { getSelectionRect, getSelection } from "../utils/selection.js"
-import DanteInlineTooltip from './popovers/addButton'
-import DanteTooltip from './popovers/toolTip'
-//import Link from './decorators/link'
-
-//import Debug from './debug'
-//import findEntities from '../utils/find_entities'
-import ImageBlock from './blocks/image'
-import EmbedBlock from './blocks/embed'
-import VideoBlock from './blocks/video'
-import PlaceholderBlock from './blocks/placeholder'
+import ImageBlock from '../blocks/image'
+import EmbedBlock from '../blocks/embed'
+import VideoBlock from '../blocks/video'
+import PlaceholderBlock from '../blocks/placeholder'
+import DividerBlock from '../blocks/divider'
+import ButtonBlock from '../blocks/button'
+import CardBlock from '../blocks/card'
 
 import { 
   resetBlockWithType, 
-  addNewBlockAt } from '../model/index.js'
+  addNewBlockAt 
+} from '../../model/index.js'
 
 class Dante {
   constructor(options) {
@@ -50,9 +46,65 @@ class Dante {
     defaultOptions.spellcheck = false
     defaultOptions.title_placeholder = "Title"
     defaultOptions.body_placeholder = "Write your story"
-    // @defaultOptions.api_key = "86c28a410a104c8bb58848733c82f840"
 
     defaultOptions.widgets = [{
+      icon: 'card',
+      type: 'card',
+      title: "Signature",
+      breakOnContinuous: true,
+      editable: false,
+      renderable: true,
+      block: CardBlock,
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "insertion",
+        insert_block: "card"
+      },
+      handleEnterWithoutText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      },
+      handleEnterWithText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      }
+    },
+    {
+      icon: 'divider',
+      type: 'divider',
+      title: "Divider",
+      editable: true,
+      renderable: true,
+      block: DividerBlock,
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "insertion",
+        insert_block: "divider"
+      }
+    },
+    {
+      icon: 'button',
+      type: 'button',
+      title: "Button",
+      breakOnContinuous: true,
+      editable: true,
+      renderable: true,
+      block: ButtonBlock,
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "insertion",
+        insert_block: "button"
+      },
+      handleEnterWithoutText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      },
+      handleEnterWithText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      },
+    },
+    {
       title: 'add an image',
       icon: 'image',
       type: 'image',
