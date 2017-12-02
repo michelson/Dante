@@ -1,84 +1,1142 @@
 webpackJsonp([0],{
 
-/***/ 144:
+/***/ 127:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
 
-module.exports = global["DanteEditor"] = __webpack_require__(261);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35)))
+
+var _getPrototypeOf = __webpack_require__(9);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(11);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(10);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _immutable = __webpack_require__(2);
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
+var _draftJs = __webpack_require__(12);
+
+var _draftConvert = __webpack_require__(312);
+
+var _index = __webpack_require__(26);
+
+var _link = __webpack_require__(245);
+
+var _link2 = _interopRequireDefault(_link);
+
+var _debug = __webpack_require__(244);
+
+var _debug2 = _interopRequireDefault(_debug);
+
+var _find_entities = __webpack_require__(253);
+
+var _find_entities2 = _interopRequireDefault(_find_entities);
+
+var _save_content = __webpack_require__(255);
+
+var _save_content2 = _interopRequireDefault(_save_content);
+
+var _html2content = __webpack_require__(254);
+
+var _html2content2 = _interopRequireDefault(_html2content);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var DanteEditor = function (_React$Component) {
+  (0, _inherits3['default'])(DanteEditor, _React$Component);
+
+  function DanteEditor(props) {
+    (0, _classCallCheck3['default'])(this, DanteEditor);
+
+    var _this = (0, _possibleConstructorReturn3['default'])(this, (DanteEditor.__proto__ || (0, _getPrototypeOf2['default'])(DanteEditor)).call(this, props));
+
+    _this.initializeState = _this.initializeState.bind(_this);
+    _this.refreshSelection = _this.refreshSelection.bind(_this);
+    _this.forceRender = _this.forceRender.bind(_this);
+    _this.onChange = _this.onChange.bind(_this);
+    _this.dispatchChangesToSave = _this.dispatchChangesToSave.bind(_this);
+    _this.setPreContent = _this.setPreContent.bind(_this);
+    _this.focus = _this.focus.bind(_this);
+    _this.getEditorState = _this.getEditorState.bind(_this);
+    _this.emitSerializedOutput = _this.emitSerializedOutput.bind(_this);
+    _this.decodeEditorContent = _this.decodeEditorContent.bind(_this);
+    _this.getTextFromEditor = _this.getTextFromEditor.bind(_this);
+    _this.getLocks = _this.getLocks.bind(_this);
+    _this.addLock = _this.addLock.bind(_this);
+    _this.removeLock = _this.removeLock.bind(_this);
+    _this.renderableBlocks = _this.renderableBlocks.bind(_this);
+    _this.defaultWrappers = _this.defaultWrappers.bind(_this);
+    _this.blockRenderer = _this.blockRenderer.bind(_this);
+    _this.handleBlockRenderer = _this.handleBlockRenderer.bind(_this);
+    _this.blockStyleFn = _this.blockStyleFn.bind(_this);
+    _this.getDataBlock = _this.getDataBlock.bind(_this);
+    _this.styleForBlock = _this.styleForBlock.bind(_this);
+    _this.handlePasteText = _this.handlePasteText.bind(_this);
+    _this.handleTXTPaste = _this.handleTXTPaste.bind(_this);
+    _this.handleHTMLPaste = _this.handleHTMLPaste.bind(_this);
+    _this.handlePasteImage = _this.handlePasteImage.bind(_this);
+    _this.handleDroppedFiles = _this.handleDroppedFiles.bind(_this);
+    _this.handleUpArrow = _this.handleUpArrow.bind(_this);
+    _this.handleDownArrow = _this.handleDownArrow.bind(_this);
+    _this.handleReturn = _this.handleReturn.bind(_this);
+    _this.handleBeforeInput = _this.handleBeforeInput.bind(_this);
+    _this.handleKeyCommand = _this.handleKeyCommand.bind(_this);
+    _this.findCommandKey = _this.findCommandKey.bind(_this);
+    _this.KeyBindingFn = _this.KeyBindingFn.bind(_this);
+    _this.updateBlockData = _this.updateBlockData.bind(_this);
+    _this.setDirection = _this.setDirection.bind(_this);
+    _this.toggleEditable = _this.toggleEditable.bind(_this);
+    _this.disableEditable = _this.disableEditable.bind(_this);
+    _this.enableEditable = _this.enableEditable.bind(_this);
+    _this.closePopOvers = _this.closePopOvers.bind(_this);
+    _this.relocateTooltips = _this.relocateTooltips.bind(_this);
+    _this.tooltipsWithProp = _this.tooltipsWithProp.bind(_this);
+    _this.tooltipHasSelectionElement = _this.tooltipHasSelectionElement.bind(_this);
+    _this.handleShowPopLinkOver = _this.handleShowPopLinkOver.bind(_this);
+    _this.handleHidePopLinkOver = _this.handleHidePopLinkOver.bind(_this);
+    _this.showPopLinkOver = _this.showPopLinkOver.bind(_this);
+    _this.hidePopLinkOver = _this.hidePopLinkOver.bind(_this);
+    _this.render = _this.render.bind(_this);
+
+    _this.decorator = new _draftJs.CompositeDecorator([{
+      strategy: _find_entities2['default'].bind(null, 'LINK', _this),
+      component: _link2['default']
+    }]);
+
+    _this.blockRenderMap = (0, _immutable.Map)({
+      "image": {
+        element: 'figure'
+      },
+      "video": {
+        element: 'figure'
+      },
+      "embed": {
+        element: 'div'
+      },
+      'unstyled': {
+        wrapper: null,
+        element: 'div'
+      },
+      'paragraph': {
+        wrapper: null,
+        element: 'div'
+      },
+      'placeholder': {
+        wrapper: null,
+        element: 'div'
+      }
+
+    });
+
+    _this.extendedBlockRenderMap = _draftJs.DefaultDraftBlockRenderMap.merge(_this.blockRenderMap);
+
+    _this.state = {
+      editorState: _draftJs.EditorState.createWithContent((0, _draftJs.convertFromRaw)(_this.props.content)),
+      read_only: _this.props.config.read_only,
+      blockRenderMap: _this.extendedBlockRenderMap,
+      locks: 0,
+      debug: _this.props.config.debug
+    };
+
+    _this.widgets = _this.props.config.widgets;
+    _this.tooltips = _this.props.config.tooltips;
+
+    _this.key_commands = _this.props.config.key_commands;
+
+    _this.continuousBlocks = _this.props.config.continuousBlocks;
+
+    _this.block_types = _this.props.config.block_types;
+
+    _this.default_wrappers = _this.props.config.default_wrappers;
+
+    _this.character_convert_mapping = _this.props.config.character_convert_mapping;
+
+    _this.save = new _save_content2['default']({
+      getLocks: _this.getLocks,
+      config: {
+        xhr: _this.props.config.xhr,
+        data_storage: _this.props.config.data_storage
+      },
+      editorState: _this.state.editorState,
+      editorContent: _this.emitSerializedOutput()
+    });
+
+    // TODO: fix this amateur mode
+    // here we add a new contentstate with the decorator in order to get contentState
+    setTimeout(function () {
+      var newEditorState = _draftJs.EditorState.set(_this.decodeEditorContent(_this.props.content), { decorator: _this.decorator });
+      _this.onChange(newEditorState);
+    }, 0);
+
+    return _this;
+  }
+
+  (0, _createClass3['default'])(DanteEditor, [{
+    key: 'initializeState',
+    value: function initializeState() {
+      if (this.props.content) {
+        //and @.props.content.trim() isnt ""
+        return this.decodeEditorContent(this.props.content);
+      } else {
+        return _draftJs.EditorState.createEmpty(this.decorator);
+      }
+    }
+  }, {
+    key: 'decodeEditorContent',
+    value: function decodeEditorContent(raw_as_json) {
+      var new_content = (0, _draftJs.convertFromRaw)(raw_as_json);
+      var editorState = void 0;
+      return editorState = _draftJs.EditorState.createWithContent(new_content, this.decorator);
+    }
+  }, {
+    key: 'refreshSelection',
+    value: function refreshSelection(newEditorState) {
+      var editorState = this.state.editorState;
+      // Setting cursor position after inserting to content
+
+      var s = this.state.editorState.getSelection();
+      var c = editorState.getCurrentContent();
+      var focusOffset = s.getFocusOffset();
+      var anchorKey = s.getAnchorKey();
+
+      var selectionState = _draftJs.SelectionState.createEmpty(s.getAnchorKey());
+
+      // console.log anchorKey, focusOffset
+      selectionState = selectionState.merge({
+        anchorOffset: focusOffset,
+        focusKey: anchorKey,
+        focusOffset: focusOffset
+      });
+
+      var newState = _draftJs.EditorState.forceSelection(newEditorState, selectionState);
+
+      return this.onChange(newState);
+    }
+  }, {
+    key: 'forceRender',
+    value: function forceRender(editorState) {
+      var selection = this.state.editorState.getSelection();
+      var content = editorState.getCurrentContent();
+      var newEditorState = _draftJs.EditorState.createWithContent(content, this.decorator);
+
+      return this.refreshSelection(newEditorState);
+    }
+  }, {
+    key: 'onChange',
+    value: function onChange(editorState) {
+      var _this2 = this;
+
+      this.setPreContent();
+      this.setState({ editorState: editorState });
+
+      var currentBlock = (0, _index.getCurrentBlock)(this.state.editorState);
+      var blockType = currentBlock.getType();
+
+      if (!editorState.getSelection().isCollapsed()) {
+
+        var tooltip = this.tooltipsWithProp('displayOnSelection')[0];
+        if (!this.tooltipHasSelectionElement(tooltip, blockType)) {
+          return;
+        }
+        this.handleTooltipDisplayOn('displayOnSelection');
+      } else {
+        this.handleTooltipDisplayOn('displayOnSelection', false);
+      }
+
+      setTimeout(function () {
+        return _this2.relocateTooltips();
+      }, 0);
+
+      return this.dispatchChangesToSave();
+    }
+  }, {
+    key: 'dispatchChangesToSave',
+    value: function dispatchChangesToSave() {
+      var _this3 = this;
+
+      clearTimeout(this.saveTimeout);
+      return this.saveTimeout = setTimeout(function () {
+        return _this3.save.store(_this3.emitSerializedOutput());
+      }, 100);
+    }
+  }, {
+    key: 'setPreContent',
+    value: function setPreContent() {
+      var content = this.emitSerializedOutput();
+      return this.save.editorContent = content;
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {}
+    //debugger
+
+    //@props.refs.richEditor.focus()
+
+  }, {
+    key: 'getEditorState',
+    value: function getEditorState() {
+      return this.state.editorState;
+    }
+  }, {
+    key: 'emitSerializedOutput',
+    value: function emitSerializedOutput() {
+      var raw = (0, _draftJs.convertToRaw)(this.state.editorState.getCurrentContent());
+
+      return raw;
+    }
+
+    //# title utils
+
+  }, {
+    key: 'getTextFromEditor',
+    value: function getTextFromEditor() {
+      var c = this.state.editorState.getCurrentContent();
+      var out = c.getBlocksAsArray().map(function (o) {
+        return o.getText();
+      }).join("\n");
+
+      return out;
+    }
+  }, {
+    key: 'emitHTML2',
+    value: function emitHTML2() {
+      var html = void 0;
+
+      return html = (0, _draftConvert.convertToHTML)({
+        entityToHTML: function entityToHTML(entity, originalText) {
+          if (entity.type === 'LINK') {
+            return '<a href="' + entity.data.url + '">' + originalText + '</a>';
+          } else {
+            return originalText;
+          }
+        }
+
+      })(this.state.editorState.getCurrentContent());
+    }
+  }, {
+    key: 'getLocks',
+    value: function getLocks() {
+      return this.state.locks;
+    }
+  }, {
+    key: 'addLock',
+    value: function addLock() {
+      return this.setState({
+        locks: this.state.locks += 1 });
+    }
+  }, {
+    key: 'removeLock',
+    value: function removeLock() {
+      return this.setState({
+        locks: this.state.locks -= 1 });
+    }
+  }, {
+    key: 'renderableBlocks',
+    value: function renderableBlocks() {
+      return this.widgets.filter(function (o) {
+        return o.renderable;
+      }).map(function (o) {
+        return o.type;
+      });
+    }
+  }, {
+    key: 'defaultWrappers',
+    value: function defaultWrappers(blockType) {
+      return this.default_wrappers.filter(function (o) {
+        return o.block === blockType;
+      }).map(function (o) {
+        return o.className;
+      });
+    }
+  }, {
+    key: 'blockRenderer',
+    value: function blockRenderer(block) {
+
+      switch (block.getType()) {
+
+        case "atomic":
+
+          var entity = block.getEntityAt(0);
+          var entity_type = _draftJs.Entity.get(entity).getType();
+
+          break;
+      }
+
+      if (this.renderableBlocks().includes(block.getType())) {
+        return this.handleBlockRenderer(block);
+      }
+
+      return null;
+    }
+  }, {
+    key: 'handleBlockRenderer',
+    value: function handleBlockRenderer(block) {
+      var dataBlock = this.getDataBlock(block);
+      if (!dataBlock) {
+        return null;
+      }
+
+      var read_only = this.state.read_only ? false : null;
+      var editable = read_only !== null ? read_only : dataBlock.editable;
+      return {
+        component: eval(dataBlock.block),
+        editable: editable,
+        props: {
+          data: block.getData(),
+          getEditorState: this.getEditorState,
+          setEditorState: this.onChange,
+          addLock: this.addLock,
+          toggleEditable: this.toggleEditable,
+          disableEditable: this.disableEditable,
+          enableEditable: this.enableEditable,
+          removeLock: this.removeLock,
+          getLocks: this.getLocks,
+          config: dataBlock.options
+        }
+      };
+
+      return null;
+    }
+  }, {
+    key: 'blockStyleFn',
+    value: function blockStyleFn(block) {
+      var currentBlock = (0, _index.getCurrentBlock)(this.state.editorState);
+      var is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : "";
+
+      if (this.renderableBlocks().includes(block.getType())) {
+        return this.styleForBlock(block, currentBlock, is_selected);
+      }
+
+      var defaultBlockClass = this.defaultWrappers(block.getType());
+      if (defaultBlockClass.length > 0) {
+        return 'graf ' + defaultBlockClass[0] + ' ' + is_selected;
+      } else {
+        return 'graf nana ' + is_selected;
+      }
+    }
+  }, {
+    key: 'getDataBlock',
+    value: function getDataBlock(block) {
+      return this.widgets.find(function (o) {
+        return o.type === block.getType();
+      });
+    }
+  }, {
+    key: 'styleForBlock',
+    value: function styleForBlock(block, currentBlock, is_selected) {
+      var dataBlock = this.getDataBlock(block);
+
+      if (!dataBlock) {
+        return null;
+      }
+
+      var selectedFn = dataBlock.selectedFn ? dataBlock.selectedFn(block) : null;
+      var selected_class = is_selected ? dataBlock.selected_class : '';
+
+      return dataBlock.wrapper_class + ' ' + selected_class + ' ' + selectedFn;
+    }
+  }, {
+    key: 'handleTooltipDisplayOn',
+    value: function handleTooltipDisplayOn(prop, display) {
+      var _this4 = this;
+
+      if (display == null) {
+        display = true;
+      }
+
+      return setTimeout(function () {
+        var items = _this4.tooltipsWithProp(prop);
+        console.log(items);
+        return items.map(function (o) {
+          _this4.refs[o.ref].display(display);
+          return _this4.refs[o.ref].relocate();
+        });
+      }, 20);
+    }
+  }, {
+    key: 'handlePasteText',
+    value: function handlePasteText(text, html) {
+
+      // https://github.com/facebook/draft-js/issues/685
+      /*
+      html = "<p>chao</p>
+      <avv>aaa</avv>
+      <p>oli</p>
+      <img src='x'/>"
+      */
+
+      // if not html then fallback to default handler
+
+      if (!html) {
+        return this.handleTXTPaste(text, html);
+      }
+      if (html) {
+        return this.handleHTMLPaste(text, html);
+      }
+    }
+  }, {
+    key: 'handleTXTPaste',
+    value: function handleTXTPaste(text, html) {
+      var currentBlock = (0, _index.getCurrentBlock)(this.state.editorState);
+
+      var editorState = this.state.editorState;
+
+
+      switch (currentBlock.getType()) {
+        case "image":case "video":case "placeholder":
+          var newContent = _draftJs.Modifier.replaceText(editorState.getCurrentContent(), new _draftJs.SelectionState({
+            anchorKey: currentBlock.getKey(),
+            anchorOffset: 0,
+            focusKey: currentBlock.getKey(),
+            focusOffset: 2
+          }), text);
+
+          editorState = _draftJs.EditorState.push(editorState, newContent, 'replace-text');
+
+          this.onChange(editorState);
+
+          return true;
+        default:
+          return false;
+      }
+    }
+  }, {
+    key: 'handleHTMLPaste',
+    value: function handleHTMLPaste(text, html) {
+
+      var currentBlock = (0, _index.getCurrentBlock)(this.state.editorState);
+
+      // TODO: make this configurable
+      switch (currentBlock.getType()) {
+        case "image":case "video":case "placeholder":
+          return this.handleTXTPaste(text, html);
+          break;
+      }
+
+      var newContentState = (0, _html2content2['default'])(html, this.extendedBlockRenderMap);
+
+      var selection = this.state.editorState.getSelection();
+      var endKey = selection.getEndKey();
+
+      var content = this.state.editorState.getCurrentContent();
+      var blocksBefore = content.blockMap.toSeq().takeUntil(function (v) {
+        return v.key === endKey;
+      });
+      var blocksAfter = content.blockMap.toSeq().skipUntil(function (v) {
+        return v.key === endKey;
+      }).rest();
+
+      var newBlockKey = newContentState.blockMap.first().getKey();
+
+      var newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap();
+
+      var newContent = content.merge({
+        blockMap: newBlockMap,
+        selectionBefore: selection,
+        selectionAfter: selection.merge({
+          anchorKey: newBlockKey,
+          anchorOffset: 0,
+          focusKey: newBlockKey,
+          focusOffset: 0,
+          isBackward: false
+        })
+      });
+
+      var pushedContentState = _draftJs.EditorState.push(this.state.editorState, newContent, 'insert-fragment');
+
+      this.onChange(pushedContentState);
+
+      return true;
+    }
+  }, {
+    key: 'handlePasteImage',
+    value: function handlePasteImage(files) {
+      var _this5 = this;
+
+      //TODO: check file types
+      return files.map(function (file) {
+        var opts = {
+          url: URL.createObjectURL(file),
+          file: file
+        };
+
+        return _this5.onChange((0, _index.addNewBlock)(_this5.state.editorState, 'image', opts));
+      });
+    }
+  }, {
+    key: 'handleDroppedFiles',
+    value: function handleDroppedFiles(state, files) {
+      var _this6 = this;
+
+      return files.map(function (file) {
+        var opts = {
+          url: URL.createObjectURL(file),
+          file: file
+        };
+
+        return _this6.onChange((0, _index.addNewBlock)(_this6.state.editorState, 'image', opts));
+      });
+    }
+  }, {
+    key: 'handleUpArrow',
+    value: function handleUpArrow(e) {
+      var _this7 = this;
+
+      return setTimeout(function () {
+        return _this7.forceRender(_this7.state.editorState);
+      }, 10);
+    }
+  }, {
+    key: 'handleDownArrow',
+    value: function handleDownArrow(e) {
+      var _this8 = this;
+
+      return setTimeout(function () {
+        return _this8.forceRender(_this8.state.editorState);
+      }, 10);
+    }
+  }, {
+    key: 'handleReturn',
+    value: function handleReturn(e) {
+      if (this.props.handleReturn) {
+        if (this.props.handleReturn()) {
+          return true;
+        }
+      }
+
+      var editorState = this.state.editorState;
+
+
+      if (!e.altKey && !e.metaKey && !e.ctrlKey) {
+        var currentBlock = (0, _index.getCurrentBlock)(editorState);
+        var blockType = currentBlock.getType();
+        var selection = editorState.getSelection();
+
+        var config_block = this.getDataBlock(currentBlock);
+
+        if (currentBlock.getText().length === 0) {
+
+          if (config_block && config_block.handleEnterWithoutText) {
+            config_block.handleEnterWithText(this, currentBlock);
+            this.closePopOvers();
+            return true;
+          }
+
+          //TODO turn this in configurable
+          switch (blockType) {
+            case "header-one":
+              this.onChange((0, _index.resetBlockWithType)(editorState, "unstyled"));
+              return true;
+              break;
+            default:
+              return false;
+          }
+        }
+
+        if (currentBlock.getText().length > 0) {
+
+          /*
+          if (blockType === "unstyled") {
+            // hack hackety hack
+            // https://github.com/facebook/draft-js/issues/304
+            const newContent = Modifier.splitBlock(
+              this.state.editorState.getCurrentContent(), 
+              this.state.editorState.getSelection())
+             const newEditorState = EditorState.push(this.state.editorState, 
+                                                    newContent, 'insert-characters')
+            this.onChange(newEditorState)
+             setTimeout(() => {
+              //TODO: check is element is in viewport
+              const a = document.getElementsByClassName("is-selected")
+              const pos = a[0].getBoundingClientRect()
+              return window.scrollTo(0, pos.top + window.scrollY - 100)
+            }, 0)
+             return true
+          }*/
+
+          if (config_block && config_block.handleEnterWithText) {
+            config_block.handleEnterWithText(this, currentBlock);
+            this.closePopOvers();
+            return true;
+          }
+
+          if (currentBlock.getLength() === selection.getStartOffset()) {
+            if (this.continuousBlocks.indexOf(blockType) < 0) {
+              this.onChange((0, _index.addNewBlockAt)(editorState, currentBlock.getKey()));
+              return true;
+            }
+          }
+
+          return false;
+        }
+
+        // selection.isCollapsed() and # should we check collapsed here?
+        if (currentBlock.getLength() === selection.getStartOffset()) {
+          //or (config_block && config_block.breakOnContinuous))
+          // it will match the unstyled for custom blocks
+          if (this.continuousBlocks.indexOf(blockType) < 0) {
+            this.onChange((0, _index.addNewBlockAt)(editorState, currentBlock.getKey()));
+            return true;
+          }
+          return false;
+        }
+
+        return false;
+      }
+    }
+
+    //return false
+
+    // TODO: make this configurable
+
+  }, {
+    key: 'handleBeforeInput',
+    value: function handleBeforeInput(chars) {
+      var currentBlock = (0, _index.getCurrentBlock)(this.state.editorState);
+      var blockType = currentBlock.getType();
+      var selection = this.state.editorState.getSelection();
+
+      var editorState = this.state.editorState;
+
+      // close popovers
+
+      if (currentBlock.getText().length !== 0) {
+        //@closeInlineButton()
+        this.closePopOvers();
+      }
+
+      // handle space on link
+      var endOffset = selection.getEndOffset();
+      var endKey = currentBlock.getEntityAt(endOffset - 1);
+      var endEntityType = endKey && _draftJs.Entity.get(endKey).getType();
+      var afterEndKey = currentBlock.getEntityAt(endOffset);
+      var afterEndEntityType = afterEndKey && _draftJs.Entity.get(afterEndKey).getType();
+
+      // will insert blank space when link found
+      if (chars === ' ' && endEntityType === 'LINK' && afterEndEntityType !== 'LINK') {
+        var newContentState = _draftJs.Modifier.insertText(editorState.getCurrentContent(), selection, ' ');
+        var newEditorState = _draftJs.EditorState.push(editorState, newContentState, 'insert-characters');
+        this.onChange(newEditorState);
+        return true;
+      }
+
+      // block transform
+      if (blockType.indexOf('atomic') === 0) {
+        return false;
+      }
+
+      var blockLength = currentBlock.getLength();
+      if (selection.getAnchorOffset() > 1 || blockLength > 1) {
+        return false;
+      }
+
+      var blockTo = this.character_convert_mapping[currentBlock.getText() + chars];
+
+      console.log('BLOCK TO SHOW: ' + blockTo);
+
+      if (!blockTo) {
+        return false;
+      }
+
+      this.onChange((0, _index.resetBlockWithType)(editorState, blockTo));
+
+      return true;
+    }
+
+    // TODO: make this configurable
+
+  }, {
+    key: 'handleKeyCommand',
+    value: function handleKeyCommand(command) {
+      var editorState = this.state.editorState;
+
+      var currentBlockType = void 0,
+          newBlockType = void 0;
+
+      if (this.props.handleKeyCommand && this.props.handleKeyCommand(command)) {
+        return true;
+      }
+
+      if (command === 'add-new-block') {
+        this.onChange((0, _index.addNewBlock)(editorState, 'blockquote'));
+        return true;
+      }
+
+      var block = (0, _index.getCurrentBlock)(editorState);
+
+      if (command.indexOf('toggle_inline:') === 0) {
+        newBlockType = command.split(':')[1];
+        currentBlockType = block.getType();
+        this.onChange(_draftJs.RichUtils.toggleInlineStyle(editorState, newBlockType));
+        return true;
+      }
+
+      if (command.indexOf('toggle_block:') === 0) {
+        newBlockType = command.split(':')[1];
+        currentBlockType = block.getType();
+
+        this.onChange(_draftJs.RichUtils.toggleBlockType(editorState, newBlockType));
+        return true;
+      }
+
+      var newState = _draftJs.RichUtils.handleKeyCommand(this.state.editorState, command);
+      if (newState) {
+        this.onChange(newState);
+        return true;
+      }
+
+      return false;
+    }
+  }, {
+    key: 'findCommandKey',
+    value: function findCommandKey(opt, command) {
+      // console.log "COMMAND find: #{opt} #{command}"
+      return this.key_commands[opt].find(function (o) {
+        return o.key === command;
+      });
+    }
+  }, {
+    key: 'KeyBindingFn',
+    value: function KeyBindingFn(e) {
+
+      //⌘ + B / Ctrl + B   Bold
+      //⌘ + I / Ctrl + I   Italic
+      //⌘ + K / Ctrl + K   Turn into link
+      //⌘ + Alt + 1 / Ctrl + Alt + 1   Header
+      //⌘ + Alt + 2 / Ctrl + Alt + 2   Sub-Header
+      //⌘ + Alt + 5 / Ctrl + Alt + 5   Quote (Press once for a block quote, again for a pull quote and a third time to turn off quote)
+
+      var cmd = void 0;
+      if (e.altKey) {
+        if (e.shiftKey) {
+          cmd = this.findCommandKey("alt-shift", e.which);
+          if (cmd) {
+            return cmd.cmd;
+          }
+
+          return (0, _draftJs.getDefaultKeyBinding)(e);
+        }
+
+        if (e.ctrlKey || e.metaKey) {
+          cmd = this.findCommandKey("alt-cmd", e.which);
+          if (cmd) {
+            return cmd.cmd;
+          }
+          return (0, _draftJs.getDefaultKeyBinding)(e);
+        }
+      } else if (e.ctrlKey || e.metaKey) {
+        cmd = this.findCommandKey("cmd", e.which);
+        if (cmd) {
+          return cmd.cmd;
+        }
+        return (0, _draftJs.getDefaultKeyBinding)(e);
+      }
+
+      return (0, _draftJs.getDefaultKeyBinding)(e);
+    }
+
+    // will update block state todo: movo to utils
+
+  }, {
+    key: 'updateBlockData',
+    value: function updateBlockData(block, options) {
+      var data = block.getData();
+      var newData = data.merge(options);
+      var newState = (0, _index.updateDataOfBlock)(this.state.editorState, block, newData);
+      // this fixes enter from image caption
+      return this.forceRender(newState);
+    }
+  }, {
+    key: 'setDirection',
+    value: function setDirection(direction_type) {
+      var contentState = this.state.editorState.getCurrentContent();
+      var selectionState = this.state.editorState.getSelection();
+      var block = contentState.getBlockForKey(selectionState.anchorKey);
+
+      return this.updateBlockData(block, { direction: direction_type });
+    }
+
+    //# read only utils
+
+  }, {
+    key: 'toggleEditable',
+    value: function toggleEditable() {
+      this.closePopOvers();
+      return this.setState({ read_only: !this.state.read_only }, this.testEmitAndDecode);
+    }
+  }, {
+    key: 'disableEditable',
+    value: function disableEditable() {
+      console.log("in !!");
+      this.closePopOvers();
+      return this.setState({ read_only: true }, this.testEmitAndDecode);
+    }
+  }, {
+    key: 'enableEditable',
+    value: function enableEditable() {
+      this.closePopOvers();
+      console.log("out !!");
+
+      return this.setState({ read_only: false }, this.testEmitAndDecode);
+    }
+  }, {
+    key: 'closePopOvers',
+    value: function closePopOvers() {
+      var _this9 = this;
+
+      return this.tooltips.map(function (o) {
+        return _this9.refs[o.ref].hide();
+      });
+    }
+  }, {
+    key: 'relocateTooltips',
+    value: function relocateTooltips() {
+      var _this10 = this;
+
+      if (this.state.read_only) return;
+
+      return this.tooltips.map(function (o) {
+        return _this10.refs[o.ref].relocate();
+      });
+    }
+  }, {
+    key: 'tooltipsWithProp',
+    value: function tooltipsWithProp(prop) {
+      return this.tooltips.filter(function (o) {
+        return o[prop];
+      });
+    }
+  }, {
+    key: 'tooltipHasSelectionElement',
+    value: function tooltipHasSelectionElement(tooltip, element) {
+      return tooltip.selectionElements.includes(element);
+    }
+
+    //################################
+    // TODO: this methods belongs to popovers/link
+    //################################
+
+  }, {
+    key: 'handleShowPopLinkOver',
+    value: function handleShowPopLinkOver(e) {
+      return this.showPopLinkOver();
+    }
+  }, {
+    key: 'handleHidePopLinkOver',
+    value: function handleHidePopLinkOver(e) {
+      return this.hidePopLinkOver();
+    }
+  }, {
+    key: 'showPopLinkOver',
+    value: function showPopLinkOver(el) {
+      // handles popover display
+      // using anchor or from popover
+
+      var parent_el = _reactDom2['default'].findDOMNode(this);
+
+      // set url first in order to calculate popover width
+      var coords = void 0;
+      this.refs.anchor_popover.setState({ url: el ? el.href : this.refs.anchor_popover.state.url });
+
+      if (el) {
+        coords = this.refs.anchor_popover.relocate(el);
+      }
+
+      if (coords) {
+        this.refs.anchor_popover.setPosition(coords);
+      }
+
+      this.refs.anchor_popover.setState({ show: true });
+
+      this.isHover = true;
+      return this.cancelHide();
+    }
+  }, {
+    key: 'hidePopLinkOver',
+    value: function hidePopLinkOver() {
+      var _this11 = this;
+
+      return this.hideTimeout = setTimeout(function () {
+        return _this11.refs.anchor_popover.hide();
+      }, 300);
+    }
+  }, {
+    key: 'cancelHide',
+    value: function cancelHide() {
+      // console.log "Cancel Hide"
+      return clearTimeout(this.hideTimeout);
+    }
+
+    //##############################
+
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this12 = this;
+
+      return _react2['default'].createElement(
+        'div',
+        { id: 'content', suppressContentEditableWarning: true },
+        _react2['default'].createElement(
+          'article',
+          { className: 'postArticle' },
+          _react2['default'].createElement(
+            'div',
+            { className: 'postContent' },
+            _react2['default'].createElement(
+              'div',
+              { className: 'notesSource' },
+              _react2['default'].createElement(
+                'div',
+                { id: 'editor', className: 'postField postField--body' },
+                _react2['default'].createElement(
+                  'section',
+                  { className: 'section--first section--last' },
+                  _react2['default'].createElement(
+                    'div',
+                    { className: 'section-divider layoutSingleColumn' },
+                    _react2['default'].createElement('hr', { className: 'section-divider' })
+                  ),
+                  _react2['default'].createElement(
+                    'div',
+                    { className: 'section-content' },
+                    _react2['default'].createElement(
+                      'div',
+                      { ref: 'richEditor',
+                        className: 'section-inner layoutSingleColumn',
+                        onClick: this.focus },
+                      _react2['default'].createElement(_draftJs.Editor, {
+                        blockRendererFn: this.blockRenderer,
+                        editorState: this.state.editorState,
+                        onChange: this.onChange,
+                        onUpArrow: this.handleUpArrow,
+                        onDownArrow: this.handleDownArrow,
+                        handleReturn: this.handleReturn,
+                        blockRenderMap: this.state.blockRenderMap,
+                        blockStyleFn: this.blockStyleFn,
+                        handlePastedText: this.handlePasteText,
+                        handlePastedFiles: this.handlePasteImage,
+                        handleDroppedFiles: this.handleDroppedFiles,
+                        handleKeyCommand: this.handleKeyCommand,
+                        keyBindingFn: this.KeyBindingFn,
+                        handleBeforeInput: this.handleBeforeInput,
+                        readOnly: this.state.read_only,
+                        placeholder: this.props.config.body_placeholder,
+                        ref: 'editor'
+                      })
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        this.tooltips.map(function (o, i) {
+          return _react2['default'].createElement(o.component, {
+            ref: o.ref,
+            key: i,
+            editor: _this12,
+            editorState: _this12.state.editorState,
+            onChange: _this12.onChange,
+            configTooltip: o,
+            widget_options: o.widget_options,
+            showPopLinkOver: _this12.showPopLinkOver,
+            hidePopLinkOver: _this12.hidePopLinkOver,
+            handleOnMouseOver: _this12.handleShowPopLinkOver,
+            handleOnMouseOut: _this12.handleHidePopLinkOver
+          });
+        }),
+        this.state.debug ? _react2['default'].createElement(_debug2['default'], { locks: this.state.locks, editor: this }) : undefined
+      );
+    }
+  }]);
+  return DanteEditor;
+}(_react2['default'].Component);
+
+module.exports = DanteEditor;
 
 /***/ }),
 
-/***/ 190:
+/***/ 170:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.eot";
 
 /***/ }),
 
-/***/ 191:
+/***/ 171:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.eot";
 
 /***/ }),
 
-/***/ 222:
+/***/ 212:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _dante = __webpack_require__(246);
+var _init = __webpack_require__(246);
 
-var _dante2 = _interopRequireDefault(_dante);
+//import Dante from './components/core/dante'
+//import DanteEditor from './components/core/editor'
 
-var _dante_editor = __webpack_require__(144);
 
-var _dante_editor2 = _interopRequireDefault(_dante_editor);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+window.Dante = _init.Dante;
+window.DanteEditor = _init.DanteEditor;
 
 module.exports = {
-  Dante: _dante2['default'],
-  DanteEditor: _dante_editor2['default']
+  Dante: _init.Dante,
+  DanteEditor: _init.DanteEditor
 };
 
 /***/ }),
 
-/***/ 226:
+/***/ 216:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
 
-/***/ 245:
+/***/ 235:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(226);
+__webpack_require__(216);
 
-var _index = __webpack_require__(222);
-
-/***/ }),
-
-/***/ 246:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-module.exports = global["Dante"] = __webpack_require__(260);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35)))
+var _index = __webpack_require__(212);
 
 /***/ }),
 
-/***/ 247:
+/***/ 236:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -88,41 +1146,358 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _axios = __webpack_require__(62);
+//import { Entity, RichUtils, AtomicBlockUtils, EditorBlock } from 'draft-js'
+
+var ButtonBlock = function (_React$Component) {
+  (0, _inherits3['default'])(ButtonBlock, _React$Component);
+
+  function ButtonBlock(props) {
+    (0, _classCallCheck3['default'])(this, ButtonBlock);
+
+    var _this = (0, _possibleConstructorReturn3['default'])(this, (ButtonBlock.__proto__ || (0, _getPrototypeOf2['default'])(ButtonBlock)).call(this, props));
+
+    _this.state = {
+      enabled: false,
+      data: _this.props.blockProps.data.toJS()
+    };
+    return _this;
+  }
+
+  (0, _createClass3['default'])(ButtonBlock, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {}
+  }, {
+    key: 'defaultStyle',
+    value: function defaultStyle() {
+      return {
+        color: "#fff",
+        backgroundColor: "#000",
+        padding: "5px",
+        display: "block"
+      };
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement(
+        'a',
+        { href: '#', style: this.defaultStyle() },
+        'Click me'
+      );
+    }
+  }]);
+  return ButtonBlock;
+}(_react2['default'].Component);
+
+exports['default'] = ButtonBlock;
+
+/***/ }),
+
+/***/ 237:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getPrototypeOf = __webpack_require__(9);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(11);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(10);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _draftJs = __webpack_require__(12);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var MyEditor = function (_React$Component) {
+  (0, _inherits3['default'])(MyEditor, _React$Component);
+
+  function MyEditor(props) {
+    (0, _classCallCheck3['default'])(this, MyEditor);
+
+    var _this = (0, _possibleConstructorReturn3['default'])(this, (MyEditor.__proto__ || (0, _getPrototypeOf2['default'])(MyEditor)).call(this, props));
+
+    _this.state = { editorState: _draftJs.EditorState.createEmpty() };
+    _this.onChange = function (editorState) {
+      return _this.setState({ editorState: editorState });
+    };
+    _this.handleReturn = _this.handleReturn.bind(_this);
+    return _this;
+  }
+
+  // TODO: set content as state on the parent
+
+
+  (0, _createClass3['default'])(MyEditor, [{
+    key: 'handleReturn',
+    value: function handleReturn(e) {
+      return true;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement(
+        'figcaption',
+        { className: 'imageCaption' },
+        _react2['default'].createElement(_draftJs.EditorBlock, {
+          editorState: this.state.editorState,
+          placeholder: this.props.placeholder || "nata nata",
+          onChange: this.onChange,
+          readOnly: true,
+          handleReturn: this.handleReturn })
+      );
+    }
+  }]);
+  return MyEditor;
+}(_react2['default'].Component);
+
+/*
+<Editor 
+editorState={this.state.editorState} 
+placeholder={this.props.placeholder || "nata nata"}
+onChange={this.onChange}
+readOnly={true}
+handleReturn={this.handleReturn} />
+*/
+
+//import { Entity, RichUtils, AtomicBlockUtils, EditorBlock } from 'draft-js'
+
+var CardBlock = function (_React$Component2) {
+  (0, _inherits3['default'])(CardBlock, _React$Component2);
+
+  function CardBlock(props) {
+    (0, _classCallCheck3['default'])(this, CardBlock);
+
+    var _this2 = (0, _possibleConstructorReturn3['default'])(this, (CardBlock.__proto__ || (0, _getPrototypeOf2['default'])(CardBlock)).call(this, props));
+
+    _this2.state = {
+      enabled: false,
+      data: _this2.props.blockProps.data.toJS()
+    };
+    return _this2;
+  }
+
+  (0, _createClass3['default'])(CardBlock, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {}
+    //this.props.blockProps.toggleEditable()
+
+
+    // onMouseOver={this.props.blockProps.disableEditable}
+    // onMouseOut={this.props.blockProps.enableEditable}
+
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement(
+        'span',
+        null,
+        _react2['default'].createElement(
+          'span',
+          { className: 'signature' },
+          _react2['default'].createElement('img', { src: 'http://via.placeholder.com/100x100' }),
+          _react2['default'].createElement(
+            'div',
+            { className: 'text' },
+            _react2['default'].createElement('input', { type: 'text',
+              placeholder: 'Caption',
+              'class': 'block__input'
+            }),
+            _react2['default'].createElement('input', { type: 'text',
+              placeholder: 'Caption',
+              'class': 'block__input'
+            }),
+            _react2['default'].createElement('input', { type: 'text',
+              placeholder: 'Caption',
+              'class': 'block__input'
+            })
+          )
+        ),
+        _react2['default'].createElement('span', { className: 'dante-clearfix' })
+      );
+    }
+  }]);
+  return CardBlock;
+}(_react2['default'].Component);
+
+exports['default'] = CardBlock;
+
+/***/ }),
+
+/***/ 238:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getPrototypeOf = __webpack_require__(9);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(11);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(10);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+//import { Entity, RichUtils, AtomicBlockUtils, EditorBlock } from 'draft-js'
+
+var DividerBlock = function (_React$Component) {
+  (0, _inherits3['default'])(DividerBlock, _React$Component);
+
+  function DividerBlock(props) {
+    (0, _classCallCheck3['default'])(this, DividerBlock);
+
+    var _this = (0, _possibleConstructorReturn3['default'])(this, (DividerBlock.__proto__ || (0, _getPrototypeOf2['default'])(DividerBlock)).call(this, props));
+
+    _this.state = {
+      enabled: false,
+      data: _this.props.blockProps.data.toJS()
+    };
+    return _this;
+  }
+
+  (0, _createClass3['default'])(DividerBlock, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {}
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement('hr', null);
+    }
+  }]);
+  return DividerBlock;
+}(_react2['default'].Component);
+
+exports['default'] = DividerBlock;
+
+/***/ }),
+
+/***/ 239:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getPrototypeOf = __webpack_require__(9);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(11);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(10);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _draftJs = __webpack_require__(12);
+
+var _axios = __webpack_require__(55);
 
 var _axios2 = _interopRequireDefault(_axios);
 
-var _index = __webpack_require__(27);
+var _index = __webpack_require__(26);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -276,7 +1651,7 @@ exports['default'] = EmbedBlock;
 
 /***/ }),
 
-/***/ 248:
+/***/ 240:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -286,45 +1661,45 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _assign = __webpack_require__(86);
+var _assign = __webpack_require__(81);
 
 var _assign2 = _interopRequireDefault(_assign);
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
-var _axios = __webpack_require__(62);
+var _axios = __webpack_require__(55);
 
 var _axios2 = _interopRequireDefault(_axios);
 
-var _index = __webpack_require__(27);
+var _index = __webpack_require__(26);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -773,7 +2148,7 @@ var Loader = function (_React$Component2) {
 
 /***/ }),
 
-/***/ 249:
+/***/ 241:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -783,39 +2158,39 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _assign = __webpack_require__(86);
+var _assign = __webpack_require__(81);
 
 var _assign2 = _interopRequireDefault(_assign);
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -904,7 +2279,7 @@ exports['default'] = PlaceholderBlock;
 
 /***/ }),
 
-/***/ 250:
+/***/ 242:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -914,43 +2289,43 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _assign = __webpack_require__(86);
+var _assign = __webpack_require__(81);
 
 var _assign2 = _interopRequireDefault(_assign);
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
-var _index = __webpack_require__(27);
+var _index = __webpack_require__(26);
 
-var _axios = __webpack_require__(62);
+var _axios = __webpack_require__(55);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -1055,7 +2430,386 @@ exports['default'] = VideoBlock;
 
 /***/ }),
 
-/***/ 251:
+/***/ 243:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _immutable = __webpack_require__(2);
+
+var _editor = __webpack_require__(127);
+
+var _editor2 = _interopRequireDefault(_editor);
+
+var _image = __webpack_require__(249);
+
+var _image2 = _interopRequireDefault(_image);
+
+var _link = __webpack_require__(250);
+
+var _link2 = _interopRequireDefault(_link);
+
+var _addButton = __webpack_require__(247);
+
+var _addButton2 = _interopRequireDefault(_addButton);
+
+var _toolTip = __webpack_require__(252);
+
+var _toolTip2 = _interopRequireDefault(_toolTip);
+
+var _image3 = __webpack_require__(240);
+
+var _image4 = _interopRequireDefault(_image3);
+
+var _embed = __webpack_require__(239);
+
+var _embed2 = _interopRequireDefault(_embed);
+
+var _video = __webpack_require__(242);
+
+var _video2 = _interopRequireDefault(_video);
+
+var _placeholder = __webpack_require__(241);
+
+var _placeholder2 = _interopRequireDefault(_placeholder);
+
+var _divider = __webpack_require__(238);
+
+var _divider2 = _interopRequireDefault(_divider);
+
+var _button = __webpack_require__(236);
+
+var _button2 = _interopRequireDefault(_button);
+
+var _card = __webpack_require__(237);
+
+var _card2 = _interopRequireDefault(_card);
+
+var _index = __webpack_require__(26);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var Dante = function () {
+  function Dante(options) {
+    (0, _classCallCheck3['default'])(this, Dante);
+
+    if (options == null) {
+      options = {};
+    }
+    console.log("init editor Dante!");
+
+    // deep merge on config
+    var config = (0, _immutable.Map)((0, _immutable.fromJS)(this.defaultOptions(options)));
+
+    this.options = config.mergeDeep(options).toJS();
+    console.log(this.options);
+  }
+
+  (0, _createClass3['default'])(Dante, [{
+    key: 'defaultOptions',
+    value: function defaultOptions(options) {
+      // default options
+      if (options == null) {
+        options = {};
+      }
+      var defaultOptions = {};
+      defaultOptions.el = 'app';
+      defaultOptions.content = "";
+      defaultOptions.read_only = false;
+      defaultOptions.spellcheck = false;
+      defaultOptions.title_placeholder = "Title";
+      defaultOptions.body_placeholder = "Write your story";
+
+      defaultOptions.widgets = [{
+        icon: 'card',
+        type: 'card',
+        title: "Signature",
+        breakOnContinuous: true,
+        editable: false,
+        renderable: true,
+        block: _card2['default'],
+        widget_options: {
+          displayOnInlineTooltip: true,
+          insertion: "insertion",
+          insert_block: "card"
+        },
+        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        },
+        handleEnterWithText: function handleEnterWithText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        }
+      }, {
+        icon: 'divider',
+        type: 'divider',
+        title: "Divider",
+        editable: true,
+        renderable: true,
+        block: _divider2['default'],
+        widget_options: {
+          displayOnInlineTooltip: true,
+          insertion: "insertion",
+          insert_block: "divider"
+        }
+      }, {
+        icon: 'button',
+        type: 'button',
+        title: "Button",
+        breakOnContinuous: true,
+        editable: true,
+        renderable: true,
+        block: _button2['default'],
+        widget_options: {
+          displayOnInlineTooltip: true,
+          insertion: "insertion",
+          insert_block: "button"
+        },
+        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        },
+        handleEnterWithText: function handleEnterWithText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        }
+      }, {
+        title: 'add an image',
+        icon: 'image',
+        type: 'image',
+        block: _image4['default'],
+        editable: true,
+        renderable: true,
+        breakOnContinuous: true,
+        wrapper_class: "graf graf--figure",
+        selected_class: "is-selected is-mediaFocused",
+        selectedFn: function selectedFn(block) {
+          var _block$getData$toJS = block.getData().toJS(),
+              direction = _block$getData$toJS.direction;
+
+          switch (direction) {
+            case "left":
+              return "graf--layoutOutsetLeft";
+            case "center":
+              return "";
+            case "wide":
+              return "sectionLayout--fullWidth";
+            case "fill":
+              return "graf--layoutFillWidth";
+          }
+        },
+        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        },
+        handleEnterWithText: function handleEnterWithText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        },
+
+        widget_options: {
+          displayOnInlineTooltip: true,
+          insertion: "upload",
+          insert_block: "image"
+        },
+        options: {
+          upload_url: options.upload_url,
+          upload_headers: options.upload_headers,
+          upload_formName: options.upload_formName,
+          upload_handler: options.image_upload_handler,
+          upload_callback: options.image_upload_callback,
+          image_delete_callback: options.image_delete_callback,
+          image_caption_placeholder: options.image_caption_placeholder || "Write caption for image (optional)"
+        }
+      }, {
+        icon: 'embed',
+        title: 'insert embed',
+        type: 'embed',
+        block: _embed2['default'],
+        editable: true,
+        renderable: true,
+        breakOnContinuous: true,
+        wrapper_class: "graf graf--mixtapeEmbed",
+        selected_class: "is-selected is-mediaFocused",
+        widget_options: {
+          displayOnInlineTooltip: true,
+          insertion: "placeholder",
+          insert_block: "embed"
+        },
+        options: {
+          endpoint: '//api.embed.ly/1/extract?key=' + options.api_key + '&url=',
+          placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+        },
+        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        },
+        handleEnterWithText: function handleEnterWithText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        }
+      }, {
+        icon: 'video',
+        title: 'insert video',
+        editable: true,
+        type: 'video',
+        block: _video2['default'],
+        renderable: true,
+        breakOnContinuous: true,
+        wrapper_class: "graf--figure graf--iframe",
+        selected_class: " is-selected is-mediaFocused",
+        widget_options: {
+          displayOnInlineTooltip: true,
+          insertion: "placeholder",
+          insert_block: "video"
+        },
+        options: {
+          endpoint: '//api.embed.ly/1/oembed?key=' + options.api_key + '&url=',
+          placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
+          caption: 'Type caption for embed (optional)'
+        },
+
+        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        },
+        handleEnterWithText: function handleEnterWithText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          return ctx.onChange((0, _index.addNewBlockAt)(editorState, block.getKey()));
+        }
+      }, {
+        renderable: true,
+        editable: true,
+        block: _placeholder2['default'],
+        type: 'placeholder',
+        wrapper_class: "is-embedable",
+        selected_class: " is-selected is-mediaFocused",
+        widget_options: {
+          displayOnInlineTooltip: false
+        },
+        handleEnterWithText: function handleEnterWithText(ctx, block) {
+          var editorState = ctx.state.editorState;
+
+          var data = {
+            provisory_text: block.getText(),
+            endpoint: block.getData().get('endpoint'),
+            type: block.getData().get('type')
+          };
+
+          return ctx.onChange((0, _index.resetBlockWithType)(editorState, data.type, data));
+        }
+      }];
+
+      defaultOptions.tooltips = [{
+        ref: 'insert_tooltip',
+        component: _toolTip2['default'],
+        displayOnSelection: true,
+        selectionElements: ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block", 'header-one', 'header-two', 'header-three', 'header-four'],
+        widget_options: {
+          placeholder: "Paste or type a link",
+          block_types: [
+          // {label: 'p', style: 'unstyled'},
+          { label: 'h2', style: 'header-one', type: "block" }, { label: 'h3', style: 'header-two', type: "block" }, { label: 'h4', style: 'header-three', type: "block" }, { label: 'blockquote', style: 'blockquote', type: "block" }, { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block" }, { label: 'insertorderedlist', style: 'ordered-list-item', type: "block" }, { label: 'code', style: 'code-block', type: "block" }, { label: 'bold', style: 'BOLD', type: "inline" }, { label: 'italic', style: 'ITALIC', type: "inline" }]
+        }
+      }, {
+        ref: 'add_tooltip',
+        component: _addButton2['default']
+      }, {
+        ref: 'anchor_popover',
+        component: _link2['default']
+      }, {
+        ref: 'image_popover',
+        component: _image2['default']
+      }];
+
+      defaultOptions.xhr = {
+        before_handler: null,
+        success_handler: null,
+        error_handler: null
+      };
+
+      defaultOptions.data_storage = {
+        url: null,
+        method: "POST",
+        success_handler: null,
+        failure_handler: null,
+        interval: 1500,
+        withCredentials: false,
+        crossDomain: false,
+        headers: {}
+      };
+
+      defaultOptions.default_wrappers = [{ className: 'graf--p', block: 'unstyled' }, { className: 'graf--h2', block: 'header-one' }, { className: 'graf--h3', block: 'header-two' }, { className: 'graf--h4', block: 'header-three' }, { className: 'graf--blockquote', block: 'blockquote' }, { className: 'graf--insertunorderedlist', block: 'unordered-list-item' }, { className: 'graf--insertorderedlist', block: 'ordered-list-item' }, { className: 'graf--code', block: 'code-block' }, { className: 'graf--bold', block: 'BOLD' }, { className: 'graf--italic', block: 'ITALIC' }];
+
+      defaultOptions.continuousBlocks = ["unstyled", "blockquote", "ordered-list", "unordered-list", "unordered-list-item", "ordered-list-item", "code-block"];
+
+      defaultOptions.key_commands = {
+        "alt-shift": [{ key: 65, cmd: 'add-new-block' }],
+        "alt-cmd": [{ key: 49, cmd: 'toggle_block:header-one' }, { key: 50, cmd: 'toggle_block:header-two' }, { key: 53, cmd: 'toggle_block:blockquote' }],
+        "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' }, { key: 73, cmd: 'toggle_inline:ITALIC' }, { key: 75, cmd: 'insert:link' }]
+      };
+
+      defaultOptions.character_convert_mapping = {
+        '> ': "blockquote",
+        '*.': "unordered-list-item",
+        '* ': "unordered-list-item",
+        '- ': "unordered-list-item",
+        '1.': "ordered-list-item",
+        '# ': 'header-one',
+        '##': 'header-two',
+        '==': "unstyled",
+        '` ': "code-block"
+      };
+
+      return defaultOptions;
+    }
+  }, {
+    key: 'getContent',
+    value: function getContent() {
+      return this.options.content;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return this.editor = _reactDom2['default'].render(_react2['default'].createElement(_editor2['default'], { content: this.getContent(), config: this.options }), document.getElementById(this.options.el));
+    }
+  }]);
+  return Dante;
+}();
+
+module.exports = Dante;
+
+/***/ }),
+
+/***/ 244:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1065,31 +2819,31 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _stringify = __webpack_require__(85);
+var _stringify = __webpack_require__(80);
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -1249,7 +3003,7 @@ exports["default"] = Debug;
 
 /***/ }),
 
-/***/ 252:
+/***/ 245:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1259,31 +3013,31 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -1343,7 +3097,8 @@ var Link = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      this.data = _draftJs.Entity.get(this.props.entityKey).getData();
+      this.data = this.props.contentState.getEntity(this.props.entityKey).getData();
+      //Entity.get(this.props.entityKey).getData()
 
       return _react2['default'].createElement(
         'a',
@@ -1365,7 +3120,30 @@ exports['default'] = Link;
 
 /***/ }),
 
-/***/ 253:
+/***/ 246:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _dante = __webpack_require__(243);
+
+var _dante2 = _interopRequireDefault(_dante);
+
+var _editor = __webpack_require__(127);
+
+var _editor2 = _interopRequireDefault(_editor);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+module.exports = {
+  Dante: _dante2['default'],
+  DanteEditor: _editor2['default']
+};
+
+/***/ }),
+
+/***/ 247:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1375,39 +3153,39 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
-var _index = __webpack_require__(27);
+var _index = __webpack_require__(26);
 
-var _selection = __webpack_require__(84);
+var _selection = __webpack_require__(79);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -1567,6 +3345,12 @@ var DanteInlineTooltip = function (_React$Component) {
       return this.insertImage(fileList[0]);
     }
   }, {
+    key: 'handleInsertion',
+    value: function handleInsertion(e) {
+      this.hide();
+      return this.props.onChange((0, _index.addNewBlock)(this.props.editorState, e.type, {}));
+    }
+  }, {
     key: 'widgets',
     value: function widgets() {
       return this.props.editor.widgets;
@@ -1583,6 +3367,8 @@ var DanteInlineTooltip = function (_React$Component) {
           return this.clickOnFileUpload(e, request_block);
         case "placeholder":
           return this.handlePlaceholder(request_block);
+        case "insertion":
+          return this.handleInsertion(request_block);
         default:
           return console.log('WRONG TYPE FOR ' + request_block.widget_options.insertion);
       }
@@ -1764,7 +3550,7 @@ exports['default'] = DanteInlineTooltip;
 
 /***/ }),
 
-/***/ 254:
+/***/ 248:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1774,39 +3560,140 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+var _reactColor = __webpack_require__(210);
 
-var _selection = __webpack_require__(84);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _index = __webpack_require__(27);
+var DanteTooltipColor = function (_React$Component) {
+  (0, _inherits3['default'])(DanteTooltipColor, _React$Component);
+
+  function DanteTooltipColor() {
+    var _ref;
+
+    (0, _classCallCheck3['default'])(this, DanteTooltipColor);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var _this = (0, _possibleConstructorReturn3['default'])(this, (_ref = DanteTooltipColor.__proto__ || (0, _getPrototypeOf2['default'])(DanteTooltipColor)).call.apply(_ref, [this].concat(args)));
+
+    _this.toggle = _this.toggle.bind(_this);
+    _this.state = {
+      open: false
+    };
+    return _this;
+  }
+
+  (0, _createClass3['default'])(DanteTooltipColor, [{
+    key: 'toggle',
+    value: function toggle(ev) {
+      var selection = this.props.editorState.getSelection();
+      // prevent unselection of selection
+      ev.preventDefault();
+      this.setState({ open: !this.state.open });
+    }
+  }, {
+    key: 'renderColor',
+    value: function renderColor() {
+      if (this.state.open) {
+        return _react2['default'].createElement(
+          'div',
+          { style: { position: 'absolute' } },
+          _react2['default'].createElement(_reactColor.SketchPicker, null)
+        );
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement(
+        'li',
+        { className: 'dante-menu-button',
+          onMouseDown: this.toggle },
+        'Color',
+        this.renderColor()
+      );
+    }
+  }]);
+  return DanteTooltipColor;
+}(_react2['default'].Component);
+
+exports['default'] = DanteTooltipColor;
+
+/***/ }),
+
+/***/ 249:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getPrototypeOf = __webpack_require__(9);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(11);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(10);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _draftJs = __webpack_require__(12);
+
+var _selection = __webpack_require__(79);
+
+var _index = __webpack_require__(26);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2027,7 +3914,7 @@ exports['default'] = DanteImagePopover;
 
 /***/ }),
 
-/***/ 255:
+/***/ 250:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2037,35 +3924,35 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _index = __webpack_require__(27);
+var _index = __webpack_require__(26);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2191,7 +4078,7 @@ exports['default'] = DanteAnchorPopover;
 
 /***/ }),
 
-/***/ 256:
+/***/ 251:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2201,39 +4088,245 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = __webpack_require__(18);
+var _getPrototypeOf = __webpack_require__(9);
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = __webpack_require__(20);
+var _possibleConstructorReturn2 = __webpack_require__(11);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = __webpack_require__(19);
+var _inherits2 = __webpack_require__(10);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _react = __webpack_require__(6);
+var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(8);
+var _reactDom = __webpack_require__(6);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _draftJs = __webpack_require__(9);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _selection = __webpack_require__(84);
+//import Select from 'react-select';
 
-var _index = __webpack_require__(27);
+// Be sure to include styles at some point, probably during your bootstrapping
+//import 'react-select/dist/react-select.css';
+
+var DanteTooltipList = function (_React$Component) {
+  (0, _inherits3['default'])(DanteTooltipList, _React$Component);
+
+  function DanteTooltipList() {
+    var _ref;
+
+    (0, _classCallCheck3['default'])(this, DanteTooltipList);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var _this = (0, _possibleConstructorReturn3['default'])(this, (_ref = DanteTooltipList.__proto__ || (0, _getPrototypeOf2['default'])(DanteTooltipList)).call.apply(_ref, [this].concat(args)));
+
+    _this.promptForLink = _this.promptForLink.bind(_this);
+    return _this;
+  }
+
+  (0, _createClass3['default'])(DanteTooltipList, [{
+    key: 'logChange',
+    value: function logChange(val) {
+      //console.log("Selected: " + JSON.stringify(val));
+    }
+  }, {
+    key: 'promptForLink',
+    value: function promptForLink(ev) {
+      var selection = this.props.editorState.getSelection();
+      if (!selection.isCollapsed()) {
+        //ev.preventDefault()
+        //return this.props.enableLinkMode(ev)
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement(
+        'li',
+        { className: 'dante-menu-button visible-overflow',
+          onMouseDown: this.promptForLink },
+        _react2['default'].createElement(DropDown, { items: this.props.items })
+      );
+    }
+  }]);
+  return DanteTooltipList;
+}(_react2['default'].Component);
+
+exports['default'] = DanteTooltipList;
+
+var DropDown = function (_React$Component2) {
+  (0, _inherits3['default'])(DropDown, _React$Component2);
+
+  function DropDown() {
+    var _ref2;
+
+    (0, _classCallCheck3['default'])(this, DropDown);
+
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    var _this2 = (0, _possibleConstructorReturn3['default'])(this, (_ref2 = DropDown.__proto__ || (0, _getPrototypeOf2['default'])(DropDown)).call.apply(_ref2, [this].concat(args)));
+
+    _this2.state = {
+      open: false
+    };
+    _this2.handleClick = _this2.handleClick.bind(_this2);
+    _this2.toggle = _this2.toggle.bind(_this2);
+    return _this2;
+  }
+
+  (0, _createClass3['default'])(DropDown, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {}
+  }, {
+    key: 'toggle',
+    value: function toggle(e) {
+      e.preventDefault();
+      this.setState({ open: !this.state.open });
+    }
+  }, {
+    key: 'handleClick',
+    value: function handleClick(e) {
+      e.preventDefault();
+      debugger;
+      this.setState({ open: this.state.open });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this3 = this;
+
+      //console.log(this.state.open)
+      return _react2['default'].createElement(
+        'div',
+        { className: 'dropdown ' + (this.state.open ? 'open' : '') },
+        _react2['default'].createElement(
+          'button',
+          { className: 'btn btn-default dropdown-toggle',
+            onMouseDown: this.toggle,
+            type: 'button', id: 'dropdownMenu1',
+            'data-toggle': 'dropdown',
+            'aria-haspopup': 'true',
+            'aria-expanded': 'true' },
+          '12',
+          _react2['default'].createElement('span', { className: 'caret' })
+        ),
+        _react2['default'].createElement(
+          'ul',
+          { className: 'dropdown-menu', 'aria-labelledby': 'dropdownMenu1' },
+          this.props.items.map(function (o) {
+            return _react2['default'].createElement(DropDownItem, { item: o,
+              handleClick: _this3.handleClick });
+          })
+        )
+      );
+    }
+  }]);
+  return DropDown;
+}(_react2['default'].Component);
+
+var DropDownItem = function (_React$Component3) {
+  (0, _inherits3['default'])(DropDownItem, _React$Component3);
+
+  function DropDownItem() {
+    (0, _classCallCheck3['default'])(this, DropDownItem);
+    return (0, _possibleConstructorReturn3['default'])(this, (DropDownItem.__proto__ || (0, _getPrototypeOf2['default'])(DropDownItem)).apply(this, arguments));
+  }
+
+  (0, _createClass3['default'])(DropDownItem, [{
+    key: 'render',
+    value: function render() {
+      return _react2['default'].createElement(
+        'li',
+        null,
+        _react2['default'].createElement(
+          'a',
+          { href: '#', onMouseDown: this.props.handleClick },
+          this.props.item
+        )
+      );
+    }
+  }]);
+  return DropDownItem;
+}(_react2['default'].Component);
+
+/***/ }),
+
+/***/ 252:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _from = __webpack_require__(256);
+
+var _from2 = _interopRequireDefault(_from);
+
+var _getPrototypeOf = __webpack_require__(9);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(7);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(8);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(11);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(10);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(6);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _reactColor = __webpack_require__(210);
+
+var _color = __webpack_require__(248);
+
+var _color2 = _interopRequireDefault(_color);
+
+var _select = __webpack_require__(251);
+
+var _select2 = _interopRequireDefault(_select);
+
+var _draftJs = __webpack_require__(12);
+
+var _selection = __webpack_require__(79);
+
+var _index = __webpack_require__(26);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2454,6 +4547,7 @@ var DanteTooltip = function (_React$Component) {
       };
 
       var entityKey = _draftJs.Entity.create('LINK', 'MUTABLE', opts);
+      //contentState.createEntity('LINK', 'MUTABLE', opts)
 
       if (selection.isCollapsed()) {
         console.log("COLLAPSED SKIPPING LINK");
@@ -2496,12 +4590,13 @@ var DanteTooltip = function (_React$Component) {
       var currentBlock = (0, _index.getCurrentBlock)(this.props.editorState);
       var blockType = currentBlock.getType();
       var selection = this.props.editor.state.editorState.getSelection();
+      var contentState = this.props.editorState.getCurrentContent();
       var selectedEntity = null;
       var defaultUrl = null;
       return currentBlock.findEntityRanges(function (character) {
         var entityKey = character.getEntity();
         selectedEntity = entityKey;
-        return entityKey !== null && _draftJs.Entity.get(entityKey).getType() === 'LINK';
+        return entityKey !== null && contentState.getEntity(entityKey).getType() === 'LINK';
       }, function (start, end) {
         var selStart = selection.getAnchorOffset();
         var selEnd = selection.getFocusOffset();
@@ -2511,7 +4606,7 @@ var DanteTooltip = function (_React$Component) {
         }
 
         if (start === selStart && end === selEnd) {
-          defaultUrl = _draftJs.Entity.get(selectedEntity).getData().url;
+          defaultUrl = contentState.getEntity(selectedEntity).getData().url;
           return _this4.refs.dante_menu_input.value = defaultUrl;
         }
       });
@@ -2554,7 +4649,23 @@ var DanteTooltip = function (_React$Component) {
               currentStyle: _this5.props.editorState.getCurrentInlineStyle
             });
           }),
+          _react2['default'].createElement(_select2['default'], {
+            editorState: this.props.editorState,
+            items: (0, _from2['default'])(Array(27).keys())
+          }),
+          _react2['default'].createElement(_select2['default'], {
+            editorState: this.props.editorState,
+            items: ['title', 'subtitle']
+          }),
+          _react2['default'].createElement(_select2['default'], {
+            editorState: this.props.editorState,
+            items: ['Arial', 'Georgia', 'Helvetica', 'Tahoma', 'Times', 'Verdana']
+          }),
           _react2['default'].createElement(DanteTooltipLink, {
+            editorState: this.props.editorState,
+            enableLinkMode: this._enableLinkMode
+          }),
+          _react2['default'].createElement(_color2['default'], {
             editorState: this.props.editorState,
             enableLinkMode: this._enableLinkMode
           }),
@@ -2700,7 +4811,7 @@ exports['default'] = DanteTooltip;
 
 /***/ }),
 
-/***/ 257:
+/***/ 253:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2710,18 +4821,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
 //TODO: what the f*ck is happening here? ;-;
 var findEntities = function findEntities(entityType, instance, contentBlock, callback) {
   return contentBlock.findEntityRanges(function (_this) {
     return function (character) {
       var entityKey, opts, res;
+      var contentState = instance.state.editorState.getCurrentContent();
       entityKey = character.getEntity();
-      return res = entityKey !== null && _draftJs.Entity.get(entityKey).getType() === entityType, res ? (opts = {
+      return res = entityKey !== null && contentState.getEntity(entityKey).getType() === entityType, res ? (opts = {
         showPopLinkOver: instance.showPopLinkOver,
         hidePopLinkOver: instance.hidePopLinkOver
-      }, _draftJs.Entity.mergeData(entityKey, opts)) : void 0, res;
+      }, contentState.mergeEntityData(entityKey, opts)) : void 0, res;
     };
   }(undefined), callback);
 };
@@ -2730,7 +4842,7 @@ exports['default'] = findEntities;
 
 /***/ }),
 
-/***/ 258:
+/***/ 254:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2740,13 +4852,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _stringify = __webpack_require__(85);
+var _stringify = __webpack_require__(80);
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
-var _immutable = __webpack_require__(3);
+var _immutable = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2840,7 +4952,9 @@ var customHTML2Content = function customHTML2Content(HTML, blockRn) {
   // use DraftJS converter to do initial conversion. I don't provide DOMBuilder and
   // blockRenderMap arguments here since it should fall back to its default ones, which are fine
   console.log(tempDoc.body.innerHTML);
-  var contentBlocks = (0, _draftJs.convertFromHTML)(tempDoc.body.innerHTML, _draftJs.getSafeBodyFromHTML, blockRn);
+  var content = (0, _draftJs.convertFromHTML)(tempDoc.body.innerHTML, _draftJs.getSafeBodyFromHTML, blockRn);
+
+  var contentBlocks = content.contentBlocks;
 
   // now replace <blockquote /> ContentBlocks with 'atomic' ones
   contentBlocks = contentBlocks.map(function (block) {
@@ -2875,7 +4989,7 @@ exports['default'] = customHTML2Content;
 
 /***/ }),
 
-/***/ 259:
+/***/ 255:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2885,23 +4999,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _stringify = __webpack_require__(85);
+var _stringify = __webpack_require__(80);
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
-var _classCallCheck2 = __webpack_require__(13);
+var _classCallCheck2 = __webpack_require__(7);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = __webpack_require__(14);
+var _createClass2 = __webpack_require__(8);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _axios = __webpack_require__(62);
+var _axios = __webpack_require__(55);
 
 var _axios2 = _interopRequireDefault(_axios);
 
-var _immutable = __webpack_require__(3);
+var _immutable = __webpack_require__(2);
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
@@ -3064,7 +5178,7 @@ exports["default"] = SaveBehavior;
 
 /***/ }),
 
-/***/ 27:
+/***/ 26:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3075,9 +5189,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addNewBlockAt = exports.updateTextOfBlock = exports.updateDataOfBlock = exports.resetBlockWithType = exports.addNewBlock = exports.getCurrentBlock = exports.getNode = exports.getDefaultBlockData = undefined;
 
-var _immutable = __webpack_require__(3);
+var _immutable = __webpack_require__(2);
 
-var _draftJs = __webpack_require__(9);
+var _draftJs = __webpack_require__(12);
 
 /*
 Used from [react-rte](https://github.com/brijeshb42/medium-draft)
@@ -3277,49 +5391,49 @@ var addNewBlockAt = exports.addNewBlockAt = function addNewBlockAt(editorState, 
 
 /***/ }),
 
-/***/ 397:
+/***/ 405:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.svg";
 
 /***/ }),
 
-/***/ 398:
+/***/ 406:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.ttf";
 
 /***/ }),
 
-/***/ 399:
+/***/ 407:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/dante.woff";
 
 /***/ }),
 
-/***/ 400:
+/***/ 408:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.svg";
 
 /***/ }),
 
-/***/ 401:
+/***/ 409:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.ttf";
 
 /***/ }),
 
-/***/ 402:
+/***/ 410:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "fonts/fontello.woff";
 
 /***/ }),
 
-/***/ 84:
+/***/ 79:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3384,5 +5498,5 @@ var getSelectedBlockNode = exports.getSelectedBlockNode = function getSelectedBl
 
 /***/ })
 
-},[245]);
+},[235]);
 //# sourceMappingURL=dante.js.map
