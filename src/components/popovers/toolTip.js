@@ -1,5 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { SketchPicker } from 'react-color';
+import DanteTooltipColor from './color'
+import DanteTooltipList from './select'
 
 import { 
   convertToRaw, 
@@ -298,11 +301,33 @@ class DanteTooltip extends React.Component {
                       />
             })
           }
+          
+          <DanteTooltipList
+            editorState={ this.props.editorState }
+            items={Array.from(Array(27).keys())}
+          />
+
+          <DanteTooltipList
+            editorState={ this.props.editorState }
+            items={['title', 'subtitle']}
+          />
+          
+          <DanteTooltipList
+            editorState={ this.props.editorState }
+            items={['Arial', 'Georgia', 'Helvetica', 'Tahoma', 'Times', 'Verdana']}
+          />
+
           <DanteTooltipLink
             editorState={ this.props.editorState }
             enableLinkMode={ this._enableLinkMode }
           />
-            { this.inlineItems().map( (item, i) => {
+
+          <DanteTooltipColor
+            editorState={ this.props.editorState }
+            enableLinkMode={ this._enableLinkMode }
+          />
+
+          { this.inlineItems().map( (item, i) => {
               return  <DanteTooltipItem
                         key={ i }
                         item={ item }
@@ -399,6 +424,11 @@ class DanteTooltipLink extends React.Component {
     )
   }
 }
+
+
+
+
+
 
 export default DanteTooltip
 

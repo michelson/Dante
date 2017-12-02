@@ -15,4 +15,5 @@
 <glyph unicode="&#xe901;" glyph-name="image-fill" horiz-adv-x="1152" d="M128 128h896v-96h-896v96zM0 896h1152v-672h-1152v672z" />
 <glyph unicode="&#xe902;" glyph-name="image-left" horiz-adv-x="1152" d="M256 128h896v-96h-896v96zM768 320h384v-96h-384v96zM0 704h672v-480h-672v480zM768 512h384v-96h-384v96zM768 704h384v-96h-384v96zM256 896h896v-96h-896v96z" />
 <glyph unicode="&#xe903;" glyph-name="image-wide" horiz-adv-x="1152" d="M128 128h896v-96h-896v96zM0 704h1152v-480h-1152v480zM128 896h896v-96h-896v96z" />
+<glyph unicode="&#xe904;" glyph-name="divider" d="M0 13v6c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1h-30c-0.552 0-1 0.448-1 1z" />
 </font></defs></svg>

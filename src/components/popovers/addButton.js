@@ -152,6 +152,11 @@ class DanteInlineTooltip extends React.Component {
     return this.insertImage(fileList[0])
   }
 
+  handleInsertion(e){
+    this.hide()
+    return this.props.onChange(addNewBlock(this.props.editorState, e.type, {}))
+  }
+
   widgets() {
     return this.props.editor.widgets
   }
@@ -164,6 +169,8 @@ class DanteInlineTooltip extends React.Component {
         return this.clickOnFileUpload(e, request_block)
       case "placeholder":
         return this.handlePlaceholder(request_block)
+      case "insertion":
+        return this.handleInsertion(request_block)
       default:
         return console.log(`WRONG TYPE FOR ${ request_block.widget_options.insertion }`)
     }
