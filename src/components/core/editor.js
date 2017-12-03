@@ -7,10 +7,7 @@ import {
   convertToRaw, 
   convertFromRaw, 
   CompositeDecorator, 
-  //getVisibleSelectionRect, 
-  getDefaultKeyBinding, 
-  //getSelectionOffsetKeyForNode, 
-  //KeyBindingUtil, 
+  getDefaultKeyBinding,
   ContentState, 
   Editor, 
   EditorState, 
@@ -18,19 +15,13 @@ import {
   RichUtils, 
   DefaultDraftBlockRenderMap, 
   SelectionState, 
-  Modifier, 
-  //BlockMapBuilder, 
-  //getSafeBodyFromHTML 
+  Modifier
 } from 'draft-js'
-
-//import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor'
 
 import { 
   convertToHTML,
   //, convertFromHTML 
 } from 'draft-convert'
-
-//import isSoftNewlineEvent from 'draft-js/lib/isSoftNewlineEvent'
 
 import { 
   addNewBlock, 
@@ -39,26 +30,13 @@ import {
   //updateTextOfBlock, 
   getCurrentBlock, 
   addNewBlockAt 
-} from '../model/index.js'
+} from '../../model/index.js'
 
-//import DanteImagePopover from './popovers/image'
-//import DanteAnchorPopover from './popovers/link'
-
-//import { getSelectionRect, getSelection } from "../utils/selection.js"
-//import DanteInlineTooltip from './popovers/addButton'
-//import DanteTooltip from './popovers/toolTip'
-import Link from './decorators/link'
-
+import Link from '../decorators/link'
 import Debug from './debug'
-import findEntities from '../utils/find_entities'
-
-/*import ImageBlock from './blocks/image'
-import EmbedBlock from './blocks/embed'
-import VideoBlock from './blocks/video'
-import PlaceholderBlock from './blocks/placeholder'*/
-
-import SaveBehavior from '../utils/save_content'
-import customHTML2Content from '../utils/html2content'
+import findEntities from '../../utils/find_entities'
+import SaveBehavior from '../../utils/save_content'
+import customHTML2Content from '../../utils/html2content'
 
 
 class DanteEditor extends React.Component {
@@ -101,6 +79,8 @@ class DanteEditor extends React.Component {
     this.updateBlockData = this.updateBlockData.bind(this)
     this.setDirection = this.setDirection.bind(this)
     this.toggleEditable = this.toggleEditable.bind(this)
+    this.disableEditable = this.disableEditable.bind(this)
+    this.enableEditable = this.enableEditable.bind(this)
     this.closePopOvers = this.closePopOvers.bind(this)
     this.relocateTooltips = this.relocateTooltips.bind(this)
     this.tooltipsWithProp = this.tooltipsWithProp.bind(this)
@@ -110,6 +90,7 @@ class DanteEditor extends React.Component {
     this.showPopLinkOver = this.showPopLinkOver.bind(this)
     this.hidePopLinkOver = this.hidePopLinkOver.bind(this)
     this.render = this.render.bind(this)
+
     this.decorator = new CompositeDecorator([{
       strategy: findEntities.bind(null, 'LINK', this),
       component: Link
@@ -143,7 +124,7 @@ class DanteEditor extends React.Component {
     this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap)
 
     this.state = {
-      editorState: this.initializeState(),
+      editorState: EditorState.createWithContent(convertFromRaw(this.props.content)),
       read_only: this.props.config.read_only,
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
@@ -172,6 +153,14 @@ class DanteEditor extends React.Component {
       editorState: this.state.editorState,
       editorContent: this.emitSerializedOutput()
     })
+
+    // TODO: fix this amateur mode
+    // here we add a new contentstate with the decorator in order to get contentState
+    setTimeout(()=>{
+      let newEditorState = EditorState.set(this.decodeEditorContent(this.props.content), {decorator: this.decorator});
+      this.onChange(newEditorState)      
+    }, 0)
+
   }
 
   initializeState() {
@@ -181,6 +170,12 @@ class DanteEditor extends React.Component {
     } else {
       return EditorState.createEmpty(this.decorator)
     }
+  }
+
+  decodeEditorContent(raw_as_json) {
+    const new_content = convertFromRaw(raw_as_json)
+    let editorState
+    return editorState = EditorState.createWithContent(new_content, this.decorator)
   }
 
   refreshSelection(newEditorState) {
@@ -250,7 +245,9 @@ class DanteEditor extends React.Component {
     return this.save.editorContent = content
   }
 
-  focus() {}
+  focus() {
+    //debugger
+  }
   //@props.refs.richEditor.focus()
 
   getEditorState() {
@@ -261,13 +258,6 @@ class DanteEditor extends React.Component {
     const raw = convertToRaw(this.state.editorState.getCurrentContent())
 
     return raw
-  }
-
-  decodeEditorContent(raw_as_json) {
-    const new_content = convertFromRaw(raw_as_json)
-    let editorState
-
-    return editorState = EditorState.createWithContent(new_content, this.decorator)
   }
 
   //# title utils
@@ -354,6 +344,9 @@ class DanteEditor extends React.Component {
         getEditorState: this.getEditorState,
         setEditorState: this.onChange,
         addLock: this.addLock,
+        toggleEditable: this.toggleEditable,
+        disableEditable: this.disableEditable,
+        enableEditable: this.enableEditable,
         removeLock: this.removeLock,
         getLocks: this.getLocks,
         config: dataBlock.options
@@ -405,6 +398,7 @@ class DanteEditor extends React.Component {
     
     return setTimeout(() => {
       const items = this.tooltipsWithProp(prop)
+      console.log(items)
       return items.map(o => {
         this.refs[o.ref].display(display)
         return this.refs[o.ref].relocate()
@@ -571,6 +565,7 @@ class DanteEditor extends React.Component {
 
       if (currentBlock.getText().length > 0) {
 
+        /*
         if (blockType === "unstyled") {
           // hack hackety hack
           // https://github.com/facebook/draft-js/issues/304
@@ -590,7 +585,7 @@ class DanteEditor extends React.Component {
           }, 0)
 
           return true
-        }
+        }*/
 
         if (config_block && config_block.handleEnterWithText) {
           config_block.handleEnterWithText(this, currentBlock)
@@ -780,8 +775,20 @@ class DanteEditor extends React.Component {
   //# read only utils
   toggleEditable() {
     this.closePopOvers()
-
     return this.setState({ read_only: !this.state.read_only }, this.testEmitAndDecode)
+  }
+
+  disableEditable() {
+    console.log("in !!")
+    this.closePopOvers()
+    return this.setState({ read_only: true }, this.testEmitAndDecode)
+  }
+
+  enableEditable() {
+    this.closePopOvers()
+        console.log("out !!")
+
+    return this.setState({ read_only: false }, this.testEmitAndDecode)
   }
 
   closePopOvers() {
@@ -870,7 +877,8 @@ class DanteEditor extends React.Component {
                     <hr className="section-divider" />
                   </div>
                   <div className="section-content">
-                    <div ref="richEditor" className="section-inner layoutSingleColumn"
+                    <div ref="richEditor" 
+                        className="section-inner layoutSingleColumn"
                         onClick={ this.focus }>
                       <Editor
                         blockRendererFn={ this.blockRenderer }
@@ -928,4 +936,4 @@ class DanteEditor extends React.Component {
   }
 }
 
-module.exports = DanteEditor
+export default DanteEditor

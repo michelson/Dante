@@ -89,10 +89,12 @@ let customHTML2Content = function(HTML, blockRn){
   // use DraftJS converter to do initial conversion. I don't provide DOMBuilder and
   // blockRenderMap arguments here since it should fall back to its default ones, which are fine
   console.log(tempDoc.body.innerHTML)
-  let contentBlocks = convertFromHTML(tempDoc.body.innerHTML,
+  let content = convertFromHTML(tempDoc.body.innerHTML,
         getSafeBodyFromHTML,
         blockRn
   )
+
+  let contentBlocks = content.contentBlocks
 
   // now replace <blockquote /> ContentBlocks with 'atomic' ones
   contentBlocks = contentBlocks.map(function(block){

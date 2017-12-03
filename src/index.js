@@ -1,9 +1,10 @@
 
-import Dante from './components/dante'
-import DanteEditor from './components/dante_editor'
+import {DanteEditor, Dante} from './components/init.js'
 
+window.Dante = Dante
+window.DanteEditor = DanteEditor
 
-module.exports = {
+export {
   Dante, 
   DanteEditor
 }

@@ -207,8 +207,9 @@ class DanteTooltip extends React.Component {
       showPopLinkOver: this.props.showPopLinkOver,
       hidePopLinkOver: this.props.hidePopLinkOver
     }
-
+    
     let entityKey = Entity.create('LINK', 'MUTABLE', opts)
+    //contentState.createEntity('LINK', 'MUTABLE', opts)
 
     if (selection.isCollapsed()) {
       console.log("COLLAPSED SKIPPING LINK")
@@ -241,16 +242,17 @@ class DanteTooltip extends React.Component {
     if (this.refs.dante_menu_input) {
       this.refs.dante_menu_input.value = ""
     }
-
+    
     let currentBlock = getCurrentBlock(this.props.editorState)
     let blockType = currentBlock.getType()
     let selection = this.props.editor.state.editorState.getSelection()
+    let contentState = this.props.editorState.getCurrentContent()
     let selectedEntity = null
     let defaultUrl = null
     return currentBlock.findEntityRanges(character => {
       let entityKey = character.getEntity()
       selectedEntity = entityKey
-      return entityKey !== null && Entity.get(entityKey).getType() === 'LINK'
+      return entityKey !== null && contentState.getEntity(entityKey).getType() === 'LINK'
     }, (start, end) => {
       let selStart = selection.getAnchorOffset()
       let selEnd = selection.getFocusOffset()
@@ -260,7 +262,7 @@ class DanteTooltip extends React.Component {
       }
 
       if (start === selStart && end === selEnd) {
-        defaultUrl = Entity.get(selectedEntity).getData().url
+        defaultUrl = contentState.getEntity(selectedEntity).getData().url
         return this.refs.dante_menu_input.value = defaultUrl
       }
     })
@@ -296,11 +298,14 @@ class DanteTooltip extends React.Component {
                       />
             })
           }
+
           <DanteTooltipLink
             editorState={ this.props.editorState }
             enableLinkMode={ this._enableLinkMode }
           />
-            { this.inlineItems().map( (item, i) => {
+
+
+          { this.inlineItems().map( (item, i) => {
               return  <DanteTooltipItem
                         key={ i }
                         item={ item }
@@ -397,6 +402,11 @@ class DanteTooltipLink extends React.Component {
     )
   }
 }
+
+
+
+
+
 
 export default DanteTooltip
 

@@ -46,7 +46,8 @@ export default class Link extends React.Component {
   }
 
   render() {
-    this.data = Entity.get(this.props.entityKey).getData()
+    this.data = this.props.contentState.getEntity(this.props.entityKey).getData()
+    //Entity.get(this.props.entityKey).getData()
 
     return (
       <a

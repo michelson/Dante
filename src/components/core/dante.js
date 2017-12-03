@@ -1,28 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-//import Immutable from 'immutable'
 import { Map, fromJS } from 'immutable'
+import DanteEditor from './editor.js'
+import DanteImagePopover from '../popovers/image'
+import DanteAnchorPopover from '../popovers/link'
+import DanteInlineTooltip from '../popovers/addButton'
+import DanteTooltip from '../popovers/toolTip'
 
-import DanteEditor from './dante_editor.js'
-
-import DanteImagePopover from './popovers/image'
-import DanteAnchorPopover from './popovers/link'
-
-//import { getSelectionRect, getSelection } from "../utils/selection.js"
-import DanteInlineTooltip from './popovers/addButton'
-import DanteTooltip from './popovers/toolTip'
-//import Link from './decorators/link'
-
-//import Debug from './debug'
-//import findEntities from '../utils/find_entities'
-import ImageBlock from './blocks/image'
-import EmbedBlock from './blocks/embed'
-import VideoBlock from './blocks/video'
-import PlaceholderBlock from './blocks/placeholder'
+import ImageBlock from '../blocks/image'
+import EmbedBlock from '../blocks/embed'
+import VideoBlock from '../blocks/video'
+import PlaceholderBlock from '../blocks/placeholder'
 
 import { 
   resetBlockWithType, 
-  addNewBlockAt } from '../model/index.js'
+  addNewBlockAt 
+} from '../../model/index.js'
 
 class Dante {
   constructor(options) {
@@ -50,7 +43,6 @@ class Dante {
     defaultOptions.spellcheck = false
     defaultOptions.title_placeholder = "Title"
     defaultOptions.body_placeholder = "Write your story"
-    // @defaultOptions.api_key = "86c28a410a104c8bb58848733c82f840"
 
     defaultOptions.widgets = [{
       title: 'add an image',
@@ -293,4 +285,4 @@ class Dante {
   }
 }
 
-module.exports = Dante
+export default Dante

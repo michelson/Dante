@@ -45,10 +45,12 @@
     line-height: 1;
 
     // Better Font Rendering
-     -webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+.dante-icon-divider:before { content: "\e904"; }
 
 .dante-icon-image-center:before { content: "\e900"; }
 .dante-icon-image-fill:before   { content: "\e901"; }
