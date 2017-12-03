@@ -40,47 +40,61 @@ In Draft every change provided from user input is stacked in this editorState bu
 + Add or remove tooltip buttons with ease with plugin system.
 + Add custom blocks many with custom options
 
+## Installation
+
+`npm install Dante2` or `yarn add Dante2`
 
 ## Usage
 
-The interface to initialize is almost the Dante as the previous version.
+The Dante2 API is almost identical to the previous version.
 
+There are two methods of implementing Dante2 into your project.
 
+Basic Javascript
 ```javascript
 new Dante({   
   upload_url: "http://localhost:9292/uploads/new",    
   store_url: "http://localhost:3333/store.json",    
   el: "app"  
- })
+})
 
 ```
+Component Based
+```javascript
+<DanteEditor
+  config={this.config}
+  content={this.demo}
+/>
+```
+For more information on component based implementation, check out the [dante-tests](https://github.com/michelson/dante2-tests) repo.
 
 ### Options:
 
-Many configuration options and plugin usage in the documentation page:
+Many configuration options and plugin usage can be found on the documentation page:
 
 See [https://michelson.github.io/dante2/doc.html](https://michelson.github.io/dante2/doc.html)
 
 
-### Installation for development
+## Development
 
-**node + webpack**
+### Installation
++ `git clone https://github.com/michelson/dante2`
+
+**dependencies**
  
-+ `npm install or yarn install`
-
-
-#### Development: 
++ `npm install` or `yarn install`
+ 
+### Run Dante2
 
 + `npm start` or `yarn start`
 
 Then open http://localhost:8080 
 
-
-#### Build
+### Building
 
 + `npm build` or `yarn build`
 
-#### Upload test server (ruby, optional)
+#### Upload test server (optional)
 
 For development purposes we have a server, written in ruby, to handle file uploading
  
