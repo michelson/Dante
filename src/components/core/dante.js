@@ -11,9 +11,6 @@ import ImageBlock from '../blocks/image'
 import EmbedBlock from '../blocks/embed'
 import VideoBlock from '../blocks/video'
 import PlaceholderBlock from '../blocks/placeholder'
-import DividerBlock from '../blocks/divider'
-import ButtonBlock from '../blocks/button'
-import CardBlock from '../blocks/card'
 
 import { 
   resetBlockWithType, 
@@ -48,63 +45,6 @@ class Dante {
     defaultOptions.body_placeholder = "Write your story"
 
     defaultOptions.widgets = [{
-      icon: 'card',
-      type: 'card',
-      title: "Signature",
-      breakOnContinuous: true,
-      editable: false,
-      renderable: true,
-      block: CardBlock,
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "insertion",
-        insert_block: "card"
-      },
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      }
-    },
-    {
-      icon: 'divider',
-      type: 'divider',
-      title: "Divider",
-      editable: true,
-      renderable: true,
-      block: DividerBlock,
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "insertion",
-        insert_block: "divider"
-      }
-    },
-    {
-      icon: 'button',
-      type: 'button',
-      title: "Button",
-      breakOnContinuous: true,
-      editable: true,
-      renderable: true,
-      block: ButtonBlock,
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "insertion",
-        insert_block: "button"
-      },
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-    },
-    {
       title: 'add an image',
       icon: 'image',
       type: 'image',
@@ -345,4 +285,4 @@ class Dante {
   }
 }
 
-module.exports = Dante
+export default Dante

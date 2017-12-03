@@ -936,4 +936,4 @@ class DanteEditor extends React.Component {
   }
 }
 
-module.exports = DanteEditor
+export default DanteEditor
