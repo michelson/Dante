@@ -75,27 +75,26 @@ Many configuration options and plugin usage can be found on the documentation pa
 See [https://michelson.github.io/dante2/doc.html](https://michelson.github.io/dante2/doc.html)
 
 
-### Installation for development
+## Development
 
+### Installation
 + `git clone https://github.com/michelson/dante2`
 
-**node + webpack**
+**dependencies**
  
 + `npm install` or `yarn install`
-
-
-#### Development: 
+ 
+### Run Dante2
 
 + `npm start` or `yarn start`
 
 Then open http://localhost:8080 
 
-
-#### Build
+### Building
 
 + `npm build` or `yarn build`
 
-#### Upload test server (ruby, optional)
+#### Upload test server (optional)
 
 For development purposes we have a server, written in ruby, to handle file uploading
  
