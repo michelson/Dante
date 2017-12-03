@@ -1968,11 +1968,13 @@ var DanteInlineTooltip = function (_React$Component) {
           return;
         }
 
+        if (!coords) return;
+
         // checkeamos si esta vacio
         this.display(block.getText().length === 0 && blockType === "unstyled");
         return this.setPosition({
-          top: coords.top + window.scrollY,
-          left: coords.left + window.scrollX - 60
+          top: coords.top + window.pageYOffset,
+          left: coords.left + window.pageXOffset - 60
         });
 
         /*
