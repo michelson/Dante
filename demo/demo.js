@@ -4,6 +4,6 @@ import './styles/layout/scaffold'
 
 import { Readme, License, Doc, empty } from './data/poc.js'
 
-window.PocData = empty //Readme //
+window.PocData = Readme //empty
 window.PocDataLicense = License
 window.Doc = Doc
