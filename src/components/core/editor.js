@@ -124,7 +124,7 @@ class DanteEditor extends React.Component {
     this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(this.blockRenderMap)
 
     this.state = {
-      editorState: this.initializeState(),
+      editorState: EditorState.createWithContent(convertFromRaw(this.props.content)),
       read_only: this.props.config.read_only,
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
@@ -154,11 +154,19 @@ class DanteEditor extends React.Component {
       editorContent: this.emitSerializedOutput()
     })
 
+    // TODO: fix this amateur mode
+    // here we add a new contentstate with the decorator in order to get contentState
+    setTimeout(()=>{
+      let newEditorState = EditorState.set(this.decodeEditorContent(this.props.content), {decorator: this.decorator});
+      this.onChange(newEditorState)      
+    }, 0)
+
   }
 
   initializeState() {
-    if (this.props.content){
-      return EditorState.createWithContent(convertFromRaw(this.props.content))
+    if (this.props.content) {
+      //and @.props.content.trim() isnt ""
+      return this.decodeEditorContent(this.props.content)
     } else {
       return EditorState.createEmpty(this.decorator)
     }
