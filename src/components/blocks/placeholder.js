@@ -10,8 +10,7 @@ export default class PlaceholderBlock extends React.Component {
     this.placeholderText = this.placeholderText.bind(this)
     this.placeholderFromProps = this.placeholderFromProps.bind(this)
     this.defaultText = this.defaultText.bind(this)
-    this.handleFocus = this.handleFocus.bind(this)
-    this.classForDefault = this.classForDefault.bind(this)
+    this.placeholderRender = this.placeholderRender.bind(this)
     this.state = {
       enabled: false,
       data: this.props.blockProps.data.toJS()
@@ -19,9 +18,9 @@ export default class PlaceholderBlock extends React.Component {
   }
 
   placeholderText() {
-    if (this.state.enabled) {
-      return ""
-    }
+    //if (this.state.enabled) {
+    //  return ""
+    //}
     return this.props.blockProps.data.toJS().placeholder || this.placeholderFromProps() || this.defaultText()
   }
   //if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
@@ -35,28 +34,25 @@ export default class PlaceholderBlock extends React.Component {
     return "write something "
   }
 
-  componentDidMount() {}
+  placeholderRender(){
+    if (this.props.block.text.length === 0 ) {
+      return  (
+        <div className="public-DraftEditorPlaceholder-root">
+          <div className="public-DraftEditorPlaceholder-inner">
+            {this.placeholderText() }
+          </div>
+        </div>
+      )
 
-  handleFocus(e) {
-    // console.log "focus on placeholder"
-    return setTimeout(() => {
-      return this.setState({
-        enabled: true })
-    }, 0)
-  }
-
-  classForDefault() {
-    if (!this.state.enabled) {
-      return "defaultValue defaultValue--root"
-    } else {
-      return ""
     }
   }
 
   render() {
     return (
-      <span className={this.classForDefault()} onMouseDown={this.handleFocus}>
-        {this.placeholderText()}
+      <span onMouseDown={this.handleFocus}>
+        
+        {this.placeholderRender()}
+        
         <EditorBlock {...Object.assign({}, this.props, {
           "className": "imageCaption",
           "placeholder": "escrive alalal"
