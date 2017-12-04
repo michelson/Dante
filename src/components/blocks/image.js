@@ -45,7 +45,6 @@ export default class ImageBlock extends React.Component {
       loading: false,
       selected: false,
       loading_progress: 0,
-      enabled: false,
       caption: this.defaultPlaceholder(),
       direction: existing_data.direction || "center",
       width: 0,
@@ -317,18 +316,11 @@ export default class ImageBlock extends React.Component {
   }
 
   placeholderText() {
-    if (this.placeHolderEnabled()) {
-      return ""
-    }
     return this.config.image_caption_placeholder
   }
 
   handleFocus(e) {
-    // console.log "focus on placeholder"
-    return setTimeout(() => {
-      return this.setState({
-        enabled: true })
-    }, 0)
+
   }
 
   render() {
@@ -349,7 +341,7 @@ export default class ImageBlock extends React.Component {
             progress={this.state.loading_progress} />
         </div>
         <figcaption className='imageCaption' onMouseDown={this.handleFocus}>
-          { !this.state.enabled ? 
+          { this.props.block.getText().length === 0 ? 
             <span className="danteDefaultPlaceholder">
               {this.placeholderText()}
             </span> : undefined}

@@ -172,7 +172,9 @@ class Dante {
 
       handleEnterWithoutText(ctx, block) {
         const { editorState } = ctx.state
-        return ctx.onChange(resetBlockWithType(editorState, "unstyled", {}))
+        return ctx.onChange(resetBlockWithType(editorState, data.type, data))
+
+        //return ctx.onChange(resetBlockWithType(editorState, "unstyled", {}))
         //return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       },
 
