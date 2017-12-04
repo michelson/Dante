@@ -163,9 +163,21 @@ class Dante {
           endpoint: block.getData().get('endpoint'),
           type: block.getData().get('type')
         }
+        if(block.getText().length > 0){
+          return ctx.onChange(resetBlockWithType(editorState, data.type, data))
+        }else{
+          return ctx.onChange(resetBlockWithType(editorState, "unstyled", {}))
+        }
+      },
 
+      handleEnterWithoutText(ctx, block) {
+        const { editorState } = ctx.state
         return ctx.onChange(resetBlockWithType(editorState, data.type, data))
-      }
+
+        //return ctx.onChange(resetBlockWithType(editorState, "unstyled", {}))
+        //return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      },
+
     }]
 
     defaultOptions.tooltips = [{
