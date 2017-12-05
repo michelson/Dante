@@ -254,12 +254,18 @@ export default class ImageBlock extends React.Component {
   }
 
   uploadFile() {
+
     let handleUp
     // custom upload handler
     if (this.config.upload_handler) {
       return this.config.upload_handler(this.formatData().get('file'), this)
     }
-
+    
+    if (!this.config.upload_url){
+      this.stopLoader()
+      return
+    }
+    
     axios({
       method: 'post',
       url: this.getUploadUrl(),
