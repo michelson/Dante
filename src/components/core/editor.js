@@ -37,6 +37,7 @@ import Debug from './debug'
 import findEntities from '../../utils/find_entities'
 import SaveBehavior from '../../utils/save_content'
 import customHTML2Content from '../../utils/html2content'
+import createStyles from 'draft-js-custom-styles';
 
 
 class DanteEditor extends React.Component {
@@ -154,6 +155,9 @@ class DanteEditor extends React.Component {
       editorContent: this.emitSerializedOutput()
     })
 
+    const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'font-family']);  //, 'PREFIX', customStyleMap);
+    this.styles = styles
+    this.customStyleFn = customStyleFn
   }
 
   componentDidMount(){
@@ -388,6 +392,13 @@ class DanteEditor extends React.Component {
   }
 
   handleTooltipDisplayOn(prop, display) {
+
+    // for button click on after inline style set, 
+    // avoids inline popver to reappear on previous selection
+    if(this.state.read_only){
+      return  
+    }
+
     if (display == null) {
       display = true
     }
@@ -533,6 +544,12 @@ class DanteEditor extends React.Component {
 
     let { editorState } = this.state
 
+    if (e.shiftKey) {
+      this.setState({ editorState: RichUtils.insertSoftNewline(editorState) });
+      return true;
+    }
+
+
     if (!e.altKey && !e.metaKey && !e.ctrlKey) {
       const currentBlock = getCurrentBlock(editorState)
       const blockType = currentBlock.getType()
@@ -560,28 +577,6 @@ class DanteEditor extends React.Component {
       }
 
       if (currentBlock.getText().length > 0) {
-
-        /*
-        if (blockType === "unstyled") {
-          // hack hackety hack
-          // https://github.com/facebook/draft-js/issues/304
-          const newContent = Modifier.splitBlock(
-            this.state.editorState.getCurrentContent(), 
-            this.state.editorState.getSelection())
-
-          const newEditorState = EditorState.push(this.state.editorState, 
-                                                  newContent, 'insert-characters')
-          this.onChange(newEditorState)
-
-          setTimeout(() => {
-            //TODO: check is element is in viewport
-            const a = document.getElementsByClassName("is-selected")
-            const pos = a[0].getBoundingClientRect()
-            return window.scrollTo(0, pos.top + window.scrollY - 100)
-          }, 0)
-
-          return true
-        }*/
 
         if (config_block && config_block.handleEnterWithText) {
           config_block.handleEnterWithText(this, currentBlock)
@@ -782,8 +777,7 @@ class DanteEditor extends React.Component {
 
   enableEditable() {
     this.closePopOvers()
-        console.log("out !!")
-
+    console.log("out !!")
     return this.setState({ read_only: false }, this.testEmitAndDecode)
   }
 
@@ -885,6 +879,7 @@ class DanteEditor extends React.Component {
                         handleReturn={ this.handleReturn }
                         blockRenderMap={ this.state.blockRenderMap }
                         blockStyleFn={ this.blockStyleFn }
+                        customStyleFn={this.customStyleFn }
                         handlePastedText={ this.handlePasteText }
                         handlePastedFiles={ this.handlePasteImage }
                         handleDroppedFiles={ this.handleDroppedFiles }
@@ -911,6 +906,7 @@ class DanteEditor extends React.Component {
                 editor={ this }
                 editorState={ this.state.editorState }
                 onChange={ this.onChange }
+                styles={this.styles}
                 configTooltip={ o }
                 widget_options={ o.widget_options }
                 showPopLinkOver={ this.showPopLinkOver }
