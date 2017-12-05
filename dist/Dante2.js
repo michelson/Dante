@@ -7681,21 +7681,10 @@ var resetBlockWithType = exports.resetBlockWithType = function resetBlockWithTyp
   var blockMap = contentState.getBlockMap();
   var block = blockMap.get(key);
 
-  var newText = '';
-  console.log("DATA FOR PLACEHOLDER!", data);
   var text = block.getText();
-  if (block.getLength() >= 2) {
-    newText = text.substr(1);
-  }
-
-  /*if(data.text){
-    newText = data.text
-  }*/
-
-  //let newText = data.text
 
   var newBlock = block.merge({
-    text: newText,
+    text: text,
     type: newType,
     data: getDefaultBlockData(newType, data)
   });
@@ -27618,7 +27607,7 @@ var DanteEditor = function (_React$Component) {
     _this.extendedBlockRenderMap = _draftJs.DefaultDraftBlockRenderMap.merge(_this.blockRenderMap);
 
     _this.state = {
-      editorState: _draftJs.EditorState.createWithContent((0, _draftJs.convertFromRaw)(_this.props.content)),
+      editorState: _draftJs.EditorState.createEmpty(),
       read_only: _this.props.config.read_only,
       blockRenderMap: _this.extendedBlockRenderMap,
       locks: 0,
@@ -27648,23 +27637,19 @@ var DanteEditor = function (_React$Component) {
       editorContent: _this.emitSerializedOutput()
     });
 
-    // TODO: fix this amateur mode
-    // here we add a new contentstate with the decorator in order to get contentState
-    setTimeout(function () {
-      var newEditorState = _draftJs.EditorState.set(_this.decodeEditorContent(_this.props.content), { decorator: _this.decorator });
-      _this.onChange(newEditorState);
-    }, 0);
-
     return _this;
   }
 
+  DanteEditor.prototype.componentDidMount = function componentDidMount() {
+    this.initializeState();
+  };
+
   DanteEditor.prototype.initializeState = function initializeState() {
+    var newEditorState = _draftJs.EditorState.createEmpty(this.decorator);
     if (this.props.content) {
-      //and @.props.content.trim() isnt ""
-      return this.decodeEditorContent(this.props.content);
-    } else {
-      return _draftJs.EditorState.createEmpty(this.decorator);
+      newEditorState = _draftJs.EditorState.set(this.decodeEditorContent(this.props.content), { decorator: this.decorator });
     }
+    this.onChange(newEditorState);
   };
 
   DanteEditor.prototype.decodeEditorContent = function decodeEditorContent(raw_as_json) {
@@ -29225,7 +29210,6 @@ var ImageBlock = function (_React$Component) {
       loading: false,
       selected: false,
       loading_progress: 0,
-      enabled: false,
       caption: _this.defaultPlaceholder(),
       direction: existing_data.direction || "center",
       width: 0,
@@ -29508,21 +29492,10 @@ var ImageBlock = function (_React$Component) {
   };
 
   ImageBlock.prototype.placeholderText = function placeholderText() {
-    if (this.placeHolderEnabled()) {
-      return "";
-    }
     return this.config.image_caption_placeholder;
   };
 
-  ImageBlock.prototype.handleFocus = function handleFocus(e) {
-    var _this4 = this;
-
-    // console.log "focus on placeholder"
-    return setTimeout(function () {
-      return _this4.setState({
-        enabled: true });
-    }, 0);
-  };
+  ImageBlock.prototype.handleFocus = function handleFocus(e) {};
 
   ImageBlock.prototype.render = function render() {
 
@@ -29547,7 +29520,7 @@ var ImageBlock = function (_React$Component) {
       _react2['default'].createElement(
         'figcaption',
         { className: 'imageCaption', onMouseDown: this.handleFocus },
-        !this.state.enabled ? _react2['default'].createElement(
+        this.props.block.getText().length === 0 ? _react2['default'].createElement(
           'span',
           { className: 'danteDefaultPlaceholder' },
           this.placeholderText()
@@ -29650,8 +29623,7 @@ var PlaceholderBlock = function (_React$Component) {
     _this.placeholderText = _this.placeholderText.bind(_this);
     _this.placeholderFromProps = _this.placeholderFromProps.bind(_this);
     _this.defaultText = _this.defaultText.bind(_this);
-    _this.handleFocus = _this.handleFocus.bind(_this);
-    _this.classForDefault = _this.classForDefault.bind(_this);
+    _this.placeholderRender = _this.placeholderRender.bind(_this);
     _this.state = {
       enabled: false,
       data: _this.props.blockProps.data.toJS()
@@ -29660,9 +29632,9 @@ var PlaceholderBlock = function (_React$Component) {
   }
 
   PlaceholderBlock.prototype.placeholderText = function placeholderText() {
-    if (this.state.enabled) {
-      return "";
-    }
+    //if (this.state.enabled) {
+    //  return ""
+    //}
     return this.props.blockProps.data.toJS().placeholder || this.placeholderFromProps() || this.defaultText();
   };
   //if @.props.blockProps.data then @.props.blockProps.data.placeholder else @defaultText()
@@ -29676,31 +29648,25 @@ var PlaceholderBlock = function (_React$Component) {
     return "write something ";
   };
 
-  PlaceholderBlock.prototype.componentDidMount = function componentDidMount() {};
-
-  PlaceholderBlock.prototype.handleFocus = function handleFocus(e) {
-    var _this2 = this;
-
-    // console.log "focus on placeholder"
-    return setTimeout(function () {
-      return _this2.setState({
-        enabled: true });
-    }, 0);
-  };
-
-  PlaceholderBlock.prototype.classForDefault = function classForDefault() {
-    if (!this.state.enabled) {
-      return "defaultValue defaultValue--root";
-    } else {
-      return "";
+  PlaceholderBlock.prototype.placeholderRender = function placeholderRender() {
+    if (this.props.block.text.length === 0) {
+      return _react2['default'].createElement(
+        'div',
+        { className: 'public-DraftEditorPlaceholder-root' },
+        _react2['default'].createElement(
+          'div',
+          { className: 'public-DraftEditorPlaceholder-inner' },
+          this.placeholderText()
+        )
+      );
     }
   };
 
   PlaceholderBlock.prototype.render = function render() {
     return _react2['default'].createElement(
       'span',
-      { className: this.classForDefault(), onMouseDown: this.handleFocus },
-      this.placeholderText(),
+      { onMouseDown: this.handleFocus },
+      this.placeholderRender(),
       _react2['default'].createElement(_draftJs.EditorBlock, (0, _assign2['default'])({}, this.props, {
         "className": "imageCaption",
         "placeholder": "escrive alalal"
@@ -31934,8 +31900,19 @@ var Dante = function () {
             endpoint: block.getData().get('endpoint'),
             type: block.getData().get('type')
           };
+          if (block.getText().length > 0) {
+            return ctx.onChange((0, _index.resetBlockWithType)(editorState, data.type, data));
+          } else {
+            return ctx.onChange((0, _index.resetBlockWithType)(editorState, "unstyled", {}));
+          }
+        },
+        handleEnterWithoutText: function handleEnterWithoutText(ctx, block) {
+          var editorState = ctx.state.editorState;
 
           return ctx.onChange((0, _index.resetBlockWithType)(editorState, data.type, data));
+
+          //return ctx.onChange(resetBlockWithType(editorState, "unstyled", {}))
+          //return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
         }
       }];
 
