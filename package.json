@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -24,14 +24,14 @@
     "react-dom": "~16.0.0"
   },
   "dependencies": {
+    "axios": "^0.15.2",
+    "babel-runtime": "^6.11.6",
     "draft-convert": "^1.2.3",
     "draft-js": "0.10.3",
-    "immutable": "^3.8.2",
-    "axios": "^0.15.2",
-    "babel-runtime": "^6.11.6"
+    "draft-js-custom-styles": "^2.0.1",
+    "immutable": "^3.8.2"
   },
   "devDependencies": {
-    "cross-env": "^3.1.4",
     "babel-cli": "^6.11.4",
     "babel-core": "^6.13.2",
     "babel-eslint": "^6.1.2",
@@ -50,6 +50,7 @@
     "chai": "3.4.1",
     "child-process-promise": "^2.2.0",
     "colors": "^1.1.2",
+    "cross-env": "^3.1.4",
     "css-loader": "^0.25.0",
     "draft-convert": "^1.2.3",
     "draft-js": "0.10.3",
