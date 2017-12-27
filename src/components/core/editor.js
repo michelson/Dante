@@ -560,7 +560,7 @@ class DanteEditor extends React.Component {
       if (currentBlock.getText().length === 0) {
 
         if (config_block && config_block.handleEnterWithoutText) {
-          config_block.handleEnterWithText(this, currentBlock)
+          config_block.handleEnterWithoutText(this, currentBlock)
           this.closePopOvers()
           return true
         }
