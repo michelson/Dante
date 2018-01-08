@@ -209,11 +209,15 @@ class DanteEditor extends React.Component {
   }
 
   onChange(editorState) {
+
+    editorState = this.handleUndeletables(editorState)
+
     this.setPreContent()
     this.setState({ editorState })
 
     const currentBlock = getCurrentBlock(this.state.editorState)
     const blockType = currentBlock.getType()
+
 
     if (!editorState.getSelection().isCollapsed()) {
 
@@ -231,6 +235,35 @@ class DanteEditor extends React.Component {
     }, 0)
 
     return this.dispatchChangesToSave()
+  }
+
+  handleUndeletables(editorState){
+    // undeletable behavior, will keep previous blockMap 
+    // if undeletables are deleted
+    const undeletable_types = this.widgets.filter(
+      function(o){ return o.undeletable })
+    .map(function(o){ return o.type })
+    
+    const currentblockMap = this.state.editorState.getCurrentContent().get("blockMap")
+    const blockMap = editorState.getCurrentContent().get("blockMap")
+
+    const undeletablesMap = blockMap
+    .filter(function(o){ 
+      return undeletable_types.indexOf(o.get("type")) === 0 
+    })
+
+    if (undeletable_types.length > 0 && undeletablesMap.size === 0) {
+      const contentState = editorState.getCurrentContent();
+      const blockMap = contentState.getBlockMap();
+      const newContentState = contentState.merge({
+        blockMap: this.state.editorState.getCurrentContent().blockMap,
+        selectionBefore: contentState.getSelectionAfter()
+      });
+
+      return editorState = EditorState.push(editorState, newContentState, 'change-block')
+    }
+
+    return editorState
   }
 
   dispatchChangesToSave() {

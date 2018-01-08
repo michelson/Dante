@@ -34823,6 +34823,8 @@ var DanteEditor = function (_React$Component) {
   DanteEditor.prototype.onChange = function onChange(editorState) {
     var _this2 = this;
 
+    editorState = this.handleUndeletables(editorState);
+
     this.setPreContent();
     this.setState({ editorState: editorState });
 
@@ -34845,6 +34847,36 @@ var DanteEditor = function (_React$Component) {
     }, 0);
 
     return this.dispatchChangesToSave();
+  };
+
+  DanteEditor.prototype.handleUndeletables = function handleUndeletables(editorState) {
+    // undeletable behavior, will keep previous blockMap 
+    // if undeletables are deleted
+    var undeletable_types = this.widgets.filter(function (o) {
+      return o.undeletable;
+    }).map(function (o) {
+      return o.type;
+    });
+
+    var currentblockMap = this.state.editorState.getCurrentContent().get("blockMap");
+    var blockMap = editorState.getCurrentContent().get("blockMap");
+
+    var undeletablesMap = blockMap.filter(function (o) {
+      return undeletable_types.indexOf(o.get("type")) === 0;
+    });
+
+    if (undeletable_types.length > 0 && undeletablesMap.size === 0) {
+      var contentState = editorState.getCurrentContent();
+      var _blockMap = contentState.getBlockMap();
+      var newContentState = contentState.merge({
+        blockMap: this.state.editorState.getCurrentContent().blockMap,
+        selectionBefore: contentState.getSelectionAfter()
+      });
+
+      return editorState = _draftJs.EditorState.push(editorState, newContentState, 'change-block');
+    }
+
+    return editorState;
   };
 
   DanteEditor.prototype.dispatchChangesToSave = function dispatchChangesToSave() {
@@ -35200,7 +35232,7 @@ var DanteEditor = function (_React$Component) {
       if (currentBlock.getText().length === 0) {
 
         if (config_block && config_block.handleEnterWithoutText) {
-          config_block.handleEnterWithText(this, currentBlock);
+          config_block.handleEnterWithoutText(this, currentBlock);
           this.closePopOvers();
           return true;
         }
