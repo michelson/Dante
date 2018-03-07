@@ -249,7 +249,7 @@ class DanteEditor extends React.Component {
 
     const undeletablesMap = blockMap
     .filter(function(o){ 
-      return undeletable_types.indexOf(o.get("type")) === 0 
+      return undeletable_types.indexOf(o.get("type")) > 0 
     })
 
     if (undeletable_types.length > 0 && undeletablesMap.size === 0) {

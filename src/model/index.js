@@ -128,7 +128,7 @@ export const updateTextOfBlock = (editorState, block, text) => {
     blockMap: contentState.getBlockMap().set(block.getKey(), newBlock),
   });
 
-  return EditorState.push(editorState, newContentState, 'change-block-type');
+  return EditorState.push(editorState, newContentState, 'replace-text');
   // return editorState;
 };
 
