@@ -6331,17 +6331,13 @@ function getInlineStyleForNonCollapsedSelection(content, selection) {
 }
 
 function lookUpwardForInlineStyle(content, fromKey) {
-  var previousBlock = content.getBlockBefore(fromKey);
-  var previousLength;
+  var lastNonEmpty = content.getBlockMap().reverse().skipUntil(function (_, k) {
+    return k === fromKey;
+  }).skip(1).skipUntil(function (block, _) {
+    return block.getLength();
+  }).first();
 
-  while (previousBlock) {
-    previousLength = previousBlock.getLength();
-    if (previousLength) {
-      return previousBlock.getInlineStyleAt(previousLength - 1);
-    }
-    previousBlock = content.getBlockBefore(previousBlock.getKey());
-  }
-
+  if (lastNonEmpty) return lastNonEmpty.getInlineStyleAt(lastNonEmpty.getLength() - 1);
   return OrderedSet();
 }
 
@@ -26701,9 +26697,9 @@ var RichTextEditorUtil = {
   },
 
   /**
-   * When a collapsed cursor is at the start of an empty styled block, 
-   * changes block to 'unstyled'. Returns null if block or selection does not
-   * meet that criteria.
+   * When a collapsed cursor is at the start of the first styled block, or 
+   * an empty styled block, changes block to 'unstyled'. Returns null if 
+   * block or selection does not meet that criteria.
    */
   tryToRemoveBlockStyle: function tryToRemoveBlockStyle(editorState) {
     var selection = editorState.getSelection();
@@ -26712,7 +26708,9 @@ var RichTextEditorUtil = {
       var key = selection.getAnchorKey();
       var content = editorState.getCurrentContent();
       var block = content.getBlockForKey(key);
-      if (block.getLength() > 0) {
+
+      var firstBlock = content.getFirstBlock();
+      if (block.getLength() > 0 && block !== firstBlock) {
         return null;
       }
 
@@ -44929,6 +44927,9 @@ var DraftEditor = function (_React$Component) {
 
     var contentStyle = {
       outline: 'none',
+      // fix parent-draggable Safari bug. #1326
+      userSelect: 'text',
+      WebkitUserSelect: 'text',
       whiteSpace: 'pre-wrap',
       wordWrap: 'break-word'
     };
@@ -45062,6 +45063,12 @@ var DraftEditor = function (_React$Component) {
 
     var alreadyHasFocus = editorState.getSelection().getHasFocus();
     var editorNode = ReactDOM.findDOMNode(this.refs.editor);
+
+    if (!editorNode) {
+      // once in a while people call 'focus' in a setTimeout, and the node has
+      // been deleted, so it can be null in that case.
+      return;
+    }
 
     var scrollParent = Style.getScrollParent(editorNode);
 
@@ -47028,11 +47035,24 @@ function editOnBeforeInput(editor, e) {
   // reduces re-renders and preserves spellcheck highlighting. If the selection
   // is not collapsed, we will re-render.
   var selection = editorState.getSelection();
+  var selectionStart = selection.getStartOffset();
+  var selectionEnd = selection.getEndOffset();
   var anchorKey = selection.getAnchorKey();
 
   if (!selection.isCollapsed()) {
     e.preventDefault();
-    editor.update(replaceText(editorState, chars, editorState.getCurrentInlineStyle(), getEntityKeyForSelection(editorState.getCurrentContent(), editorState.getSelection())));
+
+    // If the character that the user is trying to replace with
+    // is the same as the current selection text the just update the
+    // `SelectionState`.  Else, update the ContentState with the new text
+    var currentlySelectedChars = editorState.getCurrentContent().getPlainText().slice(selectionStart, selectionEnd);
+    if (chars === currentlySelectedChars) {
+      this.update(EditorState.forceSelection(editorState, selection.merge({
+        focusOffset: selectionEnd
+      })));
+    } else {
+      editor.update(replaceText(editorState, chars, editorState.getCurrentInlineStyle(), getEntityKeyForSelection(editorState.getCurrentContent(), editorState.getSelection())));
+    }
     return;
   }
 
@@ -47051,7 +47071,7 @@ function editOnBeforeInput(editor, e) {
     // https://chromium.googlesource.com/chromium/src/+/013ac5eaf3%5E%21/
     var nativeSelection = global.getSelection();
     // Selection is necessarily collapsed at this point due to earlier check.
-    if (nativeSelection.anchorNode !== null && nativeSelection.anchorNode.nodeType === Node.TEXT_NODE) {
+    if (nativeSelection.anchorNode && nativeSelection.anchorNode.nodeType === Node.TEXT_NODE) {
       // See isTabHTMLSpanElement in chromium EditingUtilities.cpp.
       var parentNode = nativeSelection.anchorNode.parentNode;
       mustPreventNative = parentNode.nodeName === 'SPAN' && parentNode.firstChild.nodeType === Node.TEXT_NODE && parentNode.firstChild.nodeValue.indexOf('\t') !== -1;
@@ -47699,8 +47719,14 @@ function editOnKeyDown(editor, e) {
     case Keys.UP:
       editor.props.onUpArrow && editor.props.onUpArrow(e);
       return;
+    case Keys.RIGHT:
+      editor.props.onRightArrow && editor.props.onRightArrow(e);
+      return;
     case Keys.DOWN:
       editor.props.onDownArrow && editor.props.onDownArrow(e);
+      return;
+    case Keys.LEFT:
+      editor.props.onLeftArrow && editor.props.onLeftArrow(e);
       return;
     case Keys.SPACE:
       // Handling for OSX where option + space scrolls.
