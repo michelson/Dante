@@ -5,6 +5,7 @@ class SaveBehavior {
   constructor(options) {
     this.getLocks = options.getLocks
     this.config = options.config
+    this.editor = options.editor
     this.editorContent = options.editorContent
     this.editorState = options.editorState
   }
@@ -89,7 +90,6 @@ class SaveBehavior {
   }
 
   save(content){
-
     // use save handler from config if exists
     if (this.config.data_storage.save_handler){
       this.config.data_storage.save_handler(this, content)

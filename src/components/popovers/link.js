@@ -76,7 +76,9 @@ class DanteAnchorPopover extends React.Component {
     const toolbarHeight = el.offsetHeight;
     const relativeRect = node.getBoundingClientRect();
     let left = selectionBoundary.left + selectionBoundary.width / 2 - padd
-    let top = relativeRect.top - parentBoundary.top + (toolbarHeight * 0.3)
+   
+    let diff = window.pageYOffset + parent.getBoundingClientRect().top
+    let top = relativeRect.top - parentBoundary.top + (toolbarHeight * 0.3) + diff
 
     return {
       top: top,

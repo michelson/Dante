@@ -138,7 +138,9 @@ class DanteTooltip extends React.Component {
     if(!selectionRect || !relativeRect || !selectionBoundary)
       return
 
-    let top = (selectionRect.top - relativeRect.top) - toolbarHeight
+
+    let diff = window.pageYOffset + parent.getBoundingClientRect().top
+    let top = (selectionRect.top - relativeRect.top) - toolbarHeight + diff
     let left = selectionBoundary.left + selectionBoundary.width / 2 - padd
 
     //let left = (selectionRect.left - relativeRect.left) + (selectionRect.width / 2)

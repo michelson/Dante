@@ -152,6 +152,7 @@ class DanteEditor extends React.Component {
         xhr: this.props.config.xhr,
         data_storage: this.props.config.data_storage
       },
+      editor: this,
       editorState: this.state.editorState,
       editorContent: this.emitSerializedOutput()
     })

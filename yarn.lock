@@ -1886,18 +1886,18 @@ domutils@^1.5.1:
     dom-serializer "0"
     domelementtype "1"
 
-draft-convert@^1.2.3:
-  version "1.4.10"
-  resolved "https://registry.yarnpkg.com/draft-convert/-/draft-convert-1.4.10.tgz#05007f009b18025451a2ce259aa008f4aa6a1add"
+draft-convert@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/draft-convert/-/draft-convert-2.1.2.tgz#00624b40fc80dca320c4e693a5fd21debb78206d"
   dependencies:
     immutable "~3.7.4"
     invariant "^2.2.1"
 
-draft-js-custom-styles@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/draft-js-custom-styles/-/draft-js-custom-styles-2.0.1.tgz#585f5c6778d4df56328e0612b594c91f6e0c1dba"
+draft-js-custom-styles@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/draft-js-custom-styles/-/draft-js-custom-styles-2.0.4.tgz#2632306ce11c7af7da22108ad4fcb99c1ead2f5a"
   dependencies:
-    draft-js "^0.10.0"
+    draft-js "^0.10.5"
     immutable "^3.8.1"
     lodash.camelcase "^4.3.0"
     lodash.snakecase "^4.1.1"
@@ -1911,9 +1911,9 @@ draft-js@0.10.3:
     immutable "~3.7.4"
     object-assign "^4.1.0"
 
-draft-js@^0.10.0:
-  version "0.10.4"
-  resolved "https://registry.yarnpkg.com/draft-js/-/draft-js-0.10.4.tgz#147741642097c8120d8edc232e9503e8b7fb8d35"
+draft-js@^0.10.5:
+  version "0.10.5"
+  resolved "https://registry.yarnpkg.com/draft-js/-/draft-js-0.10.5.tgz#bfa9beb018fe0533dbb08d6675c371a6b08fa742"
   dependencies:
     fbjs "^0.8.15"
     immutable "~3.7.4"
