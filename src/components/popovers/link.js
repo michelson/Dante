@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom'
 
 import { getCurrentBlock } from '../../model/index.js'
 
+import { getRelativeParent } from "../../utils/selection.js"
+
 class DanteAnchorPopover extends React.Component {
 
   constructor(props) {
@@ -71,9 +73,14 @@ class DanteAnchorPopover extends React.Component {
     let parent = ReactDOM.findDOMNode(this.props.editor)
     let parentBoundary = parent.getBoundingClientRect()
 
+    const toolbarHeight = el.offsetHeight;
+    const relativeRect = node.getBoundingClientRect();
+    let left = selectionBoundary.left + selectionBoundary.width / 2 - padd
+    let top = relativeRect.top - parentBoundary.top + (toolbarHeight * 0.3)
+
     return {
-      top: selectionBoundary.top - parentBoundary.top + 160,
-      left: selectionBoundary.left + selectionBoundary.width / 2 - padd
+      top: top,
+      left: left
     }
   }
 
@@ -93,7 +100,7 @@ class DanteAnchorPopover extends React.Component {
         onMouseOut={ this.props.handleOnMouseOut }
       >
         <div className='popover-inner'>
-          <a href={ this.props.url } target='_blank'>
+          <a href={ this.state.url } target='_blank'>
             { this.state.url }
           </a>
         </div>

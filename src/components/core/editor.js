@@ -33,11 +33,11 @@ import {
 } from '../../model/index.js'
 
 import Link from '../decorators/link'
-import Debug from './debug'
+import Debug from '../core/debug'
 import findEntities from '../../utils/find_entities'
 import SaveBehavior from '../../utils/save_content'
 import customHTML2Content from '../../utils/html2content'
-import createStyles from 'draft-js-custom-styles';
+import createStyles from 'draft-js-custom-styles'
 
 
 class DanteEditor extends React.Component {
@@ -70,6 +70,7 @@ class DanteEditor extends React.Component {
     this.handleHTMLPaste = this.handleHTMLPaste.bind(this)
     this.handlePasteImage = this.handlePasteImage.bind(this)
     this.handleDroppedFiles = this.handleDroppedFiles.bind(this)
+    this.handleDrop = this.handleDrop.bind(this)
     this.handleUpArrow = this.handleUpArrow.bind(this)
     this.handleDownArrow = this.handleDownArrow.bind(this)
     this.handleReturn = this.handleReturn.bind(this)
@@ -162,6 +163,12 @@ class DanteEditor extends React.Component {
 
   componentDidMount(){
     this.initializeState()
+    window.addEventListener('resize', ()=> {
+      if(this.relocateTooltips)
+        setTimeout(() => {
+          return this.relocateTooltips()
+        })
+    })
   }
 
   initializeState() {
@@ -209,14 +216,17 @@ class DanteEditor extends React.Component {
   }
 
   onChange(editorState) {
+
+    editorState = this.handleUndeletables(editorState)
+
     this.setPreContent()
     this.setState({ editorState })
 
     const currentBlock = getCurrentBlock(this.state.editorState)
     const blockType = currentBlock.getType()
 
-    if (!editorState.getSelection().isCollapsed()) {
 
+    if (!editorState.getSelection().isCollapsed()) {
       const tooltip = this.tooltipsWithProp('displayOnSelection')[0]
       if (!this.tooltipHasSelectionElement(tooltip, blockType)) {
         return
@@ -228,9 +238,39 @@ class DanteEditor extends React.Component {
 
     setTimeout(() => {
       return this.relocateTooltips()
-    }, 0)
+    })
 
     return this.dispatchChangesToSave()
+  }
+
+  handleUndeletables(editorState){
+    // undeletable behavior, will keep previous blockMap 
+    // if undeletables are deleted
+    const undeletable_types = this.widgets.filter(
+      function(o){ return o.undeletable })
+    .map(function(o){ return o.type })
+    
+    const currentblockMap = this.state.editorState.getCurrentContent().get("blockMap")
+    const blockMap = editorState.getCurrentContent().get("blockMap")
+
+    const undeletablesMap = blockMap
+    .filter(function(o){ 
+      return undeletable_types.indexOf(o.get("type")) > 0 
+    })
+
+    if (undeletable_types.length > 0 && undeletablesMap.size === 0) {
+
+      const contentState = editorState.getCurrentContent();
+      const blockMap = contentState.getBlockMap();
+      const newContentState = contentState.merge({
+        blockMap: this.state.editorState.getCurrentContent().blockMap,
+        selectionBefore: contentState.getSelectionAfter()
+      });
+
+      return editorState = EditorState.push(editorState, newContentState, 'change-block')
+    }
+
+    return editorState
   }
 
   dispatchChangesToSave() {
@@ -368,7 +408,7 @@ class DanteEditor extends React.Component {
     if (defaultBlockClass.length > 0) {
       return `graf ${ defaultBlockClass[0] } ${ is_selected }`
     } else {
-      return `graf nana ${ is_selected }`
+      return `graf ${ is_selected }`
     }
   }
 
@@ -385,10 +425,11 @@ class DanteEditor extends React.Component {
       return null
     }
 
-    const selectedFn = dataBlock.selectedFn ? dataBlock.selectedFn(block) : null
-    const selected_class = is_selected ? dataBlock.selected_class : ''
+    const selectedFn = dataBlock.selectedFn ? dataBlock.selectedFn(block) : ''
+    const selected_class = (dataBlock.selected_class ? dataBlock.selected_class : '' )
+    const selected_class_out = is_selected ? selected_class : ''
 
-    return `${ dataBlock.wrapper_class } ${ selected_class } ${ selectedFn }`
+    return `${ dataBlock.wrapper_class } ${ selected_class_out } ${ selectedFn }`
   }
 
   handleTooltipDisplayOn(prop, display) {
@@ -521,6 +562,19 @@ class DanteEditor extends React.Component {
 
       return this.onChange(addNewBlock(this.state.editorState, 'image', opts))
     })
+  }
+
+  handleDrop(selection, dataTransfer, isInternal){
+
+    const editorState = this.getEditorState();
+
+    const raw = dataTransfer.data.getData('text');
+
+    const data = JSON.parse(raw);
+
+    this.onChange(addNewBlock(editorState, data.type, data.data))
+
+    return 'handled';
   }
 
   handleUpArrow(e) {
@@ -866,7 +920,7 @@ class DanteEditor extends React.Component {
                   <div className="section-divider layoutSingleColumn">
                     <hr className="section-divider" />
                   </div>
-                  <div className="section-content">
+                  <div className="section-content container">
                     <div ref="richEditor" 
                         className="section-inner layoutSingleColumn"
                         onClick={ this.focus }>
@@ -874,6 +928,7 @@ class DanteEditor extends React.Component {
                         blockRendererFn={ this.blockRenderer }
                         editorState={ this.state.editorState }
                         onChange={ this.onChange }
+                        handleDrop={this.handleDrop}
                         onUpArrow={ this.handleUpArrow }
                         onDownArrow={ this.handleDownArrow }
                         handleReturn={ this.handleReturn }
@@ -922,6 +977,7 @@ class DanteEditor extends React.Component {
           ? <Debug locks={ this.state.locks } editor={ this } />
           : undefined
         }
+
       </div>
 
     )

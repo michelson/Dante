@@ -15,7 +15,7 @@ import {
   getCurrentBlock, 
   getNode } from '../../model/index.js'
 
-import { getSelectionRect, getSelection } from "../../utils/selection.js"
+import { getSelectionRect, getSelection, getRelativeParent } from "../../utils/selection.js"
 
 class DanteInlineTooltip extends React.Component {
 
@@ -219,42 +219,18 @@ class DanteInlineTooltip extends React.Component {
       let parent = ReactDOM.findDOMNode(this.props.editor)
       let parentBoundary = parent.getBoundingClientRect()
 
-      // hide if selected node is not in editor
-      // debugger
-      //console.log @isDescendant(parent, nativeSelection.anchorNode)
-
       if (!this.isDescendant(parent, nativeSelection.anchorNode)) {
         this.hide()
         return
       }
 
-      if (!coords)
-        return 
-
       // checkeamos si esta vacio
       this.display(block.getText().length === 0 && blockType === "unstyled")
       return this.setPosition({
-        top: coords.top + window.pageYOffset,
-        left: coords.left + window.pageXOffset - 60
+        top: coords.top + window.scrollY,
+        left: coords.left + window.scrollX - 60
       })
 
-      /*
-      @refs.image_popover.display(blockType is "image")
-       if blockType is "image"
-        selectionBoundary = node.anchorNode.parentNode.parentNode.parentNode.getBoundingClientRect()
-        *el = document.querySelector("#dante_image_popover")
-        el = @refs.image_popover.refs.image_popover
-        padd   = el.offsetWidth / 2
-        @refs.image_popover.setPosition
-          top: selectionBoundary.top - parentBoundary.top + 60
-          left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-
-        *@setState
-        *  image_popover_position:
-        *    top: selectionBoundary.top - parentBoundary.top + 60
-        *    left: selectionBoundary.left + (selectionBoundary.width / 2) - padd
-        *
-      */
     } else {
       return this.hide()
     }

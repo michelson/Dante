@@ -342,7 +342,9 @@ export default class ImageBlock extends React.Component {
             ref="image_tag" 
             height={this.state.aspect_ratio.height} 
             width={this.state.aspect_ratio.width} 
-            className='graf-image' />
+            className='graf-image'
+            contentEditable={false}
+          />
           <Loader toggle={this.state.loading} 
             progress={this.state.loading_progress} />
         </div>
