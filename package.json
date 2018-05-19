@@ -27,7 +27,7 @@
     "axios": "^0.15.2",
     "babel-runtime": "^6.11.6",
     "draft-convert": "^2.1.2",
-    "draft-js": "0.10.3",
+    "draft-js": "0.10.4",
     "draft-js-custom-styles": "^2.0.4",
     "immutable": "^3.8.2"
   },
@@ -52,7 +52,6 @@
     "colors": "^1.1.2",
     "cross-env": "^3.1.4",
     "css-loader": "^0.25.0",
-    "draft-js": "0.10.3",
     "eslint": "1.7.2",
     "eslint-loader": "1.1.0",
     "expose-loader": "^0.7.1",
