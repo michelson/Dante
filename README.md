@@ -1,8 +1,8 @@
-# Dante II - The rematch
+# Dante 2 - The rematch
 
 ## just another medium clone built on top of DraftJs
 
-> Dante II is a complete rewrite of [DanteEditor](https://michelson.github.io/Dante). This version is built on top of Facebook's Draft-Js and reaches all Dante's features with a shiny ultra mega super uber maintainable architecture.
+> Dante 2 is a complete rewrite of [DanteEditor](https://michelson.github.io/Dante). This version is built on top of Facebook's Draft-Js and reaches all Dante's features with a shiny ultra mega super uber maintainable architecture.
 
 See the demo at: [https://michelson.github.io/dante2/](https://michelson.github.io/dante2/)
 
@@ -46,17 +46,7 @@ In Draft every change provided from user input is stacked in this editorState bu
 
 ## Usage
 
-The Dante2 API is almost identical to the previous version.
-
-There are two methods of implementing Dante2 into your project.
-
-Basic Javascript
-```javascript
-new Dante({   
-  upload_url: "http://localhost:9292/uploads/new",    
-  store_url: "http://localhost:3333/store.json",    
-  el: "app"  
-})
+Since version 0.5.x there is only a component based way to use the editor. If you need a non component based use versions below 0.5.x
 
 ```
 Component Based
@@ -66,13 +56,12 @@ Component Based
   content={this.demo}
 />
 ```
-For more information on component based implementation, check out the [dante-tests](https://github.com/michelson/dante2-tests) repo.
 
 ### Options:
 
 Many configuration options and plugin usage can be found on the documentation page:
 
-See [https://michelson.github.io/dante2/doc.html](https://michelson.github.io/dante2/doc.html)
+See [https://michelson.github.io/dante2/doc.html](https://michelson.github.io/dante2)
 
 
 ## Development
@@ -103,13 +92,6 @@ For development purposes we have a server, written in ruby, to handle file uploa
 + `bundle exec rackup`
 
 and open http://localhost:9292
-
-
-### Ruby:
-For rubists you can install this library as a gem file.
-
-Just add the gem as dante2-editor
-
 
 ### Open source license
 
