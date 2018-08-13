@@ -2,17 +2,12 @@
 
 import 'colors';
 import build from './build';
-import docs from './docs/build';
 import { setExecOptions } from './exec';
 
 import yargs from 'yargs';
 
 const argv = yargs
   .help('h')
-  .option('docs-only', {
-    demand: false,
-    default: false
-  })
   .option('verbose', {
     demand: false,
     default: false,

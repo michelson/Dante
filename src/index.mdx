@@ -1,0 +1,33 @@
+---
+name: Basic options
+---
+
+import { Playground, PropsTable } from 'docz'
+import {Readme} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+
+# Editor
+
+<PropsTable of={Dante} />
+
+## Basic usage
+
+This is an empty editor. Will be initialized with default tooltips
+
+<Playground>
+  <Dante content={null}  />
+</Playground>
+
+## Read Only
+
+Read only will disable all interaction
+
+
+<Playground>
+  
+  <Dante content={null} config={{
+      read_only: true,
+      body_placeholder: "ododo"
+    }}  
+  />
+</Playground>

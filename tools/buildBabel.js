@@ -1,4 +1,4 @@
-import { transform } from 'babel-core';
+import { transform } from '@babel/core';
 import fs from 'fs';
 import path from 'path';
 import outputFileSync from 'output-file-sync';

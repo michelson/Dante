@@ -11,16 +11,15 @@ export default function BuildES() {
     .then(() => fsp.mkdirs(esRoot))
     .then(() => buildBabel(srcRoot, esRoot, {
       babelrc: false,
-      presets: [
-        ['es2015', { loose: true, modules: false }],
-        'stage-1',
-        'react'
-      ],
+      presets: [["react-app", {"flow":true}]],
       plugins: [
-        'dev-expression',
-        'transform-runtime',
-        'transform-es3-member-expression-literals',
-        'transform-es3-property-literals'
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-proposal-export-default-from",
+        "@babel/plugin-proposal-logical-assignment-operators",
+        ["@babel/plugin-proposal-optional-chaining", { loose: false }],
+        ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
+        ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: false }],
+        "@babel/plugin-proposal-do-expressions"
       ]
     }))
     .then(() => console.log('Built: '.cyan + 'es module'.green));
