@@ -32,6 +32,7 @@ class Dante extends React.Component {
     super(props)
     let config = Map(fromJS(this.defaultOptions(props.config)))
     this.options = config.mergeDeep(props.config).toJS()
+    this.state = this.options
   }
 
   defaultOptions(options = {}) {
@@ -318,11 +319,16 @@ class Dante extends React.Component {
   }
 */
 
+  toggleEditable = () => {
+    this.setState({ read_only: !this.state.read_only })
+  }
+
   render(){
     return(
       <div style={this.props.style}>
         <DanteEditor
           { ...this.props }
+          toggleEditable={this.toggleEditable}
         />
       </div>
     )
@@ -333,8 +339,8 @@ Dante.propTypes = {
   /** Editor content, it expects a null or a draft's EditorContent. */
   content: PropTypes.string,
   read_only: PropTypes.boolean,
-  spellcheck: PropTypes.boolean,
-  title_placeholder: PropTypes.string,
+  //spellcheck: PropTypes.boolean,
+  //title_placeholder: PropTypes.string,
   body_placeholder: PropTypes.string,
 
   xhr: PropTypes.shape({

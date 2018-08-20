@@ -5,6 +5,7 @@ import { ThemeProvider } from 'emotion-theming'
 import Dante from '../editor/components/Dante'
 import 'bulma/css/bulma.css'
 import Prism from 'prismjs';
+import Normalizer from 'prismjs/plugins/normalize-whitespace/prism-normalize-whitespace'
 
 import {Readme as demo} from '../site/data/poc'
 import {License as license} from '../site/data/poc'
@@ -36,7 +37,7 @@ const Theme = () => (
         <Route exact path={urlFor('')} component={Demo} />
         <Route path={urlFor('license')} component={License} />
         <Route path={urlFor('docs')} component={Doc} />
-        <Route path={urlFor('src-index')} component={Doc} />
+        <Route path={urlFor(':doc')} component={Doc} />
       </div>                
     </Router>
   </div>
@@ -107,7 +108,6 @@ const Demo = ()=>{
 }
 
 
-
 const Pre = styled('pre')`
   font-size: 14px;
   font-family: monospace;
@@ -135,27 +135,58 @@ const Playground = styled('div')`
   margin-top: 20px;
 `
 
+const PlayGroundContainer = styled('div')`
+  margin-bottom: 2em;
+`
+
 class Render extends React.Component {
+
+  constructor(props){
+    super(props)
+
+    // Create a new Normalizer object
+    this.nw = new Normalizer({
+      //'remove-trailing': true,
+      //'remove-indent': true,
+      //'left-trim': true,
+      //'right-trim': true,
+      'break-lines': 60,
+      //'indent': 1,
+      'remove-initial-line-feed': false,
+      /*'tabs-to-spaces': 4,
+      'spaces-to-tabs': 4*/
+    });
+
+    // ..or use the default object from Prism
+    //this.nw = Prism.plugins.NormalizeWhitespace;
+
+  }
   render(){
+
+    const code = this.nw.normalize(this.props.code, {
+      // Extra settings
+      //indent: 1
+    });
+
     const fmt =  {__html: Prism.highlight(
-                            this.props.code, 
+                            code, 
                             Prism.languages.jsx, 
                             'jsx')
                   }
-    return <div>
+    return <PlayGroundContainer>
               <Playground>
                 {this.props.component}
               </Playground>
 
               <Code dangerouslySetInnerHTML={fmt}/>
               
-           </div>
+           </PlayGroundContainer>
   }
 }
 
 
 const Doc = ()=>{
-  return <div className="container" 
+  return <div className="container-dis" 
               style={{padding: '100px 0px'}}>
             <section className="section">
               <h1 className="title">Documentation</h1>

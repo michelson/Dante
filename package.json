@@ -1,6 +1,6 @@
 {
   "name": "dante2",
-  "version": "0.5.0-pre",
+  "version": "0.5.0-rc1",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -51,6 +51,7 @@
     "gh-pages": "^1.2.0",
     "node-sass": "^4.9.3",
     "prismjs": "^1.15.0",
+    "react-powerplug": "^1.0.0-rc.1",
     "rollup": "^0.64.1",
     "rollup-plugin-babel": "^4.0.0-beta.8",
     "rollup-plugin-commonjs": "^9.1.5",
@@ -76,6 +77,7 @@
   },
   "scripts": {
     "docz:dev": "docz dev",
+    "start": "yarn docz dev",
     "predeploy": "PUBLIC_URL=https://michelson.github.io/dante2 yarn docz build",
     "deploy": "node build.js",
     "build": "NODE_ENV=production rollup -c",

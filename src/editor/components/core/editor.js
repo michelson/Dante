@@ -77,10 +77,8 @@ export default class DanteEditor extends React.Component {
 
     this.state = {
       editorState: EditorState.createEmpty(),
-      read_only: this.props.read_only,
       blockRenderMap: this.extendedBlockRenderMap,
       locks: 0,
-      debug: this.props.debug
     }
 
     //this.widgets = this.props.widgets
@@ -312,10 +310,10 @@ export default class DanteEditor extends React.Component {
       return null
     }
 
-    const read_only = this.state.read_only ? false : null
+    const read_only = this.props.read_only ? false : null
     const editable = read_only !== null ? read_only : dataBlock.editable
     return {
-      component: eval(dataBlock.block),
+      component: dataBlock.block,
       editable,
       props: {
         data: block.getData(),
@@ -374,7 +372,7 @@ export default class DanteEditor extends React.Component {
 
     // for button click on after inline style set, 
     // avoids inline popver to reappear on previous selection
-    if(this.state.read_only){
+    if(this.props.read_only){
       return  
     }
 
@@ -647,11 +645,11 @@ export default class DanteEditor extends React.Component {
 
     const blockTo = this.props.character_convert_mapping[currentBlock.getText() + chars]
 
-    console.log(`BLOCK TO SHOW: ${ blockTo }`)
-
     if (!blockTo) {
       return false
     }
+
+    console.log(`BLOCK TO SHOW: ${ blockTo }`)
 
     this.onChange(resetBlockWithType(editorState, blockTo))
 
@@ -756,7 +754,8 @@ export default class DanteEditor extends React.Component {
   //# read only utils
   toggleEditable = ()=> {
     this.closePopOvers()
-    return this.setState({ read_only: !this.state.read_only }, this.testEmitAndDecode)
+    return this.props.toggleEditable(()=> this.testEmitAndDecode ) 
+    //setState({ read_only: !this.props.read_only }, this.testEmitAndDecode)
   }
 
   disableEditable = ()=> {
@@ -778,7 +777,7 @@ export default class DanteEditor extends React.Component {
   }
 
   relocateTooltips = ()=> {
-    if (this.state.read_only)
+    if (this.props.read_only)
       return 
 
     if (isEmpty(this.refs))
@@ -853,9 +852,8 @@ export default class DanteEditor extends React.Component {
       <div suppressContentEditableWarning={ true }>
         
           <div className="postContent">
-            <div ref="richEditor" 
-                className="section-inner layoutSingleColumn"
-                onClick={ this.focus }>
+            <div className="section-inner layoutSingleColumn"
+                 onClick={ this.focus }>
               <Editor
                 blockRendererFn={ this.blockRenderer }
                 editorState={ this.state.editorState }
@@ -873,7 +871,7 @@ export default class DanteEditor extends React.Component {
                 handleKeyCommand={ this.handleKeyCommand }
                 keyBindingFn={ this.KeyBindingFn }
                 handleBeforeInput={ this.handleBeforeInput }
-                readOnly={ this.state.read_only }
+                readOnly={ this.props.read_only }
                 placeholder={ this.props.body_placeholder }
                 ref="editor"
               />
@@ -903,7 +901,7 @@ export default class DanteEditor extends React.Component {
           
         }
         {
-          this.state.debug
+          this.props.debug
           ? <Debug locks={ this.state.locks } editor={ this } />
           : undefined
         }
