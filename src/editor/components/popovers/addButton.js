@@ -7,7 +7,14 @@ import {
   getCurrentBlock
 } from '../../model/index.js'
 
-import { getSelectionRect, getSelection } from "../../utils/selection.js"
+import {
+  getVisibleSelectionRect
+} from 'draft-js'
+
+import { getSelectionRect, 
+  getSelection, 
+  getSelectedBlockNode,
+  getRelativeParent } from "../../utils/selection.js"
 
 import Icons from "../icons.js"
 
@@ -185,50 +192,56 @@ class DanteInlineTooltip extends React.Component {
     return false
   }
 
-  relocate = ()=> {
-    let { editorState } = this.props
+  relocate = ()=>{
 
-    if (editorState.getSelection().isCollapsed()) {
+    const { editorState } = this.props
+    const currentBlock = getCurrentBlock(this.props.editorState)
+    const blockType = currentBlock.getType()
+    const block = currentBlock
 
-      let currentBlock = getCurrentBlock(editorState)
-      let blockType = currentBlock.getType()
-
-      let contentState = editorState.getCurrentContent()
-      let selectionState = editorState.getSelection()
-
-      let block = contentState.getBlockForKey(selectionState.anchorKey)
-
-      let nativeSelection = getSelection(window)
-      if (!nativeSelection.rangeCount) {
-        return
-      }
-
-      let selectionBoundary = getSelectionRect(nativeSelection)
-      let coords = selectionBoundary //utils.getSelectionDimensions(node)
-
-      let parent = ReactDOM.findDOMNode(this.props.editor)
-      let parentBoundary = parent.getBoundingClientRect()
-
-      if (!this.isDescendant(parent, nativeSelection.anchorNode)) {
-        this.hide()
-        return
-      }
-
-      //this.refs.tooltip.style.left = "auto";
-      const left = this.refs.tooltip.offsetLeft
-      // checkeamos si esta vacio
-      this.display(block.getText().length === 0 && blockType === "unstyled")
-      return this.setPosition({
-        top: coords.top + window.scrollY - 5,
-        left: parent.offsetLeft - 60
-        //left: coords.left //+ window.scrollX - this.refs.tooltip.clientWidth * 4 //- 50
-        //left: (selectionBoundary.left - parentBoundary.left ) + this.refs.tooltip.clientWidth //coords.left + window.scrollX - 60
-      })
-
-
-    } else {
-      return this.hide()
+    if (!editorState.getSelection().isCollapsed()){
+      return
     }
+
+    // display tooltip only for unstyled
+
+    let nativeSelection = getSelection(window)
+    if (!nativeSelection.rangeCount) {
+      return
+    }
+
+    let selectionRect = getSelectionRect(nativeSelection)
+
+    let parent = ReactDOM.findDOMNode(this.props.editor)
+
+    // hide if selected node is not in editor
+    if (!this.isDescendant(parent, nativeSelection.anchorNode)) {
+      this.hide()
+      return
+    }
+
+    const relativeParent = getRelativeParent(this.refs.tooltip.parentElement);
+    const toolbarHeight = this.refs.tooltip.clientHeight;
+    const toolbarWidth = this.refs.tooltip.clientWidth;
+    const relativeRect = (relativeParent || document.body).getBoundingClientRect();
+
+    if(!relativeRect || !selectionRect)
+      return
+
+    let top = (selectionRect.top - relativeRect.top) - (toolbarHeight/5)
+    let left = (selectionRect.left - relativeRect.left + (selectionRect.width/2) ) - (toolbarWidth*1.3)
+
+    if (!top || !left) {
+      return
+    }
+
+    this.display(block.getText().length === 0 && blockType === "unstyled")
+
+    this.setPosition({
+      top: top , //+ window.scrollY - 5,
+      left: left,
+      //show: block.getText().length === 0 && blockType === "unstyled"
+    })
   }
 
   render(){

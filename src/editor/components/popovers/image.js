@@ -4,6 +4,7 @@ import Icons from '../icons'
 import {capitalize} from 'lodash'
 import { getSelection } from "../../utils/selection.js"
 import { getCurrentBlock } from '../../model/index.js'
+import { getRelativeParent } from "../../utils/selection.js"
 
 class DanteImagePopover extends React.Component {
 
@@ -82,14 +83,19 @@ class DanteImagePopover extends React.Component {
       if (blockType === "image") {
 
         let imageBoxNode = document.getElementsByClassName("is-selected")[0]
-        let selectionBoundary = imageBoxNode.getBoundingClientRect()
+        let selectionRect = imageBoxNode.getBoundingClientRect()
 
         let el = this.refs.image_popover
-        let padd = el.clientWidth / 2
-        const toolbarHeight = el.offsetHeight;
+        const relativeParent = getRelativeParent(el.parentElement);
+        const toolbarHeight = el.clientHeight;
+        const toolbarWidth =  el.clientWidth;
+        const relativeRect = (relativeParent || document.body).getBoundingClientRect();
         
-        let left = selectionBoundary.left + selectionBoundary.width / 2 - padd
-        let top = (selectionBoundary.top + window.scrollY) - toolbarHeight
+        let top = (selectionRect.top - relativeRect.top) - toolbarHeight
+        let left = (selectionRect.left - relativeRect.left + (selectionRect.width/2) ) - ( toolbarWidth/2 )
+        
+        //let left = selectionRect.left + selectionRect.width / 2 - padd
+        //let top = (selectionRect.top + window.scrollY) - toolbarHeight
         return this.setPosition({
           top: top, 
           left: left 

@@ -1,5 +1,8 @@
 
 import React from 'react'
+import ReactDOM from 'react-dom'
+
+import { getRelativeParent } from "../../utils/selection.js"
 
 class DanteAnchorPopover extends React.Component {
 
@@ -38,29 +41,38 @@ class DanteAnchorPopover extends React.Component {
       position: coords })
   }
 
-  relocate(node) {
-    if (node == null) {
-      node = null
-    }
+  relocate = (node)=>{
+
     if (!node) {
       return
     }
 
-    let selectionBoundary = node.getBoundingClientRect()
+    const { editorState } = this.props
 
-    let el = this.refs.dante_popover
-    let padd = el.offsetWidth / 2
+    let selectionRect = node.getBoundingClientRect()
 
-    const toolbarHeight = el.offsetHeight;
+    let parent = ReactDOM.findDOMNode(this.props.editor)
 
-    let left = selectionBoundary.left + selectionBoundary.width / 2 - padd
-    let top = (selectionBoundary.top + window.scrollY) + (toolbarHeight * 0.3)
+    const relativeParent = getRelativeParent(this.refs.dante_popover.parentElement);
+    const toolbarHeight = this.refs.dante_popover.clientHeight;
+    const toolbarWidth = this.refs.dante_popover.clientWidth;
+    const relativeRect = (relativeParent || document.body).getBoundingClientRect();
+
+    if(!relativeRect || !selectionRect)
+      return
+
+    let top = (selectionRect.top - relativeRect.top) + (toolbarHeight*0.3)
+    let left = (selectionRect.left - relativeRect.left + (selectionRect.width/2) ) - ( toolbarWidth/2 )
+
+    if (!top || !left) {
+      return
+    }
 
     return {
       top: top,
       left: left
     }
-
+    
   }
 
   render() {
