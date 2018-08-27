@@ -518,7 +518,7 @@ Dante.defaultProps = {
   ],
   
   widgets: [
-    {
+    /*{
       icon: 'divider',
       type: 'divider',
       title: "Divider",
@@ -532,7 +532,7 @@ Dante.defaultProps = {
         insertion: "insertion",
         insert_block: "divider"
       }
-    },
+    },*/
     {
       title: 'add an image',
       icon: 'image',
