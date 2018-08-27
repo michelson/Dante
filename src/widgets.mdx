@@ -1,5 +1,6 @@
 ---
 name: Widgets
+order: 2
 ---
 
 import { Playground, PropsTable } from 'docz'
@@ -9,37 +10,30 @@ import {State, Toggle} from 'react-powerplug'
 
 # Widgets
 
-Widgets are React components that are indeed blocks to be rendered in the editors text content. There are some blocks already implemented in dante2 
+
+Widgets are just react components that you can use to render custom content on your component. Note that all Dante's features are composed as components.
+
+Widgets are contained in an array and should point to the name of the React component, some of the main options are:
+
 
 ## Options
-icon: This is the name
-type: 
-title
-editable: element that should be editable
-renderable: element that should be rendered
-breakOnContinuous: this will enable the carriage return to exit the component or stay on it. This is usefull to handle the behavior on editable or non editable widgets.
-block: The react class
-wrapper_class: the style class that wraps your component
-widget_options: a custom object that will be passed through the widget 
+
++ **block**: string, the class of the React.Component.
++ **editable**: bool, this configures if the component will be editable or not.
++ **renderable**: bool, this configures if the component is renderable
++ **breakOnContinuous**: bool, same as continuousBlock but for widgets.
++ **handleEnterWithText**: func, this handles the behaviour when you hit ENTER on the component and text is present.
+handleEnterWihoutText: func, this handles the behaviour when you hit ENTER on the component and no text is present.
++ **selectedFn**: func, this handles the behaviour when component is focused
++ **selected_class**: string, this configures which class will be added when component is focused
++ **wrapper_class**: string, this configures the default class that will wrapp the component
++ **options**: Object, this are custom options that will be stored in your component for later use.
++ **widget_options**: Object, this are custom options that will operate as a blockProps, this are volatile options, not to be stored in your content. 
 
 
+-------------------
 ```
   widgets: [
-    {
-      icon: 'divider',
-      type: 'divider',
-      title: "Divider",
-      editable: false,
-      renderable: true,
-      breakOnContinuous: true,
-      block: DividerBlock,
-      wrapper_class: "graf graf--hr",
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "insertion",
-        insert_block: "divider"
-      }
-    },
     {
       title: 'add an image',
       icon: 'image',

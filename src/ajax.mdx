@@ -1,0 +1,14 @@
+---
+name: Ajax
+order: 8
+---
+
+The xhr option is a set of functions that will be called on any ajax operation, let's say you want to display a preloader when the editor is saving content and then display success or error messages when operation is done.
+
+```
+xhr: {
+  before_handler: func,
+  success_handler: func,
+  error_handler: func
+}
+```

@@ -198,10 +198,10 @@ const Doc = ()=>{
                 {config => (
                   <ThemeProvider theme={config}>
                     <div className="columns is-mobile">
-                      <div className="column is-two-quarters-desktop is-one-quarter-widescreen is-one-quarter-fullhd">
+                      <div className="column is-3 is-narrow-mobile is-fullheight section is-hidden-mobile">
                         <Menu />
                       </div>
-                      <div className="column">
+                      <div className="container column is-9">
 
                         <DocPreview
                           
