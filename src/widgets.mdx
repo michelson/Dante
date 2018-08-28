@@ -36,7 +36,6 @@ handleEnterWihoutText: func, this handles the behaviour when you hit ENTER on th
   widgets: [
     {
       title: 'add an image',
-      icon: 'image',
       type: 'image',
       block: ImageBlock,
       editable: true,
@@ -81,7 +80,6 @@ handleEnterWihoutText: func, this handles the behaviour when you hit ENTER on th
         image_caption_placeholder: "type a caption (optional)"
       }
     }, {
-      icon: 'embed',
       title: 'insert embed',
       type: 'embed',
       block: EmbedBlock,
@@ -108,7 +106,6 @@ handleEnterWihoutText: func, this handles the behaviour when you hit ENTER on th
         return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       }
     }, {
-      icon: 'video',
       title: 'insert video',
       editable: true,
       type: 'video',

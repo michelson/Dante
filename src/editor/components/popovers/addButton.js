@@ -162,7 +162,7 @@ class DanteInlineTooltip extends React.Component {
   }
 
   clickHandler =(e, type)=> {
-    let request_block = this.widgets().find(o => o.icon === type)
+    let request_block = this.widgets().find(o => o.type === type)
     switch (request_block.widget_options.insertion) {
       case "upload":
         return this.clickOnFileUpload(e, request_block)
@@ -258,9 +258,6 @@ class DanteInlineTooltip extends React.Component {
           onClick={ this._toggleScaled }
         >
           {Icons.add()}
-          {/*
-            <span className="tooltip-icon dante-icon-plus" />
-          */}
         </button>
         <div
            className="inlineTooltip-menu"
@@ -291,7 +288,7 @@ class InlineTooltipItem extends React.Component {
 
   clickHandler = (e)=> {
     e.preventDefault()
-    return this.props.clickHandler(e, this.props.item.icon)
+    return this.props.clickHandler(e, this.props.item.type)
   }
 
   render() {
@@ -304,7 +301,7 @@ class InlineTooltipItem extends React.Component {
       >
       {
         <span className={ 'tooltip-icon'}>
-          {Icons[this.props.item.icon]()}
+          {Icons[this.props.item.type]()}
         </span>
       }
       </button>

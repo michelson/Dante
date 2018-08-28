@@ -250,7 +250,6 @@ Dante.defaultProps = {
     },*/
     {
       title: 'add an image',
-      icon: 'image',
       type: 'image',
       block: ImageBlock,
       editable: true,
@@ -295,7 +294,6 @@ Dante.defaultProps = {
         image_caption_placeholder: "type a caption (optional)"
       }
     }, {
-      icon: 'embed',
       title: 'insert embed',
       type: 'embed',
       block: EmbedBlock,
@@ -322,7 +320,6 @@ Dante.defaultProps = {
         return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
       }
     }, {
-      icon: 'video',
       title: 'insert video',
       editable: true,
       type: 'video',
