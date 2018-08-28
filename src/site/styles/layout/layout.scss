@@ -96,3 +96,21 @@ a.navbar-item:hover, a.navbar-item.is-active, .navbar-link:hover, .navbar-link.i
   background-color: #fafafa;
   color: #0bc392;
 }
+
+.number {
+  -ms-flex-align: center;
+  /* align-items: center; */
+  background-color: transparent;
+  /* border-radius: 290486px; */
+  display: -ms-inline-flexbox;
+  display: inline;
+  font-size: 1.25rem;
+  height: 2em;
+  -ms-flex-pack: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  min-width: 2.5em;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+  vertical-align: top;
+}

@@ -2,7 +2,7 @@
 
   // BASE
   position: absolute;
-  z-index: 900;
+  z-index: 10;
   width: $tooltip-size;
   height: $tooltip-size;
   -webkit-transition: opacity 100ms, width 0 linear 250ms;

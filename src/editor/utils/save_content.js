@@ -99,7 +99,6 @@ class SaveBehavior {
 
     if (this.config.xhr.before_handler) { this.config.xhr.before_handler() }
     // console.log "SAVING TO: #{@getMethod()} #{@getUrl()}"
-
     return axios({
       method: this.getMethod(),
       url: this.getUrl(),
@@ -113,13 +112,23 @@ class SaveBehavior {
     })
     .then(result=> {
       // console.log "STORING CONTENT", result
-      if (this.config.data_storage.success_handler) { this.config.data_storage.success_handler(result) }
-      if (this.config.xhr.success_handler) { return this.config.xhr.success_handler(result) }
+      if (this.config.data_storage.success_handler) { 
+        return this.config.data_storage.success_handler(result) 
+      }
+      if (this.config.xhr.success_handler) { 
+        return this.config.xhr.success_handler(result) 
+      }
     }
     )
     .catch(error=> {
       // console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
-      if (this.config.xhr.failure_handler) { return this.config.xhr.failure_handler(error) }
+      if (this.config.xhr.failure_handler) { 
+        return this.config.data_storage.failure_handler(error) 
+      }
+      
+      if (this.config.xhr.failure_handler) { 
+        return this.config.xhr.failure_handler(error) 
+      }
     }
     )
   }

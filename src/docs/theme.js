@@ -111,6 +111,7 @@ const Demo = ()=>{
 const Pre = styled('pre')`
   font-size: 14px;
   font-family: monospace;
+  margin: 21px 0px;
 
 `
 const Code = styled('pre')`

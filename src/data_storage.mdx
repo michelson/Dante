@@ -3,20 +3,30 @@ name: Data Storage
 order: 7
 ---
 
-Date storage is an option that handles the way on how dante editor will hit your server to save the content, it will send an editorState serialized as json and a text version. Ajax calls are made with Axios library.
-Ajax storage behavior can be overrided in order to integrate a custom solution with the save_handler callback.
+# Data Storage
+
+Data storage is an option that handle the way on how dante editor will hit your server to save the content, it will send an editorState serialized as JSON along with a text version. Ajax calls are made with Axios library behind the scenes.
 
 
 ```
 data_storage: {
-  failure_handler: func,
-  interval: 1500,
   success_handler: func,
+  failure_handler: func,
   url: string with your endpoint
-  save_handler: func (editorContext, content)
   method: "POST"
+  interval: 1500,
   withCredentials: bool
   crossDomain: bool
   headers: {}
 }
 ```
+
+If you really really need a custom ajax call you can override the entire thing in order to integrate a custom solution with the save_handler callback.
+
+```
+data_storage: {
+  save_handler: func (editorContext, content)
+}
+```
+
+

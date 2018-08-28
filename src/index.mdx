@@ -16,7 +16,20 @@ import Dante from './editor/components/Dante/Dante.js'
 This is an empty editor. Will be initialized with default tooltips
 
 <Playground>
-  <Dante content={null}  />
+  <Dante />
+</Playground>
+
+Is the same as
+
+<Playground>
+  <Dante content={null} />
+</Playground>
+
+## Body placeholder
+
+<Playground>
+  <Dante body_placeholder={"Do what you will" } 
+  />
 </Playground>
 
 ## Read Only
@@ -24,7 +37,5 @@ This is an empty editor. Will be initialized with default tooltips
 Read only will disable all interaction
 
 <Playground>
-  <Dante content={null} 
-    body_placeholder={"Do what you will" } 
-  />
+  <Dante read_only={true} />
 </Playground>
