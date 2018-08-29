@@ -7,6 +7,7 @@ import { exec } from '../exec';
 import { copy } from '../fs-utils';
 
 const packagePath = path.join(repoRoot, 'package.json');
+console.log(packagePath)
 const bowerTemplatePath = path.join(__dirname, 'bower.json');
 const bowerJson = path.join(bowerRoot, 'bower.json');
 

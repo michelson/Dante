@@ -1,0 +1,116 @@
+$color-brand: #1abf89;
+$gutter: 30px;
+
+#header {
+  /*display: block;
+  z-index: 500;
+  
+  font-size: 14px;
+  color: rgba(0,0,0,0.3);
+  font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  font-style: normal;
+  box-sizing: border-box;
+  -webkit-transition: 200ms background-color,200ms color;
+  transition: 200ms background-color,200ms color;
+  
+  top: 0;
+  height: 65px;
+  background: rgba(255,255,255,0.97);
+  box-shadow: 0 0 1px rgba(0,0,0,0.15);
+  */
+  width: 100%;
+  position: fixed;
+  box-shadow: 0 0 1px rgba(0,0,0,0.15);
+}
+
+.navbar-brand{
+  span {
+    vertical-align: top;
+    border-left: 1px solid rgba(0,0,0,0.15);
+    padding: 5px 14px;
+    margin: 20px 0;
+    display: inline-block;
+  }  
+}
+
+
+.menu-buttons{
+  float:right;
+}
+
+.menu-button{
+  display: block;
+  float: left;
+  padding: 25px;
+  text-transform: uppercase;
+  color: #0bc392;
+  font-weight: 500;
+}
+
+article {
+  margin-top: 140px;
+}
+
+.logo {
+  & {
+    display: inline-block;
+  }
+  img {
+    margin: 22px 14px 22px 20px;
+  }
+  span {
+    vertical-align: top;
+    border-left: 1px solid rgba(0,0,0,0.15);
+    padding: 5px 14px;
+    margin: 20px 0;
+    display: inline-block;
+  }
+}
+
+.github {
+  & {
+    float: right;
+    line-height: 0;
+    margin-top: 19px;
+    margin-right: 20px;
+  }
+}
+
+.tag:not(body) {
+  font-size: 1.2rem;
+  background-color: transparent;
+}
+
+
+.token.attr-name{
+  margin-left: 5px;
+}
+
+a {
+  color: #0bc392;
+}
+
+a.navbar-item:hover, a.navbar-item.is-active, .navbar-link:hover, .navbar-link.is-active {
+  background-color: #fafafa;
+  color: #0bc392;
+}
+
+.number {
+  -ms-flex-align: center;
+  /* align-items: center; */
+  background-color: transparent;
+  /* border-radius: 290486px; */
+  display: -ms-inline-flexbox;
+  display: inline;
+  font-size: 1.25rem;
+  height: 2em;
+  -ms-flex-pack: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  min-width: 2.5em;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+  vertical-align: top;
+}

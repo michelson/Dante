@@ -1,0 +1,29 @@
+---
+name: Debug
+order: 0
+---
+
+import { Playground, PropsTable } from 'docz'
+import {Lorem} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+import {State, Toggle} from 'react-powerplug'
+
+# Debug
+
+<Playground>
+  <Toggle initial={false}>
+    {({ on, toggle }) => {
+      return <div>
+        <Dante 
+          debug={on}
+        />
+
+        <button onClick={toggle}>
+          {on ? 'hide' : 'show' } debug
+        </button>
+        
+      </div>
+    }
+    }
+  </Toggle>
+</Playground>

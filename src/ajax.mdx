@@ -1,0 +1,38 @@
+---
+name: Ajax
+order: 8
+---
+
+# AJAX Operations
+
+The xhr option is a set of callbacks that will be called on any ajax operation.
+This is usefull when you want to display a loaders when the editor is saving content and then display success or error messages when operation is done.
+
+import { Playground, PropsTable } from 'docz'
+import {Readme} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+
+
+```
+xhr: {
+  before_handler: func,
+  success_handler: func,
+  failure_handler: func
+}
+```
+
+The following example will raise and alert on before send and on error.
+
+<Playground>
+  <Dante data_storage={{
+     url: '/save_path',
+     method: 'POST'
+    }}
+    xhr={
+      {
+        before_handler: function(){ alert('this is the before ajax handler') },
+        failure_handler: function(error){ alert('this is the error ajax handler') },
+      }
+    } 
+  />
+</Playground>

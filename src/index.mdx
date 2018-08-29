@@ -1,0 +1,41 @@
+---
+name: Basic options
+order: 10
+---
+
+import { Playground, PropsTable } from 'docz'
+import {Readme} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+
+# Editor
+
+
+
+## Basic usage
+
+This is an empty editor. Will be initialized with default tooltips
+
+<Playground>
+  <Dante />
+</Playground>
+
+Is the same as
+
+<Playground>
+  <Dante content={null} />
+</Playground>
+
+## Body placeholder
+
+<Playground>
+  <Dante body_placeholder={"Do what you will" } 
+  />
+</Playground>
+
+## Read Only
+
+Read only will disable all interaction
+
+<Playground>
+  <Dante read_only={true} />
+</Playground>

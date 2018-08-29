@@ -1,0 +1,42 @@
+---
+name: Character Convert Mapping
+order: 4
+---
+
+import { Playground, PropsTable } from 'docz'
+import {h1} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+import {State, Toggle} from 'react-powerplug'
+
+# Continuous Blocks
+
+This option provides some mapping on character combination on the beggining of pharagraph. For example you may want to create some ordered list just by typing "1." The following are some default character mappings:
+
+
+## Defaults are : 
+```
+  character_convert_mapping: {
+    '> ': "blockquote",
+    '*.': "unordered-list-item",
+    '* ': "unordered-list-item",
+    '- ': "unordered-list-item",
+    '1.': "ordered-list-item",
+    '# ': 'header-one',
+    '##': 'header-two',
+    '==': "unstyled",
+    '` ': "code-block"
+  }
+```
+
+## Implement defaults
+
+<Playground>
+  <Dante 
+    character_convert_mapping={ 
+      {
+        '* ': "blockquote",
+        '##': 'header-two'
+      }
+   }
+  />
+</Playground>

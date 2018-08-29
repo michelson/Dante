@@ -1,0 +1,36 @@
+---
+name: Continuous Blocks
+order: 5
+---
+
+import { Playground, PropsTable } from 'docz'
+import {h1} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+import {State, Toggle} from 'react-powerplug'
+
+# Continuous Blocks
+
+This option allows some fine tunning on which blocks should be created repeatedly after hitting ENTER key. This is useful on blockquotes or lists Example on how to enable this option:
+
+
+## Defaults are : 
+```
+ [
+   unstyled,
+   blockquote,
+   ordered-list,
+   unordered-list,
+   unordered-list-item,
+   ordered-list-item,
+   code-block
+ ]
+```
+
+## But let's implement a continuous H1
+
+<Playground>
+  <Dante 
+    content={h1}
+    continuousBlocks={[ "header-one" ]}
+  />
+</Playground>
