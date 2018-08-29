@@ -1,43 +1,24 @@
-# Numerous always-ignore extensions
-*.diff
-*.err
-*.orig
-*.log
-*.rej
-*.swo
-*.swp
-*.vi
-*~
-*.sass-cache
+# See https://help.github.com/ignore-files/ for more about ignoring files.
 
-# OS or Editor folders
+# dependencies
+/node_modules
+
+# testing
+/coverage
+.docz
+# production
+/build
+/package
+/docs
+
+# misc
 .DS_Store
-.cache
-.project
-.settings
-.tmproj
-nbproject
-Thumbs.db
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# NPM packages folder.
-node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Brunch folder for temporary files.
-tmp/
-/pkg/
-
-# Brunch output folder.
-public/
-
-# Bower stuff.
-bower_components/
-package
-*.tgz
-.babel_cache
-# Build stuff
-amd/
-lib/
-es/
-tmp-bower-repo/
-tmp-docs-repo/
-.babel-cache/

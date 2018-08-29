@@ -1,0 +1,51 @@
+---
+name: Key Commands
+order: 7
+
+---
+
+import { Playground, PropsTable } from 'docz'
+import {h1} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+import {State, Toggle} from 'react-powerplug'
+
+# Key Commands
+
+key commands are mappings in which you can set certain actions over the selected text through key commands, ie: cmd+i = italic, cmd+b = bold.
+
+Use this option to configure command combinations to insert or toggle blocks. This configuration supports commands like alt-cmd, alt-shift & cmd. You must pass toggle_block:BLOCK_TYPE and toggle_inline:BLOCK_TYPE. the following is an example of some default options:
+
+
+```
+{
+  "alt-shift": [{ key: 65, cmd: 'add-new-block' }],
+  "alt-cmd": [{ key: 49, cmd: 'toggle_block:header-one' },
+              { key: 50, cmd: 'toggle_block:header-two' },
+              { key: 53, cmd: 'toggle_block:blockquote' }],
+  "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' },
+          { key: 73, cmd: 'toggle_inline:ITALIC' },
+          { key: 75, cmd: 'insert:link' }]
+},
+```
+
+## Let's try some defaults
+
+Type something, select text and try cmd+b or cmd+i over a it.
+
+<Playground>
+  <Dante 
+    key_commands={ 
+      {
+        "alt-shift": [{ key: 65, cmd: 'add-new-block' }],
+        "alt-cmd": [{ key: 49, cmd: 'toggle_block:header-one' },
+                    { key: 50, cmd: 'toggle_block:header-two' },
+                    { key: 53, cmd: 'toggle_block:blockquote' }],
+        "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' },
+                { key: 73, cmd: 'toggle_inline:ITALIC' },
+                { key: 75, cmd: 'insert:link' }]
+      }
+    }
+  />
+</Playground>
+
+
