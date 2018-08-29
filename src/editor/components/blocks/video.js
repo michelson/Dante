@@ -95,7 +95,7 @@ export const VideoBlockConfig = (options={})=>{
         insert_block: "video"
       },
       options: {
-        //endpoint: `${options.oembed_uri}`,
+        endpoint: '//open.iframe.ly/api/oembed?origin=https://github.com&url=',
         placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
         caption: 'Type caption for embed (optional)'
       },

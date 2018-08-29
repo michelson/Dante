@@ -39,7 +39,15 @@ handleEnterWihoutText: function, this handles the behaviour when you hit ENTER o
 
 -------------------
 
-## default 
+## default
+
+By default 
+
+<Playground>
+  <Dante content={null} />
+</Playground>
+
+## empty widgets 
 
 <Playground>
   <Dante content={null} widgets={[]}/>
@@ -57,7 +65,7 @@ handleEnterWihoutText: function, this handles the behaviour when you hit ENTER o
   <Dante content={null} widgets={[
                                   EmbedBlockConfig({ options: {
                                       placeholder: "put an external link",
-                                      endpoint: "//api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
+                                      endpoint: "//open.iframe.ly/api/oembed?origin=https://github.com&url="
                                     } })
                                     , 
                                   PlaceholderBlockConfig()
@@ -71,7 +79,7 @@ handleEnterWihoutText: function, this handles the behaviour when you hit ENTER o
   <Dante content={null} widgets={[
                                   VideoBlockConfig({ options: {
                                       placeholder: "put an external video link",
-                                      endpoint: "//api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url=",
+                                      endpoint: "//open.iframe.ly/api/oembed?origin=https://github.com&url=",
                                       caption: 'optional caption'
                                     } 
                                   }), 

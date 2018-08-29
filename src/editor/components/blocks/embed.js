@@ -61,7 +61,7 @@ export default class EmbedBlock extends React.Component {
   }
 
   classForImage = ()=> {
-    if (this.state.embed_data.images) {
+    if (this.picture()) {
       return ""
     } else {
       return "mixtapeImage--empty u-ignoreBlock"
@@ -73,7 +73,11 @@ export default class EmbedBlock extends React.Component {
     if (this.state.embed_data.images && this.state.embed_data.images.length > 0) {
       return this.state.embed_data.images[0].url
     } else {
-      return ""
+      if(this.state.embed_data.thumbnail_url ){
+        return this.state.embed_data.thumbnail_url
+      } else {
+        return null  
+      }
     }
   }
 
@@ -126,7 +130,7 @@ export const EmbedBlockConfig = (options={})=>{
         insert_block: "embed"
       },
       options: {
-        //endpoint: `${options.oembed_uri}`,
+        endpoint: '//open.iframe.ly/api/oembed?origin=https://github.com&url=',
         placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
       },
       handleEnterWithoutText(ctx, block) {
