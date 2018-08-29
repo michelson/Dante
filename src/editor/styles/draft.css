@@ -80,6 +80,7 @@
   color: #9197a3;
   position: absolute;
   z-index: 0;
+  background-color: white;
 }
 
 .public-DraftEditorPlaceholder-hasFocus {

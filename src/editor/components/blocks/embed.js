@@ -1,8 +1,7 @@
 
 import React from 'react'
 import axios from "axios"
-
-import { updateDataOfBlock } from '../../model/index.js'
+import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 
 export default class EmbedBlock extends React.Component {
   constructor(props) {
@@ -79,10 +78,6 @@ export default class EmbedBlock extends React.Component {
   }
 
   render() {
-    //block = @.props
-    //foo = @.props.blockProps
-    //data = Entity.get(block.block.getEntityAt(0)).getData()
-    console.log("ERROR", this.state.error)
     return (
       <span>
         { this.picture()
@@ -114,4 +109,38 @@ export default class EmbedBlock extends React.Component {
     )
   }
 }
+
+export const EmbedBlockConfig = (options={})=>{
+  let config = {
+      title: 'insert embed',
+      type: 'embed',
+      block: EmbedBlock,
+      editable: true,
+      renderable: true,
+      breakOnContinuous: true,
+      wrapper_class: "graf graf--mixtapeEmbed",
+      selected_class: "is-selected is-mediaFocused",
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "placeholder",
+        insert_block: "embed"
+      },
+      options: {
+        //endpoint: `${options.oembed_uri}`,
+        placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
+      },
+      handleEnterWithoutText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      },
+      handleEnterWithText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      }
+    }
+    
+  return Object.assign(config, options)
+}
+
+
 

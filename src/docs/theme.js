@@ -151,7 +151,7 @@ class Render extends React.Component {
       //'remove-indent': true,
       //'left-trim': true,
       //'right-trim': true,
-      'break-lines': 60,
+      'break-lines': 40,
       //'indent': 1,
       'remove-initial-line-feed': false,
       /*'tabs-to-spaces': 4,

@@ -6,7 +6,7 @@ import {
 
 import axios from "axios"
 
-import { updateDataOfBlock } from '../../model/index.js'
+import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 
 export default class ImageBlock extends React.Component {
 
@@ -348,5 +348,57 @@ class Loader extends React.Component {
     )
   }
 }
+
+export const ImageBlockConfig = (options={})=>{
+  let config =  {
+    title: 'add an image',
+    type: 'image',
+    block: ImageBlock,
+    editable: true,
+    renderable: true,
+    breakOnContinuous: true,
+    wrapper_class: "graf graf--figure",
+    selected_class: "is-selected is-mediaFocused",
+    selectedFn: block => {
+      const { direction } = block.getData().toJS()
+      switch (direction) {
+        case "left":
+          return "graf--layoutOutsetLeft"
+        case "center":
+          return ""
+        case "wide":
+          return "sectionLayout--fullWidth"
+        case "fill":
+          return "graf--layoutFillWidth"
+        default:
+          return ""
+      }
+    },
+    handleEnterWithoutText(ctx, block) {
+      const { editorState } = ctx.state
+      return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+    },
+    handleEnterWithText(ctx, block) {
+      const { editorState } = ctx.state
+      return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+    },
+    widget_options: {
+      displayOnInlineTooltip: true,
+      insertion: "upload",
+      insert_block: "image"
+    },
+    options: {
+      upload_url: '',
+      upload_headers: null,
+      upload_formName: "file",
+      upload_callback: null,
+      image_delete_callback: null,
+      image_caption_placeholder: "type a caption (optional)"
+    }
+  
+  }
+    
+  return Object.assign(config, options)
+} 
 
 

@@ -1,6 +1,9 @@
 
 import React from 'react'
 import { EditorBlock } from 'draft-js'
+import {
+  resetBlockWithType
+} from '../../model/index.js'
 
 export default class PlaceholderBlock extends React.Component {
   constructor(props) {
@@ -55,4 +58,39 @@ export default class PlaceholderBlock extends React.Component {
     )
   }
 }
+
+
+export const PlaceholderBlockConfig = (options={})=>{
+  let config = {
+      renderable: true,
+      editable: true,
+      block: PlaceholderBlock,
+      type: 'placeholder',
+      wrapper_class: "is-embedable",
+      breakOnContinuous: true,
+      selected_class: "is-selected is-mediaFocused",
+      widget_options: {
+        displayOnInlineTooltip: false
+      },
+
+      handleEnterWithoutText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(resetBlockWithType(editorState, "unstyled"))
+      },
+
+      handleEnterWithText(ctx, block) {
+        const { editorState } = ctx.state
+        const data = {
+          provisory_text: block.getText(),
+          endpoint: block.getData().get('endpoint'),
+          type: block.getData().get('type')
+        }
+        return ctx.onChange(resetBlockWithType(editorState, data.type, data))
+      }
+    }
+
+  return Object.assign(config, options)
+}
+
+
 

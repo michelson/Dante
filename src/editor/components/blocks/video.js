@@ -1,9 +1,7 @@
 
 import React from 'react'
 import { EditorBlock } from 'draft-js'
-
-import { updateDataOfBlock } from '../../model/index.js'
-
+import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 import axios from "axios"
 
 export default class VideoBlock extends React.Component {
@@ -59,11 +57,19 @@ export default class VideoBlock extends React.Component {
     }
   }
 
+  renderEmbedHtml = ()=>{
+    if (this.dataForUpdate().mediaRenderHandler){
+      return this.dataForUpdate().mediaRenderHandler()
+    }else{
+      return this.state.embed_data.media ? this.state.embed_data.media.html : this.state.embed_data.html
+    }
+  }
+
   render() {
     return (
       <figure className='graf--figure graf--iframe graf--first' tabIndex='0'>
         <div className='iframeContainer' 
-          dangerouslySetInnerHTML={ { __html: this.state.embed_data.html } } />
+          dangerouslySetInnerHTML={ { __html: this.renderEmbedHtml() } } />
         <figcaption className='imageCaption'>
           <EditorBlock {...Object.assign({}, this.props, { "className": "imageCaption" })} />
         </figcaption>
@@ -72,3 +78,38 @@ export default class VideoBlock extends React.Component {
   }
 }
 
+
+export const VideoBlockConfig = (options={})=>{
+  let config = {
+      title: 'insert video',
+      editable: true,
+      type: 'video',
+      block: VideoBlock,
+      renderable: true,
+      breakOnContinuous: true,
+      wrapper_class: "graf--figure graf--iframe",
+      selected_class: " is-selected is-mediaFocused",
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "placeholder",
+        insert_block: "video"
+      },
+      options: {
+        //endpoint: `${options.oembed_uri}`,
+        placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
+        caption: 'Type caption for embed (optional)'
+      },
+
+      handleEnterWithoutText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      },
+
+      handleEnterWithText(ctx, block) {
+        const { editorState } = ctx.state
+        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      }
+  }
+
+  return Object.assign(config, options)
+}

@@ -7,159 +7,86 @@ import { Playground, PropsTable } from 'docz'
 import {h1} from './site/data/poc.js'
 import Dante from './editor/components/Dante/Dante.js'
 import {State, Toggle} from 'react-powerplug'
+import {ImageBlockConfig} from './editor/components/blocks/image.js'
+import {EmbedBlockConfig} from './editor/components/blocks/embed.js'
+import {VideoBlockConfig} from './editor/components/blocks/video.js'
+import {PlaceholderBlockConfig} from './editor/components/blocks/placeholder.js'
 
 # Widgets
 
 
 Widgets are just react components that you can use to render custom content on your component. Note that all Dante's features are composed as components.
 
-Widgets are contained in an array and should point to the name of the React component, some of the main options are:
+Widgets are contained in an array that contain a configuration object
+
+the config options are:
 
 
 ## Options
 
-+ **block**: string, the class of the React.Component.
-+ **editable**: bool, this configures if the component will be editable or not.
-+ **renderable**: bool, this configures if the component is renderable
-+ **breakOnContinuous**: bool, same as continuousBlock but for widgets.
-+ **handleEnterWithText**: func, this handles the behaviour when you hit ENTER on the component and text is present.
-handleEnterWihoutText: func, this handles the behaviour when you hit ENTER on the component and no text is present.
-+ **selectedFn**: func, this handles the behaviour when component is focused
++ **block**: the class of the React.Component.
++ **editable**: boolean, this configures if the component will be editable or not.
++ **renderable**: boolean, this configures if the component is renderable
++ **breakOnContinuous**: boolean, same as continuousBlock but for widgets.
++ **handleEnterWithText**: function, this handles the behaviour when you hit ENTER on the component and text is present.
+handleEnterWihoutText: function, this handles the behaviour when you hit ENTER on the component and no text is present.
++ **selectedFn**: function, this handles the behaviour when component is focused
 + **selected_class**: string, this configures which class will be added when component is focused
 + **wrapper_class**: string, this configures the default class that will wrapp the component
 + **options**: Object, this are custom options that will be stored in your component for later use.
-+ **widget_options**: Object, this are custom options that will operate as a blockProps, this are volatile options, not to be stored in your content. 
++ **widget_options**: Object, this are custom options that will operate as a blockProps, this are volatile options and will not be stored in your content. 
 
 
 -------------------
-```
-  widgets: [
-    {
-      title: 'add an image',
-      type: 'image',
-      block: ImageBlock,
-      editable: true,
-      renderable: true,
-      breakOnContinuous: true,
-      wrapper_class: "graf graf--figure",
-      selected_class: "is-selected is-mediaFocused",
-      selectedFn: block => {
-        const { direction } = block.getData().toJS()
-        switch (direction) {
-          case "left":
-            return "graf--layoutOutsetLeft"
-          case "center":
-            return ""
-          case "wide":
-            return "sectionLayout--fullWidth"
-          case "fill":
-            return "graf--layoutFillWidth"
-          default:
-            return ""
-        }
-      },
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "upload",
-        insert_block: "image"
-      },
-      options: {
-        upload_url: '',
-        upload_headers: null,
-        upload_formName: "file",
-        upload_callback: null,
-        image_delete_callback: null,
-        image_caption_placeholder: "type a caption (optional)"
-      }
-    }, {
-      title: 'insert embed',
-      type: 'embed',
-      block: EmbedBlock,
-      editable: true,
-      renderable: true,
-      breakOnContinuous: true,
-      wrapper_class: "graf graf--mixtapeEmbed",
-      selected_class: "is-selected is-mediaFocused",
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "placeholder",
-        insert_block: "embed"
-      },
-      options: {
-        //endpoint: `${options.oembed_uri}`,
-        placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
-      },
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      }
-    }, {
-      title: 'insert video',
-      editable: true,
-      type: 'video',
-      block: VideoBlock,
-      renderable: true,
-      breakOnContinuous: true,
-      wrapper_class: "graf--figure graf--iframe",
-      selected_class: " is-selected is-mediaFocused",
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "placeholder",
-        insert_block: "video"
-      },
-      options: {
-        //endpoint: `${options.oembed_uri}`,
-        placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
-        caption: 'Type caption for embed (optional)'
-      },
 
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
+## default 
 
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      }
-    }, {
-      renderable: true,
-      editable: true,
-      block: PlaceholderBlock,
-      type: 'placeholder',
-      wrapper_class: "is-embedable",
-      breakOnContinuous: true,
-      selected_class: "is-selected is-mediaFocused",
-      widget_options: {
-        displayOnInlineTooltip: false
-      },
+<Playground>
+  <Dante content={null} widgets={[]}/>
+</Playground>
 
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(resetBlockWithType(editorState, "unstyled"))
-      },
+<Playground>
+  <Dante content={null} widgets={[ImageBlockConfig()]}  
+  />
+</Playground>
 
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        const data = {
-          provisory_text: block.getText(),
-          endpoint: block.getData().get('endpoint'),
-          type: block.getData().get('type')
-        }
-        return ctx.onChange(resetBlockWithType(editorState, data.type, data))
-      }
-    }
-  ]
-```
+
+## Embed Link
+
+<Playground>
+  <Dante content={null} widgets={[
+                                  EmbedBlockConfig({ options: {
+                                      placeholder: "put an external link",
+                                      endpoint: "//api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url="
+                                    } })
+                                    , 
+                                  PlaceholderBlockConfig()
+                                  ]}  
+  />
+</Playground>
+
+## Embed Video
+
+<Playground>
+  <Dante content={null} widgets={[
+                                  VideoBlockConfig({ options: {
+                                      placeholder: "put an external video link",
+                                      endpoint: "//api.embed.ly/1/extract?key=86c28a410a104c8bb58848733c82f840&url=",
+                                      caption: 'optional caption'
+                                    } 
+                                  }), 
+                                  PlaceholderBlockConfig()
+                                  ]}  
+  />
+</Playground>
+
+
+-----------
+
+<Playground>
+  <Dante content={null} widgets={[ImageBlockConfig(),
+                                  EmbedBlockConfig(),
+                                  VideoBlockConfig(),
+                                  PlaceholderBlockConfig()]}  
+  />
+</Playground>

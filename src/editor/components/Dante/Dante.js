@@ -7,66 +7,25 @@ import {DanteImagePopoverConfig} from '../popovers/image.js'
 import {DanteAnchorPopoverConfig} from '../popovers/link.js'
 import {DanteInlineTooltipConfig} from '../popovers/addButton.js' //'Dante2/es/components/popovers/addButton.js'
 import {DanteTooltipConfig} from '../popovers/toolTip.js' //'Dante2/es/components/popovers/toolTip.js'
-import ImageBlock from '../blocks/image.js'
-import EmbedBlock from '../blocks/embed.js'
-import VideoBlock from '../blocks/video.js'
-import PlaceholderBlock from '../blocks/placeholder.js'
+import {ImageBlockConfig} from '../blocks/image.js'
+import {EmbedBlockConfig} from '../blocks/embed.js'
+import {VideoBlockConfig} from '../blocks/video.js'
+import {PlaceholderBlockConfig} from '../blocks/placeholder.js'
 import Icons from "../icons.js"
 
 // custom blocks
 import DividerBlock from '../blocks/divider'
 //
-
-import {
-  resetBlockWithType,
-  addNewBlockAt
-} from '../../model/index.js'
-
 import PropTypes from 'prop-types'
-
-
 
 // component implementation
 class Dante extends React.Component {
 
   constructor(props) {
     super(props)
-    //const config = merge(this.props, {tooltips: this.processTooltips()})
-    //console.log(config)
-    //this.state = config
-    this.state = this.props
   }
 
-  componentDidMount() { }
-
-
-  processTooltips = ()=>{
-    this.props.tooltips.map((tooltip)=>{
-      if(typeof(tooltip) === 'string'){
-        console.log(this.typeOfTooltip(tooltip))
-        debugger
-        return this.typeOfTooltip(tooltip)
-      }
-      return tooltip
-    })
-  }
-
-  typeOfTooltip = (tooltip)=>{
-    switch(tooltip) { 
-     case "image": { 
-        return  {
-                  ref: 'image_popover',
-                  component: DanteImagePopover
-                }
-        break; 
-     }  
-     default: { 
-        //statements; 
-        break; 
-     }
-    }  
-  }
-
+  // componentDidMount() { }
 
   toggleEditable = () => {
     this.setState({ read_only: !this.state.read_only })
@@ -76,7 +35,7 @@ class Dante extends React.Component {
     return(
       <div style={this.props.style}>
         <DanteEditor
-          { ...this.state }
+          { ...this.props }
           toggleEditable={this.toggleEditable}
         />
       </div>
@@ -208,148 +167,10 @@ Dante.defaultProps = {
   ],
   
   widgets: [
-    /*{
-      icon: 'divider',
-      type: 'divider',
-      title: "Divider",
-      editable: false,
-      renderable: true,
-      breakOnContinuous: true,
-      block: DividerBlock,
-      wrapper_class: "graf graf--hr",
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "insertion",
-        insert_block: "divider"
-      }
-    },*/
-    {
-      title: 'add an image',
-      type: 'image',
-      block: ImageBlock,
-      editable: true,
-      renderable: true,
-      breakOnContinuous: true,
-      wrapper_class: "graf graf--figure",
-      selected_class: "is-selected is-mediaFocused",
-      selectedFn: block => {
-        const { direction } = block.getData().toJS()
-        switch (direction) {
-          case "left":
-            return "graf--layoutOutsetLeft"
-          case "center":
-            return ""
-          case "wide":
-            return "sectionLayout--fullWidth"
-          case "fill":
-            return "graf--layoutFillWidth"
-          default:
-            return ""
-        }
-      },
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "upload",
-        insert_block: "image"
-      },
-      options: {
-        upload_url: '',
-        upload_headers: null,
-        upload_formName: "file",
-        upload_callback: null,
-        image_delete_callback: null,
-        image_caption_placeholder: "type a caption (optional)"
-      }
-    }, {
-      title: 'insert embed',
-      type: 'embed',
-      block: EmbedBlock,
-      editable: true,
-      renderable: true,
-      breakOnContinuous: true,
-      wrapper_class: "graf graf--mixtapeEmbed",
-      selected_class: "is-selected is-mediaFocused",
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "placeholder",
-        insert_block: "embed"
-      },
-      options: {
-        //endpoint: `${options.oembed_uri}`,
-        placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
-      },
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      }
-    }, {
-      title: 'insert video',
-      editable: true,
-      type: 'video',
-      block: VideoBlock,
-      renderable: true,
-      breakOnContinuous: true,
-      wrapper_class: "graf--figure graf--iframe",
-      selected_class: " is-selected is-mediaFocused",
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "placeholder",
-        insert_block: "video"
-      },
-      options: {
-        //endpoint: `${options.oembed_uri}`,
-        placeholder: 'Paste a YouTube, Vine, Vimeo, or other video link, and press Enter',
-        caption: 'Type caption for embed (optional)'
-      },
-
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      },
-
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-      }
-    }, {
-      renderable: true,
-      editable: true,
-      block: PlaceholderBlock,
-      type: 'placeholder',
-      wrapper_class: "is-embedable",
-      breakOnContinuous: true,
-      selected_class: "is-selected is-mediaFocused",
-      widget_options: {
-        displayOnInlineTooltip: false
-      },
-
-      handleEnterWithoutText(ctx, block) {
-        const { editorState } = ctx.state
-        return ctx.onChange(resetBlockWithType(editorState, "unstyled"))
-      },
-
-      handleEnterWithText(ctx, block) {
-        const { editorState } = ctx.state
-        const data = {
-          provisory_text: block.getText(),
-          endpoint: block.getData().get('endpoint'),
-          type: block.getData().get('type')
-        }
-        return ctx.onChange(resetBlockWithType(editorState, data.type, data))
-      }
-    }
+    ImageBlockConfig(),
+    EmbedBlockConfig(),
+    VideoBlockConfig(),
+    PlaceholderBlockConfig()
   ]
 
 }
