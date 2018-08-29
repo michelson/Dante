@@ -10,7 +10,7 @@ export default {
   //theme: 'src/docs/docz-theme-default/src/index.tsx',
   
   modifyBabelRc: (babelrc) => {
-    console.log(JSON.stringify(babelrc))
+    //console.log(JSON.stringify(babelrc))
     babelrc.babelrc = false
     babelrc.presets = [["react-app", {"flow":true}]]
     babelrc.plugins = [

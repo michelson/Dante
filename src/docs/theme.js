@@ -9,7 +9,7 @@ import Normalizer from 'prismjs/plugins/normalize-whitespace/prism-normalize-whi
 
 import {Readme as demo} from '../site/data/poc'
 import {License as license} from '../site/data/poc'
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Route, Link } from "react-router-dom";
 
 import '../site/styles/layout/layout.scss'
 import '../site/styles/layout/normalize.scss'
@@ -22,7 +22,7 @@ import {Table} from './table'
 import Menu from './sidebar'
 
 const urlFor = (path)=>{
-  return process.env.PUBLIC_URL + path
+  return path
 }
 
 const isActive = (url)=>{
@@ -35,9 +35,9 @@ const Theme = () => (
       <div> 
         <Header/>
         <Route exact path={urlFor('')} component={Demo} />
-        <Route path={urlFor('license')} component={License} />
-        <Route path={urlFor('docs')} component={Doc} />
-        <Route path={urlFor(':doc')} component={Doc} />
+        <Route path={urlFor('/license')} component={License} />
+        <Route path={urlFor('/docs')} component={Doc} />
+        <Route path={urlFor('/:doc')} component={Doc} />
       </div>                
     </Router>
   </div>
