@@ -2,7 +2,7 @@ import 'colors';
 import bower from './amd/build';
 import lib from './lib/build';
 import es from './es/build';
-import dist from './dist/build';
+//import dist from './dist/build';
 import { copy } from './fs-utils';
 import { distRoot, bowerRoot } from './constants';
 import { exec } from './exec';
@@ -14,5 +14,5 @@ export default function Build(options) {
     //bower(),
     //dist(),
   ])
-  .then(() => copy(distRoot, bowerRoot));
+  //.then(() => copy(distRoot, bowerRoot));
 }

@@ -1,6 +1,6 @@
 ghpages = require('gh-pages')
 
-const pkg = require('package.json')
+const pkg = require('./package.json')
 
 var callback = function(data){
   console.log("oeoeoe")

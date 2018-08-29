@@ -17,7 +17,7 @@
   "module": "package/Dante.es.js",
   "browser": "package/umd/Dante.js",
   "files": [
-    "package/amd",
+    "package/umd",
     "package/lib",
     "package/dist",
     "package/es"
