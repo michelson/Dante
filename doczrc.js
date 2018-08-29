@@ -1,7 +1,7 @@
 import path from 'path'
 import autoprefixer from 'autoprefixer'
 const APP_DIR = path.resolve('./src');
-const basePath = process.env.PUBLIC_URL ? '/dante-docs/' : '/'
+const basePath = process.env.PUBLIC_URL ? '/dante2/' : '/'
 
 export default {
   theme: 'src/docs/theme',
