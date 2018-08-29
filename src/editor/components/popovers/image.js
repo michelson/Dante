@@ -175,3 +175,10 @@ class DanteImagePopoverItem extends React.Component {
 
 export default DanteImagePopover
 
+export const DanteImagePopoverConfig = (options={})=>{
+  let config = {
+      ref: 'image_popover',
+      component: DanteImagePopover
+  } 
+  return Object.assign(config, options)
+}

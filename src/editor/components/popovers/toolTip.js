@@ -22,7 +22,8 @@ class DanteTooltip extends React.Component {
     this.state = {
       link_mode: false,
       show: false,
-      position: {}
+      position: {},
+      menu_style: {}
     }
   }
 
@@ -31,9 +32,7 @@ class DanteTooltip extends React.Component {
 
     this.props.onChange(RichUtils.toggleInlineStyle(this.props.editorState, style))
 
-    return setTimeout(() => {
-      return this.relocate()
-    }, 0)
+    this.callRelocate()
   }
 
   display =(b)=> {
@@ -52,7 +51,8 @@ class DanteTooltip extends React.Component {
   hide =()=> {
     return this.setState({
       link_mode: false,
-      show: false
+      show: false,
+      menu_style: {}
     })
   }
 
@@ -173,15 +173,26 @@ class DanteTooltip extends React.Component {
   _enableLinkMode =(ev)=> {
     ev.preventDefault()
     return this.setState({
-      link_mode: true })
+      link_mode: true,
+      menu_style: {
+        minWidth: '200px'
+      }
+    }, this.callRelocate )
   }
 
   _disableLinkMode =(ev)=> {
     ev.preventDefault()
     return this.setState({
       link_mode: false,
-      url: ""
-    })
+      url: "",
+      menu_style: {}
+    }, this.callRelocate )
+  }
+
+  callRelocate = ()=>{
+    setTimeout(() => {
+      return this.relocate()
+    }, 0)
   }
 
   hideMenu =()=> {
@@ -265,6 +276,10 @@ class DanteTooltip extends React.Component {
     })
   }
 
+  linkBlock = ()=>{
+    return this.props.widget_options.block_types.find((o)=> o.type === "link")
+  }
+
   render =()=> {
     return (
       <div
@@ -273,22 +288,28 @@ class DanteTooltip extends React.Component {
         className={ `dante-menu ${ this.displayActiveMenu() } ${ this.displayLinkMode() }` }
         style={ this.getPosition() }
       >
-        <div className="dante-menu-linkinput">
-          <input
-            className="dante-menu-input"
-            ref="dante_menu_input"
-            placeholder={this.props.widget_options.placeholder}
-            onKeyPress={ this.handleInputEnter }
-            //defaultValue={ this.getDefaultValue() }
-          />
-          <div className="dante-menu-button"
-          onMouseDown={ this._disableLinkMode }>
-            <span className={ 'dante-icon'}>
-              {Icons['close']()}
-            </span>
-          </div>
-        </div>
-        <ul className="dante-menu-buttons">
+
+        {
+
+          this.linkBlock() ? 
+            <div className="dante-menu-linkinput">
+              <input
+                className="dante-menu-input"
+                ref="dante_menu_input"
+                placeholder={this.linkBlock().placeholder}
+                onKeyPress={ this.handleInputEnter }
+                //defaultValue={ this.getDefaultValue() }
+              />
+              <div className="dante-menu-button"
+              onMouseDown={ this._disableLinkMode }>
+                <span className={ 'dante-icon'}>
+                  {Icons['close']()}
+                </span>
+              </div>
+            </div> : null
+        }
+        
+        <ul className="dante-menu-buttons" style={this.state.menu_style}>
 
           {
             /*
@@ -478,3 +499,53 @@ class DanteTooltipLink extends React.Component {
 }
 
 export default DanteTooltip
+
+export const DanteTooltipConfig = (options={})=>{
+  let config =  {
+    ref: 'insert_tooltip',
+    component: DanteTooltip,
+    displayOnSelection: true,
+    selectionElements: [
+      "unstyled",
+      "blockquote",
+      "ordered-list",
+      "unordered-list",
+      "unordered-list-item",
+      "ordered-list-item",
+      "code-block",
+      'header-one',
+      'header-two',
+      'header-three',
+      'header-four',
+      'footer', 
+      'column',
+      'jumbo'
+    ],
+    widget_options: {
+      placeholder: "type a url",
+      
+      block_types: [
+        { label: 'p', style: 'unstyled',  icon: Icons.bold },
+        { label: 'h2', style: 'header-one', type: "block" , icon: Icons.h1 },
+        { label: 'h3', style: 'header-two', type: "block",  icon: Icons.h2 },
+        { label: 'h4', style: 'header-three', type: "block",  icon: Icons.h3 },
+
+        { type: "separator" },
+        { label: 'color', type: "color" },
+        { type: "link" },
+      
+        { label: 'blockquote', style: 'blockquote', type: "block", icon: Icons.blockquote },
+        { type: "separator" },
+        { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block", icon: Icons.insertunorderedlist },
+        { label: 'insertorderedlist', style: 'ordered-list-item', type: "block", icon: Icons.insertunorderedlist },
+        { type: "separator" },
+        { label: 'code', style: 'code-block', type: "block",  icon: Icons.code },
+        { label: 'bold', style: 'BOLD', type: "inline", icon: Icons.bold },
+        { label: 'italic', style: 'ITALIC', type: "inline", icon: Icons.italic }
+      ]
+    }
+  } 
+  return Object.assign(config, options)
+}
+
+    

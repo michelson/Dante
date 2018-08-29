@@ -8,6 +8,9 @@ import { Playground, PropsTable } from 'docz'
 import {h1} from './site/data/poc.js'
 import Dante from './editor/components/Dante/Dante.js'
 import {State, Toggle} from 'react-powerplug'
+import {DanteInlineTooltipConfig} from './editor/components/popovers/addButton'
+import {DanteTooltipConfig} from './editor/components/popovers/toolTip'
+import Icons from "./editor/components/icons.js"
 
 # Tooltips
 
@@ -36,6 +39,22 @@ This is the text style tooltip it is displayed when the text is selected. You ca
 
 The default options for dante tooltip are: 
 
+
+
+## without tooltips
+
+<Playground>
+  <Dante content={null} tooltips={[]} />
+</Playground>
+
+## Inline tooltip aka Add Button, aka side button
+
+<Playground>
+  <Dante content={null} tooltips={[DanteInlineTooltipConfig({widget_options: {aa: "oo"}  })]} />
+</Playground>
+
+
+## Inline tooltip
 
 ```
 {
@@ -82,12 +101,71 @@ The default options for dante tooltip are:
       ]
     }
 }
+
 ```
+## Default options
 
 <Playground>
-  <Dante/>
+  <Dante content={null} tooltips={[DanteTooltipConfig()]} />
+</Playground>
+
+## Only on paragraphs
+
+<Playground>
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig({
+    selectionElements: ['unstyled']
+  })]} />
 </Playground>
 
 
+## Widget options
 
+<Playground>
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig( {
+
+    widget_options: {
+      block_types: [
+        { label: 'bold', style: 'BOLD', type: "inline", icon: Icons.bold },
+        { label: 'italic', style: 'ITALIC', type: "inline", icon: Icons.italic }
+      ]
+
+    }
+
+  } )]} />
+</Playground>
+
+
+## Lists
+
+<Playground>
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig( {
+
+    widget_options: {
+      block_types: [
+        { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block", icon: Icons.insertunorderedlist },
+        { label: 'insertorderedlist', style: 'ordered-list-item', type: "block", icon: Icons.insertorderedlist }
+      ]
+    }
+
+  } )]} />
+</Playground>
+
+
+## Link
+
+<Playground>
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig( {
+
+    widget_options: {
+      block_types: [
+        { type: "link", placeholder: "Where's this Dinah-Moe Comin' from" },
+      ]
+    }
+
+  } )]} />
+</Playground>
 

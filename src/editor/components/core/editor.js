@@ -815,6 +815,8 @@ export default class DanteEditor extends React.Component {
   showPopLinkOver =(el)=> {
     // handles popover display
     // using anchor or from popover
+    if(!this.refs.anchor_popover)
+      return
 
     // set url first in order to calculate popover width
     let coords
@@ -835,6 +837,9 @@ export default class DanteEditor extends React.Component {
   }
 
   hidePopLinkOver = ()=> {
+    if(!this.refs.anchor_popover)
+      return
+    
     return this.hideTimeout = setTimeout(() => {
       return this.refs.anchor_popover.hide()
     }, 300)

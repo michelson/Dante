@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+
 import {
   addNewBlock,
   resetBlockWithType,
@@ -18,7 +19,7 @@ import { getSelectionRect,
 
 import Icons from "../icons.js"
 
-class DanteInlineTooltip extends React.Component {
+export default class DanteInlineTooltip extends React.Component {
 
   constructor(props) {
     super(props)
@@ -309,5 +310,11 @@ class InlineTooltipItem extends React.Component {
   }
 }
 
-export default DanteInlineTooltip
+export const DanteInlineTooltipConfig = (options={})=>{
+  let config = {
+      ref: 'add_tooltip',
+      component: DanteInlineTooltip
+  } 
+  return Object.assign(config, options)
+}
 

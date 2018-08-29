@@ -2,11 +2,11 @@
 import React from 'react';
 import DanteEditor from "../core/editor.js"
 import '../../styles/dante.scss';
-import { Map, fromJS } from 'immutable'
-import DanteImagePopover from '../popovers/image.js'
-import DanteAnchorPopover from '../popovers/link.js'
-import DanteInlineTooltip from '../popovers/addButton.js' //'Dante2/es/components/popovers/addButton.js'
-import DanteTooltip from '../popovers/toolTip.js' //'Dante2/es/components/popovers/toolTip.js'
+import { Map, fromJS, merge } from 'immutable'
+import {DanteImagePopoverConfig} from '../popovers/image.js'
+import {DanteAnchorPopoverConfig} from '../popovers/link.js'
+import {DanteInlineTooltipConfig} from '../popovers/addButton.js' //'Dante2/es/components/popovers/addButton.js'
+import {DanteTooltipConfig} from '../popovers/toolTip.js' //'Dante2/es/components/popovers/toolTip.js'
 import ImageBlock from '../blocks/image.js'
 import EmbedBlock from '../blocks/embed.js'
 import VideoBlock from '../blocks/video.js'
@@ -25,14 +25,48 @@ import {
 import PropTypes from 'prop-types'
 
 
+
 // component implementation
 class Dante extends React.Component {
 
   constructor(props) {
     super(props)
+    //const config = merge(this.props, {tooltips: this.processTooltips()})
+    //console.log(config)
+    //this.state = config
+    this.state = this.props
   }
 
   componentDidMount() { }
+
+
+  processTooltips = ()=>{
+    this.props.tooltips.map((tooltip)=>{
+      if(typeof(tooltip) === 'string'){
+        console.log(this.typeOfTooltip(tooltip))
+        debugger
+        return this.typeOfTooltip(tooltip)
+      }
+      return tooltip
+    })
+  }
+
+  typeOfTooltip = (tooltip)=>{
+    switch(tooltip) { 
+     case "image": { 
+        return  {
+                  ref: 'image_popover',
+                  component: DanteImagePopover
+                }
+        break; 
+     }  
+     default: { 
+        //statements; 
+        break; 
+     }
+    }  
+  }
+
 
   toggleEditable = () => {
     this.setState({ read_only: !this.state.read_only })
@@ -42,7 +76,7 @@ class Dante extends React.Component {
     return(
       <div style={this.props.style}>
         <DanteEditor
-          { ...this.props }
+          { ...this.state }
           toggleEditable={this.toggleEditable}
         />
       </div>
@@ -78,14 +112,7 @@ Dante.propTypes = {
    })
   ),
 
-  continuousBlocks: PropTypes.arrayOf(["unstyled",
-                                      "blockquote",
-                                      "ordered-list",
-                                      "unordered-list",
-                                      "unordered-list-item",
-                                      "ordered-list-item",
-                                      "code-block"
-                                    ]),
+  continuousBlocks: PropTypes.arrayOf(PropTypes.string),
 
   /*key_commands: PropTypes.shape({
       "alt-shift":  PropTypes.arrayOf(PropTypes.shape({
@@ -174,62 +201,10 @@ Dante.defaultProps = {
   },
 
   tooltips: [
-    {
-        ref: 'insert_tooltip',
-        component: DanteTooltip,
-        displayOnSelection: true,
-        selectionElements: [
-          "unstyled",
-          "blockquote",
-          "ordered-list",
-          "unordered-list",
-          "unordered-list-item",
-          "ordered-list-item",
-          "code-block",
-          'header-one',
-          'header-two',
-          'header-three',
-          'header-four',
-          'footer', 
-          'column',
-          'jumbo'
-        ],
-        widget_options: {
-          placeholder: "type a url",
-          
-          block_types: [
-            { label: 'p', style: 'unstyled',  icon: Icons.bold },
-            { label: 'h2', style: 'header-one', type: "block" , icon: Icons.h1 },
-            { label: 'h3', style: 'header-two', type: "block",  icon: Icons.h2 },
-            { label: 'h4', style: 'header-three', type: "block",  icon: Icons.h3 },
-
-            { type: "separator" },
-            { label: 'color', type: "color" },
-            { type: "link" },
-          
-            { label: 'blockquote', style: 'blockquote', type: "block", icon: Icons.blockquote },
-            { type: "separator" },
-            { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block", icon: Icons.insertunorderedlist },
-            { label: 'insertorderedlist', style: 'ordered-list-item', type: "block", icon: Icons.insertunorderedlist },
-            { type: "separator" },
-            { label: 'code', style: 'code-block', type: "block",  icon: Icons.code },
-            { label: 'bold', style: 'BOLD', type: "inline", icon: Icons.bold },
-            { label: 'italic', style: 'ITALIC', type: "inline", icon: Icons.italic }
-          ]
-        }
-    }, 
-    {
-      ref: 'add_tooltip',
-      component: DanteInlineTooltip
-    }, 
-    {
-      ref: 'anchor_popover',
-      component: DanteAnchorPopover
-    }, 
-    {
-      ref: 'image_popover',
-      component: DanteImagePopover
-    }
+    DanteImagePopoverConfig(),
+    DanteAnchorPopoverConfig(),
+    DanteInlineTooltipConfig(),
+    DanteTooltipConfig(),
   ],
   
   widgets: [

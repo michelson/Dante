@@ -103,3 +103,11 @@ class DanteAnchorPopover extends React.Component {
 
 export default DanteAnchorPopover
 
+
+export const DanteAnchorPopoverConfig = (options={})=>{
+  let config = {
+      ref: 'anchor_popover',
+      component: DanteAnchorPopover
+  } 
+  return Object.assign(config, options)
+}

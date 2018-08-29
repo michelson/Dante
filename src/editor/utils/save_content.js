@@ -122,7 +122,7 @@ class SaveBehavior {
     )
     .catch(error=> {
       // console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
-      if (this.config.xhr.failure_handler) { 
+      if (this.config.data_storage.failure_handler) { 
         return this.config.data_storage.failure_handler(error) 
       }
       
