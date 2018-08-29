@@ -21,7 +21,6 @@ Widgets are contained in an array that contain a configuration object
 
 the config options are:
 
-
 ## Options
 
 + **block**: the class of the React.Component.
@@ -34,14 +33,17 @@ handleEnterWihoutText: function, this handles the behaviour when you hit ENTER o
 + **selected_class**: string, this configures which class will be added when component is focused
 + **wrapper_class**: string, this configures the default class that will wrapp the component
 + **options**: Object, this are custom options that will be stored in your component for later use.
-+ **widget_options**: Object, this are custom options that will operate as a blockProps, this are volatile options and will not be stored in your content. 
++ **widget_options**: Object, this are custom options that will operate as a blockProps, this are volatile options and will not be stored in your content but will be accesible in the editor's context. 
 
+---------------
+
+Widgets can interoperate with tooltips or other widgets. For example the Add Button loads the widgets that have a "displayOnInlineTooltip" option on widget_options. That basically is a custom option that can be read from any component since the widget context have access to Dante's context.
 
 -------------------
 
 ## default
 
-By default 
+By default Dante2 has the image, link embed & video embed activated out of the box. If "Add Button" is configured (it is by default), those widgets will be displayed when the button is clicked.  
 
 <Playground>
   <Dante content={null} />
@@ -49,14 +51,23 @@ By default
 
 ## empty widgets 
 
+Also you can empty the list of widgets:
+
 <Playground>
   <Dante content={null} widgets={[]}/>
 </Playground>
+
+Or configure those one by one:
 
 <Playground>
   <Dante content={null} widgets={[ImageBlockConfig()]}  
   />
 </Playground>
+
+
+# Embed & Extract
+
+Embed and Video widgets uses open framely you can override this by using your own account of iframely or use another oembed provider like embedly.
 
 
 ## Embed Link
