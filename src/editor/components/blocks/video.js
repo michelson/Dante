@@ -3,6 +3,7 @@ import React from 'react'
 import { EditorBlock } from 'draft-js'
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 import axios from "axios"
+import {video} from "../icons.js"
 
 export default class VideoBlock extends React.Component {
   constructor(props) {
@@ -84,6 +85,7 @@ export const VideoBlockConfig = (options={})=>{
       title: 'insert video',
       editable: true,
       type: 'video',
+      icon: video,
       block: VideoBlock,
       renderable: true,
       breakOnContinuous: true,

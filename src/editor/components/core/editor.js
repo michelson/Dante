@@ -682,6 +682,16 @@ export default class DanteEditor extends React.Component {
       return true
     }
 
+    // catch delete, get block, check if has handle delete, then execute it
+    /*if (command.indexOf('delete') === 0) {
+      const currentBlock = getCurrentBlock(this.state.editorState)
+      let config_block = this.getDataBlock(currentBlock)
+      if (config_block && config_block.options.delete_block_callback) {
+        config_block.options.delete_block_callback(this, currentBlock)
+      }
+      return false
+    }*/
+
     const newState = RichUtils.handleKeyCommand(this.state.editorState, command)
     if (newState) {
       this.onChange(newState)
@@ -729,7 +739,10 @@ export default class DanteEditor extends React.Component {
         return cmd.cmd
       }
       return getDefaultKeyBinding(e)
-    }
+
+    } /*else if (e.keyCode == 8 || e.keyCode == 46) {
+      return "delete"
+    }*/
 
     return getDefaultKeyBinding(e)
   }

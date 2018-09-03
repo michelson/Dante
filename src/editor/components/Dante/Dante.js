@@ -11,7 +11,6 @@ import {ImageBlockConfig} from '../blocks/image.js'
 import {EmbedBlockConfig} from '../blocks/embed.js'
 import {VideoBlockConfig} from '../blocks/video.js'
 import {PlaceholderBlockConfig} from '../blocks/placeholder.js'
-import Icons from "../icons.js"
 
 // custom blocks
 import DividerBlock from '../blocks/divider'

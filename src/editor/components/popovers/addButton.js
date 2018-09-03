@@ -17,7 +17,7 @@ import { getSelectionRect,
   getSelectedBlockNode,
   getRelativeParent } from "../../utils/selection.js"
 
-import Icons from "../icons.js"
+import {add} from "../icons.js"
 
 export default class DanteInlineTooltip extends React.Component {
 
@@ -258,7 +258,7 @@ export default class DanteInlineTooltip extends React.Component {
           data-action="inline-menu"
           onClick={ this._toggleScaled }
         >
-          {Icons.add()}
+          {add()}
         </button>
         <div
            className="inlineTooltip-menu"
@@ -302,7 +302,7 @@ class InlineTooltipItem extends React.Component {
       >
       {
         <span className={ 'tooltip-icon'}>
-          {Icons[this.props.item.type]()}
+          {this.props.item.icon()}
         </span>
       }
       </button>
@@ -312,8 +312,8 @@ class InlineTooltipItem extends React.Component {
 
 export const DanteInlineTooltipConfig = (options={})=>{
   let config = {
-      ref: 'add_tooltip',
-      component: DanteInlineTooltip
+    ref: 'add_tooltip',
+    component: DanteInlineTooltip
   } 
   return Object.assign(config, options)
 }

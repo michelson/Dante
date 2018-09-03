@@ -1,12 +1,10 @@
 import React from 'react'
-
 import {
   EditorBlock, 
   EditorState } from 'draft-js'
-
 import axios from "axios"
-
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
+import {image} from "../icons.js"
 
 export default class ImageBlock extends React.Component {
 
@@ -32,6 +30,10 @@ export default class ImageBlock extends React.Component {
 
   componentDidMount() {
     return this.replaceImg()
+  }
+
+  componentWillUnMount() {
+    debugger
   }
 
   blockPropsSrc = ()=> {
@@ -353,6 +355,7 @@ export const ImageBlockConfig = (options={})=>{
   let config =  {
     title: 'add an image',
     type: 'image',
+    icon: image,
     block: ImageBlock,
     editable: true,
     renderable: true,
@@ -392,7 +395,8 @@ export const ImageBlockConfig = (options={})=>{
       upload_headers: null,
       upload_formName: "file",
       upload_callback: null,
-      image_delete_callback: null,
+      upload_error_callback: null,
+      delete_block_callback: null,
       image_caption_placeholder: "type a caption (optional)"
     }
   

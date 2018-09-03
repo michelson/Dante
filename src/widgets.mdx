@@ -99,13 +99,35 @@ Embed and Video widgets uses open framely you can override this by using your ow
   />
 </Playground>
 
-
------------
+## Upload 
 
 <Playground>
-  <Dante content={null} widgets={[ImageBlockConfig(),
-                                  EmbedBlockConfig(),
-                                  VideoBlockConfig(),
-                                  PlaceholderBlockConfig()]}  
+  <Dante content={null} widgets={[ImageBlockConfig()]}  
   />
 </Playground>
+
+## Upload Url Callback
+
+https://dante-uploader.herokuapp.com
+
+<Playground>
+  <Dante content={null} widgets={[ImageBlockConfig({
+    options: {
+      upload_url: 'http://localhost:4000/upload', 
+      upload_callback: (ctx, img)=> { 
+        alert("file uploaded: " + ctx.data.url) 
+      },
+      /*delete_block_callback: (ctx, block)=>{
+        //alert("file deleted: " + block.getData().toJS().url)
+        return null
+      },*/
+      upload_error_callback: (ctx, img)=>{
+        console.log(ctx)
+      }
+    }
+  })
+  ]}  
+  />
+</Playground>
+
+

@@ -1,8 +1,6 @@
 
 import React from 'react'
 
-//import { Entity, RichUtils, AtomicBlockUtils, EditorBlock } from 'draft-js'
-
 export default class DividerBlock extends React.Component {
   constructor(props) {
     super(props)

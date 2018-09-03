@@ -20,6 +20,7 @@ import {version} from '../../package.json'
 import styled from 'react-emotion'
 import {Table} from './table'
 import Menu from './sidebar'
+//import Menu from 'docz-theme-default'
 
 const urlFor = (path)=>{
   return path

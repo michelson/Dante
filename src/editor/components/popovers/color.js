@@ -1,7 +1,7 @@
 import React from 'react'
 import { SketchPicker } from 'react-color';
 
-import Icons from "../icons.js"
+import {fontColor} from "../icons.js"
 
 export default class DanteTooltipColor extends React.Component {
 
@@ -71,7 +71,7 @@ export default class DanteTooltipColor extends React.Component {
       <li className="dante-menu-button"
         onMouseDown={ this.toggle }>
         <span className={ 'dante-icon'}>
-          {Icons['fontColor']()}
+          {fontColor()}
         </span>
 
         { this.renderColor()}

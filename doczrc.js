@@ -79,27 +79,6 @@ export default {
       ],
     });
 
-/*
-    config.module.rules.push({
-      test: /\.(js|jsx)$/,
-      include: APP_DIR,
-      loader: 'babel-loader',
-
-      options: {
-        cacheDirectory: true,
-        babelrc: false,
-        plugins: [
-          ["prismjs", {
-              languages: ["javascript", "css", "markup", "jsx"],
-              plugins: ["line-numbers", "normalize-whitespace"],
-              theme: "twilight",
-              css: true
-          }]
-        ]
-      }
-    });
-*/
-
     return config;
   }
 };

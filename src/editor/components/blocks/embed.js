@@ -2,6 +2,7 @@
 import React from 'react'
 import axios from "axios"
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
+import {embed} from '../icons'
 
 export default class EmbedBlock extends React.Component {
   constructor(props) {
@@ -119,6 +120,7 @@ export const EmbedBlockConfig = (options={})=>{
       title: 'insert embed',
       type: 'embed',
       block: EmbedBlock,
+      icon: embed,
       editable: true,
       renderable: true,
       breakOnContinuous: true,

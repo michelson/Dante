@@ -7,7 +7,7 @@ import { SketchPicker } from 'react-color';
 import { EditorBlock } from 'draft-js'
 //import Popover from 'react-awesome-popover'
 import { Manager, Reference, Popper } from 'react-popper';
-import Icons from "../icons"
+import {link} from "../icons"
 
 import {UpdateData} from "./commons.js"
 
@@ -397,7 +397,7 @@ class ButtonControls extends React.Component {
                 <span
                   className="input-group-addon"
                   id="link">
-                  {Icons.link()}
+                  {link()}
                 </span>
                 <input
                   className="form-control"

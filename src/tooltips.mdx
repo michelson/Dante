@@ -1,5 +1,6 @@
 ---
 name: Tooltips
+menu: Tooltips
 order: 1
 ---
 
@@ -11,6 +12,7 @@ import {State, Toggle} from 'react-powerplug'
 import {DanteInlineTooltipConfig} from './editor/components/popovers/addButton'
 import {DanteTooltipConfig} from './editor/components/popovers/toolTip'
 import Icons from "./editor/components/icons.js"
+import {CustomWidgetconfig} from './site/data/customWidget.js'
 
 # Tooltips
 
@@ -118,4 +120,16 @@ The default options for dante tooltip are:
 
   } )]} />
 </Playground>
+
+
+# Add button
+
+
+<Playground>
+  <Dante content={null} 
+   tooltips={[DanteInlineTooltipConfig()]} 
+   widgets={[CustomWidgetconfig()]}
+  />
+</Playground>
+
 

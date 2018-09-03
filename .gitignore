@@ -11,6 +11,7 @@
 /package
 /docs
 
+*.tgz
 # misc
 .DS_Store
 .env.local
