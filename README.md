@@ -42,7 +42,7 @@ In Draft every change provided from user input is stacked in this editorState bu
 
 ## Installation
 
-`npm install Dante2` or `yarn add Dante2`
+`npm install Dante2@next` or `yarn add Dante2@next`
 
 ## Usage
 
