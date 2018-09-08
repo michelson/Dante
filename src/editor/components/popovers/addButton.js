@@ -60,6 +60,7 @@ export default class DanteInlineTooltip extends React.Component {
   }
 
   _toggleScaled =(ev)=> {
+    ev.preventDefault()
     if (this.state.scaled) {
       return this.collapse()
     } else {
