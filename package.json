@@ -68,12 +68,14 @@
     "draft-js": "^0.10.5",
     "draft-js-custom-styles": "^2.0.4",
     "draft-js-export-html": "^1.2.0",
+    "draft-js-multidecorators": "^1.0.0",
+    "draft-js-prism": "^1.0.6",
     "react": "^16.2.0",
     "react-color": "^2.13.8",
     "react-dev-utils": "^5.0.0",
     "react-dom": "^16.2.0",
     "react-popper": "^1.0.0",
-    "react-select": "^1.0.0-rc.10"
+    "react-select": "^2.0.0"
   },
   "scripts": {
     "docz:dev": "docz dev",

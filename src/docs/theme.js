@@ -95,16 +95,18 @@ const License = ()=>{
                   margin: '0 auto',
                   width: '60%',
                   padding: '100px 0px'
-                }} config={{read_only: true}}
+                }} read_only={true}
               />
 }
 
 const Demo = ()=>{
-  return <Dante content={demo} style={{
+  return <Dante content={demo} 
+                style={{
                   margin: '0 auto',
                   width: '60%',
                   padding: '100px 0px'
-                }} config={{read_only: false}}
+                }} 
+                read_only={false}
               />
 }
 

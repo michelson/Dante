@@ -43,10 +43,12 @@ export default class DanteEditor extends React.Component {
     super(props)
     this.render = this.render.bind(this)
 
-    this.decorator = new CompositeDecorator([{
+    this.decorator = this.props.decorators(this)
+    
+    /*new CompositeDecorator([{
       strategy: findEntities.bind(null, 'LINK', this),
       component: Link
-    }])
+    }])*/
 
     this.blockRenderMap = Map({
       "image": {
@@ -312,6 +314,7 @@ export default class DanteEditor extends React.Component {
 
     const read_only = this.props.read_only ? false : null
     const editable = read_only !== null ? read_only : dataBlock.editable
+    
     return {
       component: dataBlock.block,
       editable,

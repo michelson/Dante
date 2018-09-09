@@ -1,5 +1,6 @@
 import path from 'path'
 import autoprefixer from 'autoprefixer'
+import 'babel-plugin-prismjs'
 const APP_DIR = path.resolve('./src');
 const basePath = process.env.PUBLIC_URL ? '/dante2/' : '/'
 
@@ -16,9 +17,9 @@ export default {
     babelrc.plugins = [
       'react-docgen',
       ["prismjs", {
-        "languages": ["javascript", "css", "markup", "jsx"],
+        "languages": ["javascript", "css", "markup", "jsx", "haml", "ruby"],
         "plugins": ["line-numbers", "normalize-whitespace"],
-        "theme": "twilight",
+        "theme": "dark",
         "css": true
       }]
     ]
