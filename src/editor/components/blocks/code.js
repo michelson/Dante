@@ -1,7 +1,9 @@
 import React from 'react'
 import {
   EditorBlock, 
-  EditorState } from 'draft-js'
+  EditorState,
+  RichUtils
+} from 'draft-js'
 import axios from "axios"
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 import {image} from "../icons.js"
@@ -48,7 +50,9 @@ export default class CodeBlock extends React.Component {
 
             {
               this.renderSelect() ?
-              <Select options={this.languages} onChange={(o)=>{
+              <Select options={this.languages} 
+                isSearchable={true}
+                onChange={(o)=>{
                 this.updateData({syntax: o.value})
               }} /> : null
             }
@@ -74,14 +78,15 @@ export const CodeBlockConfig = (options={})=>{
     wrapper_class: "graf graf--code",
     selected_class: "is-selected",
     selectedFn: block => {},
-    /*handleEnterWithoutText(ctx, block) {
+    handleEnterWithoutText(ctx, block) {
       const { editorState } = ctx.state
       return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
     },
     handleEnterWithText(ctx, block) {
       const { editorState } = ctx.state
-      return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-    },*/
+      return ctx.onChange(RichUtils.insertSoftNewline(editorState))
+      //return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+    },
     widget_options: {
       
     },

@@ -43,6 +43,7 @@
     "@babel/preset-env": "^7.0.0-rc.1",
     "autoprefixer": "^9.1.0",
     "babel-plugin-prismjs": "^1.0.2",
+    "bulma": "^0.7.1",
     "child-process-promise": "^2.2.1",
     "css-loader": "^1.0.0",
     "docz": "^0.10.3",
@@ -63,7 +64,6 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "bulma": "^0.7.1",
     "draft-convert": "^2.1.2",
     "draft-js": "^0.10.5",
     "draft-js-custom-styles": "^2.0.4",
@@ -74,6 +74,7 @@
     "react-color": "^2.13.8",
     "react-dev-utils": "^5.0.0",
     "react-dom": "^16.2.0",
+    "react-emotion": "^9.2.8",
     "react-popper": "^1.0.0",
     "react-select": "^2.0.0"
   },

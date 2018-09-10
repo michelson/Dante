@@ -2871,7 +2871,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.3, classnames@^2.2.5:
+classnames@^2.2.5:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
 
@@ -3298,6 +3298,12 @@ create-ecdh@^4.0.0:
 create-emotion-styled@^9.2.6:
   version "9.2.6"
   resolved "https://registry.yarnpkg.com/create-emotion-styled/-/create-emotion-styled-9.2.6.tgz#25be44a298e6e49d833ecf2247836284dc9c2042"
+  dependencies:
+    "@emotion/is-prop-valid" "^0.6.1"
+
+create-emotion-styled@^9.2.8:
+  version "9.2.8"
+  resolved "https://registry.yarnpkg.com/create-emotion-styled/-/create-emotion-styled-9.2.8.tgz#c0050e768ba439609bec108600467adf2de67cc3"
   dependencies:
     "@emotion/is-prop-valid" "^0.6.1"
 
@@ -8319,18 +8325,19 @@ react-dom@^16.2.0, react-dom@^16.4.2:
     object-assign "^4.1.1"
     prop-types "^15.6.0"
 
-react-dropdown@^1.6.2:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/react-dropdown/-/react-dropdown-1.6.2.tgz#13ace229f1749f942cd0ec7eb221cb1a22788db7"
-  dependencies:
-    classnames "^2.2.3"
-
 react-emotion@^9.2.6:
   version "9.2.6"
   resolved "https://registry.yarnpkg.com/react-emotion/-/react-emotion-9.2.6.tgz#3941f78779f9a8ad8300042ddfa9b2cb111442c2"
   dependencies:
     babel-plugin-emotion "^9.2.6"
     create-emotion-styled "^9.2.6"
+
+react-emotion@^9.2.8:
+  version "9.2.8"
+  resolved "https://registry.yarnpkg.com/react-emotion/-/react-emotion-9.2.8.tgz#e4e24540bdcb7daacf87c405760ed619bddbb61b"
+  dependencies:
+    babel-plugin-emotion "^9.2.8"
+    create-emotion-styled "^9.2.8"
 
 react-error-overlay@^4.0.0:
   version "4.0.0"
