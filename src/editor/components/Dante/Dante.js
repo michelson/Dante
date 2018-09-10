@@ -13,7 +13,7 @@ import {VideoBlockConfig} from '../blocks/video.js'
 import {PlaceholderBlockConfig} from '../blocks/placeholder.js'
 import {CodeBlockConfig} from '../blocks/code.js'
 import Link from '../decorators/link'
-//import {PrismDraftDecorator} from '../decorators/prism'
+import {PrismDraftDecorator} from '../decorators/prism'
 
 import { CompositeDecorator } from 'draft-js'
 
@@ -109,7 +109,7 @@ Dante.defaultProps = {
 
   decorators: (context)=>{
     return new MultiDecorator([
-      //PrismDraftDecorator(),
+      PrismDraftDecorator(),
       new CompositeDecorator(
         [{
           strategy: findEntities.bind(null, 'LINK', context),

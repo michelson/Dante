@@ -2,12 +2,7 @@
 
 import Prism from 'prismjs';
 import React from 'react'
-/*import 'prismjs/components/prism-markdown';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-haml';
-import 'prismjs/components/prism-jsx';*/
 import PrismDecorator from 'draft-js-prism'
-
 
 const defaultFilter =(block)=> {
   return block.getType() === 'code-block';

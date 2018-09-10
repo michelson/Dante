@@ -1,0 +1,41 @@
+---
+name: Decorators
+order: 4
+---
+
+import { Playground, PropsTable } from 'docz'
+import {h1} from './site/data/poc.js'
+import Dante from './editor/components/Dante/Dante.js'
+import {CodeBlockConfig} from './editor/components/blocks/code'
+import {PrismDraftDecorator} from './editor/components/decorators/prism'
+import Link from './editor/components/decorators/link'
+import findEntities from './editor/utils/find_entities'
+
+import { CompositeDecorator } from 'draft-js'
+import MultiDecorator from 'draft-js-multidecorators'
+
+# Decorators
+
+An array that accepts multiple decorators. it uses multi-decorator library
+
+
+## If you need to customize any element class , this is the place
+
+<Playground>
+  <Dante 
+    content={h1}
+    widgets={[CodeBlockConfig()]}
+    decorators={ (context)=> {
+      return new MultiDecorator([
+        PrismDraftDecorator(),
+        new CompositeDecorator(
+          [{
+            strategy: findEntities.bind(null, 'LINK', context),
+            component: Link
+          } ]
+        )
+      ])
+      }
+    }
+  />
+</Playground>

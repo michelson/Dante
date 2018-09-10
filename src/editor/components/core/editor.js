@@ -31,9 +31,7 @@ import {
 
 // import DraggableElements from "./draggable_elements"
 
-import Link from '../decorators/link'
 import Debug from './debug'
-import findEntities from '../../utils/find_entities'
 import SaveBehavior from '../../utils/save_content'
 import customHTML2Content from '../../utils/html2content'
 import createStyles from 'draft-js-custom-styles'
@@ -44,11 +42,6 @@ export default class DanteEditor extends React.Component {
     this.render = this.render.bind(this)
 
     this.decorator = this.props.decorators(this)
-    
-    /*new CompositeDecorator([{
-      strategy: findEntities.bind(null, 'LINK', this),
-      component: Link
-    }])*/
 
     this.blockRenderMap = Map({
       "image": {
