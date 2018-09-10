@@ -64,6 +64,7 @@ const StatusBar = styled('div')`
 
 const VideoPlayer = styled('video')`
   width: 100%;
+  background: black;
 `
 
 const Button = styled('button')`
@@ -152,6 +153,8 @@ class VideoRecorderBlock extends React.Component {
 
     this.video = null
 
+    this.stopTimeout = null
+
     this.handleGranted = this.handleGranted.bind(this);
     this.handleDenied = this.handleDenied.bind(this);
     this.handleStart = this.handleStart.bind(this);
@@ -161,6 +164,7 @@ class VideoRecorderBlock extends React.Component {
     this.setStreamToVideo = this.setStreamToVideo.bind(this);
     this.releaseStreamFromVideo = this.releaseStreamFromVideo.bind(this);
     this.downloadVideo = this.downloadVideo.bind(this);
+
   }
 
   componentDidMount(){
@@ -191,7 +195,7 @@ class VideoRecorderBlock extends React.Component {
     console.log('Permission Denied!', err);
   }
 
-  handleStart(stream) {
+  handleStart(stream, context) {
 
     this.setState({
       recording: true,
@@ -200,9 +204,20 @@ class VideoRecorderBlock extends React.Component {
 
     this.setStreamToVideo(stream);
     console.log('Recording Started.');
+
+    // max seconds to record video 
+    if(!context.config.seconds_to_record) return
+    this.stopTimeout = setTimeout(()=>{
+      context.refs.mediaRecorder.stop()
+    }, context.config.seconds_to_record )
   }
 
   handleStop(blob) {
+
+    if(this.stopTimeout){
+      clearTimeout(this.stopTimeout)
+    }
+
     this.setState({
       recording: false,
       fileReady: true
@@ -414,7 +429,7 @@ class VideoRecorderBlock extends React.Component {
         />
         <VideoContainer>
       
-          <ReactMediaRecorder
+          <ReactMediaRecorder ref="mediaRecorder"
             constraints={
               { 
                 audio: {
@@ -429,7 +444,7 @@ class VideoRecorderBlock extends React.Component {
             timeSlice={10}
             onGranted={this.handleGranted}
             onDenied={this.handleDenied}
-            onStart={this.handleStart}
+            onStart={(stream)=> this.handleStart(stream, this)}
             onStop={this.handleStop}
             onPause={this.handlePause}
             onResume={this.handleResume}
@@ -475,7 +490,7 @@ class VideoRecorderBlock extends React.Component {
                         {
                           this.state.recording ? 
 
-                          <Button onClick={stop} className="right">
+                          <Button onClick={stop} ref="stopBtn" className="right">
                             STOP REC
                           </Button>  : null
                         } 
@@ -592,7 +607,9 @@ export const VideoRecorderBlockConfig = (options={})=>{
       insertion: "insertion",
       insert_block: "image"
     },
-    options: {}
+    options: {
+      seconds_to_record: 10000
+    }
   
   }
     
