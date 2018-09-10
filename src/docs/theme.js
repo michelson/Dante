@@ -3,6 +3,13 @@ import { theme, ThemeConfig, DocPreview } from 'docz'
 import { ThemeProvider } from 'emotion-theming'
 
 import Dante from '../editor/components/Dante'
+
+import {ImageBlockConfig} from '../editor/components/blocks/image'
+import {CodeBlockConfig} from '../editor/components/blocks/code'
+import {EmbedBlockConfig} from '../editor/components/blocks/embed'
+import {VideoBlockConfig} from '../editor/components/blocks/video'
+import {PlaceholderBlockConfig} from '../editor/components/blocks/placeholder'
+
 import 'bulma/css/bulma.css'
 import Prism from 'prismjs';
 import Normalizer from 'prismjs/plugins/normalize-whitespace/prism-normalize-whitespace'
@@ -95,16 +102,25 @@ const License = ()=>{
                   margin: '0 auto',
                   width: '60%',
                   padding: '100px 0px'
-                }} config={{read_only: true}}
+                }} read_only={true}
               />
 }
 
 const Demo = ()=>{
-  return <Dante content={demo} style={{
+  return <Dante content={demo} 
+                widgets={[
+                  ImageBlockConfig(),
+                  CodeBlockConfig(),
+                  EmbedBlockConfig(),
+                  VideoBlockConfig(),
+                  PlaceholderBlockConfig()
+                ]}
+                style={{
                   margin: '0 auto',
                   width: '60%',
                   padding: '100px 0px'
-                }} config={{read_only: false}}
+                }} 
+                read_only={false}
               />
 }
 

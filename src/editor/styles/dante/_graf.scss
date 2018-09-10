@@ -15,6 +15,18 @@
   //position:relative;
 }
 
+.graf--code {
+  background: transparent;
+  position:relative;
+  overflow: visible;
+  .dante-code-syntax{
+    position: absolute;
+    top: -17px;
+    right: -18px;
+    width: 165px;
+  }
+}
+
 .postList {
   margin-bottom: 30px;
 }
@@ -62,6 +74,9 @@
   line-height: 1.2;
   margin-top: 40px;
   margin-bottom: .7em;
+}
+.public-DraftStyleDefault-pre{
+  overflow: inherit;
 }
 .graf--h4 {
   font-family: $dante-font-family-sans;

@@ -11,6 +11,8 @@ import {ImageBlockConfig} from './editor/components/blocks/image.js'
 import {EmbedBlockConfig} from './editor/components/blocks/embed.js'
 import {VideoBlockConfig} from './editor/components/blocks/video.js'
 import {PlaceholderBlockConfig} from './editor/components/blocks/placeholder.js'
+import {VideoRecorderBlockConfig} from './editor/components/blocks/videoRecorder'
+import config from './site/data/constants.js'
 
 # Widgets
 
@@ -108,19 +110,13 @@ Embed and Video widgets uses open framely you can override this by using your ow
 
 ## Upload Url Callback
 
-https://dante-uploader.herokuapp.com
-
 <Playground>
   <Dante content={null} widgets={[ImageBlockConfig({
     options: {
-      upload_url: 'http://localhost:4000/upload', 
+      upload_url: config.uploadUrl, 
       upload_callback: (ctx, img)=> { 
         alert("file uploaded: " + ctx.data.url) 
       },
-      /*delete_block_callback: (ctx, block)=>{
-        //alert("file deleted: " + block.getData().toJS().url)
-        return null
-      },*/
       upload_error_callback: (ctx, img)=>{
         console.log(ctx)
       }
@@ -130,4 +126,32 @@ https://dante-uploader.herokuapp.com
   />
 </Playground>
 
+
+
+## Video
+
+
+<Playground>
+  <Dante 
+      content={null}
+      widgets={[
+          VideoRecorderBlockConfig({
+
+              options: {
+                seconds_to_record: 5000,
+                upload_url: config.uploadUrl, 
+                upload_callback: (ctx, img)=> { 
+                  console.log("file uploaded: " + ctx.data.url) 
+                },
+                upload_error_callback: (ctx, img)=>{
+                  debugger
+                  console.log(ctx)
+                }
+              }
+
+          })
+      ]}
+      debug={true}
+  />
+</Playground>
 

@@ -179,7 +179,7 @@ export default class DanteInlineTooltip extends React.Component {
 
   getItems = ()=> {
     return this.widgets().filter(o => {
-      return o.widget_options.displayOnInlineTooltip
+      return o.widget_options ? o.widget_options.displayOnInlineTooltip : null
     })
   }
 

@@ -11,10 +11,18 @@ import {ImageBlockConfig} from '../blocks/image.js'
 import {EmbedBlockConfig} from '../blocks/embed.js'
 import {VideoBlockConfig} from '../blocks/video.js'
 import {PlaceholderBlockConfig} from '../blocks/placeholder.js'
+import {CodeBlockConfig} from '../blocks/code.js'
+import Link from '../decorators/link'
+import {PrismDraftDecorator} from '../decorators/prism'
+
+import { CompositeDecorator } from 'draft-js'
+
+import findEntities from '../../utils/find_entities'
+
+import MultiDecorator from 'draft-js-multidecorators'
 
 // custom blocks
 import DividerBlock from '../blocks/divider'
-//
 import PropTypes from 'prop-types'
 
 // component implementation
@@ -99,6 +107,18 @@ Dante.defaultProps = {
   title_placeholder: "Title",
   body_placeholder: "Write your story",
 
+  decorators: (context)=>{
+    return new MultiDecorator([
+      PrismDraftDecorator(),
+      new CompositeDecorator(
+        [{
+          strategy: findEntities.bind(null, 'LINK', context),
+          component: Link
+        } ]
+      )
+    ])
+  },
+
   xhr: {
     before_handler: null,
     success_handler: null,
@@ -169,7 +189,8 @@ Dante.defaultProps = {
     ImageBlockConfig(),
     EmbedBlockConfig(),
     VideoBlockConfig(),
-    PlaceholderBlockConfig()
+    PlaceholderBlockConfig(),
+    //CodeBlockConfig()
   ]
 
 }
