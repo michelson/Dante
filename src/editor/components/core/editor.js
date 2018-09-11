@@ -535,7 +535,6 @@ export default class DanteEditor extends React.Component {
       return true;
     }
 
-
     if (!e.altKey && !e.metaKey && !e.ctrlKey) {
       const currentBlock = getCurrentBlock(editorState)
       const blockType = currentBlock.getType()
@@ -548,6 +547,11 @@ export default class DanteEditor extends React.Component {
         if (config_block && config_block.handleEnterWithoutText) {
           config_block.handleEnterWithoutText(this, currentBlock)
           this.closePopOvers()
+          return true
+        }
+
+        if (this.props.continuousBlocks.indexOf(blockType) < 0) {
+          this.onChange(addNewBlockAt(editorState, currentBlock.getKey()))
           return true
         }
 
