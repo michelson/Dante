@@ -37,7 +37,9 @@ const PrismOptions = {
   prism:              Prism
 }
 
-export const PrismDraftDecorator = ()=> ( new PrismDecorator( PrismOptions ) )
+export const PrismDraftDecorator = (options={})=> ( 
+  new PrismDecorator( Object.assign(options, PrismOptions) ) 
+)
 
 
 
