@@ -23,7 +23,7 @@ export default class CodeBlock extends React.Component {
   }
 
   componentDidMount() {
-    this.updateData({syntax: "javascript"})
+    //this.updateData({syntax: "javascript"})
 
   }
 
@@ -52,6 +52,7 @@ export default class CodeBlock extends React.Component {
               this.renderSelect() ?
               <Select options={this.languages} 
                 isSearchable={true}
+                defaultValue={this.state.syntax}
                 onChange={(o)=>{
                 this.updateData({syntax: o.value})
               }} /> : null
@@ -100,7 +101,7 @@ export const CodeBlockConfig = (options={})=>{
     options: {
       displaySelect: true,
       languages: [
-                  { value: 'javascript', label: 'js' },
+                  { value: 'javascript', label: 'javascript' },
                   { value: 'html', label: 'html' },
                   { value: 'css', label: 'css' },
                   { value: null, label: 'none'}
