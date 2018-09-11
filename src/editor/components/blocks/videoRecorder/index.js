@@ -479,7 +479,11 @@ class VideoRecorderBlock extends React.Component {
                     <EditorControls>
 
                         <Button 
-                          onClick={start}
+                          onClick={(e)=>{
+                              e.preventDefault()
+                              start()
+                            }
+                          }
                           disabled={this.state.recording}
                           className={this.state.recording ? 'onclic' : ''}
                           >
@@ -490,7 +494,12 @@ class VideoRecorderBlock extends React.Component {
                         {
                           this.state.recording ? 
 
-                          <Button onClick={stop} ref="stopBtn" className="right">
+                          <Button onClick={(e)=>{
+                              e.preventDefault()
+                              stop()
+                            }
+                          }
+                          ref="stopBtn" className="right">
                             STOP REC
                           </Button>  : null
                         } 
@@ -507,6 +516,7 @@ class VideoRecorderBlock extends React.Component {
                         this.state.fileReady ?
                           <Button className="right"
                             onClick={(e)=>{
+                              e.preventDefault()
                               this.confirm()
                             }}>
                             Save
@@ -589,7 +599,7 @@ export const VideoRecorderBlockConfig = (options={})=>{
     block: VideoRecorderBlock,
     editable: true,
     renderable: true,
-    breakOnContinuous: false,
+    breakOnContinuous: true,
     wrapper_class: "graf graf--video",
     selected_class: "is-selected",
     selectedFn: block => {},
