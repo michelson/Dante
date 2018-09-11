@@ -121,7 +121,7 @@ export const EmbedBlockConfig = (options={})=>{
       type: 'embed',
       block: EmbedBlock,
       icon: embed,
-      editable: true,
+      editable: false,
       renderable: true,
       breakOnContinuous: true,
       wrapper_class: "graf graf--mixtapeEmbed",
