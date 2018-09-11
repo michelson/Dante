@@ -299,6 +299,7 @@ class InlineTooltipItem extends React.Component {
         className="inlineTooltip-button scale"
         title={ this.props.title }
         onMouseDown={ this.clickHandler }
+        onClick={(e)=> e.preventDefault()}
         style={{fontSize: '21px'}}
       >
       {
