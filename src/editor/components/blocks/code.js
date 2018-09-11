@@ -74,7 +74,7 @@ export const CodeBlockConfig = (options={})=>{
     block: CodeBlock,
     editable: true,
     renderable: true,
-    breakOnContinuous: false,
+    //breakOnContinuous: true,
     wrapper_class: "graf graf--code",
     selected_class: "is-selected",
     selectedFn: block => {},
@@ -84,8 +84,15 @@ export const CodeBlockConfig = (options={})=>{
     },
     handleEnterWithText(ctx, block) {
       const { editorState } = ctx.state
+      const selection = editorState.getSelection()
+      // check if we are in the last line and got 2 previous breaklines
+      if(block.getLength() === selection.getEndOffset()){
+        if(block.getText().slice(-2) === "\n\n"){
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()))          
+        }
+      }
       return ctx.onChange(RichUtils.insertSoftNewline(editorState))
-      //return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+      
     },
     widget_options: {
       
