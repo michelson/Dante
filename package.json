@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.5.0-rc1",
+  "version": "0.5.0-rc5",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -85,6 +85,8 @@
     "deploy": "node build.js",
     "build": "NODE_ENV=production rollup -c",
     "dev": "rollup -c -w",
-    "package": "NODE_ENV=production ./node_modules/.bin/babel-node tools/build-cli.js"
+    "package": "NODE_ENV=production ./node_modules/.bin/babel-node tools/build-cli.js",
+    "prepublish": "yarn package",
+    "publish-beta": "yarn publish --next"
   }
 }
