@@ -4,7 +4,7 @@ order: 4
 ---
 
 import { Playground, PropsTable } from 'docz'
-import {h1} from './site/data/poc.js'
+import {code} from './site/data/poc.js'
 import Dante from './editor/components/Dante/Dante.js'
 import {CodeBlockConfig} from './editor/components/blocks/code'
 import Prism from 'prismjs'
@@ -26,7 +26,8 @@ Here is an example of the default decorators
 
 <Playground>
   <Dante 
-    content={h1}
+    content={code}
+    debug={true}
     widgets={[CodeBlockConfig()]}
     decorators={ (context)=> {
       return new MultiDecorator([
