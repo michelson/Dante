@@ -435,6 +435,8 @@ export default class DanteEditor extends React.Component {
 
     const currentBlock = getCurrentBlock(this.state.editorState)
 
+    let { editorState } = this.state
+
     // TODO: make this configurable
     switch (currentBlock.getType()) {
       case "image":case "video":case "placeholder":
@@ -442,42 +444,16 @@ export default class DanteEditor extends React.Component {
     }
 
     const newContentState = customHTML2Content(html, this.extendedBlockRenderMap)
+    
+    const pastedBlocks = newContentState.getBlockMap()
 
-    /*const selection = this.state.editorState.getSelection()
-    const endKey = selection.getEndKey()
-
-    const content = this.state.editorState.getCurrentContent()
-    const blocksBefore = content.blockMap.toSeq().takeUntil(v => v.key === endKey)
-    const blocksAfter = content.blockMap.toSeq().skipUntil(v => v.key === endKey).rest()
-
-    const newBlockKey = newContentState.blockMap.first().getKey()
-
-    const newBlockMap = blocksBefore.concat(newContentState.blockMap, blocksAfter).toOrderedMap()
-
-    const newContent = content.merge({
-      blockMap: newBlockMap,
-      selectionBefore: selection,
-      selectionAfter: selection.merge({
-        anchorKey: newBlockKey,
-        anchorOffset: 0,
-        focusKey: newBlockKey,
-        focusOffset: 0,
-        isBackward: false
-      })
-    })
-
-    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment')
-
-    this.onChange(pushedContentState)*/
-
-    const pastedBlocks = newContentState
     const newState = Modifier.replaceWithFragment(
       editorState.getCurrentContent(),
       editorState.getSelection(),
       pastedBlocks
     );
 
-    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment')
+    const pushedContentState = EditorState.push(editorState, newState, 'insert-fragment')
 
     this.onChange(pushedContentState)
 
@@ -894,7 +870,7 @@ export default class DanteEditor extends React.Component {
                 blockRenderMap={ this.state.blockRenderMap }
                 blockStyleFn={ this.blockStyleFn }
                 customStyleFn={this.customStyleFn }
-                //handlePastedText={ this.handlePasteText }
+                handlePastedText={ this.handlePasteText }
                 handlePastedFiles={ this.handlePasteImage }
                 handleDroppedFiles={ this.handleDroppedFiles }
                 handleKeyCommand={ this.handleKeyCommand }
