@@ -15,7 +15,8 @@ class SaveBehavior {
   }
 
   store(content){
-    if (!this.config.data_storage.url) { return }
+    if (!this.config.data_storage.url && !this.config.data_storage.save_handler) { return }
+    
     if (this.getLocks() > 0) { return }
 
     clearTimeout(this.timeout)
