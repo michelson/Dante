@@ -443,7 +443,7 @@ export default class DanteEditor extends React.Component {
 
     const newContentState = customHTML2Content(html, this.extendedBlockRenderMap)
 
-    const selection = this.state.editorState.getSelection()
+    /*const selection = this.state.editorState.getSelection()
     const endKey = selection.getEndKey()
 
     const content = this.state.editorState.getCurrentContent()
@@ -465,6 +465,17 @@ export default class DanteEditor extends React.Component {
         isBackward: false
       })
     })
+
+    const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment')
+
+    this.onChange(pushedContentState)*/
+
+    const pastedBlocks = newContentState
+    const newState = Modifier.replaceWithFragment(
+      editorState.getCurrentContent(),
+      editorState.getSelection(),
+      pastedBlocks
+    );
 
     const pushedContentState = EditorState.push(this.state.editorState, newContent, 'insert-fragment')
 
@@ -883,7 +894,7 @@ export default class DanteEditor extends React.Component {
                 blockRenderMap={ this.state.blockRenderMap }
                 blockStyleFn={ this.blockStyleFn }
                 customStyleFn={this.customStyleFn }
-                handlePastedText={ this.handlePasteText }
+                //handlePastedText={ this.handlePasteText }
                 handlePastedFiles={ this.handlePasteImage }
                 handleDroppedFiles={ this.handleDroppedFiles }
                 handleKeyCommand={ this.handleKeyCommand }
