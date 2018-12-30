@@ -39,6 +39,7 @@ import createStyles from 'draft-js-custom-styles'
 export default class DanteEditor extends React.Component {
   constructor(props) {
     super(props)
+
     this.render = this.render.bind(this)
 
     this.decorator = this.props.decorators(this)
@@ -155,7 +156,7 @@ export default class DanteEditor extends React.Component {
     //editorState = this.handleUndeletables(editorState)
   
     this.setPreContent()
-    this.setState({ editorState } , ()=>{
+    this.setState( { editorState } , ()=>{
 
 
       if (!editorState.getSelection().isCollapsed()) {
@@ -175,7 +176,11 @@ export default class DanteEditor extends React.Component {
         return this.relocateTooltips()
       })
 
-      return this.dispatchChangesToSave()
+      this.dispatchChangesToSave()
+
+      this.props.onChange ? this.props.onChange(this) : null
+
+      return
 
     })
   }

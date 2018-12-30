@@ -41,3 +41,16 @@ Read only will disable all interaction
 <Playground>
   <Dante read_only={true} />
 </Playground>
+
+
+## onChange callback
+
+onChange func will return the entire instance of the editor, so you can use all it's methods. 
+
+### Save override example:
+
+<Playground>
+  <Dante onChange={(editor)=>{ 
+    console.log("editor content: ", editor.emitSerializedOutput()) 
+  }} />
+</Playground>
