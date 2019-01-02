@@ -78,7 +78,8 @@ class DropDown extends React.Component {
   render(){
     return (
       <div className={`dropdown ${this.state.open ? 'open' : ''}`} >
-        <button className="btn btn-default dropdown-toggle" 
+        <button type="button"
+                className="btn btn-default dropdown-toggle"
                 //onMouseDown={this.toggle}
                 type="button" id="dropdownMenu1" 
                 data-toggle="dropdown" 
@@ -105,7 +106,8 @@ class DropDownItem extends React.Component {
   render(){
     return (
       <li>
-        <button 
+        <button
+          type="button"
           onClick={(e)=> e.preventDefault()}
           onMouseDown={(e)=>this.props.handleClick(e, this.props.item)}>
           {this.props.item}
