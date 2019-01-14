@@ -254,6 +254,7 @@ export default class DanteInlineTooltip extends React.Component {
         style={ this.state.position }
       >
         <button
+          type="button"
           className="inlineTooltip-button control"
           title="Close Menu"
           data-action="inline-menu"
@@ -275,6 +276,7 @@ export default class DanteInlineTooltip extends React.Component {
           }
           <input
            type="file"
+           accept="image/*"
            style={ { display: 'none' } }
            ref="fileInput"
            multiple="multiple"
@@ -296,6 +298,7 @@ class InlineTooltipItem extends React.Component {
   render() {
     return (
       <button
+        type="button"
         className="inlineTooltip-button scale"
         title={ this.props.title }
         onMouseDown={ this.clickHandler }
