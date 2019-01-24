@@ -122,6 +122,11 @@ const Demo = ()=>{
                   padding: '100px 0px'
                 }}
                 read_only={false}
+                data_storage={ {
+                  interval: 10000,
+                  save_handler: (context, content)=>{
+                    console.log(context, content)
+                  }}}
               />
 }
 
