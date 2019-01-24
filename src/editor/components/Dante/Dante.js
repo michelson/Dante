@@ -11,6 +11,7 @@ import {ImageBlockConfig} from '../blocks/image.js'
 import {EmbedBlockConfig} from '../blocks/embed.js'
 import {VideoBlockConfig} from '../blocks/video.js'
 import {PlaceholderBlockConfig} from '../blocks/placeholder.js'
+import {DividerBlockConfig} from '../blocks/divider'
 import {CodeBlockConfig} from '../blocks/code.js'
 import Link from '../decorators/link'
 import {PrismDraftDecorator} from '../decorators/prism'
@@ -22,7 +23,7 @@ import findEntities from '../../utils/find_entities'
 import MultiDecorator from 'draft-js-multidecorators'
 
 // custom blocks
-import DividerBlock from '../blocks/divider'
+
 import PropTypes from 'prop-types'
 
 // component implementation
@@ -80,20 +81,7 @@ Dante.propTypes = {
 
   continuousBlocks: PropTypes.arrayOf(PropTypes.string),
 
-  /*key_commands: PropTypes.shape({
-      "alt-shift":  PropTypes.arrayOf(PropTypes.shape({
-                     key: PropTypes.string.isRequired,
-                     name: PropTypes.string.isRequired,
-                   }),
-      "alt-cmd": PropTypes.arrayOf(PropTypes.shape({
-                       key: PropTypes.string.isRequired,
-                       name: PropTypes.string.isRequired,
-                     }),
-      "cmd": PropTypes.arrayOf(PropTypes.shape({
-               key: PropTypes.string.isRequired,
-               name: PropTypes.string.isRequired,
-             })
-  })*/
+  key_commands: PropTypes.object
 
   /*character_convert_mapping: PropTypes.shape({
       '> ': "blockquote"
@@ -163,7 +151,9 @@ Dante.defaultProps = {
                   { key: 53, cmd: 'toggle_block:blockquote' }],
       "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' },
               { key: 73, cmd: 'toggle_inline:ITALIC' },
-              { key: 75, cmd: 'insert:link' }]
+              { key: 75, cmd: 'insert:link' },
+              /*{ key: 13, cmd: 'toggle_block:divider' }*/
+      ]
   },
 
   character_convert_mapping: {
@@ -190,6 +180,7 @@ Dante.defaultProps = {
     EmbedBlockConfig(),
     VideoBlockConfig(),
     PlaceholderBlockConfig(),
+    //DividerBlockConfig(),
     //CodeBlockConfig()
   ]
 
