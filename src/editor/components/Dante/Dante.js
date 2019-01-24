@@ -39,6 +39,7 @@ class Dante extends React.Component {
   }
 
   render(){
+    console.log(this.props)
     return(
       <div style={this.props.style}>
         <DanteEditor
@@ -52,10 +53,10 @@ class Dante extends React.Component {
 
 Dante.propTypes = {
   /** Editor content, it expects a null or a draft's EditorContent. */
-  content: PropTypes.string,
-  read_only: PropTypes.boolean,
-  //spellcheck: PropTypes.boolean,
-  //title_placeholder: PropTypes.string,
+  content: PropTypes.object,
+  read_only: PropTypes.bool,
+  spellcheck: PropTypes.bool,
+  title_placeholder: PropTypes.string,
   body_placeholder: PropTypes.string,
 
   xhr: PropTypes.shape({
@@ -66,7 +67,7 @@ Dante.propTypes = {
 
   data_storage: PropTypes.shape({
     url: PropTypes.string,
-    method: "POST",
+    method: PropTypes.string,
     success_handler: PropTypes.func,
     failure_handler: PropTypes.func,
     interval: PropTypes.integer
@@ -101,7 +102,7 @@ Dante.propTypes = {
 }
 
 Dante.defaultProps = {
-  content: null,
+  content: {},
   read_only: false,
   spellcheck: false,
   title_placeholder: "Title",

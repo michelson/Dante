@@ -10,6 +10,7 @@
 /build
 /package
 /docs
+.idea
 
 *.tgz
 # misc
