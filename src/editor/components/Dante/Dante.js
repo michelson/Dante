@@ -39,7 +39,6 @@ class Dante extends React.Component {
   }
 
   render(){
-    console.log(this.props)
     return(
       <div style={this.props.style}>
         <DanteEditor
