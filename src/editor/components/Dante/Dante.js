@@ -11,7 +11,6 @@ import {ImageBlockConfig} from '../blocks/image.js'
 import {EmbedBlockConfig} from '../blocks/embed.js'
 import {VideoBlockConfig} from '../blocks/video.js'
 import {PlaceholderBlockConfig} from '../blocks/placeholder.js'
-import {DividerBlockConfig} from '../blocks/divider'
 import {CodeBlockConfig} from '../blocks/code.js'
 import Link from '../decorators/link'
 import {PrismDraftDecorator} from '../decorators/prism'
@@ -23,7 +22,7 @@ import findEntities from '../../utils/find_entities'
 import MultiDecorator from 'draft-js-multidecorators'
 
 // custom blocks
-
+import DividerBlock from '../blocks/divider'
 import PropTypes from 'prop-types'
 
 // component implementation
@@ -53,10 +52,10 @@ class Dante extends React.Component {
 
 Dante.propTypes = {
   /** Editor content, it expects a null or a draft's EditorContent. */
-  content: PropTypes.object,
-  read_only: PropTypes.bool,
-  spellcheck: PropTypes.bool,
-  title_placeholder: PropTypes.string,
+  content: PropTypes.string,
+  read_only: PropTypes.boolean,
+  //spellcheck: PropTypes.boolean,
+  //title_placeholder: PropTypes.string,
   body_placeholder: PropTypes.string,
 
   xhr: PropTypes.shape({
@@ -67,7 +66,7 @@ Dante.propTypes = {
 
   data_storage: PropTypes.shape({
     url: PropTypes.string,
-    method: PropTypes.string,
+    method: "POST",
     success_handler: PropTypes.func,
     failure_handler: PropTypes.func,
     interval: PropTypes.integer
@@ -81,7 +80,20 @@ Dante.propTypes = {
 
   continuousBlocks: PropTypes.arrayOf(PropTypes.string),
 
-  key_commands: PropTypes.object
+  /*key_commands: PropTypes.shape({
+      "alt-shift":  PropTypes.arrayOf(PropTypes.shape({
+                     key: PropTypes.string.isRequired,
+                     name: PropTypes.string.isRequired,
+                   }),
+      "alt-cmd": PropTypes.arrayOf(PropTypes.shape({
+                       key: PropTypes.string.isRequired,
+                       name: PropTypes.string.isRequired,
+                     }),
+      "cmd": PropTypes.arrayOf(PropTypes.shape({
+               key: PropTypes.string.isRequired,
+               name: PropTypes.string.isRequired,
+             })
+  })*/
 
   /*character_convert_mapping: PropTypes.shape({
       '> ': "blockquote"
@@ -89,7 +101,7 @@ Dante.propTypes = {
 }
 
 Dante.defaultProps = {
-  content: {},
+  content: null,
   read_only: false,
   spellcheck: false,
   title_placeholder: "Title",
@@ -151,9 +163,7 @@ Dante.defaultProps = {
                   { key: 53, cmd: 'toggle_block:blockquote' }],
       "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' },
               { key: 73, cmd: 'toggle_inline:ITALIC' },
-              { key: 75, cmd: 'insert:link' },
-              /*{ key: 13, cmd: 'toggle_block:divider' }*/
-      ]
+              { key: 75, cmd: 'insert:link' }]
   },
 
   character_convert_mapping: {
@@ -180,7 +190,6 @@ Dante.defaultProps = {
     EmbedBlockConfig(),
     VideoBlockConfig(),
     PlaceholderBlockConfig(),
-    //DividerBlockConfig(),
     //CodeBlockConfig()
   ]
 

@@ -3,108 +3,102 @@ import Immutable from 'immutable'
 
 class SaveBehavior {
   constructor(options) {
-    this.getLocks = options.getLocks;
-    this.config = options.config;
-    this.editorContent = options.editorContent;
-    this.editorState = options.editorState;
+    this.getLocks = options.getLocks
+    this.config = options.config
+    this.editorContent = options.editorContent
+    this.editorState = options.editorState
     this.editor = options.editor
   }
-  
-  handleStore(ev) {
+
+  handleStore(ev){
     return this.store()
   }
-  
-  store(content) {
-    if (!(this.config.data_storage.url || this.config.data_storage.save_handler)) {
-      return
-    }
+
+  store(content){
+    if (!this.config.data_storage.url && !this.config.data_storage.save_handler) { return }
     
-    if (this.getLocks() > 0) {
-      return
-    }
-    
+    if (this.getLocks() > 0) { return }
+
     clearTimeout(this.timeout)
-    
+
     return this.timeout = setTimeout(() => {
       return this.checkforStore(content)
-    }, this.config.data_storage.interval)
+    }
+    , this.config.data_storage.interval)
   }
-  
-  getTextFromEditor(content) {
-    return content.blocks.map(o => {
+
+  getTextFromEditor(content){
+    return content.blocks.map(o=> {
         return o.text
       }
-    ).join("\n")
+    )
+      .join("\n")
   }
-  
+
   getUrl() {
-    let {url} = this.config.data_storage
-    if (typeof (url) === "function") {
-      return url()
-    } else {
-      return url
+    let { url } = this.config.data_storage
+    if (typeof(url) === "function") { 
+      return url() 
+    } else { 
+      return url 
     }
   }
-  
+
   getMethod() {
-    let {method} = this.config.data_storage
-    if (typeof (method) === "function") {
-      return method()
-    } else {
-      return method
+    let { method } = this.config.data_storage
+    if (typeof(method) === "function") { 
+      return method() 
+    } else { 
+      return method 
     }
   }
-  
-  getWithCredentials() {
-    let {withCredentials} = this.config.data_storage
-    if (typeof (withCredentials) === "function") {
-      return withCredentials()
-    } else {
-      return withCredentials
+
+  getWithCredentials(){
+    let { withCredentials } = this.config.data_storage
+    if (typeof(withCredentials) === "function") { 
+      return withCredentials() 
+    } else { 
+      return withCredentials 
     }
   }
-  
-  getCrossDomain() {
-    let {crossDomain} = this.config.data_storage
-    if (typeof (crossDomain) === "function") {
+
+  getCrossDomain(){
+    let { crossDomain } = this.config.data_storage
+    if (typeof(crossDomain) === "function") { 
       return crossDomain()
-    } else {
-      return crossDomain
+    } else { 
+      return crossDomain 
     }
   }
-  
-  getHeaders() {
-    let {headers} = this.config.data_storage
-    if (typeof (headers) === "function") {
-      return headers()
-    } else {
-      return headers
+
+  getHeaders(){
+    let { headers } = this.config.data_storage
+    if (typeof(headers) === "function") { 
+      return headers() 
+    } else { 
+      return headers 
     }
   }
-  
-  checkforStore(content) {
+
+  checkforStore(content){
     // ENTER DATA STORE
     let isChanged = !Immutable.is(Immutable.fromJS(this.editorContent), Immutable.fromJS(content))
     // console.log("CONTENT CHANGED:", isChanged)
-    
-    if (!isChanged) {
-      return
-    }
-    
+
+    if (!isChanged) { return }
+
     this.save(content)
   }
-  
-  save(content) {
-    
+
+  save(content){
+
     // use save handler from config if exists
-    if (this.config.data_storage.save_handler) {
+    if (this.config.data_storage.save_handler){
       this.config.data_storage.save_handler(this, content)
-      return
+      return 
     }
-    
-    if (this.config.xhr.before_handler) {
-      this.config.xhr.before_handler()
-    }
+
+    if (this.config.xhr.before_handler) { this.config.xhr.before_handler() }
     // console.log "SAVING TO: #{@getMethod()} #{@getUrl()}"
     return axios({
       method: this.getMethod(),
@@ -117,27 +111,27 @@ class SaveBehavior {
       crossDomain: this.getCrossDomain(),
       headers: this.getHeaders(),
     })
-      .then(result => {
-          // console.log "STORING CONTENT", result
-          if (this.config.data_storage.success_handler) {
-            return this.config.data_storage.success_handler(result)
-          }
-          if (this.config.xhr.success_handler) {
-            return this.config.xhr.success_handler(result)
-          }
-        }
-      )
-      .catch(error => {
-          // console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
-          if (this.config.data_storage.failure_handler) {
-            return this.config.data_storage.failure_handler(error)
-          }
-          
-          if (this.config.xhr.failure_handler) {
-            return this.config.xhr.failure_handler(error)
-          }
-        }
-      )
+    .then(result=> {
+      // console.log "STORING CONTENT", result
+      if (this.config.data_storage.success_handler) { 
+        return this.config.data_storage.success_handler(result) 
+      }
+      if (this.config.xhr.success_handler) { 
+        return this.config.xhr.success_handler(result) 
+      }
+    }
+    )
+    .catch(error=> {
+      // console.log("ERROR: got error saving content at #{@config.data_storage.url} - #{error}")
+      if (this.config.data_storage.failure_handler) { 
+        return this.config.data_storage.failure_handler(error) 
+      }
+      
+      if (this.config.xhr.failure_handler) { 
+        return this.config.xhr.failure_handler(error) 
+      }
+    }
+    )
   }
 }
 

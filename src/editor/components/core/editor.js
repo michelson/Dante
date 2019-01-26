@@ -2,31 +2,31 @@
 import React from 'react'
 import { Map } from 'immutable'
 import {isEmpty} from "lodash"
-import {
-  convertToRaw,
-  convertFromRaw,
-  CompositeDecorator,
+import { 
+  convertToRaw, 
+  convertFromRaw, 
+  CompositeDecorator, 
   getDefaultKeyBinding,
-  Editor,
-  EditorState,
-  Entity,
-  RichUtils,
-  DefaultDraftBlockRenderMap,
-  SelectionState,
+  Editor, 
+  EditorState, 
+  Entity, 
+  RichUtils, 
+  DefaultDraftBlockRenderMap, 
+  SelectionState, 
   Modifier
 } from 'draft-js'
 
-import {
+import { 
   convertToHTML,
 } from 'draft-convert'
 
-import {
-  addNewBlock,
-  resetBlockWithType,
-  updateDataOfBlock,
-  //updateTextOfBlock,
-  getCurrentBlock,
-  addNewBlockAt
+import { 
+  addNewBlock, 
+  resetBlockWithType, 
+  updateDataOfBlock, 
+  //updateTextOfBlock, 
+  getCurrentBlock, 
+  addNewBlockAt 
 } from '../../model/index.js'
 
 // import DraggableElements from "./draggable_elements"
@@ -116,7 +116,7 @@ export default class DanteEditor extends React.Component {
     if (this.props.content) {
       newEditorState = EditorState.set(this.decodeEditorContent(this.props.content), {decorator: this.decorator});
     }
-    this.onChange(newEditorState)
+    this.onChange(newEditorState)      
   }
 
   decodeEditorContent =(raw_as_json)=> {
@@ -163,7 +163,7 @@ export default class DanteEditor extends React.Component {
         const currentBlock = getCurrentBlock(this.state.editorState)
         const blockType = currentBlock.getType()
         const tooltip = this.tooltipsWithProp('displayOnSelection')[0]
-        if(!tooltip) return
+        if(!tooltip) return 
         if (!this.tooltipHasSelectionElement(tooltip, blockType)) {
           return
         }
@@ -186,7 +186,7 @@ export default class DanteEditor extends React.Component {
   }
 
   handleUndeletables =(editorState)=>{
-    // undeletable behavior, will keep previous blockMap
+    // undeletable behavior, will keep previous blockMap 
     // if undeletables are deleted
     const undeletable_types = this.props.widgets.filter(
       function(o){ return o.undeletable })
@@ -195,8 +195,8 @@ export default class DanteEditor extends React.Component {
     const blockMap = editorState.getCurrentContent().get("blockMap")
 
     const undeletablesMap = blockMap
-    .filter(function(o){
-      return undeletable_types.indexOf(o.get("type")) > 0
+    .filter(function(o){ 
+      return undeletable_types.indexOf(o.get("type")) > 0 
     })
 
     if (undeletable_types.length > 0 && undeletablesMap.size === 0) {
@@ -371,10 +371,10 @@ export default class DanteEditor extends React.Component {
 
   handleTooltipDisplayOn =(prop, display)=> {
 
-    // for button click on after inline style set,
+    // for button click on after inline style set, 
     // avoids inline popver to reappear on previous selection
     if(this.props.read_only){
-      return
+      return  
     }
 
     if (display == null) {
@@ -759,7 +759,7 @@ export default class DanteEditor extends React.Component {
   //# read only utils
   toggleEditable = ()=> {
     this.closePopOvers()
-    return this.props.toggleEditable(()=> this.testEmitAndDecode )
+    return this.props.toggleEditable(()=> this.testEmitAndDecode ) 
     //setState({ read_only: !this.props.read_only }, this.testEmitAndDecode)
   }
 
@@ -783,7 +783,7 @@ export default class DanteEditor extends React.Component {
 
   relocateTooltips = ()=> {
     if (this.props.read_only)
-      return
+      return 
 
     if (isEmpty(this.refs))
       return
@@ -888,7 +888,7 @@ export default class DanteEditor extends React.Component {
             </div>
           </div>
        
-        {
+        { 
 
           this.props.tooltips.map( (o, i) => {
             return (
@@ -916,7 +916,7 @@ export default class DanteEditor extends React.Component {
           : undefined
         }
 
-        { /* this.props.config.renderDraggables ?
+        { /* this.props.config.renderDraggables ? 
             <DraggableElements/> : null */
         }
       </div>

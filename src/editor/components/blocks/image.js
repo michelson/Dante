@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  EditorBlock,
+  EditorBlock, 
   EditorState } from 'draft-js'
 import axios from "axios"
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
@@ -145,6 +145,7 @@ export default class ImageBlock extends React.Component {
 
   handleUpload = ()=> {
     this.startLoader()
+    this.props.blockProps.addLock()
     this.updateData()
     return this.uploadFile()
   }
@@ -229,8 +230,6 @@ export default class ImageBlock extends React.Component {
       this.stopLoader()
       return
     }
-  
-    this.props.blockProps.addLock()
     
     axios({
       method: 'post',
@@ -299,28 +298,28 @@ export default class ImageBlock extends React.Component {
 
     return (
       <div ref="image_tag2" suppressContentEditableWarning={true}>
-        <div className="aspectRatioPlaceholder is-locked"
-          style={this.coords()}
+        <div className="aspectRatioPlaceholder is-locked" 
+          style={this.coords()} 
           onClick={this.handleGrafFigureSelectImg}>
-          <div style={{ paddingBottom: `${ this.state.aspect_ratio.ratio }%` }}
+          <div style={{ paddingBottom: `${ this.state.aspect_ratio.ratio }%` }} 
             className='aspect-ratio-fill' />
-          <img src={this.state.url}
-            ref="image_tag"
-            height={this.state.aspect_ratio.height}
-            width={this.state.aspect_ratio.width}
+          <img src={this.state.url} 
+            ref="image_tag" 
+            height={this.state.aspect_ratio.height} 
+            width={this.state.aspect_ratio.width} 
             className='graf-image'
             contentEditable={false}
             alt={this.state.url}
           />
-          <Loader toggle={this.state.loading}
+          <Loader toggle={this.state.loading} 
             progress={this.state.loading_progress} />
         </div>
         <figcaption className='imageCaption' onMouseDown={this.handleFocus}>
-          { this.props.block.getText().length === 0 ?
+          { this.props.block.getText().length === 0 ? 
             <span className="danteDefaultPlaceholder">
               {this.placeholderText()}
             </span> : undefined}
-          <EditorBlock {...Object.assign({}, this.props, {
+          <EditorBlock {...Object.assign({}, this.props, { 
             "editable": true, "className": "imageCaption" })
             } />
         </figcaption>
@@ -402,8 +401,8 @@ export const ImageBlockConfig = (options={})=>{
     }
   
   }
-  
+    
   return Object.assign(config, options)
-}
+} 
 
 
