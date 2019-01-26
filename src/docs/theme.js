@@ -108,7 +108,7 @@ const License = ()=>{
 
 const Demo = ()=>{
   return <Dante content={demo}
-                default_wrappers={[]}
+                //default_wrappers={[]}
                 widgets={[
                   ImageBlockConfig(),
                   CodeBlockConfig(),
