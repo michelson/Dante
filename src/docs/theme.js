@@ -40,13 +40,13 @@ const isActive = (url)=>{
 const Theme = () => (
   <div>
     <Router>
-      <div> 
+      <div>
         <Header/>
         <Route exact path={urlFor('')} component={Demo} />
         <Route path={urlFor('/license')} component={License} />
         <Route path={urlFor('/docs')} component={Doc} />
         <Route path={urlFor('/:doc')} component={Doc} />
-      </div>                
+      </div>
     </Router>
   </div>
 
@@ -78,14 +78,14 @@ const Header = ()=>{
                 <Link to={urlFor('license')} className={`navbar-item ${isActive('/license')}`}>
                   License
                 </Link>
-              </div>                
+              </div>
 
               <div className="navbar-end">
 
 
-                <a href="https://github.com/michelson/dante2" 
-                  className="navbar-item" 
-                  data-tooltip="Fork me on github" 
+                <a href="https://github.com/michelson/dante2"
+                  className="navbar-item"
+                  data-tooltip="Fork me on github"
                   target="_blank">
                   <img src={githubLogo} alt="Fork me on github" height="28"/>
                 </a>
@@ -107,7 +107,8 @@ const License = ()=>{
 }
 
 const Demo = ()=>{
-  return <Dante content={demo} 
+  return <Dante content={demo}
+                default_wrappers={[]}
                 widgets={[
                   ImageBlockConfig(),
                   CodeBlockConfig(),
@@ -119,8 +120,13 @@ const Demo = ()=>{
                   margin: '0 auto',
                   width: '60%',
                   padding: '100px 0px'
-                }} 
+                }}
                 read_only={false}
+                data_storage={ {
+                  interval: 10000,
+                  save_handler: (context, content)=>{
+                    console.log(context, content)
+                  }}}
               />
 }
 
@@ -187,8 +193,8 @@ class Render extends React.Component {
     });
 
     const fmt =  {__html: Prism.highlight(
-                            code, 
-                            Prism.languages.jsx, 
+                            code,
+                            Prism.languages.jsx,
                             'jsx')
                   }
     return <PlayGroundContainer>
@@ -204,12 +210,12 @@ class Render extends React.Component {
 
 
 const Doc = ()=>{
-  return <div className="container-dis" 
+  return <div className="container-dis"
               style={{padding: '100px 0px'}}>
             <section className="section">
               <h1 className="title">Documentation</h1>
               <h2 className="subtitle">
-                Examples of Dante 2 editor 
+                Examples of Dante 2 editor
               </h2>
 
               <ThemeConfig>
