@@ -350,6 +350,7 @@ export default class DanteEditor extends React.Component {
   }
 
   getDataBlock =(block)=> {
+    
     return this.props.widgets.find(o => {
       return o.type === block.getType()
     })

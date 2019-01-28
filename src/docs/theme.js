@@ -9,6 +9,7 @@ import {CodeBlockConfig} from '../editor/components/blocks/code'
 import {EmbedBlockConfig} from '../editor/components/blocks/embed'
 import {VideoBlockConfig} from '../editor/components/blocks/video'
 import {PlaceholderBlockConfig} from '../editor/components/blocks/placeholder'
+import {DividerBlockConfig} from "../editor/components/blocks/divider";
 
 import 'bulma/css/bulma.css'
 import Prism from 'prismjs';
@@ -27,6 +28,7 @@ import {version} from '../../package.json'
 import styled from 'react-emotion'
 import {Table} from './table'
 import Menu from './sidebar'
+
 //import Menu from 'docz-theme-default'
 
 const urlFor = (path)=>{
@@ -108,13 +110,13 @@ const License = ()=>{
 
 const Demo = ()=>{
   return <Dante content={demo}
-                default_wrappers={[]}
                 widgets={[
                   ImageBlockConfig(),
                   CodeBlockConfig(),
                   EmbedBlockConfig(),
                   VideoBlockConfig(),
-                  PlaceholderBlockConfig()
+                  PlaceholderBlockConfig(),
+                  DividerBlockConfig(),
                 ]}
                 style={{
                   margin: '0 auto',

@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  EditorBlock, 
+  EditorBlock,
   EditorState,
   RichUtils
 } from 'draft-js'
@@ -50,7 +50,7 @@ export default class CodeBlock extends React.Component {
 
             {
               this.renderSelect() ?
-              <Select options={this.languages} 
+              <Select options={this.languages}
                 isSearchable={true}
                 defaultValue={this.state.syntax}
                 onChange={(o)=>{
@@ -69,7 +69,7 @@ export default class CodeBlock extends React.Component {
 
 export const CodeBlockConfig = (options={})=>{
   let config =  {
-    title: 'add an image',
+    title: 'add an code',
     type: 'code-block',
     icon: image,
     block: CodeBlock,
@@ -89,14 +89,14 @@ export const CodeBlockConfig = (options={})=>{
       // check if we are in the last line and got 2 previous breaklines
       if(block.getLength() === selection.getEndOffset()){
         if(block.getText().slice(-2) === "\n\n"){
-          return ctx.onChange(addNewBlockAt(editorState, block.getKey()))          
+          return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
         }
       }
       return ctx.onChange(RichUtils.insertSoftNewline(editorState))
       
     },
     widget_options: {
-      
+    
     },
     options: {
       displaySelect: true,
@@ -109,8 +109,8 @@ export const CodeBlockConfig = (options={})=>{
     }
   
   }
-    
+  
   return Object.assign(config, options)
-} 
+}
 
 

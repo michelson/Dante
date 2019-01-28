@@ -75,7 +75,7 @@ Dante.propTypes = {
 
   default_wrappers: PropTypes.arrayOf(PropTypes.shape({
      className: PropTypes.string.isRequired,
-     block: PropTypes.number.isRequired
+     block: PropTypes.string.isRequired
    })
   ),
 
@@ -131,7 +131,8 @@ Dante.defaultProps = {
     { className: 'graf--insertorderedlist', block: 'ordered-list-item' },
     { className: 'graf--code', block: 'code-block' },
     { className: 'graf--bold', block: 'BOLD' },
-    { className: 'graf--italic', block: 'ITALIC' }
+    { className: 'graf--italic', block: 'ITALIC' },
+    { className: 'graf--divider', block: 'divider' }
   ],
 
   continuousBlocks: [
@@ -152,7 +153,7 @@ Dante.defaultProps = {
       "cmd": [{ key: 66, cmd: 'toggle_inline:BOLD' },
               { key: 73, cmd: 'toggle_inline:ITALIC' },
               { key: 75, cmd: 'insert:link' },
-              /*{ key: 13, cmd: 'toggle_block:divider' }*/
+              { key: 13, cmd: 'toggle_block:divider' }
       ]
   },
 
@@ -180,7 +181,6 @@ Dante.defaultProps = {
     EmbedBlockConfig(),
     VideoBlockConfig(),
     PlaceholderBlockConfig(),
-    //DividerBlockConfig(),
     //CodeBlockConfig()
   ]
 
