@@ -28,13 +28,9 @@ export const DividerBlockConfig = (options={})=>{
     selected_class: "is-selected",
     widget_options: {
       displayOnInlineTooltip: true,
-      insertion: "divider",
+      insertion: "insertion",
       insert_block: "divider"
-    },
-    options: {
-
     }
-    
   };
   
   return Object.assign(config, options)

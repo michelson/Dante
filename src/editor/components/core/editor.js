@@ -733,8 +733,13 @@ export default class DanteEditor extends React.Component {
       }
       return getDefaultKeyBinding(e)
 
-    } /*else if (e.keyCode == 8 || e.keyCode == 46) {
-      return "delete"
+    } /*else if (e.keyCode === 8) {
+  
+      // TODO: handle backspace/delete if previous block not editable (like divider for example)
+
+
+        return 'not-handled'
+      }
     }*/
 
     return getDefaultKeyBinding(e)

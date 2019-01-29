@@ -127,7 +127,7 @@ const Demo = ()=>{
                 data_storage={ {
                   interval: 10000,
                   save_handler: (context, content)=>{
-                    console.log(context, content)
+                    //console.log(context, content)
                   }}}
               />
 }
