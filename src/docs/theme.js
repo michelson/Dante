@@ -110,26 +110,26 @@ const License = ()=>{
 
 const Demo = ()=>{
   return <Dante content={demo}
-                widgets={[
-                  ImageBlockConfig(),
-                  CodeBlockConfig(),
-                  EmbedBlockConfig(),
-                  VideoBlockConfig(),
-                  PlaceholderBlockConfig(),
-                  DividerBlockConfig(),
-                ]}
-                style={{
-                  margin: '0 auto',
-                  width: '60%',
-                  padding: '100px 0px'
-                }}
-                read_only={false}
-                data_storage={ {
-                  interval: 10000,
-                  save_handler: (context, content)=>{
-                    //console.log(context, content)
-                  }}}
-              />
+      widgets={[
+        ImageBlockConfig(),
+        CodeBlockConfig(),
+        EmbedBlockConfig(),
+        VideoBlockConfig(),
+        PlaceholderBlockConfig(),
+        DividerBlockConfig(),
+      ]}
+      style={{
+        margin: '0 auto',
+        width: '60%',
+        padding: '100px 0px'
+      }}
+      read_only={false}
+      data_storage={ {
+        interval: 10000,
+        save_handler: (context, content)=>{
+          //console.log(context, content)
+        }}}
+    />
 }
 
 
