@@ -272,11 +272,11 @@ class VideoRecorderBlock extends React.Component {
     let video = this.refs.app.querySelector('video');
     this.recordMode(video)
 
-    if(window.URL) {
-      video.src = window.URL.createObjectURL(stream);
-    }
-    else {
-      video.src = stream;
+    // is a mediastream
+    try {
+      video.srcObject = stream;
+    } catch (error) {
+      video.src = URL.createObjectURL(stream);
     }
   }
 
@@ -287,6 +287,7 @@ class VideoRecorderBlock extends React.Component {
 
   releaseStreamFromVideo() {
     this.video.src = '';
+    this.video.srcObject = null;
   }
 
   downloadVideo(blob) {
