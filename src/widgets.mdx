@@ -78,7 +78,7 @@ Embed and Video widgets uses open framely you can override this by using your ow
   <Dante content={null} widgets={[
                                   EmbedBlockConfig({ options: {
                                       placeholder: "put an external link",
-                                      endpoint: "//open.iframe.ly/api/oembed?origin=https://github.com&url="
+                                      endpoint: "//noembed.com/embed?url="
                                     } })
                                     , 
                                   PlaceholderBlockConfig()
@@ -92,7 +92,7 @@ Embed and Video widgets uses open framely you can override this by using your ow
   <Dante content={null} widgets={[
                                   VideoBlockConfig({ options: {
                                       placeholder: "put an external video link",
-                                      endpoint: "//open.iframe.ly/api/oembed?origin=https://github.com&url=",
+                                      endpoint: "//noembed.com/embed?url=",
                                       caption: 'optional caption'
                                     } 
                                   }), 

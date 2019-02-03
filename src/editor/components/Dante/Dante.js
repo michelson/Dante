@@ -89,7 +89,7 @@ Dante.propTypes = {
 }
 
 Dante.defaultProps = {
-  content: {},
+  content: null,
   read_only: false,
   spellcheck: false,
   title_placeholder: "Title",

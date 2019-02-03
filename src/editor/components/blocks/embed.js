@@ -132,7 +132,7 @@ export const EmbedBlockConfig = (options={})=>{
         insert_block: "embed"
       },
       options: {
-        endpoint: '//open.iframe.ly/api/oembed?origin=https://github.com&url=',
+        endpoint: '//noembed.com/embed?url=',
         placeholder: 'Paste a link to embed content from another site (e.g. Twitter) and press Enter'
       },
       handleEnterWithoutText(ctx, block) {
