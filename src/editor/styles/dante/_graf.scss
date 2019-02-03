@@ -258,3 +258,23 @@ p[data-align="center"],
   }
 
 }
+
+.graf--divider span{
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.graf--divider span:before {
+  line-height: 1;
+  user-select: none;
+  font-weight: 400;
+  font-size: 25px;
+  letter-spacing: 18px;
+  content: "...";
+  display: inline-block;
+  margin-left: .6em;
+  position: relative;
+  color: #757575;
+  top: -3px;
+}
