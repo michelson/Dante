@@ -97,8 +97,8 @@ class DanteImagePopover extends React.Component {
         //let left = selectionRect.left + selectionRect.width / 2 - padd
         //let top = (selectionRect.top + window.scrollY) - toolbarHeight
         return this.setPosition({
-          top: top, 
-          left: left 
+          top: top,
+          left: left
         })
 
       }
@@ -179,6 +179,6 @@ export const DanteImagePopoverConfig = (options={})=>{
   let config = {
       ref: 'image_popover',
       component: DanteImagePopover
-  } 
+  }
   return Object.assign(config, options)
 }

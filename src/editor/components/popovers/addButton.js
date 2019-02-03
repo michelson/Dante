@@ -12,8 +12,8 @@ import {
   getVisibleSelectionRect
 } from 'draft-js'
 
-import { getSelectionRect, 
-  getSelection, 
+import { getSelectionRect,
+  getSelection,
   getSelectedBlockNode,
   getRelativeParent } from "../../utils/selection.js"
 
@@ -319,7 +319,7 @@ export const DanteInlineTooltipConfig = (options={})=>{
   let config = {
     ref: 'add_tooltip',
     component: DanteInlineTooltip
-  } 
+  }
   return Object.assign(config, options)
 }
 

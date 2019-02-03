@@ -1,19 +1,37 @@
-
 import React from 'react'
+import {divider} from "../icons";
 
-export default class DividerBlock extends React.Component {
-  render() {
+export default class Divider extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {}
+  }
+  
+  render = ()=> {
     return (
-      <div>
-        <hr/>
-      </div>
+      <span></span>
     )
   }
 }
 
 export const DividerBlockConfig = (options={})=>{
-  let config = {
-    block: DividerBlock
-  }
+  
+  let config =  {
+    title: 'add divider',
+    type: 'divider',
+    icon: divider,
+    block: Divider,
+    editable: false,
+    renderable: true,
+    breakOnContinuous: false,
+    wrapper_class: "graf graf--divider",
+    selected_class: "is-selected",
+    widget_options: {
+      displayOnInlineTooltip: true,
+      insertion: "insertion",
+      insert_block: "divider"
+    }
+  };
+  
   return Object.assign(config, options)
 }
