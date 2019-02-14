@@ -166,7 +166,7 @@ const Demo = ()=>{
 const EditorContainer = styled('div')`
   margin: 0 auto;
   @media only screen and (max-width: 600px) {
-    width: 90%;
+    width: 80%;
   }
   width: 60%;
 `
