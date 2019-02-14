@@ -333,6 +333,7 @@ export default class DanteEditor extends React.Component {
   }
 
   blockStyleFn =(block)=> {
+    //console.log("blockStyle!")
     const currentBlock = getCurrentBlock(this.state.editorState)
     if(!currentBlock) return
     const is_selected = currentBlock.getKey() === block.getKey() ? "is-selected" : ""
@@ -868,13 +869,37 @@ export default class DanteEditor extends React.Component {
       <div suppressContentEditableWarning={ true }>
         
           <div className="postContent">
+
+            {
+
+              this.props.tooltips.map( (o, i) => {
+                return (
+                  <o.component
+                    ref={ o.ref }
+                    key={ i }
+                    editor={ this }
+                    editorState={ this.state.editorState }
+                    onChange={ this.onChange }
+                    styles={this.styles}
+                    configTooltip={ o }
+                    widget_options={ o.widget_options }
+                    showPopLinkOver={ this.showPopLinkOver }
+                    hidePopLinkOver={ this.hidePopLinkOver }
+                    handleOnMouseOver={ this.handleShowPopLinkOver }
+                    handleOnMouseOut={ this.handleHidePopLinkOver }
+                  />
+                )
+              })
+              
+            }
+
             <div className="section-inner layoutSingleColumn"
                  onClick={ this.focus }>
               <Editor
                 blockRendererFn={ this.blockRenderer }
                 editorState={ this.state.editorState }
                 onChange={ this.onChange }
-                handleDrop={this.handleDrop}
+                //handleDrop={this.handleDrop}
                 onUpArrow={ this.handleUpArrow }
                 onDownArrow={ this.handleDownArrow }
                 handleReturn={ this.handleReturn }
@@ -892,30 +917,9 @@ export default class DanteEditor extends React.Component {
                 ref="editor"
               />
             </div>
+
           </div>
        
-        {
-
-          this.props.tooltips.map( (o, i) => {
-            return (
-              <o.component
-                ref={ o.ref }
-                key={ i }
-                editor={ this }
-                editorState={ this.state.editorState }
-                onChange={ this.onChange }
-                styles={this.styles}
-                configTooltip={ o }
-                widget_options={ o.widget_options }
-                showPopLinkOver={ this.showPopLinkOver }
-                hidePopLinkOver={ this.hidePopLinkOver }
-                handleOnMouseOver={ this.handleShowPopLinkOver }
-                handleOnMouseOut={ this.handleHidePopLinkOver }
-              />
-            )
-          })
-          
-        }
         {
           this.props.debug
           ? <Debug locks={ this.state.locks } editor={ this } />
