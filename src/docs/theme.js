@@ -29,6 +29,7 @@ import styled from 'react-emotion'
 import {Table} from './table'
 import Menu from './sidebar'
 
+
 //import Menu from 'docz-theme-default'
 
 const urlFor = (path)=>{
@@ -54,49 +55,78 @@ const Theme = () => (
 
 )
 
-const Header = ()=>{
-  return  <nav id="header" className="navbar" role="navigation" aria-label="main navigation">
+class Header extends React.Component{
+
+  state = {
+    activeMenu: false 
+  }
+
+  toggleMenu = (e)=>{
+    e.preventDefault()
+    this.setState({
+      activeMenu: !this.state.activeMenu
+    })
+  }
+
+
+  render(){
+    return  <nav id="header" className="navbar" role="navigation" aria-label="main navigation">
             <div className="navbar-brand">
+
               <Link className="navbar-item" to={urlFor('')}>
                 <img src={editorLogo} alt="dante editor" height="21"/>
 
               </Link>
 
-              <a role="button" className="navbar-burger" aria-label="menu" aria-expanded="false">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-              </a>
+              <a role="button" 
+                onClick={this.toggleMenu}
+                className={`navbar-burger burger ${this.state.activeMenu ? 'is-active' : ''}`}
+                aria-label="menu" 
+                aria-expanded="false" 
+                data-target="navbarBasicExample">
 
-              <span>Dante Editor - {version} </span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+
+              </a>
             </div>
 
-
-            <div className="navbar-menu">
+            <div id="navbarBasicExample" className={`navbar-menu ${this.state.activeMenu ? 'is-active' : ''}`}>
               <div className="navbar-start">
+                <div className="navbar-item">
+                  <span>Dante Editor - {version} </span>
+                </div>
+
                 <Link to={urlFor('src-index')} className={`navbar-item ${isActive('/src-index')}`}>
                   Documentation & examples
                 </Link>
+
                 <Link to={urlFor('license')} className={`navbar-item ${isActive('/license')}`}>
                   License
                 </Link>
+
               </div>
 
               <div className="navbar-end">
+                <div className="navbar-item">
+                  <div className="buttons">
+
+                    <a href="https://github.com/michelson/dante2"
+                      className="navbar-item"
+                      data-tooltip="Fork me on github"
+                      target="_blank">
+
+                      <img src={githubLogo} alt="Fork me on github" height="28"/>
+                    </a>
 
 
-                <a href="https://github.com/michelson/dante2"
-                  className="navbar-item"
-                  data-tooltip="Fork me on github"
-                  target="_blank">
-                  <img src={githubLogo} alt="Fork me on github" height="28"/>
-                </a>
-
+                  </div>
+                </div>
               </div>
             </div>
-
-          </nav>
-
+          </nav>  
+  }
 }
 
 const License = ()=>{
@@ -109,28 +139,37 @@ const License = ()=>{
 }
 
 const Demo = ()=>{
-  return <Dante content={demo}
-      widgets={[
-        ImageBlockConfig(),
-        CodeBlockConfig(),
-        EmbedBlockConfig(),
-        VideoBlockConfig(),
-        PlaceholderBlockConfig(),
-        DividerBlockConfig(),
-      ]}
-      style={{
-        margin: '0 auto',
-        width: '60%',
-        padding: '100px 0px'
-      }}
-      read_only={false}
-      data_storage={ {
-        interval: 10000,
-        save_handler: (context, content)=>{
-          //console.log(context, content)
-        }}}
-    />
+  return <EditorContainer>
+          <Dante content={demo}
+            widgets={[
+              ImageBlockConfig(),
+              CodeBlockConfig(),
+              EmbedBlockConfig(),
+              VideoBlockConfig(),
+              PlaceholderBlockConfig(),
+              DividerBlockConfig(),
+            ]}
+            style={{
+              width: '100%',
+              padding: '100px 0px'
+            }}
+            read_only={false}
+            data_storage={ {
+              interval: 10000,
+              save_handler: (context, content)=>{
+                //console.log(context, content)
+              }}}
+          />
+        </EditorContainer>
 }
+
+const EditorContainer = styled('div')`
+  margin: 0 auto;
+  @media only screen and (max-width: 600px) {
+    width: 90%;
+  }
+  width: 60%;
+`
 
 
 const Pre = styled('pre')`
@@ -185,8 +224,9 @@ class Render extends React.Component {
 
     // ..or use the default object from Prism
     //this.nw = Prism.plugins.NormalizeWhitespace;
-
   }
+
+
   render(){
 
     const code = this.nw.normalize(this.props.code, {
