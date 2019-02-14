@@ -149,16 +149,18 @@
 .graf--blockquote, blockquote {
   font-family: $dante-font-family-serif;
   border-left: 3px solid rgba(0, 0, 0, .8);
+
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0.16px;
-  letter-spacing: 0.01rem;
-  margin-left: -12px;
-  padding-left: 27px;
+  letter-spacing: 0.02rem;
+  margin-left: -17px;
+  padding-left: 15px;
   margin-bottom: 25px;
   font-size: 1.2em;
   line-height: 1.9em;
   margin-top: 20px;
+
 }
 .graf--blockquote + .graf--blockquote {
   margin-top: -30px;
@@ -210,7 +212,12 @@
   a {
     text-decoration: none;
   }
+  &.is-mediaFocused {
+    box-shadow: 0 0 0 3px #57ad68;
+  }
 }
+
+
 
 .graf--h4 + .graf--figure,
 .graf--h3 + .graf--figure,
