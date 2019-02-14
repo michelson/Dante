@@ -22,6 +22,7 @@ class DanteTooltip extends React.Component {
     this.state = {
       link_mode: false,
       show: false,
+      sticky: props.configTooltip.sticky,
       position: {},
       menu_style: {}
     }
@@ -72,7 +73,16 @@ class DanteTooltip extends React.Component {
     return false
   }
 
+  handleWindowWidth = ()=>{
+
+  }
+
   relocate =()=> {
+
+    // no position needs to be set
+    if(this.state.sticky){
+      return this.handleWindowWidth()
+    }
 
     let currentBlock = getCurrentBlock(this.props.editorState)
     let blockType = currentBlock.getType()
@@ -128,6 +138,7 @@ class DanteTooltip extends React.Component {
     }
 
     // console.log "SET SHOW FOR TOOLTIP INSERT MENU"
+    console.log(left, top)
     return this.setState({
       show: true,
       position: {
@@ -231,6 +242,9 @@ class DanteTooltip extends React.Component {
   }
 
   getPosition =()=> {
+    if(this.isSticky())
+      return this.stickyStyle()
+    
     let pos = this.state.position
     return pos
   }
@@ -280,12 +294,31 @@ class DanteTooltip extends React.Component {
     return this.props.widget_options.block_types.find((o)=> o.type === "link")
   }
 
+  stickyStyle = ()=>{
+    return {
+      position: "fixed",
+      top: "0px",
+      left: "0px"
+    }
+  }
+
+  isSticky = ()=>{
+
+    if(this.state.sticky)
+      return true
+
+    const x = window.matchMedia("(max-width: 700px)")
+    if(x.matches)
+      return true
+
+  }
+
   render =()=> {
     return (
       <div
         id="dante-menu"
         ref="dante_menu"
-        className={ `dante-menu ${ this.displayActiveMenu() } ${ this.displayLinkMode() }` }
+        className={ `dante-menu ${ this.displayActiveMenu() } ${ this.displayLinkMode() } ${this.isSticky() ? 'dante-sticky-menu' : ''}` }
         style={ this.getPosition() }
       >
 
@@ -505,6 +538,7 @@ export const DanteTooltipConfig = (options={})=>{
     ref: 'insert_tooltip',
     component: DanteTooltip,
     displayOnSelection: true,
+    sticky: false,
     selectionElements: [
       "unstyled",
       "blockquote",
