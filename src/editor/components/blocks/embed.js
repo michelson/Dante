@@ -1,8 +1,10 @@
 
 import React from 'react'
 import axios from "axios"
-import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
+import { updateDataOfBlock, addNewBlockAt , resetBlockWithType} from '../../model/index.js'
+import { EditorBlock } from 'draft-js'
 import {embed} from '../icons'
+
 
 export default class EmbedBlock extends React.Component {
   constructor(props) {
@@ -25,6 +27,15 @@ export default class EmbedBlock extends React.Component {
     const data = block.getData()
     const newData = data.merge(this.state)
     return setEditorState(updateDataOfBlock(getEditorState(), block, newData))
+  }
+
+  deleteSelf = (e)=>{
+    e.preventDefault()
+    const { block, blockProps } = this.props
+    const { getEditorState, setEditorState } = blockProps
+    const data = block.getData()
+    const newData = data.merge(this.state)
+    return setEditorState(resetBlockWithType(getEditorState(), 'unstyled', {}))
   }
 
   dataForUpdate =()=> {
@@ -73,12 +84,18 @@ export default class EmbedBlock extends React.Component {
   picture =()=> {
     if (this.state.embed_data.images && this.state.embed_data.images.length > 0) {
       return this.state.embed_data.images[0].url
+    } else if (this.state.embed_data.thumbnail_url ){
+      return this.state.embed_data.thumbnail_url
+    } else if (this.state.embed_data.image ){
+      return this.state.embed_data.image
     } else {
-      if(this.state.embed_data.thumbnail_url ){
-        return this.state.embed_data.thumbnail_url
-      } else {
-        return null  
-      }
+      return null
+    }
+  }
+
+  handleClick = (e)=>{
+    if(!this.props.blockProps.getEditor().props.read_only){
+      e.preventDefault()
     }
   }
 
@@ -98,18 +115,41 @@ export default class EmbedBlock extends React.Component {
           <h2>{ this.state.error }</h2>
           : undefined
         }
+
+        {
+          !this.props.blockProps.getEditor().props.read_only ? 
+          <a href="#" 
+            className={"graf--media-embed-close"}
+            onClick={this.deleteSelf}>
+            x
+          </a> : null
+        }
+
         <a
           className='markup--anchor markup--mixtapeEmbed-anchor'
           target='_blank'
           href={ this.state.embed_data.url }
-        >
+          onClick={this.handleClick}
+          contentEditable={false}>
+
           <strong className='markup--strong markup--mixtapeEmbed-strong'>
             { this.state.embed_data.title }
           </strong>
+
           <em className='markup--em markup--mixtapeEmbed-em'>
             { this.state.embed_data.description }
           </em>
-        </a>{ this.state.embed_data.provider_url }
+  
+
+        </a>
+
+        <span contentEditable={false}>
+          { this.state.embed_data.provider_url ||  this.state.embed_data.url }
+        </span>
+
+  
+
+        
       </span>
     )
   }
@@ -121,7 +161,7 @@ export const EmbedBlockConfig = (options={})=>{
       type: 'embed',
       block: EmbedBlock,
       icon: embed,
-      editable: false,
+      editable: true,
       renderable: true,
       breakOnContinuous: true,
       wrapper_class: "graf graf--mixtapeEmbed",
