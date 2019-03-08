@@ -51,7 +51,6 @@
     "fs-promise": "^2.0.3",
     "gh-pages": "^1.2.0",
     "node-sass": "^4.9.3",
-    "prismjs": "^1.15.0",
     "react-powerplug": "^1.0.0-rc.1",
     "rollup": "^0.64.1",
     "rollup-plugin-babel": "^4.0.0-beta.8",
@@ -76,7 +75,8 @@
     "react-dom": "^16.2.0",
     "react-emotion": "^9.2.8",
     "react-popper": "^1.0.0",
-    "react-select": "^2.0.0"
+    "react-select": "^2.0.0",
+    "prismjs": "^1.15.0"
   },
   "scripts": {
     "docz:dev": "docz dev",

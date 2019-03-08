@@ -2,32 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 
-if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-  console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nChanging protocol to https.');
-}
-if(!navigator.mediaDevices && !navigator.getUserMedia) {
-  console.warn(`Your browser doesn't support navigator.mediaDevices.getUserMedia and navigator.getUserMedia.`);
-}
 
-navigator.getUserMedia = navigator.getUserMedia ||
-             navigator.webkitGetUserMedia ||
-             navigator.mozGetUserMedia ||
-             navigator.msGetUserMedia;
-
-// stop hack
-// from http://stackoverflow.com/questions/11642926/stop-close-webcam-which-is-opened-by-navigator-getusermedia
-var MediaStream = window.MediaStream || window.webkitMediaStream;;
-if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
-    MediaStream.prototype.stop = function() {
-        this.getAudioTracks().forEach(function(track) {
-            track.stop();
-        });
-
-        this.getVideoTracks().forEach(function(track) {
-            track.stop();
-        });
-    };
-}
   
 
 class ReactMediaRecorder extends Component {
@@ -53,7 +28,38 @@ class ReactMediaRecorder extends Component {
     this.initMediaRecorder = this.initMediaRecorder.bind(this);
   }
 
+  init(){
+    if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nChanging protocol to https.');
+    }
+    if(!navigator.mediaDevices && !navigator.getUserMedia) {
+      console.warn(`Your browser doesn't support navigator.mediaDevices.getUserMedia and navigator.getUserMedia.`);
+    }
+
+    navigator.getUserMedia = navigator.getUserMedia ||
+                 navigator.webkitGetUserMedia ||
+                 navigator.mozGetUserMedia ||
+                 navigator.msGetUserMedia;
+
+    // stop hack
+    // from http://stackoverflow.com/questions/11642926/stop-close-webcam-which-is-opened-by-navigator-getusermedia
+    var MediaStream = window.MediaStream || window.webkitMediaStream;;
+    if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+        MediaStream.prototype.stop = function() {
+            this.getAudioTracks().forEach(function(track) {
+                track.stop();
+            });
+
+            this.getVideoTracks().forEach(function(track) {
+                track.stop();
+            });
+        };
+    }
+  }
+
   componentDidMount() {
+    this.init()
+
     let width = this.props.width;
     let height = this.props.height;
     let constraints = this.props.constraints;
@@ -94,6 +100,7 @@ class ReactMediaRecorder extends Component {
       }
     }
   }
+  
   componentWillUnmount() {
     this.mediaRecorder = null;
     this.mediaChunk = [];
