@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.5.0-rc13",
+  "version": "0.5.0-rc14",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -69,14 +69,14 @@
     "draft-js-export-html": "^1.2.0",
     "draft-js-multidecorators": "^1.0.0",
     "draft-js-prism": "^1.0.6",
+    "prismjs": "^1.15.0",
     "react": "^16.2.0",
     "react-color": "^2.13.8",
     "react-dev-utils": "^5.0.0",
     "react-dom": "^16.2.0",
     "react-emotion": "^9.2.8",
     "react-popper": "^1.0.0",
-    "react-select": "^2.0.0",
-    "prismjs": "^1.15.0"
+    "react-select": "^2.0.0"
   },
   "scripts": {
     "docz:dev": "docz dev",

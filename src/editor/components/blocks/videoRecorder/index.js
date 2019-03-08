@@ -62,30 +62,16 @@ const EditorControls = styled('div')`
     /* place-content: space-between; */
     margin-top: 31px;
     margin-left: 7px;
+    height: 50px;
 
 `
 
 const StatusBar = styled('div')`
-  /*width: 100%;
-  padding-top: 4px;
-  color: #bbb7b7;
-  padding-bottom: 4px;
-  line-height: 2px;
-  font-size: 0.8em;
-  position: absolute;
-  top: 27px;
-  text-align: left;
-  z-index: 100;
-  height: 400px;*/
-
   z-index: 10;
   background-color: beige;
-  
   position:absolute;
-
   height: 100%;
   width: 100%;
-
 `
 
 const VideoPlayer = styled('video')`
@@ -103,7 +89,7 @@ const SecondsLeft = styled('div')`
 
 `
 
-const RecButton = styled('a')`
+const RecButton = styled('div')`
 
   display: inline-block;
   cursor: pointer;
@@ -612,6 +598,7 @@ class VideoRecorderBlock extends React.Component {
 
                         <div style={{position:'relative', display: 'flex'}}>
                           <RecButton 
+                            contentEditable={false}
                             onClick={(e)=>{
                                 e.preventDefault()
                                 this.state.recording ? stop() : start()
