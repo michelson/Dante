@@ -621,56 +621,60 @@ class VideoRecorderBlock extends React.Component {
               <VideoBody>
 
 
-                <EditorControls contentEditable={false}>
+                {
+                  !this.isReadOnly() ?
+                
+                    <EditorControls contentEditable={false}>
 
-                  <div style={{position:'relative', display: 'flex'}}>
-                    {
-                      !this.state.loading ?
-                      <React.Fragment>
-                        <RecButton 
-                          onClick={(e)=>{
+                      <div style={{position:'relative', display: 'flex'}}>
+                        {
+                          !this.state.loading ?
+                          <React.Fragment>
+                            <RecButton 
+                              onClick={(e)=>{
+                                  e.preventDefault()
+                                  this.state.recording ? stop() : start()
+                                }
+                              }
+                              disabled={this.state.recording}
+                              className={this.state.recording ? 'recording' : ''}
+                              >
+                              {this.state.recording ? `recording. (${this.state.secondsLeft} seconds left)` : `press button to start recording`}
+                            </RecButton>  
+
+                            <SecondsLeft>
+                              
+                            </SecondsLeft>
+                          </React.Fragment> : null
+                        }
+                      </div>  
+
+                      {
+                        this.state.fileReady && !this.state.loading ?
+                          <Button
+                            onClick={(e)=>{
                               e.preventDefault()
-                              this.state.recording ? stop() : start()
-                            }
-                          }
-                          disabled={this.state.recording}
-                          className={this.state.recording ? 'recording' : ''}
-                          >
-                          {this.state.recording ? `recording. (${this.state.secondsLeft} seconds left)` : `press button to start recording`}
-                        </RecButton>  
-
-                        <SecondsLeft>
-                          
-                        </SecondsLeft>
-                      </React.Fragment> : null
-                    }
-                  </div>  
-
-                  {
-                    this.state.fileReady && !this.state.loading ?
-                      <Button
-                        onClick={(e)=>{
-                          e.preventDefault()
-                          this.confirm()
-                        }}>
-                        confirm recording upload ?
-                      </Button> : null
-                  }
+                              this.confirm()
+                            }}>
+                            confirm recording upload ?
+                          </Button> : null
+                      }
 
 
-                  {
-                    /*
-                    this.state.recording ? 
+                      {
+                        /*
+                        this.state.recording ? 
 
-                      <RecordActivity 
-                        granted={granted} 
-                        active={recording} 
-                      /> : null  
-                    */
-                  }
+                          <RecordActivity 
+                            granted={granted} 
+                            active={recording} 
+                          /> : null  
+                        */
+                      }
 
-                </EditorControls>
+                    </EditorControls> : null
 
+                }
 
                 <VideoPlayer autoPlay muted/>
 
