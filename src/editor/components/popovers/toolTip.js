@@ -137,8 +137,6 @@ class DanteTooltip extends React.Component {
       return
     }
 
-    // console.log "SET SHOW FOR TOOLTIP INSERT MENU"
-    console.log(left, top)
     return this.setState({
       show: true,
       position: {
@@ -232,7 +230,6 @@ class DanteTooltip extends React.Component {
     //contentState.createEntity('LINK', 'MUTABLE', opts)
 
     if (selection.isCollapsed()) {
-      console.log("COLLAPSED SKIPPING LINK")
       return
     }
 
