@@ -1,6 +1,7 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {AnchorStyle} from '../../styled/menu'
 
 import { getRelativeParent } from "../../utils/selection.js"
 
@@ -83,7 +84,7 @@ class DanteAnchorPopover extends React.Component {
       visibility: `${ this.state.show ? 'visible' : 'hidden' }`
     }
     return (
-      <div
+      <AnchorStyle
         ref="dante_popover"
         className='dante-popover popover--tooltip popover--Linktooltip popover--bottom is-active'
         style={ style }
@@ -96,7 +97,7 @@ class DanteAnchorPopover extends React.Component {
           </a>
         </div>
         <div className='popover-arrow' />
-      </div>
+      </AnchorStyle>
     )
   }
 }

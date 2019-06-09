@@ -1,7 +1,8 @@
 
 import React from 'react';
 import DanteEditor from "../core/editor.js"
-import '../../styles/dante.scss';
+//import '../../styles/dante.scss';
+import '../../styled/draft.css'
 import { Map, fromJS, merge } from 'immutable'
 import {DanteImagePopoverConfig} from '../popovers/image.js'
 import {DanteAnchorPopoverConfig} from '../popovers/link.js'
@@ -20,6 +21,8 @@ import { CompositeDecorator } from 'draft-js'
 import findEntities from '../../utils/find_entities'
 
 import MultiDecorator from 'draft-js-multidecorators'
+
+import EditorContainer from '../../styled/base'
 
 // custom blocks
 
@@ -40,12 +43,12 @@ class Dante extends React.Component {
 
   render(){
     return(
-      <div style={this.props.style}>
+      <EditorContainer style={this.props.style}>
         <DanteEditor
           { ...this.props }
           toggleEditable={this.toggleEditable}
         />
-      </div>
+      </EditorContainer>
     )
   }
 }

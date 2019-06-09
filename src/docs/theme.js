@@ -10,9 +10,11 @@ import {EmbedBlockConfig} from '../editor/components/blocks/embed'
 import {VideoBlockConfig} from '../editor/components/blocks/video'
 import {PlaceholderBlockConfig} from '../editor/components/blocks/placeholder'
 import {DividerBlockConfig} from "../editor/components/blocks/divider";
+import {VideoRecorderBlockConfig} from "../editor/components/blocks/videoRecorder";
 
 import 'bulma/css/bulma.css'
 import Prism from 'prismjs';
+
 import Normalizer from 'prismjs/plugins/normalize-whitespace/prism-normalize-whitespace'
 
 import {Readme as demo} from '../site/data/poc'
@@ -25,7 +27,7 @@ import '../site/styles/layout/scaffold.scss'
 import editorLogo from '../images/site/dante-editor-logo.png'
 import githubLogo from '../images/site/github-logo.png'
 import {version} from '../../package.json'
-import styled from 'react-emotion'
+import styled from '@emotion/styled'
 import {Table} from './table'
 import Menu from './sidebar'
 
@@ -148,6 +150,7 @@ const Demo = ()=>{
               VideoBlockConfig(),
               PlaceholderBlockConfig(),
               DividerBlockConfig(),
+              VideoRecorderBlockConfig()
             ]}
             style={{
               width: '100%',
@@ -163,7 +166,7 @@ const Demo = ()=>{
         </EditorContainer>
 }
 
-const EditorContainer = styled('div')`
+const EditorContainer = styled.div`
   margin: 0 auto;
   @media only screen and (max-width: 600px) {
     width: 80%;
@@ -172,13 +175,13 @@ const EditorContainer = styled('div')`
 `
 
 
-const Pre = styled('pre')`
+const Pre = styled.pre`
   font-size: 14px;
   font-family: monospace;
   margin: 21px 0px;
 
 `
-const Code = styled('pre')`
+const Code = styled.pre`
   background-color: #2d2d2d;
   color: #654f53;
   font-size: 1.2em;
@@ -189,18 +192,18 @@ const Code = styled('pre')`
   font-family: monospace !important;
 `
 
-const H2 = styled('h2')`
+const H2 = styled.h2`
   font-size: 1.6em;
 `
 
-const Playground = styled('div')`
+const Playground = styled.div`
   padding: 2em;
   border:1px solid #ccc;
   margin-bottom: 20px;
   margin-top: 20px;
 `
 
-const PlayGroundContainer = styled('div')`
+const PlayGroundContainer = styled.div`
   margin-bottom: 2em;
 `
 

@@ -5,6 +5,7 @@ import {capitalize} from 'lodash'
 import { getSelection } from "../../utils/selection.js"
 import { getCurrentBlock } from '../../model/index.js'
 import { getRelativeParent } from "../../utils/selection.js"
+import {AnchorStyle} from '../../styled/menu'
 
 class DanteImagePopover extends React.Component {
 
@@ -123,7 +124,7 @@ class DanteImagePopover extends React.Component {
 
   render =()=> {
     return (
-      <div
+      <AnchorStyle
         ref="image_popover"
         className={ `dante-popover popover--Aligntooltip popover--top popover--animated ${ this.state.show ? 'is-active' : undefined }` }
         style={
@@ -144,7 +145,7 @@ class DanteImagePopover extends React.Component {
           </ul>
         </div>
         <div className='popover-arrow' />
-      </div>
+      </AnchorStyle>
     )
   }
 }

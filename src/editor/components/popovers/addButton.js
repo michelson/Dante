@@ -17,6 +17,8 @@ import { getSelectionRect,
   getSelectedBlockNode,
   getRelativeParent } from "../../utils/selection.js"
 
+import {InlinetooltipWrapper} from '../../styled/base'
+
 import {add} from "../icons.js"
 
 export default class DanteInlineTooltip extends React.Component {
@@ -248,7 +250,7 @@ export default class DanteInlineTooltip extends React.Component {
 
   render(){
     return (
-      <div
+      <InlinetooltipWrapper
         ref="tooltip"
         className={ `inlineTooltip ${ this.activeClass() } ${ this.scaledClass() }` }
         style={ this.state.position }
@@ -283,7 +285,7 @@ export default class DanteInlineTooltip extends React.Component {
            onChange={ this.handleFileInput }
          />
         </div>
-      </div>
+      </InlinetooltipWrapper>
     )
   }
 }

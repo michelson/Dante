@@ -1,7 +1,7 @@
-import styled from 'react-emotion'
+import styled from '@emotion/styled'
 import React from 'react'
 
-export const Table = styled('table')`
+export const Table = styled.table`
   width: 100%;
   padding: 0;
   table-layout: auto;

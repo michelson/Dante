@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import DanteTooltipColor from './color'
+import {AnchorStyle} from '../../styled/menu'
+
 //import DanteTooltipList from './select'
 
 import {
@@ -315,7 +317,7 @@ class DanteTooltip extends React.Component {
 
   render =()=> {
     return (
-      <div
+      <AnchorStyle
         id="dante-menu"
         ref="dante_menu"
         className={ `dante-menu ${ this.displayActiveMenu() } ${ this.displayLinkMode() } ${this.isSticky() ? 'dante-sticky-menu' : ''}` }
@@ -440,7 +442,7 @@ class DanteTooltip extends React.Component {
             })
           }
         </ul>
-      </div>
+      </AnchorStyle>
     )
   }
 }

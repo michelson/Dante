@@ -3,12 +3,12 @@ import {
   EditorBlock 
 } from 'draft-js'
 import ReactMediaRecorder from './MediaRecorder'
-import styled from 'react-emotion'
+import styled from '@emotion/styled'
 import icon from "./icon.js"
 import { updateDataOfBlock, addNewBlockAt } from '../../../model/index.js'
 import axios from 'axios'
 
-const VideoContainer = styled('div')`
+const VideoContainer = styled.div`
   background: #ffffff;
   padding: 0px;
   margin-bottom: 10px;
@@ -18,7 +18,7 @@ const VideoContainer = styled('div')`
   position:relative;
 `
 
-const VideoBody = styled('div')`
+const VideoBody = styled.div`
   padding: 20px;
 `
 
@@ -27,7 +27,7 @@ const red    = '#e61742'
 const green2 = '#52e617'
 const gray   = '#bbbbbb'
 
-const RecordActivity = styled('div')`
+const RecordActivity = styled.div`
   background: ${props =>
     props.active ? red : green
   };
@@ -43,7 +43,7 @@ const RecordActivity = styled('div')`
 
 `
 
-const EditorControls = styled('div')`
+const EditorControls = styled.div`
     position: absolute;
     width: 100%;
     display: -webkit-box;
@@ -61,7 +61,7 @@ const EditorControls = styled('div')`
     z-index: 100;
 `
 
-const StatusBar = styled('div')`
+const StatusBar = styled.div`
   z-index: 10;
   position:absolute;
   height: 100%;
@@ -79,12 +79,12 @@ const StatusBar = styled('div')`
   };
 `
 
-const VideoPlayer = styled('video')`
+const VideoPlayer = styled.video`
   width: 100%;
   background: black;
 `
 
-const SecondsLeft = styled('div')`
+const SecondsLeft = styled.div`
     //position: absolute;
     font-size: 1rem;
     right: 39px;
@@ -94,7 +94,7 @@ const SecondsLeft = styled('div')`
 
 `
 
-const RecButton = styled('div')`
+const RecButton = styled.div`
 
   display: inline-block;
   cursor: pointer;
@@ -162,7 +162,7 @@ const RecButton = styled('div')`
 
 `
 
-const Button = styled('button')`
+const Button = styled.button`
 
     outline: none;
     height: 37px;

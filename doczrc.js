@@ -19,7 +19,7 @@ export default {
       ["prismjs", {
         "languages": ["javascript", "css", "markup", "jsx", "haml", "ruby"],
         "plugins": ["line-numbers", "normalize-whitespace"],
-        "theme": "dark",
+        "theme": "tomorrow",
         "css": true
       }]
     ]

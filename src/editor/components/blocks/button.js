@@ -801,3 +801,34 @@ class Dropdown extends Component {
     </div>
   }
 }
+
+
+export const ButtonBlockConfig = (options = {}) => {
+  let config = {
+    title: 'button',
+    type: 'button',
+    block: ButtonBlock,
+    icon: link,
+    editable: true,
+    renderable: true,
+    breakOnContinuous: true,
+    //wrapper_class: "graf graf--mixtapeEmbed",
+    //selected_class: "is-selected is-mediaFocused",
+    widget_options: {
+      displayOnInlineTooltip: true,
+      insertion: "insertion",
+      insert_block: "button"
+    },
+    options: {},
+    handleEnterWithoutText(ctx, block) {
+      const { editorState } = ctx.state
+      return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+    },
+    handleEnterWithText(ctx, block) {
+      const { editorState } = ctx.state
+      return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
+    }
+  }
+
+  return Object.assign(config, options)
+}

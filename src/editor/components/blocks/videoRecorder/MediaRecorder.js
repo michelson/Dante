@@ -102,6 +102,10 @@ class ReactMediaRecorder extends Component {
   }
   
   componentWillUnmount() {
+    this.stopStream()
+  }
+
+  stopStream = ()=>{
     this.mediaRecorder = null;
     this.mediaChunk = [];
 
@@ -109,7 +113,6 @@ class ReactMediaRecorder extends Component {
       this.stream.stop();
       this.stream = null;      
     }
-
   }
 
   initMediaRecorder() {
@@ -146,7 +149,7 @@ class ReactMediaRecorder extends Component {
       });
     }
     catch(err) {
-      console.log(err);
+      //console.log(err);
       console.error('Failed to initialize MediaRecorder.', err);
 
       this.setState({
@@ -203,6 +206,8 @@ class ReactMediaRecorder extends Component {
 
     let blob = new Blob(this.mediaChunk, { type: 'video/webm' });
     this.props.onStop(blob);
+
+    this.stopStream()
   }
 
   render() {
