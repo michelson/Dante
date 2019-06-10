@@ -23,10 +23,13 @@ import findEntities from '../../utils/find_entities'
 import MultiDecorator from 'draft-js-multidecorators'
 
 import EditorContainer from '../../styled/base'
+import {ThemeProvider} from 'styled-components'
 
 // custom blocks
 
 import PropTypes from 'prop-types'
+
+import defaultTheme from './themes/default'
 
 // component implementation
 class Dante extends React.Component {
@@ -43,12 +46,14 @@ class Dante extends React.Component {
 
   render(){
     return(
-      <EditorContainer style={this.props.style}>
-        <DanteEditor
-          { ...this.props }
-          toggleEditable={this.toggleEditable}
-        />
-      </EditorContainer>
+      <ThemeProvider theme={this.props.theme || defaultTheme}>
+        <EditorContainer style={this.props.style}>
+          <DanteEditor
+            { ...this.props }
+            toggleEditable={this.toggleEditable}
+          />
+        </EditorContainer>
+      </ThemeProvider>
     )
   }
 }

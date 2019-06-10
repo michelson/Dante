@@ -65,6 +65,10 @@ export default class DanteEditor extends React.Component {
       'placeholder': {
         wrapper: null,
         element: 'div'
+      },
+      'code-block': {
+        element: 'pre',
+        wrapper: null
       }
 
     })
@@ -296,6 +300,8 @@ export default class DanteEditor extends React.Component {
         const entity_type = Entity.get(entity).getType()
         break
     }*/
+
+    console.log(block.getType())
 
     if (this.renderableBlocks().includes(block.getType())) {
       return this.handleBlockRenderer(block)

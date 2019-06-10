@@ -1,26 +1,5 @@
-import styled from '@emotion/styled'
-
-const tooltip_caret_size = 12;
-const menu_tone = "#444"
-
-const dante_font_family_sans = `'jaf-bernino-sans', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans_serif;`
-const tooltip_size = 32;
-const dante_inversed_color = '#FFFFFF';
-const dante_accent_color = '#5BD974';
-const dante_control_color = '#333333';
-
-// Menu
-const dante_menu_height = 42;
-const dante_menu_background = dante_control_color;
-const dante_menu_color = dante_inversed_color;
-const dante_menu_border_radius = '5px';
-const dante_menu_box_shadow = '1px 2px 3px 2px #222';
-const dante_menu_icon_size = '16px';
-const dante_menu_icon_color = dante_inversed_color;
-const dante_menu_icon_accent = dante_accent_color;
-const dante_menu_border_width = '0px';
-const dante_menu_caret_size = 8;
-
+import styled from 'styled-components'
+import { math,darken } from 'polished'
 
 
 export const AnchorStyle = styled.div`
@@ -37,17 +16,13 @@ export const AnchorStyle = styled.div`
   display:block;
   white-space: nowrap;
 
-  height: ${dante_menu_height}px;
-  background: ${dante_menu_background};
-  color: ${dante_menu_color};
+  height: ${props => props.theme.dante_menu_height};
+  background: ${props => props.theme.dante_menu_background};
+  color: ${props => props.theme.dante_menu_color};
 
-  border: ${dante_menu_border_width};
-  border-radius: ${dante_menu_border_radius};
-  box-shadow: ${dante_menu_box_shadow};
-
-  border-radius: 4px;
-  background: #2A2B32;
-  box-shadow: none;
+  border: ${props => props.theme.dante_menu_border_width};
+  border-radius: ${props => props.theme.dante_menu_border_radius};
+  box-shadow: ${props => props.theme.dante_menu_box_shadow};
 
   // CARET
   // &:before -> Borde
@@ -61,12 +36,12 @@ export const AnchorStyle = styled.div`
       position: absolute;
       left: 50%;
       pointer-events: none;
-      border: ${dante_menu_caret_size}px solid transparent;
-      margin-left: -${dante_menu_caret_size / 2}px;
+      border: ${props => props.theme.dante_menu_caret_size} solid transparent;
+      margin-left: -${props => math(`${props.theme.dante_menu_caret_size} / 2`)};
     }
     &:after {
-      border-top-color: ${dante_menu_background};
-      bottom: -${(dante_menu_caret_size * 2) - 1}px;
+      border-top-color: ${props => props.theme.dante_menu_background};
+      bottom: -${props => math(`${props.theme.dante_menu_caret_size} * 2 - 1`)};
     }
   }
 
@@ -125,9 +100,9 @@ export const AnchorStyle = styled.div`
   }
 
   &.popover--tooltip .popover-inner {
-      background: #333333;
+      //background: #333333;
       border-radius: 4px;
-      color: #fff;
+      color: ${props => props.theme.dante_menu_color};
   }
 
   .popover-inner a {
@@ -140,19 +115,19 @@ export const AnchorStyle = styled.div`
   }
 
   .popover-arrow:after {
-    background-color: ${dante_menu_background};
+    background-color: ${props => props.theme.dante_menu_background};
   }
 
   &.popover--top .popover-arrow,
   &.popover--bottom .popover-arrow {
     left: 50%;
-    margin-left: -${tooltip_caret_size / 2}px;
+    margin-left: -${props => math(`${props.theme.tooltip_caret_size} / 2`)};
   }
 
   &.popover--left .popover-arrow,
   &.popover--right .popover-arrow {
     top: 50%;
-    margin-top: -${tooltip_caret_size/2}px;
+    margin-top: -${props => math(`${props.theme.tooltip_caret_size}/2`)};
   }
 
 
@@ -172,36 +147,36 @@ export const AnchorStyle = styled.div`
   .popover-arrow:after {
     content: '';
     display: block;
-    width: ${tooltip_caret_size}px;
-    height: ${tooltip_caret_size}px;
+    width: ${props => props.theme.tooltip_caret_size};
+    height: ${props => props.theme.tooltip_caret_size};
   }
 
   &.popover--top .popover-arrow:after {
     -webkit-transform: rotate(45deg) translate(-5px,-5px);
     -ms-transform: rotate(45deg) translate(-5px,-5px);
     transform: rotate(45deg) translate(-5px,-5px);
-    box-shadow: 1px 1px 1px -1px ${menu_tone};
+    box-shadow: 1px 1px 1px -1px ${props => props.theme.menu_tone};
   }
 
   &.popover--right .popover-arrow:after {
     -webkit-transform: rotate(45deg) translate(6px,-6px);
     -ms-transform: rotate(45deg) translate(6px,-6px);
     transform: rotate(45deg) translate(6px,-6px);
-    box-shadow: -1px 1px 1px -1px ${menu_tone};
+    box-shadow: -1px 1px 1px -1px ${props => props.theme.menu_tone};
   }
 
   &.popover--bottom .popover-arrow:after {
     -webkit-transform: rotate(45deg) translate(6px,6px);
     -ms-transform: rotate(45deg) translate(6px,6px);
     transform: rotate(45deg) translate(6px,6px);
-    box-shadow: -1px -1px 1px -1px ${menu_tone};
+    box-shadow: -1px -1px 1px -1px ${props => props.theme.menu_tone};
   }
 
   &.popover--left .popover-arrow:after {
     -webkit-transform: rotate(45deg) translate(-6px,6px);
     -ms-transform: rotate(45deg) translate(-6px,6px);
     transform: rotate(45deg) translate(-6px,6px);
-    box-shadow: 1px -1px 1px -1px ${menu_tone};
+    box-shadow: 1px -1px 1px -1px ${props => props.theme.menu_tone};
   }
 
 
@@ -215,13 +190,13 @@ export const AnchorStyle = styled.div`
 }
 .dante-menu-divider {
   width: 1px;
-  height: ${dante_menu_height - 18}px;
+  height: ${props => math(`${props.theme.dante_menu_height} - 18`)};
   margin: 9px 2px;
   background: rgba(100, 100, 100,.2);
   display: inline-block;
   overflow: hidden;
   cursor: default;
-  line-height: ${dante_menu_height};
+  line-height: ${props => props.theme.dante_menu_height};
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -235,10 +210,10 @@ export const AnchorStyle = styled.div`
   padding-right: 10px;
   overflow: hidden;
   text-align: center;
-  color: ${dante_menu_icon_color};
+  color: ${props => props.theme.dante_menu_icon_color};
   cursor: pointer;
-  font-size: ${dante_menu_icon_size};
-  line-height: ${dante_menu_height}px;
+  font-size: ${props => props.theme.dante_menu_icon_size};
+  line-height: ${props => props.theme.dante_menu_height};
   -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
@@ -248,18 +223,18 @@ export const AnchorStyle = styled.div`
     // nada
   }
   &.active{
-    color: ${dante_menu_icon_accent};
+    color: ${props => props.theme.dante_menu_icon_accent};
   }
 
 
   &:first-of-type {
-    border-top-left-radius: ${dante_menu_border_radius};
-    border-bottom-left-radius: ${dante_menu_border_radius};
+    border-top-left-radius: ${props => props.theme.dante_menu_border_radius};
+    border-bottom-left-radius: ${props => props.theme.dante_menu_border_radius};
     padding-left: 18px;
   }
   &:last-child {
-    border-top-right-radius: ${dante_menu_border_radius};
-    border-bottom-right-radius: ${dante_menu_border_radius};
+    border-top-right-radius: ${props => props.theme.dante_menu_border_radius};
+    border-bottom-right-radius: ${props => props.theme.dante_menu_border_radius};
     padding-right: 18px;
   }
 
@@ -293,22 +268,20 @@ export const AnchorStyle = styled.div`
 }
 
 .dante-menu-input {
-  //line-height: 20px;
   position: absolute;
   top: 0;
   left: 0;
-  background: rgba(0,0,0,0);
   width: 100%;
   padding: 13px 40px 13px 10px;
-  color: ${dante_menu_color};
+  color: ${props => props.theme.dante_menu_color};
   border: none;
   outline: none;
   font-size: 14px;
   box-sizing: border-box;
-  border-radius: ${dante_menu_border_radius};
+  border-radius: ${props => props.theme.dante_menu_border_radius};
   appearance: none;
   text-align: left;
-  font-family: ${dante_font_family_sans};
+  font-family: ${props => props.theme.dante_font_family_sans};
   letter-spacing: 0.01rem;
   font-weight: 400;
   font-style: normal;
@@ -319,7 +292,7 @@ export const AnchorStyle = styled.div`
 }
 
 &:after {
-  border-top-color: #2A2B32;
+  border-top-color: ${props => props.theme.dante_control_color};
 }
 .dante-menu-input {
   padding: 11px 40px 11px 10px;
@@ -357,10 +330,10 @@ export const AnchorStyle = styled.div`
   display: inline-block;
 }
 .dante-menu-button .dante-icon:hover .icon-fillcolor {
-  fill: #FFFFFF;
+  fill: ${props => props.theme.dante_menu_icon_color};
 }
 .dante-menu-button.active .dante-icon .icon-fillcolor {
-  fill: #6AFFB8;
+  fill: ${props => props.theme.dante_menu_icon_accent};
 }
 
 .dante-menu-button .dante-icon svg {
@@ -380,10 +353,10 @@ export const AnchorStyle = styled.div`
   margin-left: 4px;
 }
 .dropdown .btn:hover {
-  color: #fff
+  color: ${props => props.theme.dante_menu_color};
 }
 .dropdown .btn:hover .caret {
-  border-top-color: #fff
+  border-top-color: ${props => props.theme.dante_menu_color};
 }
 .dropdown .dropdown-menu {
   background: #2A2B32;
@@ -411,7 +384,7 @@ export const AnchorStyle = styled.div`
 .dropdown .dropdown-menu li a:hover,
 .dropdown.open > .dropdown-toggle.btn-default:hover {
   background: 0;
-  color: #fff
+  color: ${props => props.theme.dante_menu_color};
 }
 
 .divider {
@@ -420,7 +393,7 @@ export const AnchorStyle = styled.div`
   width: 1px;
   height: 20px;
   margin: 10px 5px;
-  background: #3D3E49
+  background: ${props => props.theme.dante_menu_divider_color}
 }
 
 `

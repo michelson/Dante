@@ -92,7 +92,7 @@ class DanteImagePopover extends React.Component {
         const toolbarWidth =  el.clientWidth;
         const relativeRect = (relativeParent || document.body).getBoundingClientRect();
         
-        let top = (selectionRect.top - relativeRect.top) - toolbarHeight
+        let top = (selectionRect.top - relativeRect.top) - (toolbarHeight/0.8)
         let left = (selectionRect.left - relativeRect.left + (selectionRect.width/2) ) - ( toolbarWidth/2 )
         
         //let left = selectionRect.left + selectionRect.width / 2 - padd

@@ -27,10 +27,20 @@ import '../site/styles/layout/scaffold.scss'
 import editorLogo from '../images/site/dante-editor-logo.png'
 import githubLogo from '../images/site/github-logo.png'
 import {version} from '../../package.json'
-import styled from '@emotion/styled'
+import styled from 'styled-components'
 import {Table} from './table'
 import Menu from './sidebar'
 
+import {ThemeProvider as StyledTheme} from 'styled-components'
+import darkTheme from '../editor/components/Dante/themes/dark'
+import defaultTheme from '../editor/components/Dante/themes/default'
+
+
+const ThemeButton = styled.button`
+    position: absolute;
+    left: 13px;
+    top: 69px;
+`
 
 //import Menu from 'docz-theme-default'
 
@@ -140,37 +150,74 @@ const License = ()=>{
               />
 }
 
-const Demo = ()=>{
-  return <EditorContainer>
-          <Dante content={demo}
-            widgets={[
-              ImageBlockConfig(),
-              CodeBlockConfig(),
-              EmbedBlockConfig(),
-              VideoBlockConfig(),
-              PlaceholderBlockConfig(),
-              DividerBlockConfig(),
-              VideoRecorderBlockConfig()
-            ]}
-            style={{
-              width: '100%',
-              padding: '100px 0px'
-            }}
-            read_only={false}
-            data_storage={ {
-              interval: 10000,
-              save_handler: (context, content)=>{
-                //console.log(context, content)
-              }}}
-          />
-        </EditorContainer>
+class Demo extends React.Component {
+
+  state = {
+    theme: defaultTheme,
+    mode: 'light'
+  }
+
+  onClick = (theme)=>{
+    console.log(theme)
+    const t = theme == 'dark' ? darkTheme : defaultTheme
+
+    this.setState({theme: t, mode: theme })
+  }
+  
+  render(){
+    const mode = this.state.mode === 'dark' ? 'light' : 'dark'
+    return <StyledTheme theme={this.state.theme}>
+            <EditorContainer>
+              <EditorWraper>
+
+                <ThemeButton
+                  onClick={(e)=> this.onClick(mode) }>
+                  {this.state.mode === 'dark' ? 'light mode' : 'dark mode'}
+                </ThemeButton>
+       
+
+                <Dante content={demo}
+                  theme={this.state.theme}
+                  widgets={[
+                    ImageBlockConfig(),
+                    CodeBlockConfig(),
+                    EmbedBlockConfig(),
+                    VideoBlockConfig(),
+                    PlaceholderBlockConfig(),
+                    DividerBlockConfig(),
+                    VideoRecorderBlockConfig()
+                  ]}
+                  style={{
+                    width: '100%',
+                    padding: '100px 0px'
+                  }}
+                  read_only={false}
+                  data_storage={ {
+                    interval: 10000,
+                    save_handler: (context, content)=>{
+                      //console.log(context, content)
+                    }}}
+                />
+              </EditorWraper>
+            </EditorContainer>
+          </StyledTheme>    
+  }
+
 }
 
 const EditorContainer = styled.div`
   margin: 0 auto;
+  width: 100%;
+  background-color: ${props => props.theme.dante_inversed_color};
+`
+
+const EditorWraper = styled.div`
+  margin: 0 auto;
   @media only screen and (max-width: 600px) {
-    width: 80%;
+    padding: 2em;
+    width: 100%;
   }
+  padding: 3em;
   width: 60%;
 `
 

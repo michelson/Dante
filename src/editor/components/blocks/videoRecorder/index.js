@@ -3,23 +3,23 @@ import {
   EditorBlock 
 } from 'draft-js'
 import ReactMediaRecorder from './MediaRecorder'
-import styled from '@emotion/styled'
+import styled from 'styled-components'
 import icon from "./icon.js"
 import { updateDataOfBlock, addNewBlockAt } from '../../../model/index.js'
 import axios from 'axios'
 
 const VideoContainer = styled.div`
-  background: #ffffff;
+  background: ${props => props.theme.inversed_color};
   padding: 0px;
   margin-bottom: 10px;
-  border: 1px solid rgba(0,0,0,0.09);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  border-radius: 3px;
+  //border: 1px solid ${props => props.theme.dante_control_color};
+  box-shadow: 0 1px 4px ${props => props.theme.dante_control_color};
+  border-radius: 10px;
   position:relative;
 `
 
 const VideoBody = styled.div`
-  padding: 20px;
+  padding-bottom: 20px;
 `
 
 const green  = '#00ab6b'

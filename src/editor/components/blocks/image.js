@@ -5,8 +5,6 @@ import {
 import axios from "axios"
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 import {image} from "../icons.js"
-import { FigureWrapper} from '../../styled/base'
-
 
 export default class ImageBlock extends React.Component {
 
@@ -300,7 +298,7 @@ export default class ImageBlock extends React.Component {
   render = ()=> {
 
     return (
-      <FigureWrapper ref="image_tag2" suppressContentEditableWarning={true}>
+      <figure ref="image_tag2" suppressContentEditableWarning={true}>
         <div className="aspectRatioPlaceholder is-locked"
           style={this.coords()}
           onClick={this.handleGrafFigureSelectImg}>
@@ -326,7 +324,7 @@ export default class ImageBlock extends React.Component {
             "editable": true, "className": "imageCaption" })
             } />
         </figcaption>
-      </FigureWrapper>
+      </figure>
     )
   }
 }

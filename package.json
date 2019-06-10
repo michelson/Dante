@@ -59,11 +59,10 @@
     "rollup-plugin-postcss": "^1.6.2",
     "rollup-plugin-resolve": "^0.0.1-predev.1",
     "sass-loader": "^7.1.0",
-    "style-loader": "^0.22.1"
+    "style-loader": "^0.22.1",
+    "styled-components": "^4.3.1"
   },
   "dependencies": {
-    "@emotion/core": "^10.0.10",
-    "@emotion/styled": "^10.0.11",
     "axios": "^0.18.0",
     "draft-convert": "^2.1.2",
     "draft-js": "^0.10.5",
@@ -71,6 +70,7 @@
     "draft-js-export-html": "^1.2.0",
     "draft-js-multidecorators": "^1.0.0",
     "draft-js-prism": "^1.0.6",
+    "polished": "^3.4.0",
     "prismjs": "^1.15.0",
     "react": "^16.2.0",
     "react-color": "^2.13.8",
@@ -78,6 +78,9 @@
     "react-dom": "^16.2.0",
     "react-popper": "^1.0.0",
     "react-select": "^2.0.0"
+  },
+  "peerDependencies": {
+    "styled-components": ">= 3"
   },
   "scripts": {
     "docz:dev": "docz dev",
