@@ -301,8 +301,6 @@ export default class DanteEditor extends React.Component {
         break
     }*/
 
-    console.log(block.getType())
-
     if (this.renderableBlocks().includes(block.getType())) {
       return this.handleBlockRenderer(block)
     }
@@ -876,29 +874,6 @@ export default class DanteEditor extends React.Component {
         
           <div className="postContent">
 
-            {
-
-              this.props.tooltips.map( (o, i) => {
-                return (
-                  <o.component
-                    ref={ o.ref }
-                    key={ i }
-                    editor={ this }
-                    editorState={ this.state.editorState }
-                    onChange={ this.onChange }
-                    styles={this.styles}
-                    configTooltip={ o }
-                    widget_options={ o.widget_options }
-                    showPopLinkOver={ this.showPopLinkOver }
-                    hidePopLinkOver={ this.hidePopLinkOver }
-                    handleOnMouseOver={ this.handleShowPopLinkOver }
-                    handleOnMouseOut={ this.handleHidePopLinkOver }
-                  />
-                )
-              })
-              
-            }
-
             <div className="section-inner layoutSingleColumn"
                  onClick={ this.focus }>
               <Editor
@@ -922,6 +897,33 @@ export default class DanteEditor extends React.Component {
                 placeholder={ this.props.body_placeholder }
                 ref="editor"
               />
+            </div>
+
+            <div className="danteEditorControls">
+
+              {
+
+                this.props.tooltips.map( (o, i) => {
+                  return (
+                    <o.component
+                      ref={ o.ref }
+                      key={ i }
+                      editor={ this }
+                      editorState={ this.state.editorState }
+                      onChange={ this.onChange }
+                      styles={this.styles}
+                      configTooltip={ o }
+                      widget_options={ o.widget_options }
+                      showPopLinkOver={ this.showPopLinkOver }
+                      hidePopLinkOver={ this.hidePopLinkOver }
+                      handleOnMouseOver={ this.handleShowPopLinkOver }
+                      handleOnMouseOut={ this.handleHidePopLinkOver }
+                    />
+                  )
+                })
+                
+              }
+            
             </div>
 
           </div>

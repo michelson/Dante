@@ -23,6 +23,7 @@ In Draft every change provided from user input is stacked in this editorState bu
 + Load Content as a data JSON structure.
 + Handle image blocks on Copy/Paste and Drop.
 + Global storage lock to handle file uploads.
++ Styled components Theme support.
 
 **Features**:
 
