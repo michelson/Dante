@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.5.0-rc18",
+  "version": "0.5.0-rc19",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -65,8 +65,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "draft-convert": "^2.1.2",
-    "draft-js": "^0.10.5",
-    "draft-js-custom-styles": "^2.0.4",
+    "draft-js": "0.11.0-beta3",
+    "draft-js-custom-styles": "^2.1.1",
     "draft-js-export-html": "^1.2.0",
     "draft-js-multidecorators": "^1.0.0",
     "draft-js-prism": "^1.0.6",
