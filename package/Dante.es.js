@@ -5,7 +5,7 @@ import axios from 'axios';
 import { isEmpty, capitalize } from 'lodash';
 import { convertToHTML } from 'draft-convert';
 import createStyles from 'draft-js-custom-styles';
-import styled, { ThemeProvider } from 'styled-components';
+import styled from '@emotion/styled';
 import { math, lighten, opacify } from 'polished';
 import ReactDOM from 'react-dom';
 import { SketchPicker } from 'react-color';
@@ -13,6 +13,7 @@ import Select from 'react-select';
 import Prism from 'prismjs';
 import PrismDecorator from 'draft-js-prism';
 import MultiDecorator from 'draft-js-multidecorators';
+import { ThemeProvider } from 'emotion-theming';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {

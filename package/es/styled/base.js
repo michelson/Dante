@@ -3,8 +3,7 @@ var _templateObject = /*#__PURE__*/ _taggedTemplateLiteral(["\n  \n  @import url
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-// taken from dante.slate
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { math, lighten, opacify, desaturate } from 'polished';
 var EditorContainer = styled.div(_templateObject, function (props) {
   return props.theme.dante_font_family_serif;

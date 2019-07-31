@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AnchorStyle = void 0;
 
-var _styledComponents = _interopRequireDefault(require("styled-components"));
+var _styled = _interopRequireDefault(require("@emotion/styled"));
 
 var _polished = require("polished");
 
@@ -15,7 +15,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-var AnchorStyle = _styledComponents.default.div(_templateObject, function (props) {
+var AnchorStyle = _styled.default.div(_templateObject, function (props) {
   return props.theme.dante_menu_height;
 }, function (props) {
   return props.theme.dante_menu_background;

@@ -23,7 +23,8 @@ import findEntities from '../../utils/find_entities'
 import MultiDecorator from 'draft-js-multidecorators'
 
 import EditorContainer from '../../styled/base'
-import {ThemeProvider} from 'styled-components'
+import { ThemeProvider } from 'emotion-theming'
+
 
 // custom blocks
 

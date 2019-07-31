@@ -43,7 +43,7 @@ var _draftJsMultidecorators = _interopRequireDefault(require("draft-js-multideco
 
 var _base = _interopRequireDefault(require("../../styled/base"));
 
-var _styledComponents = require("styled-components");
+var _emotionTheming = require("emotion-theming");
 
 var _default2 = _interopRequireDefault(require("./themes/default"));
 
@@ -93,7 +93,7 @@ function (_React$Component) {
   _createClass(Dante, [{
     key: "render",
     value: function render() {
-      return _react.default.createElement(_styledComponents.ThemeProvider, {
+      return _react.default.createElement(_emotionTheming.ThemeProvider, {
         theme: this.props.theme || _default2.default
       }, _react.default.createElement(_base.default, {
         style: this.props.style

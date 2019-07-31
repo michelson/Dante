@@ -1,6 +1,4 @@
-// taken from dante.slate
-
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { math, lighten, opacify, desaturate } from 'polished'
 
 const EditorContainer = styled.div`

@@ -3,7 +3,7 @@ import {
   EditorBlock 
 } from 'draft-js'
 import ReactMediaRecorder from './MediaRecorder'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import icon from "./icon.js"
 import { updateDataOfBlock, addNewBlockAt } from '../../../model/index.js'
 import axios from 'axios'

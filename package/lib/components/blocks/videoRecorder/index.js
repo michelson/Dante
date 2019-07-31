@@ -11,7 +11,7 @@ var _draftJs = require("draft-js");
 
 var _MediaRecorder = _interopRequireDefault(require("./MediaRecorder"));
 
-var _styledComponents = _interopRequireDefault(require("styled-components"));
+var _styled = _interopRequireDefault(require("@emotion/styled"));
 
 var _icon = _interopRequireDefault(require("./icon.js"));
 
@@ -53,7 +53,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-var VideoContainer = _styledComponents.default.div(_templateObject, function (props) {
+var VideoContainer = _styled.default.div(_templateObject, function (props) {
   return props.theme.inversed_color;
 }, function (props) {
   return props.theme.dante_control_color;
@@ -61,20 +61,20 @@ var VideoContainer = _styledComponents.default.div(_templateObject, function (pr
   return props.theme.dante_control_color;
 });
 
-var VideoBody = _styledComponents.default.div(_templateObject2);
+var VideoBody = _styled.default.div(_templateObject2);
 
 var green = '#00ab6b';
 var red = '#e61742';
 var green2 = '#52e617';
 var gray = '#bbbbbb';
 
-var RecordActivity = _styledComponents.default.div(_templateObject3, function (props) {
+var RecordActivity = _styled.default.div(_templateObject3, function (props) {
   return props.active ? red : green;
 });
 
-var EditorControls = _styledComponents.default.div(_templateObject4);
+var EditorControls = _styled.default.div(_templateObject4);
 
-var StatusBar = _styledComponents.default.div(_templateObject5, function (props) {
+var StatusBar = _styled.default.div(_templateObject5, function (props) {
   return props.loading ? "white" : "transparent";
 }, function (props) {
   return props.loading ? "flex" : "none";
@@ -82,13 +82,13 @@ var StatusBar = _styledComponents.default.div(_templateObject5, function (props)
   return props.loading ? "0.9" : "1";
 });
 
-var VideoPlayer = _styledComponents.default.video(_templateObject6);
+var VideoPlayer = _styled.default.video(_templateObject6);
 
-var SecondsLeft = _styledComponents.default.div(_templateObject7);
+var SecondsLeft = _styled.default.div(_templateObject7);
 
-var RecButton = _styledComponents.default.div(_templateObject8, green);
+var RecButton = _styled.default.div(_templateObject8, green);
 
-var Button = _styledComponents.default.button(_templateObject9, green, green, green, gray, green);
+var Button = _styled.default.button(_templateObject9, green, green, green, gray, green);
 
 var VideoRecorderBlock =
 /*#__PURE__*/

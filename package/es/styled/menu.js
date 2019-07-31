@@ -2,7 +2,7 @@ var _templateObject = /*#__PURE__*/ _taggedTemplateLiteral(["\n\n  // MENU\n  po
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { math, darken } from 'polished';
 export var AnchorStyle = styled.div(_templateObject, function (props) {
   return props.theme.dante_menu_height;
