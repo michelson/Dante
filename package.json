@@ -64,7 +64,9 @@
     "@emotion/core": "^10.0.10",
     "@emotion/styled": "^10.0.14",
     "emotion-theming": "^10.0.14",
-    "polished": "^3.4.0",
+    "polished": "^3.4.0"
+  },
+  "dependencies": {
     "axios": "^0.18.0",
     "draft-convert": "^2.1.2",
     "draft-js": "0.11.0-beta3",
@@ -72,6 +74,7 @@
     "draft-js-export-html": "^1.2.0",
     "draft-js-multidecorators": "^1.0.0",
     "draft-js-prism": "^1.0.6",
+    "polished": "^3.4.0",
     "prismjs": "^1.15.0",
     "react": "^16.2.0",
     "react-color": "^2.13.8",
@@ -80,25 +83,8 @@
     "react-popper": "^1.0.0",
     "react-select": "^2.0.0"
   },
-  "dependencies": {
-    
-  },
   "peerDependencies": {
-    "axios": "^0.18.0",
-    "draft-convert": "^2.1.2",
-    "draft-js": "0.11.0-beta3",
-    "draft-js-custom-styles": "^2.1.1",
-    "draft-js-export-html": "^1.2.0",
-    "draft-js-multidecorators": "^1.0.0",
-    "draft-js-prism": "^1.0.6",
     "polished": "^3.4.0",
-    "prismjs": "^1.15.0",
-    "react": "^16.2.0",
-    "react-color": "^2.13.8",
-    "react-dev-utils": "^5.0.0",
-    "react-dom": "^16.2.0",
-    "react-popper": "^1.0.0",
-    "react-select": "^2.0.0",
     "@emotion/cache": "^10.0.14",
     "@emotion/core": "^10.0.10",
     "@emotion/styled": "^10.0.14",
