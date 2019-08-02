@@ -3720,7 +3720,7 @@ function (_React$Component) {
 
     _defineProperty(_assertThisInitialized(_this), "replaceImg", function () {
       _this.img = new Image();
-      _this.img.src = _this.refs.image_tag.src;
+      _this.img.src = _this.image_tag.src;
 
       _this.setState({
         url: _this.img.src
@@ -3901,7 +3901,9 @@ function (_React$Component) {
         className: "aspect-ratio-fill"
       }), React.createElement("img", {
         src: _this.state.url,
-        ref: "image_tag",
+        ref: function ref(_ref) {
+          return _this.image_tag = _ref;
+        },
         height: _this.state.aspect_ratio.height,
         width: _this.state.aspect_ratio.width,
         className: "graf-image",
@@ -3923,6 +3925,7 @@ function (_React$Component) {
 
     var existing_data = _this.props.block.getData().toJS();
 
+    _this.image_tag = null;
     _this.config = _this.props.blockProps.config;
     _this.file = _this.props.blockProps.data.get('file');
     _this.state = {
@@ -3994,7 +3997,7 @@ function (_React$Component2) {
   _inherits(Loader, _React$Component2);
 
   function Loader() {
-    var _ref;
+    var _ref2;
 
     var _this2;
 
@@ -4004,7 +4007,7 @@ function (_React$Component2) {
       args[_key] = arguments[_key];
     }
 
-    _this2 = _possibleConstructorReturn(this, (_ref = Loader.__proto__ || Object.getPrototypeOf(Loader)).call.apply(_ref, [this].concat(args)));
+    _this2 = _possibleConstructorReturn(this, (_ref2 = Loader.__proto__ || Object.getPrototypeOf(Loader)).call.apply(_ref2, [this].concat(args)));
 
     _defineProperty(_assertThisInitialized(_this2), "render", function () {
       return React.createElement("div", null, _this2.props.toggle ? React.createElement("div", {

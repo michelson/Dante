@@ -11,7 +11,7 @@ export default class ImageBlock extends React.Component {
   constructor(props) {
     super(props)
     let existing_data = this.props.block.getData().toJS()
-
+    this.image_tag = null
     this.config = this.props.blockProps.config
     this.file = this.props.blockProps.data.get('file')
     this.state = {
@@ -114,7 +114,7 @@ export default class ImageBlock extends React.Component {
 
   replaceImg = ()=> {
     this.img = new Image()
-    this.img.src = this.refs.image_tag.src
+    this.img.src = this.image_tag.src
     this.setState({
       url: this.img.src })
     let self = this
@@ -305,7 +305,7 @@ export default class ImageBlock extends React.Component {
           <div style={{ paddingBottom: `${ this.state.aspect_ratio.ratio }%` }}
             className='aspect-ratio-fill' />
           <img src={this.state.url}
-            ref="image_tag"
+            ref={(ref) => this.image_tag = ref }
             height={this.state.aspect_ratio.height}
             width={this.state.aspect_ratio.width}
             className='graf-image'
