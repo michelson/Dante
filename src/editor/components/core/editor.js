@@ -103,6 +103,7 @@ export default class DanteEditor extends React.Component {
       editorState: this.getEditorState,
       editorContent: this.emitSerializedOutput()
     })
+    this.focus = false
   }
 
   componentDidMount(){
@@ -228,11 +229,6 @@ export default class DanteEditor extends React.Component {
     const content = this.emitSerializedOutput()
     return this.save.editorContent = content
   }
-
-  focus = ()=> {
-    //debugger
-  }
-  //@props.refs.richEditor.focus()
 
   getEditorState = ()=> {
     return this.state.editorState
@@ -781,6 +777,7 @@ export default class DanteEditor extends React.Component {
   }
 
   relocateTooltips = ()=> {
+    
     if (this.props.read_only)
       return
 
@@ -854,6 +851,14 @@ export default class DanteEditor extends React.Component {
     return clearTimeout(this.hideTimeout)
   }
 
+  onBlur = ()=>{
+    this.focus = false
+  }
+
+  onFocus = ()=>{
+    this.focus = true
+  }
+
   //##############################
 
   render() {
@@ -863,11 +868,15 @@ export default class DanteEditor extends React.Component {
           <div className="postContent">
 
             <div className="section-inner layoutSingleColumn"
-                 onClick={ this.focus }>
+                 //onClick={ this.focus }
+                 >
               <Editor
                 blockRendererFn={ this.blockRenderer }
                 editorState={ this.state.editorState }
+                onBlur={this.onBlur}
+                onFocus={this.onFocus}
                 onChange={ this.onChange }
+                focus={this.focus}
                 //handleDrop={this.handleDrop}
                 handleReturn={ this.handleReturn }
                 blockRenderMap={ this.state.blockRenderMap }

@@ -203,6 +203,9 @@ export default class DanteInlineTooltip extends React.Component {
 
   relocate = ()=>{
 
+    if(!this.props.editor.focus)
+      return this.hide()
+
     const { editorState } = this.props
     const currentBlock = getCurrentBlock(this.props.editorState)
     const blockType = currentBlock.getType()
