@@ -29,7 +29,7 @@ const theme = {
   //line_height_base:     '1.428571429', // 20/14
 
   tooltip_color: '#999',
-  tooltip_background_color: 'transparent',
+  tooltip_background_color: '#fff',
   tooltip_border_color: '#999',
   tooltip_color_opacity: '0.44',
   tooltip_color_opacity_hover: '0.9',

@@ -23,10 +23,10 @@ const EditorContainer = styled.div`
   }
 
   .public-DraftEditorPlaceholder-root {
-    color: ${props => opacify(0.8, props.theme.dante_text_color)};
+    color: ${props => lighten(0.3, props.theme.dante_text_color)};
     position: absolute;
     z-index: 0;
-    font-size: ${props=> math(`${props.theme.dante_editor_font_size}* 0.9`)}
+    font-size: ${props=> math(`${props.theme.dante_editor_font_size}* 0.9`)};
     background-color: transparent;
   }
 
