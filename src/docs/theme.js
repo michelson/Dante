@@ -27,11 +27,11 @@ import '../site/styles/layout/scaffold.scss'
 import editorLogo from '../images/site/dante-editor-logo.png'
 import githubLogo from '../images/site/github-logo.png'
 import {version} from '../../package.json'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import {Table} from './table'
 import Menu from './sidebar'
 
-import {ThemeProvider as StyledTheme} from 'styled-components'
+import {ThemeProvider as StyledTheme} from 'emotion-theming'
 import darkTheme from '../editor/components/Dante/themes/dark'
 import defaultTheme from '../editor/components/Dante/themes/default'
 

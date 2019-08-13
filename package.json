@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.5.0-rc18",
+  "version": "0.5.0-rc20",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -60,13 +60,17 @@
     "rollup-plugin-resolve": "^0.0.1-predev.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.22.1",
-    "styled-components": "^4.3.1"
+    "@emotion/cache": "^10.0.14",
+    "@emotion/core": "^10.0.10",
+    "@emotion/styled": "^10.0.14",
+    "emotion-theming": "^10.0.14",
+    "polished": "^3.4.0"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "draft-convert": "^2.1.2",
-    "draft-js": "^0.10.5",
-    "draft-js-custom-styles": "^2.0.4",
+    "draft-js": "0.11.0-beta3",
+    "draft-js-custom-styles": "^2.1.1",
     "draft-js-export-html": "^1.2.0",
     "draft-js-multidecorators": "^1.0.0",
     "draft-js-prism": "^1.0.6",
@@ -80,7 +84,11 @@
     "react-select": "^2.0.0"
   },
   "peerDependencies": {
-    "styled-components": ">= 3"
+    "polished": "^3.4.0",
+    "@emotion/cache": "^10.0.14",
+    "@emotion/core": "^10.0.10",
+    "@emotion/styled": "^10.0.14",
+    "emotion-theming": "^10.0.14"
   },
   "scripts": {
     "docz:dev": "docz dev",

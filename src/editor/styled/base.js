@@ -1,6 +1,4 @@
-// taken from dante.slate
-
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { math, lighten, opacify, desaturate } from 'polished'
 
 const EditorContainer = styled.div`
@@ -648,7 +646,7 @@ export const InlinetooltipWrapper = styled.div`
     transition: 100ms border-color, 100ms color;
     background: ${props => props.theme.tooltip_background_color};
     border: ${props => props.theme.tooltip_border_width} solid;
-    border-color: ${props => opacify(0.2, props.theme.tooltip_border_color)}
+    border-color: ${props => opacify(0.2, props.theme.tooltip_border_color)};
     color: ${props => props.theme.tooltip_color};
 
     &:hover {

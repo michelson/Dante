@@ -29,7 +29,7 @@ export default class DanteInlineTooltip extends React.Component {
       position: { top: 0, left: 0 },
       show: false,
       scaled: false,
-      scaledWidth: "0px"
+      scaledWidth: 0
     }
     this.initialPosition = 0
   }
@@ -76,7 +76,7 @@ export default class DanteInlineTooltip extends React.Component {
     }
     return this.setState({
       scaled: true }, ()=>{
-        this.setState({scaledWidth: "300px"})
+        this.setState({scaledWidth: 300})
       })
   }
 
@@ -87,7 +87,7 @@ export default class DanteInlineTooltip extends React.Component {
     return this.setState({
       scaled: false }, ()=>{
         setTimeout(()=>{
-          this.setState({scaledWidth: "0px"})
+          this.setState({scaledWidth: 0})
         }, 300)
 
       })
@@ -138,10 +138,15 @@ export default class DanteInlineTooltip extends React.Component {
   }
 
   insertImage =(file)=> {
+    if(!file)
+      return
+
     let opts = {
       url: URL.createObjectURL(file),
       file
     }
+    // cleans input image value
+    this.refs.fileInput.value = ""
 
     return this.props.onChange(addNewBlock(this.props.editorState, 'image', opts))
   }
@@ -197,6 +202,9 @@ export default class DanteInlineTooltip extends React.Component {
   }
 
   relocate = ()=>{
+
+    if(!this.props.editor.focus)
+      return this.hide()
 
     const { editorState } = this.props
     const currentBlock = getCurrentBlock(this.props.editorState)
@@ -266,7 +274,7 @@ export default class DanteInlineTooltip extends React.Component {
         </button>
         <div
            className="inlineTooltip-menu"
-           style={ { width: `${ this.state.scaledWidth }` } }
+           style={ { width: `${ this.state.scaledWidth }px` } }
          >
           { this.getItems().map( (item, i) => {
             return  <InlineTooltipItem
@@ -276,14 +284,16 @@ export default class DanteInlineTooltip extends React.Component {
                     />
             })
           }
-          <input
-           type="file"
-           accept="image/*"
-           style={ { display: 'none' } }
-           ref="fileInput"
-           multiple="multiple"
-           onChange={ this.handleFileInput }
-         />
+       
+            <input
+              type="file"
+              accept="image/*"
+              style={ { display: 'none' } }
+              ref="fileInput"
+              multiple="multiple"
+              onChange={ this.handleFileInput }
+            />
+          
         </div>
       </InlinetooltipWrapper>
     )
