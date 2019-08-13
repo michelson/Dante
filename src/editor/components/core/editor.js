@@ -507,18 +507,6 @@ export default class DanteEditor extends React.Component {
     return 'handled';
   }
 
-  handleUpArrow =(e)=> {
-    return setTimeout(() => {
-      return this.forceRender(this.state.editorState)
-    }, 10)
-  }
-
-  handleDownArrow =(e)=> {
-    return setTimeout(() => {
-      return this.forceRender(this.state.editorState)
-    }, 10)
-  }
-
   handleReturn =(e)=> {
     if (this.props.handleReturn) {
       if (this.props.handleReturn()) {
@@ -881,8 +869,6 @@ export default class DanteEditor extends React.Component {
                 editorState={ this.state.editorState }
                 onChange={ this.onChange }
                 //handleDrop={this.handleDrop}
-                onUpArrow={ this.handleUpArrow }
-                onDownArrow={ this.handleDownArrow }
                 handleReturn={ this.handleReturn }
                 blockRenderMap={ this.state.blockRenderMap }
                 blockStyleFn={ this.blockStyleFn }
