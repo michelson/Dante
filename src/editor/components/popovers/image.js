@@ -25,6 +25,10 @@ class DanteImagePopover extends React.Component {
     }
   }
 
+  UNSAFE_componentWillReceiveProps(newProps) {
+    return this.collapse()
+  }
+
   display =(b)=> {
     if (b) {
       return this.show()
@@ -106,10 +110,6 @@ class DanteImagePopover extends React.Component {
     } else {
       return this.hide()
     }
-  }
-
-  componentWillReceiveProps(newProps) {
-    return this.collapse()
   }
 
   getStyle =()=> {

@@ -13,7 +13,8 @@ export default class DanteTooltipColor extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if(nextProps.show === false){
       this.setState({open: false})
     }

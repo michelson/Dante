@@ -38,6 +38,10 @@ export default class DanteInlineTooltip extends React.Component {
     //this.initialPosition = this.refs.tooltip.offsetLeft
   }
 
+  UNSAFE_componentWillReceiveProps(newProps) {
+    return this.collapse()
+  }
+
   display =(b)=> {
     if (b) {
       return this.show()
@@ -91,10 +95,6 @@ export default class DanteInlineTooltip extends React.Component {
         }, 300)
 
       })
-  }
-
-  componentWillReceiveProps(newProps) {
-    return this.collapse()
   }
 
   activeClass = ()=> {
