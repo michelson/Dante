@@ -4,7 +4,7 @@ order: 9
 ---
 
 import { Playground, PropsTable } from 'docz'
-import {Lorem, h1} from './site/data/poc.js'
+import {Lorem} from './site/data/poc.js'
 import Dante from './editor/components/Dante/Dante.js'
 import {State, Toggle} from 'react-powerplug'
 
@@ -30,28 +30,6 @@ This example cames with a example content. The content must be in the Draft's ed
             read only
           </button>
           {on ? ' si' : ' no' }
-        </div>
-      }
-    }
-  </Toggle>
-</Playground>
-
-## Content Switch
-
-This example demonstrate how Dante editor react to content prop change
-
-<Playground>
-  <Toggle initial={false}>
-    {
-      ({ on, toggle }) => {
-        return <div>
-          <Dante 
-            content={on ? h1 : Lorem}
-          />
-
-          <button onClick={toggle}>
-            content switch
-          </button>
         </div>
       }
     }
