@@ -116,6 +116,11 @@ export default class DanteEditor extends React.Component {
     })
   }
 
+  componentDidUpdate(prevProps){
+    if(prevProps.content != this.props.content)
+      this.initializeState()
+  }
+
   initializeState = ()=> {
     let newEditorState = EditorState.createEmpty(this.decorator)
     if (this.props.content) {
