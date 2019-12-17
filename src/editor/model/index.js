@@ -2,7 +2,13 @@ import { Map } from 'immutable';
 
 
 
-import { EditorState, ContentBlock, genKey } from 'draft-js';
+import { 
+  EditorState, 
+  ContentBlock, 
+  genKey,
+  Modifier,
+  SelectionState
+} from 'draft-js';
 
 
 /*
@@ -120,7 +126,7 @@ export const updateDataOfBlock = (editorState, block, newData) => {
 };
 
 export const updateTextOfBlock = (editorState, block, text) => {
-  const contentState = editorState.getCurrentContent();
+  /*const contentState = editorState.getCurrentContent();
   const newBlock = block.merge({
     text: text,
   });
@@ -128,7 +134,21 @@ export const updateTextOfBlock = (editorState, block, text) => {
     blockMap: contentState.getBlockMap().set(block.getKey(), newBlock),
   });
 
-  return EditorState.push(editorState, newContentState, 'replace-text');
+  debugger*/
+
+  const newContent = Modifier.replaceText(
+    editorState.getCurrentContent(), 
+    new SelectionState({
+      anchorKey: block.getKey(),
+      anchorOffset: 0,
+      focusKey: block.getKey(),
+      focusOffset: 2
+    }), 
+    text)
+
+  return EditorState.push(editorState, newContent, 'replace-text')
+
+  //return EditorState.push(editorState, newContentState, 'replace-text');
   // return editorState;
 };
 
