@@ -5,8 +5,7 @@ import ReactDOM from 'react-dom'
 import {
   addNewBlock,
   resetBlockWithType,
-  getCurrentBlock,
-  updateTextOfBlock
+  getCurrentBlock
 } from '../../model/index.js'
 
 import {
@@ -149,18 +148,7 @@ export default class DanteInlineTooltip extends React.Component {
     // cleans input image value
     this.refs.fileInput.value = ""
 
-    const currentBlock = getCurrentBlock(this.props.editorState)
-    this.props.onChange(addNewBlock(this.props.editorState, 'image', opts))
-    
-    setTimeout(() => {
-      this.props.onChange(updateTextOfBlock(
-        this.props.editorState, 
-        currentBlock, 
-        'My caption')
-      )
-    }, 100)
-    
-    return 
+    return this.props.onChange(addNewBlock(this.props.editorState, 'image', opts))
   }
 
   handleFileInput = (e)=> {
