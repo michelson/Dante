@@ -117,16 +117,33 @@ export default class DanteEditor extends React.Component {
   }
 
   componentDidUpdate(prevProps){
-    if(prevProps.content != this.props.content)
-      this.initializeState()
+    // deprecated
+    //if(prevProps.content && prevProps.content != this.props.content)
+    //  this.updateState()
+    
   }
 
   initializeState = ()=> {
     let newEditorState = EditorState.createEmpty(this.decorator)
     if (this.props.content) {
-      newEditorState = EditorState.set(this.decodeEditorContent(this.props.content), {decorator: this.decorator});
+      newEditorState = EditorState.set(
+        this.decodeEditorContent(this.props.content), {
+          decorator: this.decorator
+        });
     }
     this.onChange(newEditorState)
+  }
+
+  updateState = ()=>{
+    console.log(this.state)
+    const newContentState = convertFromRaw(this.props.content );
+    let newEditorState = EditorState.push(
+      this.state.editorState,
+      newContentState,
+      'insert-characters'
+    );
+    newEditorState = EditorState.moveSelectionToEnd(newEditorState);
+    this.setState({editorState: newEditorState})
   }
 
   decodeEditorContent =(raw_as_json)=> {
