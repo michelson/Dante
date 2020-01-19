@@ -117,10 +117,8 @@ export default class DanteEditor extends React.Component {
   }
 
   componentDidUpdate(prevProps){
-    // deprecated
-    //if(prevProps.content && prevProps.content != this.props.content)
-    //  this.updateState()
-    
+    if(prevProps.content && prevProps.content != this.props.content)
+      this.updateState()
   }
 
   initializeState = ()=> {
