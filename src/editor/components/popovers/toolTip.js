@@ -26,6 +26,7 @@ class DanteTooltip extends React.Component {
       show: false,
       sticky: props.configTooltip.sticky,
       position: {},
+      tooltipArrowPosition: 0,
       menu_style: {}
     }
   }
@@ -139,8 +140,23 @@ class DanteTooltip extends React.Component {
       return
     }
 
+    let tooltipArrowPosition = this.state.tooltipArrowPosition
+    let crossedRightBorder = relativeRect.width - left - (this.refs.dante_menu.clientWidth)
+    let crossedLeftBorder = left
+
+    if (crossedLeftBorder < 0) {
+      left = 10
+    }
+
+    if (crossedRightBorder < 0) {
+      left += crossedRightBorder - 10
+    }
+
+    tooltipArrowPosition = selectionRect.left - left + selectionRect.width/2
+
     return this.setState({
       show: true,
+      tooltipArrowPosition: `${tooltipArrowPosition}px`,
       position: {
         left,
         top
@@ -243,7 +259,6 @@ class DanteTooltip extends React.Component {
   getPosition =()=> {
     if(this.isSticky())
       return this.stickyStyle()
-    
     let pos = this.state.position
     return pos
   }
@@ -319,11 +334,12 @@ class DanteTooltip extends React.Component {
         ref="dante_menu"
         className={ `dante-menu ${ this.displayActiveMenu() } ${ this.displayLinkMode() } ${this.isSticky() ? 'dante-sticky-menu' : ''}` }
         style={ this.getPosition() }
+        arrowPosition={this.state.tooltipArrowPosition}
       >
 
         {
 
-          this.linkBlock() ? 
+          this.linkBlock() ?
             <div className="dante-menu-linkinput">
               <input
                 className="dante-menu-input"
@@ -340,7 +356,7 @@ class DanteTooltip extends React.Component {
               </div>
             </div> : null
         }
-        
+
         <ul className="dante-menu-buttons" style={this.state.menu_style}>
 
           {
@@ -408,7 +424,7 @@ class DanteTooltip extends React.Component {
                             handleClick={ this._clickInlineHandler }
                           />
                   break;
-                
+
                 case "color":
                   return <DanteTooltipColor
                             key={ i }
@@ -425,7 +441,7 @@ class DanteTooltip extends React.Component {
                 case "separator":
                   return <DanteMenuDivider key={ i }/>
                   break;
-                case "link": 
+                case "link":
                   return <DanteTooltipLink
                             key={ i }
                             editorState={ this.props.editorState }
@@ -435,7 +451,7 @@ class DanteTooltip extends React.Component {
                 default:
                   break;
               }
-              
+
             })
           }
         </ul>
@@ -446,7 +462,7 @@ class DanteTooltip extends React.Component {
 
 const DanteMenuDivider = ()=>{
   return <li className="dante-menu-divider"/>
-} 
+}
 
 class DanteTooltipItem extends React.Component {
 
@@ -550,13 +566,13 @@ export const DanteTooltipConfig = (options={})=>{
       'header-two',
       'header-three',
       'header-four',
-      'footer', 
+      'footer',
       'column',
       'jumbo'
     ],
     widget_options: {
       placeholder: "type a url",
-      
+
       block_types: [
         { label: 'p', style: 'unstyled',  icon: Icons.bold },
         { label: 'h2', style: 'header-one', type: "block" , icon: Icons.h1 },
@@ -566,7 +582,7 @@ export const DanteTooltipConfig = (options={})=>{
         { type: "separator" },
         { label: 'color', type: "color" },
         { type: "link" },
-      
+
         { label: 'blockquote', style: 'blockquote', type: "block", icon: Icons.blockquote },
         { type: "separator" },
         { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block", icon: Icons.insertunorderedlist },
@@ -577,8 +593,8 @@ export const DanteTooltipConfig = (options={})=>{
         { label: 'italic', style: 'ITALIC', type: "inline", icon: Icons.italic }
       ]
     }
-  } 
+  }
   return Object.assign(config, options)
 }
 
-    
+

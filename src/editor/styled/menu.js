@@ -34,7 +34,7 @@ export const AnchorStyle = styled.div`
       height: 0;
       width: 0;
       position: absolute;
-      left: 50%;
+      left: ${props => props.arrowPosition ? props.arrowPosition : '50%' };
       pointer-events: none;
       border: ${props => props.theme.dante_menu_caret_size} solid transparent;
       margin-left: -${props => math(`${props.theme.dante_menu_caret_size} / 2`)};
