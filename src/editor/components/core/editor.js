@@ -56,11 +56,13 @@ export default class DanteEditor extends React.Component {
       },
       'unstyled': {
         wrapper: null,
-        element: 'div'
+        element: 'div',
+        aliasedElements: ['p']
       },
       'paragraph': {
         wrapper: null,
-        element: 'div'
+        element: 'div',
+        aliasedElements: ['p']
       },
       'placeholder': {
         wrapper: null,
