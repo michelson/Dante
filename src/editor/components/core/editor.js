@@ -525,9 +525,9 @@ export default class DanteEditor extends React.Component {
     return 'handled';
   }
 
-  handleReturn =(e)=> {
+  handleReturn = (e) => {
     if (this.props.handleReturn) {
-      if (this.props.handleReturn()) {
+      if (this.props.handleReturn(e)) {
         return true
       }
     }
