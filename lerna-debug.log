@@ -1,0 +1,24 @@
+0 silly argv {
+0 silly argv   _: [ 'run' ],
+0 silly argv   scope: 'Dante2',
+0 silly argv   stream: true,
+0 silly argv   lernaVersion: '4.0.0',
+0 silly argv   '$0': 'lerna',
+0 silly argv   script: 'build'
+0 silly argv }
+1 notice cli v4.0.0
+2 verbose rootPath /Users/michelson/Documents/node_apps/dante2-workspace
+3 info versioning independent
+4 error JSONError: Unexpected token "}" (0x7D) in JSON at position 1456 while parsing near "...elect\": \"^2.0.0\",\n  },\n  \"devDependencie..." in packages/dante2/package.json
+4 error
+4 error [0m [90m 53 |[39m     [32m"react-popper"[39m[33m:[39m [32m"^1.0.0"[39m[33m,[39m[0m
+4 error [0m [90m 54 |[39m     [32m"react-select"[39m[33m:[39m [32m"^2.0.0"[39m[33m,[39m[0m
+4 error [0m[31m[1m>[22m[39m[90m 55 |[39m   }[33m,[39m[0m
+4 error [0m [90m    |[39m   [31m[1m^[22m[39m[0m
+4 error [0m [90m 56 |[39m   [32m"devDependencies"[39m[33m:[39m {[0m
+4 error [0m [90m 57 |[39m     [32m"@babel/core"[39m[33m:[39m [32m"^7.0.0"[39m[33m,[39m[0m
+4 error [0m [90m 58 |[39m     [32m"@babel/helper-regex"[39m[33m:[39m [32m"^7.10.5"[39m[33m,[39m[0m
+4 error
+4 error     at parseJson (/Users/michelson/Documents/node_apps/dante2-workspace/node_modules/parse-json/index.js:29:21)
+4 error     at parse (/Users/michelson/Documents/node_apps/dante2-workspace/node_modules/load-json-file/index.js:15:9)
+4 error     at module.exports (/Users/michelson/Documents/node_apps/dante2-workspace/node_modules/load-json-file/index.js:18:47)

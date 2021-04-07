@@ -1,0 +1,143 @@
+---
+title: Widgets
+order: 2
+---
+
+# Widgets
+
+
+Widgets are just react components that you can use to render custom content on your component. Note that all Dante's features are composed as components.
+
+Widgets are contained in an array that contain a configuration object
+
+the config options are:
+
+## Options
+
++ **block**: the class of the React.Component.
++ **editable**: boolean, this configures if the component will be editable or not.
++ **renderable**: boolean, this configures if the component is renderable
++ **breakOnContinuous**: boolean, same as continuousBlock but for widgets.
++ **handleEnterWithText**: function, this handles the behaviour when you hit ENTER on the component and text is present.
+handleEnterWihoutText: function, this handles the behaviour when you hit ENTER on the component and no text is present.
++ **selectedFn**: function, this handles the behaviour when component is focused
++ **selected_class**: string, this configures which class will be added when component is focused
++ **wrapper_class**: string, this configures the default class that will wrapp the component
++ **options**: Object, this are custom options that will be stored in your component for later use.
++ **widget_options**: Object, this are custom options that will operate as a blockProps, this are volatile options and will not be stored in your content but will be accesible in the editor's context. 
+
+---------------
+
+Widgets can interoperate with tooltips or other widgets. For example the Add Button loads the widgets that have a "displayOnInlineTooltip" option on widget_options. That basically is a custom option that can be read from any component since the widget context have access to Dante's context.
+
+-------------------
+
+## default
+
+By default Dante2 has the image, link embed & video embed activated out of the box. If "Add Button" is configured (it is by default), those widgets will be displayed when the button is clicked.  
+
+```js live=true
+  <Dante content={null} />
+```
+
+## empty widgets 
+
+Also you can empty the list of widgets:
+
+```js live=true
+  <Dante content={null} widgets={[]}/>
+```
+
+Or configure those one by one:
+
+```js live=true
+  <Dante content={null} widgets={[ImageBlockConfig()]}  
+  />
+```
+
+
+# Embed & Extract
+
+Embed and Video widgets uses open framely you can override this by using your own account of iframely or use another oembed provider like embedly.
+
+
+## Embed Link
+
+```js live=true
+  <Dante content={null} widgets={[
+                                  EmbedBlockConfig({ options: {
+                                      placeholder: "put an external link",
+                                      endpoint: "//noembed.com/embed?url="
+                                    } })
+                                    , 
+                                  PlaceholderBlockConfig()
+                                  ]}  
+  />
+```
+
+## Embed Video
+
+```js live=true
+  <Dante content={null} widgets={[
+                                  VideoBlockConfig({ options: {
+                                      placeholder: "put an external video link",
+                                      endpoint: "//noembed.com/embed?url=",
+                                      caption: 'optional caption'
+                                    } 
+                                  }), 
+                                  PlaceholderBlockConfig()
+                                  ]}  
+  />
+```
+
+## Upload 
+
+```js live=true
+  <Dante content={null} widgets={[ImageBlockConfig()]}  
+  />
+```
+
+## Upload Url Callback
+
+```js live=true
+  <Dante content={null} widgets={[ImageBlockConfig({
+    options: {
+      upload_url: config.uploadUrl, 
+      upload_callback: (ctx, img)=> { 
+        alert("file uploaded: " + ctx.data.url) 
+      },
+      upload_error_callback: (ctx, img)=>{
+        console.log(ctx)
+      }
+    }
+  })
+  ]}  
+  />
+```
+
+## Video
+
+```js live=true
+  <Dante 
+      content={null}
+      widgets={[
+          VideoRecorderBlockConfig({
+
+              options: {
+                seconds_to_record: 5000,
+                upload_url: config.uploadUrl, 
+                upload_callback: (ctx, img)=> { 
+                  console.log("file uploaded: " + ctx.data.url) 
+                },
+                upload_error_callback: (ctx, img)=>{
+                  debugger
+                  console.log(ctx)
+                }
+              }
+
+          })
+      ]}
+      debug={true}
+  />
+```
+
