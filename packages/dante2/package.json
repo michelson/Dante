@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.5.0-rc26",
+  "version": "0.5.0-rc26.0",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "GPL-3.0",
@@ -52,8 +52,6 @@
     "react-select": "^2.0.0"
   },
   "devDependencies": {
-    "esbuild-plugin-babel": "^0.2.3",
-    "@babel/preset-react": "^7.13.13",
     "@babel/core": "^7.0.0",
     "@babel/helper-regex": "^7.10.5",
     "@babel/node": "^7.0.0",
@@ -66,14 +64,16 @@
     "@babel/plugin-proposal-optional-chaining": "^7.0.0",
     "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.13.13",
     "esbuild": "^0.11.5",
+    "esbuild-plugin-babel": "^0.2.3",
     "rollup": "^0.64.1",
     "rollup-plugin-babel": "^4.0.0-beta.8",
     "rollup-plugin-commonjs": "^9.1.5",
+    "rollup-plugin-multi-entry": "^2.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-postcss": "^1.6.2",
-    "rollup-plugin-resolve": "^0.0.1-predev.1",
-    "rollup-plugin-multi-entry": "^2.1.0"
+    "rollup-plugin-resolve": "^0.0.1-predev.1"
   },
   "scripts": {
     "docz:dev": "docz dev",
