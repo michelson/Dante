@@ -47,6 +47,7 @@
     "dev:watch": "next-remote-watch ./posts",
     "build": "next build",
     "start": "next start",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "dante_build": "lerna run build --scope Dante2  --stream"
   }
 }
