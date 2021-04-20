@@ -3,7 +3,7 @@ import React from 'react'
 //import { Popover } from 'react-bootstrap';
 //import {Popover} from 'react-popover'
 import {UpdateData} from "./commons.js"
-import { SketchPicker } from 'react-color';
+import { HexColorPicker } from "react-colorful";
 import { EditorBlock } from 'draft-js';
 
 
@@ -247,11 +247,10 @@ class ButtonControls extends React.Component {
                     aria-labelledby="button-font-color"
                     className="dropdown-menu color-picker">
                     <li>
-                      <SketchPicker
+                      <HexColorPicker
                         color={ this.props.buttonStyle.color }
-                        presetColors={[]}
-                        onChangeComplete={(color, ev)=>{
-                          this.props.setButtonStyle({color: color.hex})}
+                        onChange={(color, ev)=>{
+                          this.props.setButtonStyle({color: color})}
                         }
                       />
                     </li>

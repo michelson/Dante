@@ -1,8 +1,6 @@
 import React from 'react'
-import { SketchPicker } from 'react-color';
-
+import { HexColorPicker } from "react-colorful";
 import {fontColor} from "../icons.js"
-
 export default class DanteTooltipColor extends React.Component {
 
   constructor(...args) {
@@ -28,7 +26,7 @@ export default class DanteTooltipColor extends React.Component {
   }
 
   handleClick =(e, item)=>{
-    e.preventDefault()
+    e && e.preventDefault()
     this.setState({value: item},
       ()=>{
         let o = { [this.props.style_type]: this.state.value }
@@ -55,11 +53,10 @@ export default class DanteTooltipColor extends React.Component {
     if(this.state.open){
       return (
         <div style={{position: 'absolute'}}>
-          <SketchPicker
+          <HexColorPicker
             color={ v }
-            presetColors={[]}
-            onChangeComplete={(color, e)=>{
-              this.handleClick(e,  color.hex )}
+            onChange={(color, e)=>{
+              this.handleClick(e,  color )}
             }
           />
         </div>

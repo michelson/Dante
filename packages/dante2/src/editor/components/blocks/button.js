@@ -3,7 +3,8 @@ import React, {Component, Fragment} from 'react'
 import ReactDOM from 'react-dom'
 
 //import { Popover, OverlayTrigger, Overlay } from 'react-bootstrap';
-import { SketchPicker } from 'react-color';
+import { HexColorPicker } from "react-colorful";
+
 import { EditorBlock } from 'draft-js'
 //import Popover from 'react-awesome-popover'
 import { Manager, Reference, Popper } from 'react-popper';
@@ -582,11 +583,10 @@ class ButtonControls extends React.Component {
                     {
                       this.state.fontColorPicker ? 
                         <div style={{position: "absolute"}}>
-                        <SketchPicker
+                        <HexColorPicker
                           color={ this.props.buttonStyle.color }
-                          presetColors={[]}
-                          onChangeComplete={(color, ev)=>{
-                            this.props.setButtonStyle({color: color.hex})}
+                          onChange={(color, ev)=>{
+                            this.props.setButtonStyle({color: color})}
                           }
                         /> 
                         </div> : null 
