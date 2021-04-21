@@ -4,7 +4,7 @@ import {
 } from 'draft-js'
 import ReactMediaRecorder from './MediaRecorder'
 import styled from '@emotion/styled'
-import icon from "./icon.js"
+import {videoRecorderIcon as icon} from "../../icons"
 import { updateDataOfBlock, addNewBlockAt } from '../../../model/index.js'
 import axios from 'axios'
 
@@ -233,8 +233,6 @@ const Button = styled.button`
 
 `
 
-
-
 class VideoRecorderBlock extends React.Component {
   constructor(props) {
     super(props);
@@ -270,6 +268,7 @@ class VideoRecorderBlock extends React.Component {
     this.downloadVideo = this.downloadVideo.bind(this);
 
     this.app = React.createRef()
+    this.mediaRecorder = React.createRef();
   }
 
   componentDidMount(){
@@ -278,10 +277,7 @@ class VideoRecorderBlock extends React.Component {
       this.setUrlToVideo(this.state.url)
       this.playMode()
     }
-
   }
-
-
 
   // will update block state
   updateData = (options)=> {
@@ -327,8 +323,7 @@ class VideoRecorderBlock extends React.Component {
     }, 1000);
 
     this.stopTimeout = setTimeout(()=>{
-      context.refs.mediaRecorder.stop()
-
+      context.mediaRecorder.current.stop()
     }, context.config.seconds_to_record )
   }
 
@@ -556,7 +551,8 @@ class VideoRecorderBlock extends React.Component {
 
         <VideoContainer>
       
-          <ReactMediaRecorder ref="mediaRecorder"
+          <ReactMediaRecorder  
+            ref={this.mediaRecorder}
             constraints={
               { 
                 audio: {
@@ -725,7 +721,6 @@ class Loader extends React.Component {
     )
   }
 }
-
 
 export const VideoRecorderBlockConfig = (options={})=>{
   let config =  {

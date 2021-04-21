@@ -11,13 +11,17 @@ import Dante ,{
   DanteInlineTooltipConfig,
   DanteTooltipConfig,
   Icons,
-  CustomWidgetconfig,
+  //CustomWidgetconfig,
   CodeBlockConfig,
   PrismDraftDecorator,
   LinkDecorator,
   utils
-} from 'Dante2'
+} from '../packages/dante2/src/editor/components/Dante'
+//'Dante2' // use Dante2 to point to the component package
 
+import {
+  CustomWidgetconfig
+} from '../data/customWidget'
 import { CompositeDecorator } from 'draft-js'
 import MultiDecorator from 'draft-js-multidecorators'
 
@@ -37,7 +41,7 @@ import config from '../data/constants.js'
 function Button (){
   return <p>sjsjsjsjsjsjs</p>
 }
-export default function({children, className, live, render}) {
+export default function Live({children, className, live, render}) {
   const language = className.replace(/language-/, '')
 
   if (live) {
@@ -110,7 +114,10 @@ export default function({children, className, live, render}) {
   }
 
   return (
-    <Highlight {...defaultProps} code={children.trim()} language={language}>
+    <Highlight 
+      {...defaultProps} 
+      code={children.trim()} 
+      language={language}>
       {({className, style, tokens, getLineProps, getTokenProps}) => (
         <pre className={className} style={{...style, padding: '20px'}}>
           {tokens.map((line, i) => (

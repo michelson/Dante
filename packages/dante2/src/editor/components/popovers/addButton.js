@@ -124,7 +124,7 @@ export default class DanteInlineTooltip extends React.Component {
   // collapse , class, width
 
   clickOnFileUpload = ()=> {
-    this.refs.fileInput.click()
+    this.fileInput.current.click()
     this.collapse()
     return this.hide()
   }
@@ -148,7 +148,7 @@ export default class DanteInlineTooltip extends React.Component {
       file
     }
     // cleans input image value
-    this.refs.fileInput.value = ""
+    this.fileInput.current.value = ""
 
     return this.props.onChange(addNewBlock(this.props.editorState, 'image', opts))
   }

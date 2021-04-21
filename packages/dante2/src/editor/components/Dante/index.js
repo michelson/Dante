@@ -9,14 +9,17 @@ export {darkTheme, defaultTheme}
 import Icons from '../icons'
 export {Icons}
 
+import Styled from '../../styled'
+export {Styled}
+
 import utils from '../../utils'
 export {utils}
 
-import {LinkDecorador, PrismDraftDecorator} from '../decorators'
-export {LinkDecorador, PrismDraftDecorator}
+import {LinkDecorator, PrismDraftDecorator} from '../decorators'
+export {LinkDecorator, PrismDraftDecorator}
 
 import ImageBlock, {ImageBlockConfig} from '../blocks/image.js'
-export { ImageBlock, ImageBlockConfig}  
+export { ImageBlock, ImageBlockConfig} 
 
 import EmbedBlock, {EmbedBlockConfig} from '../blocks/embed.js'
 export { EmbedBlock, EmbedBlockConfig}  
@@ -28,10 +31,11 @@ import PlaceholderBlock, {PlaceholderBlockConfig} from '../blocks/placeholder.js
 export { PlaceholderBlock, PlaceholderBlockConfig} 
 
 import VideoRecorderBlock, {VideoRecorderBlockConfig} from '../blocks/videoRecorder'
-export { VideoRecorderBlock, VideoRecorderBlockConfig}
+import MediaRecorder from '../blocks/videoRecorder/MediaRecorder'
+export { VideoRecorderBlock, VideoRecorderBlockConfig, MediaRecorder }
 
-import ButtonBlock, {ButtonBlockConfig} from '../blocks/button.js'
-export { ButtonBlock, ButtonBlockConfig} 
+//import ButtonBlock, {ButtonBlockConfig} from '../blocks/button.js'
+//export { ButtonBlock, ButtonBlockConfig} 
 
 // import CardBlock, {CardBlockConfig} from '../blocks/card.js'
 import DividerBlock, {DividerBlockConfig} from '../blocks/divider.js'
@@ -51,6 +55,9 @@ export {DanteInlineTooltipConfig}
 
 import {DanteTooltipConfig} from '../popovers/toolTip.js'
 export {DanteTooltipConfig}
+
+import model from '../../model'
+export {model}
 
 //export { CardBlock, CardBlockConfig} 
 export default Dante

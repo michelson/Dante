@@ -64,7 +64,6 @@ const EditorContainer = styled.div`
       position: absolute;
       top: 4px;
       right: 4px;
-      width: 165px;
     }
   }
 

@@ -5,6 +5,7 @@ export default class Link extends React.Component {
   constructor(props) {
     super(props)
     this.isHover = false
+    this.link = React.createRef()
   }
 
   _validateLink =()=> {
@@ -33,7 +34,7 @@ export default class Link extends React.Component {
     if (!this.data.showPopLinkOver) {
       return
     }
-    return this.data.showPopLinkOver(this.refs.link)
+    return this.data.showPopLinkOver(this.link.current)
   }
 
   _hidePopLinkOver =(e)=> {
@@ -49,7 +50,7 @@ export default class Link extends React.Component {
 
     return (
       <a
-        ref="link"
+        ref={this.link}
         href={ this.data.url }
         className="markup--anchor"
         onMouseOver={ this._showPopLinkOver }

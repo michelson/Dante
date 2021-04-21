@@ -197,3 +197,15 @@ export const addNewBlockAt = (
   });
   return EditorState.push(editorState, newContent, 'split-block');
 };
+
+export default {
+  getDefaultBlockData,
+  getNode,
+  getCurrentBlock,
+  addNewBlock,
+  resetBlockWithType,
+  updateDataOfBlock,
+  updateTextOfBlock,
+  updateCharacterListOfBlock,
+  addNewBlockAt,
+}

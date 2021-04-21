@@ -1,7 +1,7 @@
 import {PrismDraftDecorator} from './prism'
-import LinkDecorador from './link'
+import LinkDecorator from './link'
 
 export {
 	PrismDraftDecorator,
-	LinkDecorador
+	LinkDecorator
 }

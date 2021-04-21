@@ -7,10 +7,6 @@ import {
 import axios from "axios"
 import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 import {image} from "../icons.js"
-import Select from 'react-select'
-
-
-
 export default class CodeBlock extends React.Component {
 
   constructor(props) {
@@ -47,24 +43,37 @@ export default class CodeBlock extends React.Component {
           
           <span className="dante-code-syntax">
             {/*this.props.blockProps.data.get('syntax')*/}
-
             {
-              this.renderSelect() ?
+              this.renderSelect() &&
               <Select options={this.languages}
                 isSearchable={true}
-                defaultValue={this.state.syntax}
-                onChange={(o)=>{
-                this.updateData({syntax: o.value})
-              }} /> : null
+                value={this.state.syntax}
+                onChange={(e)=>{
+                  console.log(e.target.value)
+                  this.setState({syntax: e.target.value}, ()=>{
+                    this.updateData({syntax: e.target.value})
+                  })
+                }} 
+              />
             }
-
-            
-
           </span>
           <EditorBlock {...this.props}/>
         </div>
     )
   }
+}
+
+
+function Select({options, value, onChange}){
+  return <select
+            value={value} 
+            onChange={onChange}>
+            {
+              options.map((o)=> <option key={`select-lang-${o.value}`}>
+                {o.label}
+              </option> )
+            }
+          </select>
 }
 
 export const CodeBlockConfig = (options={})=>{

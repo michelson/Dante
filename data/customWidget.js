@@ -1,6 +1,6 @@
 
 import React from 'react'
-import {addNewBlockAt} from '../../editor/model'
+import {addNewBlockAt} from '../packages/dante2/src/editor/model'
 
 
 

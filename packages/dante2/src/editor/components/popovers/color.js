@@ -1,6 +1,8 @@
 import React from 'react'
 import { HexColorPicker } from "react-colorful";
 import {fontColor} from "../icons.js"
+import { debounce } from "lodash";
+
 export default class DanteTooltipColor extends React.Component {
 
   constructor(...args) {
@@ -9,13 +11,14 @@ export default class DanteTooltipColor extends React.Component {
       open: false,
       value: this.props.value
     }
+
+    this.handleChange = debounce((e, value) => {
+      this.handleClick(e, value)
+    }, 500);
   }
 
-  
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if(nextProps.show === false){
-      this.setState({open: false})
-    }
+  componentWillUmount() {
+    this.handleChange.cancel();
   }
 
   toggle =(ev)=> {
@@ -56,8 +59,9 @@ export default class DanteTooltipColor extends React.Component {
           <HexColorPicker
             color={ v }
             onChange={(color, e)=>{
-              this.handleClick(e,  color )}
-            }
+              this.handleChange(e, color)
+              //this.handleClick(e,  color )
+            }}
           />
         </div>
       )

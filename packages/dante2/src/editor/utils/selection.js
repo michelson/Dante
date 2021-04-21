@@ -64,3 +64,11 @@ export const getSelectedBlockNode = (root) => {
   } while (node !== null);
   return null;
 };
+
+
+export default {
+  getRelativeParent,
+  getSelectionRect,
+  getSelection,
+  getSelectedBlockNode,
+}
