@@ -194,7 +194,7 @@ Dante.defaultProps = {
     EmbedBlockConfig(),
     VideoBlockConfig(),
     PlaceholderBlockConfig(),
-    //CodeBlockConfig()
+    CodeBlockConfig()
   ]
 
 }

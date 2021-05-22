@@ -89,6 +89,7 @@ export const AnchorStyle = styled.div`
       display: block;
     }
     .dante-menu-input {
+      background:transparent;
       -webkit-animation: pop-upwards 180ms forwards linear;
               animation: pop-upwards 180ms forwards linear;
     }
@@ -268,6 +269,7 @@ export const AnchorStyle = styled.div`
 }
 
 .dante-menu-input {
+  background:transparent;
   position: absolute;
   top: 0;
   left: 0;

@@ -17,6 +17,8 @@ import Dante ,{
   LinkDecorator,
   utils
 } from '../packages/dante2/src/editor/components/Dante'
+// 'Dante2'
+//'../packages/dante2/src/editor/components/Dante'
 //'Dante2' // use Dante2 to point to the component package
 
 import {
