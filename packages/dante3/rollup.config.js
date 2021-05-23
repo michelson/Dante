@@ -20,6 +20,11 @@ export default {
   input: 'src/index.ts',
   output: [
     {
+      name: 'Dante',
+      file: packageJson.browser,
+      format: 'umd'
+    },
+    {
       file: packageJson.main,
       format: 'cjs', // commonJS
       sourcemap: true,

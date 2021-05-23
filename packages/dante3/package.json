@@ -6,12 +6,13 @@
   "version": "1.0.0",
   "private": true,
   "main": "package/Dante.cjs.js",
-  "jsnext:main": "package/es/components/Dante/index.js",
+  "jsnext:main": "package/Dante.es.js",
   "module": "package/Dante.es.js",
   "browser": "package/umd/Dante.js",
   "files": [
     "package/umd",
     "package/lib",
+    "package/build",
     "package/dist",
     "package/es"
   ],

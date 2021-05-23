@@ -1,6 +1,7 @@
 import React from "react"
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import styled from '@emotion/styled'
+import {speech} from '../icons'
 
 const StartButton = styled.a`
     border-radius: 50%;
@@ -45,15 +46,6 @@ const DeleteSelf = styled.button`
   right: 10px;
   top: 1px;
 `
-const icon = ()=>{
-  return <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'>
-            <path fill="#00000070" d='M9.5 14c-1.93 0-3.5-1.57-3.5-3.5v-6c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5v6c0 1.93-1.57 3.5-3.5 3.5zM9.5 2c-1.378 0-2.5 1.122-2.5 2.5v6c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5v-6c0-1.378-1.122-2.5-2.5-2.5z'
-            />
-            <path fill="#00000070" d='M16 10.5c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5c0 3.033-2.467 5.5-5.5 5.5s-5.5-2.467-5.5-5.5c0-0.276-0.224-0.5-0.5-0.5s-0.5 0.224-0.5 0.5c0 3.416 2.649 6.225 6 6.481v2.019h-1.5c-0.276 0-0.5 0.224-0.5 0.5s0.224 0.5 0.5 0.5h4c0.276 0 0.5-0.224 0.5-0.5s-0.224-0.5-0.5-0.5h-1.5v-2.019c3.351-0.256 6-3.065 6-6.481z'
-            />
-         </svg>
-}
-
 export default class SpeechToTextBlock extends React.Component {
   constructor(props) {
     super(props)
@@ -152,7 +144,7 @@ export default class SpeechToTextBlock extends React.Component {
                       className={`${this.state.recording ? 'recordingButton' : ''}`}
                       recording={this.state.recording}
                       onClick={(e)=>{this.startButton(e)}}>
-                {icon()}
+                {speech()}
               </StartButton>
 
               <RecorderLegend>

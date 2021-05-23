@@ -1,9 +1,9 @@
 import Layout from '../components/Layout'
 import {Component, useState} from 'react'
 
-import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3/src/index'
+import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3'
 import jsonContent from "../packages/dante3/src/data/content";
-import {Readme as demo} from '../data/poc'
+//import {Readme as demo} from '../data/poc'
 
 console.log(darkTheme)
 
@@ -63,11 +63,14 @@ export default function Index({ }) {
               ]}*/
               style={{}}
               read_only={false}
-              data_storage={ {
-                interval: 10000,
-                save_handler: (context, content)=>{
-                  //console.log(context, content)
-                }}}
+              data_storage={ 
+                {
+                  interval: 10000,
+                  save_handler: (context, content)=>{
+                    //console.log(context, content)
+                  }
+                }
+              }
             />
           </div>
         </div>
