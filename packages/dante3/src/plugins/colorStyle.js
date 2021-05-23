@@ -1,4 +1,4 @@
-import { Command, Extension } from "@tiptap/core";
+import { Extension } from "@tiptap/core";
 import "@tiptap/extension-text-style";
 
 export const Color = Extension.create({

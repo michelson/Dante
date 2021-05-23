@@ -1,5 +1,5 @@
 import Dante from './editor'
-import DemoEditor from './DanteEditor'
+//import DemoEditor from './DanteEditor'
 //import DanteEditor from './core/editor'
 
 import {darkTheme, defaultTheme} from './styled/themes'
@@ -8,30 +8,30 @@ import Icons from './icons'
 
 import Styled from './styled'
 
-import ImageBlock, {ImageBlockConfig} from './blocks/image.js' 
+import ImageBlock, {ImageBlockConfig} from './blocks/image' 
 
-import EmbedBlock, {EmbedBlockConfig} from './blocks/embed.js'  
+import EmbedBlock, {EmbedBlockConfig} from './blocks/embed'  
 
-import VideoBlock, {VideoBlockConfig} from './blocks/video.js'  
+import VideoBlock, {VideoBlockConfig} from './blocks/video'  
 
-import PlaceholderBlock, {PlaceholderBlockConfig} from './blocks/placeholder.js' 
+import PlaceholderBlock, {PlaceholderBlockConfig} from './blocks/placeholder' 
 
 import VideoRecorderBlock, {VideoRecorderBlockConfig} from './blocks/videoRecorder'
 import MediaRecorder from './blocks/videoRecorder/MediaRecorder'
 
-//import ButtonBlock, {ButtonBlockConfig} from './blocks/button.js'
+//import ButtonBlock, {ButtonBlockConfig} from './blocks/button'
 //export { ButtonBlock, ButtonBlockConfig} 
 
-// import CardBlock, {CardBlockConfig} from './blocks/card.js'
-import DividerBlock, {DividerBlockConfig} from './blocks/divider.js' 
+// import CardBlock, {CardBlockConfig} from './blocks/card'
+import DividerBlock, {DividerBlockConfig} from './blocks/divider' 
 
-import CodeBlock, {CodeBlockConfig} from './blocks/code.js' 
+import CodeBlock, {CodeBlockConfig} from './blocks/code' 
 
-//import {DanteImagePopoverConfig} from './popovers/image.js' 
+//import {DanteImagePopoverConfig} from './popovers/image' 
 
-//import {DanteAnchorPopoverConfig} from './popovers/link.js' 
-//import {DanteInlineTooltipConfig} from './popovers/addButton.js' 
-//import {DanteTooltipConfig} from './popovers/toolTip.js'
+//import {DanteAnchorPopoverConfig} from './popovers/link' 
+//import {DanteInlineTooltipConfig} from './popovers/addButton' 
+//import {DanteTooltipConfig} from './popovers/toolTip'
 
 import GiphyBlock, { GiphyBlockConfig } from "./blocks/giphy/giphyBlock"
 
@@ -53,7 +53,7 @@ export { SpeechToTextBlock, SpeechToTextBlockConfig}
 
 export { CodeBlock, CodeBlockConfig}
 //export {DanteImagePopoverConfig}
-//export {DanteAnchorPopoverConfig} //'./popovers/addButton.js'
+//export {DanteAnchorPopoverConfig} //'./popovers/addButton'
 //export {DanteInlineTooltipConfig}
 //export {DanteTooltipConfig}
 
@@ -73,5 +73,5 @@ const defaultPlugins = [
 export {defaultPlugins}
 
 //export { CardBlock, CardBlockConfig} 
-export {DemoEditor}
+//export {DemoEditor}
 export default Dante

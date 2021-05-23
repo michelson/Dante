@@ -3,8 +3,18 @@
   "description": "a tiptap prosemirror dante wysiwyg",
   "author": "Miguel Michelson",
   "license": "MIT",
-  "version": "3.0.0.beta",
+  "version": "1.0.0",
   "private": true,
+  "main": "package/Dante.cjs.js",
+  "jsnext:main": "package/es/components/Dante/index.js",
+  "module": "package/Dante.es.js",
+  "browser": "package/umd/Dante.js",
+  "files": [
+    "package/umd",
+    "package/lib",
+    "package/dist",
+    "package/es"
+  ],
   "dependencies": {
     "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.4.0",
@@ -75,17 +85,24 @@
   },
   "devDependencies": {
     "@headlessui/react": "^1.2.0",
+    "@open-wc/building-rollup": "^1.10.0",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@types/node": "^15.6.0",
     "@types/react": "^17.0.6",
     "cypress": "^7.3.0",
+    "deepmerge": "^4.2.2",
     "prettier": "2.3.0",
-    "rollup": "^0.64.1",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.48.0",
     "rollup-plugin-babel": "^4.0.0-beta.8",
     "rollup-plugin-commonjs": "^9.1.5",
     "rollup-plugin-multi-entry": "^2.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^1.6.2",
     "rollup-plugin-resolve": "^0.0.1-predev.1",
+    "rollup-plugin-typescript2": "^0.30.0",
     "typescript": "^4.2.4"
   }
 }

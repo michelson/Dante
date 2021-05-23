@@ -1,19 +1,6 @@
-import { Editor, Extension, isNodeEmpty } from "@tiptap/core";
-import { Node as ProsemirrorNode } from "prosemirror-model";
+import { Extension, isNodeEmpty } from "@tiptap/core";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
-
-/*
-export interface PlaceholderOptions {
-  emptyEditorClass: string,
-  emptyNodeClass: string,
-  placeholder: ((PlaceholderProps: {
-    editor: Editor,
-    node: ProsemirrorNode,
-  }) => string) | string,
-  showOnlyWhenEditable: boolean,
-  showOnlyCurrent: boolean,
-}*/
 
 export const Placeholder = Extension.create({
   name: "placeholder",

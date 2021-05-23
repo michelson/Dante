@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 //import { getNodeType } from "@tiptap/core";
 import {
   useEditor,
