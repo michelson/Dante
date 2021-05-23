@@ -2,8 +2,6 @@ import Dante from './editor'
 //import DemoEditor from './DanteEditor'
 //import DanteEditor from './core/editor'
 
-import {darkTheme, defaultTheme} from './styled/themes'
-
 import Icons from './icons'
 
 import Styled from './styled'
@@ -39,7 +37,8 @@ import SpeechToTextBlock, {SpeechToTextBlockConfig} from './blocks/speechToText'
 
 
 //export {DanteEditor}
-export {darkTheme, defaultTheme}
+export {darkTheme, defaultTheme} from './styled/themes'
+//export {darkTheme, defaultTheme}
 export {Icons}
 export {Styled}
 export { ImageBlock, ImageBlockConfig}
