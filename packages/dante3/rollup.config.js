@@ -1,7 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
 import babel from 'rollup-plugin-babel';
-import pkg from './package.json';
 import postcss from 'rollup-plugin-postcss'
-
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';

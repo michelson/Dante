@@ -1,3 +1,4 @@
+import React from 'react'
 import { AnchorStyle } from "../styled/menu";
 import ImagePopover from "./image";
 import { BubbleMenu } from "./bubble-menu/bubble-menu-react";

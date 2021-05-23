@@ -184,7 +184,7 @@ export default class SpeechToTextBlock extends React.Component {
 
 export const SpeechToTextBlockConfig = (options={})=>{
   let config = {
-    icon: icon,
+    icon: speech,
     name: "SpeechToText",
     tag: "speech-to-text",
     component: SpeechToTextBlock,
