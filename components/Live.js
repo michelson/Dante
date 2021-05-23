@@ -83,7 +83,7 @@ export default function Live({children, className, live, render}) {
           }}
         >
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-gray-200 border-2 rounded-md shadow-md">
+          <div className="grid grid-cols-1 sm:grid-rows-2 gap-0 border-gray-200 border-2 rounded-md shadow-md">
 
             <div className=" p-8 shadow-lg">
               <LivePreview />
@@ -94,7 +94,7 @@ export default function Live({children, className, live, render}) {
                 color: 'rgb(154, 134, 253)',
                 padding: '20px'
               }}
-              className="p-8 shadow-lg text-xl">
+              className="p-8 shadow-lg text-sm">
               <LiveEditor />
             </div>
           </div>

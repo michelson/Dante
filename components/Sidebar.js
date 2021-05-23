@@ -12,8 +12,8 @@ export default function Index({ posts }) {
             <li 
               key={post.filePath}>
               <Link
-                as={`/posts/${post.filePath.replace(/\.mdx?$/, '')}`}
-                href={`/posts/[slug]`}
+                as={`/v2/posts/${post.filePath.replace(/\.mdx?$/, '')}`}
+                href={`/v2/posts/[slug]`}
               >
                 <a className="px-3 py-2 transition-colors duration-200 relative block hover:text-gray-900 text-gray-500">
                   {post.data.title}

@@ -8,9 +8,11 @@ import Link from 'next/link'
 import path from 'path'
 import CustomLink from '../../components/CustomLink'
 import Layout from '../../components/Layout'
-import Live from '../../components/Live'
-import { postFilePaths, POSTS_PATH } from '../../utils/mdxUtils'
+//import Live from '../../components/Live'
+import { postFilePaths2 as postFilePaths , POSTS_PATH2 as POSTS_PATH  } from '../../utils/mdxUtils'
 import Sidebar from '../../components/Sidebar'
+import {version} from '../../packages/dante3/package.json'
+
 //import Dante2 from 'Dante2'
 const components = {
   a: CustomLink,
@@ -20,7 +22,7 @@ const components = {
   Dante: dynamic(() => import('Dante2'), {
     ssr: false,
   }),
-  code: dynamic(() => import('../../components/Live')),
+  code: dynamic(() => import('../../components/LiveDante3')),
   TestComponent: dynamic(() => import('../../components/TestComponent')),
   Head,
 }
@@ -28,7 +30,7 @@ const components = {
 export default function PostPage({ source, frontMatter, posts }) {
   const content = hydrate(source, { components })
   return (
-    <Layout>
+    <Layout version={version}>
     
       <div className="flex">
       
@@ -36,7 +38,6 @@ export default function PostPage({ source, frontMatter, posts }) {
 
         <div className="min-w-0 w-full flex-auto lg:static lg:max-h-full lg:overflow-visible">
           
-
           <main className="p-10 bg-gray-200">
 
             <div className="bg-white p-4 lg:p-10  shadow-md">

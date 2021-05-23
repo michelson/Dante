@@ -1,0 +1,116 @@
+---
+title: Tooltips
+menu: Tooltips
+order: 1
+---
+
+# Tooltips
+
+Tooltips are another kind of components that will be not rendered in your editor content but will interact with it, and will be rendered **over it**, like the tooltips you see when you hover links, or select words to toggle BOLD or ITALIC. The tooltips option is an array.
+
+Dante editor cames with default tooltips :
+
++ DanteTooltip
++ DanteInlineTooltip
++ DanteAnchorPopover
++ DanteImagePopover
+
+## Anatomy of a tooltip:
+
+There are main options to have in mind when you implement a tooltip.
++ displayOnSelection: This will instruct the tooltip to be displayed on text selection
++ selectionElements: and array of element on which the displayOnSelection will operate.
++ widget_options: This is a customizable object options that will be passed through the tooltip itself.
+
+> note that a tooltip is a React component, so it's important to pass the component class to this configuration.
+
+
+## DanteTooltip
+
+This is the text style tooltip it is displayed when the text is selected. You can customize on which selected elements will this emerge. How the actions tools are ordered and how will interact with other tools
+
+The default options for dante tooltip are: 
+
+
+
+## without tooltips
+
+```js live=true
+  <Dante content={null} tooltips={[]} />
+```
+
+## Inline tooltip aka Add Button, aka side button
+
+```js live=true
+  <Dante content={null} tooltips={[DanteInlineTooltipConfig({widget_options: {aa: "oo"}  })]} />
+```
+
+## Default options
+
+```js live=true
+  <Dante content={null} tooltips={[DanteTooltipConfig()]} />
+```
+
+## Only on paragraphs
+
+```js live=true
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig({
+    selectionElements: ['unstyled']
+  })]} />
+```
+
+
+## Widget options
+
+```js live=true
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig( {
+    widget_options: {
+      block_types: [
+        { label: 'bold', style: 'BOLD', type: "inline", icon: Icons.bold },
+        { label: 'italic', style: 'ITALIC', type: "inline", icon: Icons.italic }
+      ]
+    }
+  } )]} />
+```
+
+## Lists
+
+```js live=true
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig( {
+    widget_options: {
+      block_types: [
+        { label: 'insertunorderedlist', style: 'unordered-list-item', type: "block", icon: Icons.insertunorderedlist },
+        { label: 'insertorderedlist', style: 'ordered-list-item', type: "block", icon: Icons.insertorderedlist }
+      ]
+    }
+  } )]} />
+```
+
+## Link
+
+```js live=true
+  <Dante content={null} 
+  tooltips={[DanteTooltipConfig( {
+
+    widget_options: {
+      block_types: [
+        { type: "link", placeholder: "Where's this Dinah-Moe Comin' from" },
+      ]
+    }
+
+  } )]} />
+```
+
+# Add button
+
+```js live=true
+  <Dante content={null} 
+   tooltips={[DanteInlineTooltipConfig()]} 
+   widgets={[CustomWidgetconfig()]}
+  />
+```
+
+
