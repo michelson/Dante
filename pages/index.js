@@ -1,7 +1,7 @@
 import Layout from '../components/Layout'
-import {Component, useState} from 'react'
+import {Component, useEffect, useState} from 'react'
 
-import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3'
+import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3/src' //'../packages/dante3'
 import jsonContent from "../packages/dante3/src/data/content";
 //import {Readme as demo} from '../data/poc'
 
@@ -22,6 +22,10 @@ export default function Index({ }) {
     setMode(m)
   }
 
+  useEffect(()=>{
+    setTheme(mode === 'light' ? defaultTheme : darkTheme)
+  }, [mode])
+
   console.log(version)
 
   return (
@@ -37,15 +41,14 @@ export default function Index({ }) {
         <div>
           <div className={`w-3/4 p-10 mx-auto shadow-md- bg-gray-50- dark:bg-black light`}>
 
-            <button
+            {/*<button
               className="inline-flex items-center px-6 py-3 border 
               border-transparent text-base font-medium rounded-md shadow-sm
                 text-white bg-indigo-600 hover:bg-indigo-700 
                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               onClick={(e)=> onClick( mode === 'dark' ? 'light' : 'dark'  ) }>
               {mode === 'dark' ? 'light mode' : 'dark mode'}
-            </button>
-    
+            </button>*/}
 
             <Dante 
               widgets={defaultPlugins}

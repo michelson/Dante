@@ -1,8 +1,13 @@
 import Menu from './Menu'
-export default function Layout({ children, mode, version, basePath }) {
+export default function Layout({ children, mode, version, basePath, setMode }) {
   return (
     <div className={ `h-screen min-h-full ${mode == "light" ? '' : 'dark'}`}>
-      <Menu mode={mode} version={version} basePath={basePath}/>
+      <Menu 
+        mode={mode} 
+        version={version} 
+        basePath={basePath}
+        setMode={()=> setMode(mode == "light" ? 'dark' : 'light')}
+      />
       <div className="bg-white dark:bg-black min-h-screen h-auto">
         {children}
       </div>

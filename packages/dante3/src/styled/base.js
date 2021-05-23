@@ -425,7 +425,7 @@ const EditorContainer = styled.div`
     display: inline-block;
     margin-left: 0.6em;
     position: relative;
-    color: #757575;
+    color: ${({theme})=> theme.dante_text_color};
     top: -3px;
   }
 

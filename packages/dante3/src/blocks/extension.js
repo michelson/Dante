@@ -10,6 +10,7 @@ export function extensionFactory(options) {
     draggable: true,
     atom: options.atom || false,
     defaultOptions: options.options || {},
+    priority: options.priority || 1,
     onBeforeCreate({ editor }) {
       // Before the view is created.
       options.onBeforeCreate && options.onBeforeCreate(editor);

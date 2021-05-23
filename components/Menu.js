@@ -1,7 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import Selector from './Selector'
+import Switch from './Switch'
 
-export default function Menu ({mode, version, basePath}) {
+export default function Menu ({mode, version, basePath, setMode}) {
 
 	const path = basePath ? basePath : '/'
 	return (
@@ -56,14 +58,20 @@ export default function Menu ({mode, version, basePath}) {
 									license
 								</a>
 							</Link>
+
 						</div>
 					</div>
 
 					<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 
 						<div className="ml-3 relative dark:text-gray-200">
-							<div>
-								<button type="button" className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" id="user-menu" aria-expanded="false" aria-haspopup="true">
+							<div className="flex flex-row-reverse items-center space-x-3">
+								<button type="button" 
+									className="ml-10 bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" 
+									id="user-menu" 
+									aria-expanded="false" 
+									aria-haspopup="true">
+									
 									<span className="sr-only">Open user menu</span>
 									<Image
 										className="block lg:hidden h-8 w-auto"
@@ -74,13 +82,16 @@ export default function Menu ({mode, version, basePath}) {
 										className="hidden lg:block h-8 w-auto dark:bg-black"
 									/>
 								</button>
+							
+								<Selector/>
+								<div className="flex items-center">
+									<Switch mode={mode} setMode={setMode}/>
+								</div>
+
 							</div>
 						</div>
-
 					</div>
-
 				</div>
-
 			</div>
 		</nav>
 	);

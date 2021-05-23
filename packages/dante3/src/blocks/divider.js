@@ -29,6 +29,15 @@ export const DividerBlockConfig = (options={})=>{
       insertion: "insertion",
       insert_block: "divider-block",
     },
+    priority: 1,
+    parseHTML: [
+      {
+        tag: 'divider-block',
+      },
+      {
+        tag: 'HR'
+      }
+    ]
   }
     
   return Object.assign(config, options)
