@@ -12,6 +12,7 @@ See the demo at: [dante-editor.dev](https://dante.vercel.com)
 The previous version (Dante2) was made on DraftJs, that's a facebook library to build WYSIWYG editor, I'd choose that technology because it implemented a very interesting data model and abstracted many parts of the heuristics implementation that [Dante1 (the previous version)](https://github.com/michelson/Dante/tree/master/packages/dante1-legacy) built as a naive implementation relying a lot on DOM manipulation, So Dante2 was great and is working on a ton of production websites. Sadly over the last years this library has not received much attention from maintainers. Among the ~700 unattended reported issues there are some that have become a deal breaker for me:
 
 + Bad mobile support.
++ ~1MB added to your bundle (inmuttablejs is heavy)
 + Not created for realtime collab.
 
 ## My bet, ProseMirror/TipTap
@@ -85,11 +86,15 @@ See [dante-editor.dev](https://dante.vercel.com)
 
 This repository now contains prior Dante versions, located in the [packages](https://github.com/michelson/Dante/tree/master/packages) folder. so Dante1*, Dante2 and Dante3 lives in the same repo. 
 
-* Dante1 is not maintained anymore.
+> \* Dante1 is not maintained anymore.
 
 ### Open source license
 
-MIT
+Dante is licensed under MIT, so you are free to do whatever you want. If you are using it commercially, become one of our wonderful sponsors to fund the maintenance, support and development of Dante now and in the future.
+
+#### 💓 Your sponsorship
+> Your sponsorship helps to maintain, update, support and develop all of our open source projects, including tiptap and many more.
+
 ### Acknowledgments
 
 Prosemirror library & Tiptap authors
