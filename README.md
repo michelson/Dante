@@ -1,6 +1,6 @@
-# Dante 3 - This is it!
+# Dante 3 - This is it! 🔥
 
-## Just another medium clone built on top of ProseMirror's / TipTap
+##  🖋️ Just another medium clone built on top of ProseMirror's / TipTap 
 
 > Dante3 is a ProseMirror port of [Dante2 (Draftjs) ](https://github.com/michelson/Dante/tree/master/packages/dante2). 
 This version is built on top of [TipTap's Prosemirror](https://www.tiptap.dev/) and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture.
@@ -21,8 +21,9 @@ After shopping many editors libraries, I mean after tried to implement Dante on 
 
 **Features:**
 
-+ Configurable and extensible extensions / plugins / components
++ Configurable and extensible extensions / plugins / components.
 + Undo/redo.
++ Real-Time collab support.
 + Save Content as a data JSON/HTML structure.
 + Load Content as a data JSON/HTML structure.
 + Styled components Theme support (built in light/dark themes).
@@ -80,7 +81,7 @@ See [dante-editor.dev](https://dante.vercel.com)
 
 ## Status
 
-> Dante3 is on beta, actively maintained, with all the features that Dante2 has. As is relying in Prosemirror/TipTap this has better browser support and mobile support. Also has realtime collab capabilities.
+> Dante3 is beta, actively maintained, with all the features that Dante2 has. As is relying in Prosemirror/TipTap this has better browser support and mobile support. Also has realtime collab capabilities.
 
 ## Monorepo
 
@@ -97,4 +98,5 @@ Dante is licensed under MIT, so you are free to do whatever you want. If you are
 
 ### Acknowledgments
 
-Prosemirror library & Tiptap authors
++ Prosemirror library & Tiptap authors
++ @cristianferrarig for their work on the css of Dante1 

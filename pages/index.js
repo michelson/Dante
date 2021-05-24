@@ -2,10 +2,9 @@ import Layout from '../components/Layout'
 import {Component, useEffect, useState} from 'react'
 
 import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3/src' //'../packages/dante3'
-import jsonContent from "../packages/dante3/src/data/content";
-//import {Readme as demo} from '../data/poc'
+import {contentDemo} from "../packages/dante3/src/data/content";
 
-import {version} from '../packages/dante3/package.json'
+import {version, name} from '../packages/dante3/package.json'
 
 export default function Index({ }) {
   const [theme, setTheme] = useState(defaultTheme)
@@ -23,11 +22,10 @@ export default function Index({ }) {
     setTheme(mode === 'light' ? defaultTheme : darkTheme)
   }, [mode])
 
-  console.log(version)
-
   return (
     <Layout 
       version={version}
+      name={name}
       theme={theme} 
       setTheme={setTheme} 
       mode={mode}
@@ -51,7 +49,7 @@ export default function Index({ }) {
               widgets={defaultPlugins}
               theme={theme}
               fixed={fixed}
-              content={jsonContent}
+              content={contentDemo}
               /*widgets={[
                 ImageBlockConfig(),
                 CodeBlockConfig(),
@@ -63,6 +61,12 @@ export default function Index({ }) {
               ]}*/
               style={{}}
               read_only={false}
+              onUpdate={
+                (editor)=>{
+                  console.log("content", editor.getJSON())
+                  //console.log("content", JSON.stringify(editor.getJSON()))
+                }
+              }
               data_storage={ 
                 {
                   interval: 10000,

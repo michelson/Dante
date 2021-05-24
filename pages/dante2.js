@@ -10,7 +10,7 @@ import {Component, useEffect, useState} from 'react'
 //import {Readme as demo} from '../data/poc'
 import {Readme as jsonContent} from '../data/poc'
 
-import {version} from '../packages/dante2/package.json'
+import {version, name} from '../packages/dante2/package.json'
 
 
 export default function Index({ }) {
@@ -29,7 +29,8 @@ export default function Index({ }) {
       theme={theme} 
       setTheme={setTheme} 
       mode={mode}
-      setMode={setMode}>
+      setMode={setMode}
+      name={name}>
       
       <div className={`sm:mx-10 mx-2 py-8 ${mode}`} 
         heme={theme}>

@@ -12,12 +12,12 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example({mode, version, basePath, setMode}) {
+export default function Example({name, mode, version, basePath, setMode}) {
 
 	const path = basePath ? basePath : '/'
 
 	const navigation = [
-		{ name: `Dante Editor v${version}`, href: `${path}`, current: true },
+		{ name: <span className="font-bold">{(name || 'Dante').toUpperCase()} <span className="text-xs font-mono font-light"> v{version}</span></span>, href: `${path}`, current: true },
 		{ name: 'Docs', href: `${path}posts/index`, current: false },
 		//{ name: 'License', href: `${path}license`, current: false },
 	]
