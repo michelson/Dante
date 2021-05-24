@@ -1,0 +1,45 @@
+---
+title: Dante Editor example
+---
+
+
+<article class="postArticle">
+  <div class="postContent">
+
+    <div class="notesSource">
+
+      <div class="debug postField postField--body smart-media-plugin">
+
+        <section class="section--first section--last"> 
+
+          <div class="section-divider layoutSingleColumn"> 
+            <hr class="section-divider"> 
+          </div> 
+
+          <div class="section-content"> 
+            <div class="section-inner layoutSingleColumn">
+
+              <%= partial "partials/existing_content" %>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</article>
+
+
+
+<script type="text/javascript">
+  article = new Dante.Article({ el: ".postField--body" })
+  article.start()
+</script>
+
+

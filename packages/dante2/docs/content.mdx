@@ -1,0 +1,35 @@
+---
+title: Content
+order: 9
+---
+
+# Initial Content & Read Only
+
+This example cames with a example content. The content must be in the Draft's editor state format. check out the poc.js file in Dante's repo
+
+
+> Note that this example has a button to toggle the readOnly prop on editor.
+
+----
+
+```js live=true
+<Toggle initial={false}>
+  {
+    ({ on, toggle }) => {
+      return <div>
+        <div className="py-4 flex items-center">
+          <button className="btn mr-3" onClick={toggle}>
+            toggle
+          </button>
+          <p>{on ? 'is read only!' : 'is editable!' }</p>
+        </div>
+
+        <Dante 
+          content={contentData.Lorem}
+          read_only={on}
+        />
+      </div>
+    }
+  }
+</Toggle>
+```

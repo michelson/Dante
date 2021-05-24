@@ -1,0 +1,53 @@
+---
+title: Basic options
+order: 10
+---
+
+# Editor
+
+## Installation
+
+`npm install --save Dante2@next`
+
+## Basic usage
+
+This is an empty editor. Will be initialized with default tooltips
+
+```js live=true
+  <Dante />
+```
+
+
+Is the same as
+
+```js live=true
+  <Dante content={null} />
+```
+
+## Body placeholder
+
+```js live=true
+  <Dante body_placeholder={"Do what you will" } 
+  />
+```
+
+
+## Read Only
+
+Read only will disable all interaction
+
+```js live=true
+  <Dante read_only={true} />
+```
+
+
+## onChange callback
+
+onChange func will return the entire instance of the editor, so you can use all it's methods. 
+
+### Save override example:
+
+```js live=true
+<Dante onChange={ (editor)=> console.log("editor content: ", editor.getHTML()) }/>
+```
+

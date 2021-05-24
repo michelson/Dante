@@ -1,0 +1,29 @@
+---
+title: Content Switch
+order: 8
+---
+
+
+## Content Switch
+
+This example demonstrate how Dante editor react to content prop change
+
+```js live=true
+<State initial={{ data1: contentData.h1, data2: contentData.Lorem, type: 'data1' }}>
+	{({ state, setState }) => (
+		<div>
+			<Dante 
+				content={state[state.type]}
+			/>
+			
+			<button className="btn" 
+				onClick={()=> setState({
+					type: state.type === 'data1' ? 'data2' : 'data1' 
+					}) 
+				}>
+				Toggle content
+			</button>
+		</div>
+	)}
+</State>
+```

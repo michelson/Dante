@@ -1,0 +1,16 @@
+0 silly argv {
+0 silly argv   _: [ 'add' ],
+0 silly argv   globs: [],
+0 silly argv   lernaVersion: '4.0.0',
+0 silly argv   '$0': '/usr/local/bin/lerna',
+0 silly argv   pkg: '@heroicons'
+0 silly argv }
+1 notice cli v4.0.0
+2 verbose rootPath /Users/michelson/Documents/node_apps/dante2
+3 info versioning independent
+4 error Error: Invalid tag name "@heroicons": Tags may not have any characters that encodeURIComponent encodes.
+4 error     at invalidTagName (/Users/michelson/Documents/node_apps/dante2/node_modules/npm-package-arg/npa.js:94:15)
+4 error     at fromRegistry (/Users/michelson/Documents/node_apps/dante2/node_modules/npm-package-arg/npa.js:299:13)
+4 error     at resolve (/Users/michelson/Documents/node_apps/dante2/node_modules/npm-package-arg/npa.js:84:12)
+4 error     at npa (/Users/michelson/Documents/node_apps/dante2/node_modules/npm-package-arg/npa.js:55:10)
+4 error     at AddCommand.initialize (/Users/michelson/Documents/node_apps/dante2/node_modules/@lerna/add/index.js:39:17)

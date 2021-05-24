@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.code {
+	padding: 2em;
+  background: #eee;
+  width: 100%;
+}
+
+.btn {
+  @apply w-full bg-indigo-600 px-4 py-2 border border-transparent rounded-md flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:w-auto sm:inline-flex;
+}
+
+.prose-lg pre {
+  padding: 0px !important;
+  margin: 0px !important; 
+}
+
+.prose-lg code {
+  @apply p-4 bg-black text-white;
+}
+
+.error-notice {
+  @apply bg-red-600 text-black font-bold p-4 !important ;
+}

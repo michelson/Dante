@@ -1,0 +1,32 @@
+<% content_for :js do %>
+  <%= javascript_include_tag  "specs/editor" %>
+<% end %>
+
+
+<div style="display:nonex">
+
+  <div id="editor1">
+    <% #= partial "partials/example_1" %>
+  </div>
+
+</div>
+
+<div style="display:nonex">
+
+  <div id="editor2">
+    <div class="class">this is a div</div>
+    <p>
+      Sanitize.js heavily inspired by the Ruby Sanitize library
+      <a href="http://github.com" class="a-nasty-class">a link<span>a nasty span</span></a>
+
+      It tries to port it as faithful as
+      possible.
+      <span>another span</span>
+    </p>
+    <span>another span</span>
+
+    <img src="https://artenlinea.s3.amazonaws.com/1/profile_settings/2/square_200/a24916f0e8a911e280b322000a1f9c82_7.jpg" class="existing-class">
+
+  </div>
+
+</div>

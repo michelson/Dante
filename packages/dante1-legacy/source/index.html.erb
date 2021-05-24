@@ -1,0 +1,26 @@
+---
+title: Dante Editor example
+---
+
+<div id="editor">
+  <%= partial "partials/readme" %>
+</div>
+
+<script type="text/javascript">
+  handler = function(data){
+    console.log("content saved");
+  }
+
+  editor = new Dante.Editor(
+    {
+      api_key: "86c28a410a104c8bb58848733c82f840",
+      el: "#editor",
+      upload_url: "/uploads/new.json",
+      store_url: "/api/save.json",
+      suggest_url: "api/suggest.json",
+      store_success_handler: handler,
+      debug: <%= build? ? false : true %>
+    }
+  )
+  editor.start()
+</script>
