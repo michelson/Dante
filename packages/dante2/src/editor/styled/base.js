@@ -106,7 +106,7 @@ const EditorContainer = styled.div`
     font-family: ${props => props.theme.dante_font_family_sans};
     font-size: 3.6em;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.04em;
     line-height: 1;
     margin-bottom: .4em;
@@ -607,6 +607,12 @@ export const InlinetooltipWrapper = styled.div`
     margin-left: ${props => math(`${props.theme.tooltip_size} + ${props.theme.tooltip_menu_spacing}`)};
     svg path{
       fill: ${props => props.theme.tooltip_color};
+    }
+
+
+    svg {
+      display: inline !important;
+      vertical-align: unset !important;
     }
   }
 

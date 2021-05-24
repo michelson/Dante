@@ -12,6 +12,11 @@ import Link from "@tiptap/extension-link";
 import TextStyle from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
+import OrderedList from '@tiptap/extension-ordered-list'
+import ListItem from '@tiptap/extension-list-item'
+
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 
 //import './styles.scss'
 import { ThemeProvider } from "@emotion/react";
@@ -31,12 +36,6 @@ import lowlight from "lowlight";
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
 
-
-// A new Y document
-//const ydoc = new Y.Doc()
-// Registered with a WebRTC provider
-//const provider = new WebrtcProvider('example-document', ydoc)
-
 export default function Editor({
 	widgets, 
 	theme, 
@@ -44,7 +43,8 @@ export default function Editor({
 	content,
   onUpdate,
   readOnly,
-  bodyPlaceholder
+  bodyPlaceholder,
+  extensions
 }) {
   function basePlugins() {
     return [
@@ -60,6 +60,18 @@ export default function Editor({
             class: "graf graf--p",
           },
         },
+        listItem: {
+          HTMLAttributes: {
+            class: "graf graf--li",
+          },
+        },
+
+        orderedList:{
+          HTMLAttributes: {
+            class: "graf graf--ol",
+          },
+        }
+
       }),
       //Image,
       Placeholder.configure({
@@ -85,14 +97,10 @@ export default function Editor({
           return ReactNodeViewRenderer(CodeBlock);
         },
       }).configure({ lowlight }),
-      /*Collaboration.configure({
-        document: ydoc,
-      }),
-      CollaborationCursor.configure({
-        provider: provider,
-        name: 'Cyndi Lauper',
-        color: '#f783ac',
-      }),*/
+      OrderedList,
+      ListItem,
+      TaskList,
+      TaskItem,
     ];
   }
 
@@ -106,10 +114,9 @@ export default function Editor({
   }
 
   function pluginsConfig() {
-    return basePlugins().concat(newPluginsConfig());
+    const newExtensions = extensions ? extensions : []
+    return basePlugins().concat([ ...newPluginsConfig(), ...newExtensions]);
   }
-
-  //console.log(JSON.parse(jsonContent))
 
   const editor = useEditor({
     extensions: pluginsConfig(),
@@ -154,7 +161,8 @@ export default function Editor({
                 <div style={{ position: "absolute", top: -15, left: -60 }}>
                   <AddButton
                     //ref={sideBarControls}
-                    //position={bounds}
+                    fixed={fixed}
+                    position={{}}
                     editor={editor}
                     display={true || "displaySidebar"}
                     widgets={optionalPlugins()}

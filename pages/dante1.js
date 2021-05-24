@@ -1,16 +1,18 @@
+
 import Dante, {
   darkTheme,
   defaultTheme,
-  ImageBlockConfig
 } from 'Dante2'
+
+console.log(darkTheme)
 
 import Layout from '../components/Layout'
 import {Component, useEffect, useState} from 'react'
+import {Readme as demo} from '../data/poc'
 
-//import {Readme as demo} from '../data/poc'
-import {Readme as jsonContent} from '../data/poc'
+console.log(darkTheme)
 
-import {version} from '../packages/dante2/package.json'
+import {version} from '../packages/dante3/package.json'
 
 
 export default function Index({ }) {
@@ -22,13 +24,15 @@ export default function Index({ }) {
     setTheme(mode === 'light' ? defaultTheme : darkTheme)
   }, [mode])
 
+  console.log(version)
+
   return (
     <Layout 
       version={version}
-      basePath={"/dante2/"}
       theme={theme} 
       setTheme={setTheme} 
       mode={mode}
+      basePath={"/dante2/"}
       setMode={setMode}>
       
       <div className={`sm:mx-10 mx-2 py-8 ${mode}`} 
@@ -47,7 +51,7 @@ export default function Index({ }) {
 
             <Dante 
               theme={theme}
-              content={jsonContent}
+              content={demo}
               /*widgets={[
                 ImageBlockConfig(),
                 CodeBlockConfig(),

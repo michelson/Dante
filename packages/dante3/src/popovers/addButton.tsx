@@ -3,14 +3,17 @@ import { add } from "../icons.js";
 import { InlinetooltipWrapper } from "../styled/base";
 
 const AddButton = React.forwardRef(
-  ({ display, position, widgets, editor, fixed }, ref) => {
+  (props: { display: any, position: any, widgets: any, editor: any, fixed: any }, ref: any) => {
+    
+    const {display, position, widgets, editor, fixed} = props
     const [scaled, setScaled] = React.useState(false);
     const [scaledWidth, setScaledWidth] = React.useState(fixed ? '100%' : '0px');
 
-    let fileInput = React.useRef();
+    let fileInput = React.useRef(null);
 
     React.useEffect(() => {
-      setScaledWidth(scaled ? 300 : 0);
+      const val = scaled ? '300px' : '0'
+      setScaledWidth(val);
     }, [scaled]);
 
     React.useEffect(() => {
@@ -162,11 +165,12 @@ const AddButton = React.forwardRef(
 
         <div
           className={`inlineTooltip-menu ${fixed ? 'inlineTooltip-menu-fixed' : '' }`}
-          style={{ width: `${fixed ? '-1' : scaledWidth}px` }}
+          style={{ width: `${fixed ? '-1' : scaledWidth}` }}
         >
           {getItems().map((item, i) => {
             return (
               <InlineTooltipItem
+                title={''}
                 item={item}
                 key={i}
                 clickHandler={clickHandler}
@@ -179,7 +183,7 @@ const AddButton = React.forwardRef(
             accept="image/*"
             style={{ display: "none" }}
             ref={fileInput}
-            multiple="multiple"
+            multiple={true}
             onChange={handleFileInput}
           />
         </div>

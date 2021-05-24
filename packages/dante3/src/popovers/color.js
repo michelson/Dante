@@ -17,7 +17,6 @@ export default class DanteTooltipColor extends React.Component {
   }
 
   componentDidMount() {
-    console.log("OPEN: ", this.state.open);
   }
 
   componentWillUmount() {
@@ -70,7 +69,6 @@ export default class DanteTooltipColor extends React.Component {
   };
 
   render() {
-    console.log(this.state.open);
     return (
       <li className="dante-menu-button">
         <span className={"dante-icon"} onMouseDown={this.toggle}>

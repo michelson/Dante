@@ -55,6 +55,40 @@ const EditorContainer = styled.div`
     //position:relative;
   }
 
+  li {
+    counter-reset: ol0;
+    margin-left: 1.5em;
+  }
+  li {
+      list-style-type: disc;
+  }
+
+  ul {
+      list-style-type: square;
+      position: relative;
+  }
+
+  li {
+    .graf--p {
+      margin: 0px;
+    }
+  }
+
+  ul[data-type="taskList"] {
+    list-style: none;
+    padding: 0;
+  
+    li {
+      display: flex;
+      align-items: center;
+  
+      > label {
+        flex: 0 0 auto;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
   .graf--code {
     position: relative;
     overflow: visible;
@@ -695,7 +729,6 @@ export const InlinetooltipWrapper = styled.div`
     }
 
   }
-
 
   // MENU
   .inlineTooltip-menu {

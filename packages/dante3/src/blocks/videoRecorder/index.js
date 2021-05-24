@@ -37,7 +37,6 @@ export default function VideoRecorderBlock(props) {
   const { countdown, start, reset, pause, isRunning } = useCountdownTimer({
     timer: props.extension.options.seconds_to_record,
     onExpire: () => {
-      console.log("expired!");
       mediaRecorder.current && mediaRecorder.current.stop();
     },
   });

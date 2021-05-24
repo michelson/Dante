@@ -48,7 +48,7 @@
     "build": "next build",
     "start": "next start",
     "deploy": "vercel --prod",
-    "dante_build": "lerna run build --scope Dante2  --stream",
+    "dante2_build": "lerna run build --scope Dante2  --stream",
     "dante3_build": "lerna run build --scope dante3  --stream"
   }
 }

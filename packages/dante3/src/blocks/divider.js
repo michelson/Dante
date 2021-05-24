@@ -37,7 +37,12 @@ export const DividerBlockConfig = (options={})=>{
       {
         tag: 'HR'
       }
-    ]
+    ],
+    addInputRules() {
+      return [ 
+        /^(?:---|—-|___\s|\*\*\*\s)$/ ,
+      ]
+    },
   }
     
   return Object.assign(config, options)

@@ -1,16 +1,17 @@
-import Dante, {
-  darkTheme,
-  defaultTheme,
-  ImageBlockConfig
-} from 'Dante2'
 
-import Layout from '../components/Layout'
-import {Component, useEffect, useState} from 'react'
 
+import Collaboration from '@tiptap/extension-collaboration'
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import * as Y from 'yjs'
+import { WebrtcProvider } from 'y-webrtc'
+import Layout from './Layout'
+import {useEffect, useState} from 'react'
+
+import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3/src' //'../packages/dante3'
+import jsonContent from "../packages/dante3/src/data/content";
 //import {Readme as demo} from '../data/poc'
-import {Readme as jsonContent} from '../data/poc'
 
-import {version} from '../packages/dante2/package.json'
+import {version} from '../packages/dante3/package.json'
 
 
 export default function Index({ }) {
@@ -22,10 +23,19 @@ export default function Index({ }) {
     setTheme(mode === 'light' ? defaultTheme : darkTheme)
   }, [mode])
 
+	const morePlugins = [
+		...defaultPlugins, 
+	]
+
+  let ydoc = new Y.Doc()
+  // Registered with a WebRTC provider
+  let provider = new WebrtcProvider('example-document', ydoc)
+
+  console.log(morePlugins)
+
   return (
     <Layout 
       version={version}
-      basePath={"/dante2/"}
       theme={theme} 
       setTheme={setTheme} 
       mode={mode}
@@ -46,8 +56,20 @@ export default function Index({ }) {
             </button>*/}
 
             <Dante 
+              widgets={morePlugins}
               theme={theme}
+              fixed={fixed}
               content={jsonContent}
+              extensions={[
+                Collaboration.configure({
+                  document: ydoc,
+                }),
+                CollaborationCursor.configure({
+                  provider: provider,
+                  name: 'Cyndi Lauper',
+                  color: '#f783ac',
+                })
+              ]}
               /*widgets={[
                 ImageBlockConfig(),
                 CodeBlockConfig(),

@@ -1,5 +1,8 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
+import {
+  nodeInputRule,
+} from '@tiptap/core'
 
 export function extensionFactory(options) {
   return Node.create({
@@ -43,14 +46,12 @@ export function extensionFactory(options) {
       // The editor is being destroyed.
       options.onDestroy && options.onDestroy();
     },
-
     addKeyboardShortcuts() {
       if (!options.keyboardShortcuts) return {};
       return (
         options.keyboardShortcuts && options.keyboardShortcuts(this.editor)
       );
     },
-
     addCommands() {
       return {
         [`insert${options.name}`]:
@@ -88,6 +89,14 @@ export function extensionFactory(options) {
     },
     addNodeView() {
       return ReactNodeViewRenderer(options.component);
+    },
+    addInputRules() {
+      if(!options.addInputRules) return []
+      return options.addInputRules().map(
+        (rule)=> { 
+          return nodeInputRule(rule, this.type) 
+        }
+      )
     },
   });
 }

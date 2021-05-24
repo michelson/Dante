@@ -1,49 +1,48 @@
-# Dante 2 - The rematch
+# Dante 3 - This is it!
 
-## just another medium clone built on top of DraftJs
+## just another medium clone built on top of ProseMirror (TipTap)
 
-> Dante 2 is a complete rewrite of [DanteEditor](https://michelson.github.io/Dante). This version is built on top of Facebook's Draft-Js and reaches all Dante's features with a shiny ultra mega super uber maintainable architecture.
+> Dante3 is a ProseMirror port of [Dante2 (Draftjs) ](https://michelson.github.io/Dante2). 
+This version is built on top of TipTap's Prosemirror and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture.
 
 See the demo at: [https://michelson.github.io/dante2/](https://michelson.github.io/dante2/)
 
 ## Why rewrite a new version of Dante?
 
-The previous version of Dante relies a lot on DOM manipulation which causes a mix of presentation and logic. Even with their modular plugin system this condition suppose an sphagetti model to work with on every feature. The biggest problem with this approach is: if you want to make a change that affects the presentation of your users content, let's say you might want to change the default markup for paragraphs, you'll probably end updating all your content in your database, because dealing with "DOM only" suppose that you are going to save html into database, right ?
+The previous version (Dante2) was made on DraftJs, that's a facebook library to build WYSIWYG editor, I'd choose that technology because it implemented a very interesting data model and abstracted many parts of the heuristics implementation that Dante1 (the previous version) built as a naive implementation relying a lot on DOM manipulation, So Dante2 was great and is working on a ton of production websites. Sadly over the last years this library has not received much attention from maintainers. Among the ~700 unattended reported issues there are some that have become a deal breaker for me:
 
++ bad mobile support
++ not built for realtime / collab
 
-## A redesign was needed!
+## My bet, ProseMirror/TipTap
 
-Draft-Js handles selection, ranges and markup blocks as a data layer contained in a structure known as editorState, with a clear separation on how rendering, styling and interaction works. So you save content data, not html. That's awesome because you can change the appearance of articles (styles & markup) without database changes.
+After shoping many editors libraries, I mean after tried to implement Dante on almost all of them **(Trix, Editorjs, Quilljs, Slate, Prosemirror)** I've choosen Prosemirror's TipTap library., I guess all editors libraries have their own flaws but after review it all TipTap is the best of it's class, very well designed/architectured, so that's it.
 
-In Draft every change provided from user input is stacked in this editorState building an history of changes, out of the box. This means that pasting, undo/redo and replace/insert blocks at certain selection points are basically calls to the DraftJs API that updates the editorState without DOM manipulation. Also, all the custom blocks are composed as React components!. So, this version have some dependencies which are included in source. DraftJs, React, Immutable. no Jquery.
+**Features:**
++ configurable and extensible extensions / plugins / components
++ undo/redo.
++ Save Content as a data JSON/HTML structure.
++ Load Content as a data JSON/HTML structure.
++ Styled components Theme support (built in light/dark themes).
 
-**New Features:**
-+ Improved undo/redo.
-+ Save Content as a data JSON structure.
-+ Load Content as a data JSON structure.
-+ Handle image blocks on Copy/Paste and Drop.
-+ Global storage lock to handle file uploads.
-+ Styled components Theme support.
+**Block based content**:
 
-**Features**:
+Dante blocks are customized (React) components to be used on the editor 
 
 + Image upload for paste html.
-+ Image upload for legacy images on existent texts.
-+ The medium (+) Tooltip to embed or upload media.
-+ Tab navigation.
-+ Pluggins are React components
++ Video.
++ Video Recorder
++ Embed
++ Divider
++ Speech
++ Giphy
 
-**Embeds**:
+## Status
 
-+ Image Uploader with preview and caption option with a lock system.
-+ Embed data for pasted link through OEmbed services.
-+ Embed media information for pasted links through OEmbed services.
-+ Add or remove tooltip buttons with ease with plugin system.
-+ Add custom blocks many with custom options
-
+> Dante3 is on beta , actively maintained, with all the features that Dante2. As is relying in Prosemirror/TipTap this has better browser support and mobile support. Also has realtime collab capabilities.
 ## Installation
 
-`npm install Dante2@next` or `yarn add Dante2@next`
+`npm install dante3` or `yarn add dante3`
 
 ## Usage
 
@@ -53,8 +52,7 @@ Since version 0.5.x there is only a component based way to use the editor. If yo
 Component Based
 ```javascript
 <DanteEditor
-  config={this.config}
-  content={this.demo}
+  content={'hello world'}
 />
 ```
 
@@ -62,40 +60,30 @@ Component Based
 
 Many configuration options and plugin usage can be found on the documentation page:
 
-See [https://michelson.github.io/dante2/doc.html](https://michelson.github.io/dante2)
+See [https://michelson.github.io/dante](https://michelson.github.io/dante)
 
 
 ## Development
 
 ### Installation
-+ `git clone https://github.com/michelson/dante2`
++ `git clone https://github.com/michelson/dante`
 
 **dependencies**
  
 + `npm install` or `yarn install`
  
-### Run Dante2
-
-+ `npm start` or `yarn start`
-
-Then open http://localhost:8080 
-
 ### Building
 
-+ `npm dante_build` or `yarn dante_build`
++ `npm dante3_build` or `yarn dante3_build`
 
-+ dev install:
-lerna bootstrap
+#### dev install:
+
++ lerna bootstrap
++ yarn dev
 
 ### Open source license
 
-If you are creating an open source application under a license compatible with the [GNU GPL license v3](https://www.gnu.org/licenses/gpl-3.0.html), you may use Dante2 under the terms of the GPLv3.[Read more about Dante2's license](https://michelson.github.io/dante2/#/license).
-
-
-### Alternatives
-
-If you are looking for alternatives you can always use the [MIT licensed Dante (1)](https://michelson.github.io/Dante) or choose along others [medium clones](http://howtox.com/medium-editor-clones-in-js) or check out [many many awesome draft-js based editors](https://github.com/nikgraf/awesome-draft-js)
-
+MIT
 ### Acknowledgments
 
-The code from `tools` is based on the build tools from [ReactBoostrap](https://github.com/react-bootstrap/react-bootstrap)
+Prosemirror library & Tiptap authors
