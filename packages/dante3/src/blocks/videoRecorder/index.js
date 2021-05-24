@@ -442,47 +442,13 @@ export const VideoRecorderBlockConfig  = (options={}) => {
     },
     options: {
       upload_formName: "file",
-      upload_handler: (file, props, { uploadCompleted }) => {
+      /*upload_handler: (file, props, { uploadCompleted }) => {
         console.log("UPLOADED video");
         const url =
           "https://video.twimg.com/ext_tw_video/1388976569348235264/pu/vid/960x720/mCVk3dF_nGTgIZLX.mp4?tag=12";
         uploadCompleted(url);
-      },
+      },*/
       seconds_to_record: 10000,
     },
   }
 }
-
-export const VideoRecorderBlockConfigDDDDDDDDDD = (options = {}) => {
-  let config = {
-    title: "record a video",
-    type: "recorded-video",
-    icon: icon,
-    block: VideoRecorderBlock,
-    editable: true,
-    renderable: true,
-    breakOnContinuous: true,
-    wrapper_class: "graf graf--video",
-    selected_class: "is-selected",
-    selectedFn: (block) => {},
-    /*handleEnterWithoutText(ctx, block) {
-      const { editorState } = ctx.state
-      return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-    },
-    handleEnterWithText(ctx, block) {
-      const { editorState } = ctx.state
-      return ctx.onChange(RichUtils.insertSoftNewline(editorState))
-      //return ctx.onChange(addNewBlockAt(editorState, block.getKey()))
-    },*/
-    widget_options: {
-      displayOnInlineTooltip: true,
-      insertion: "insertion",
-      insert_block: "image",
-    },
-    options: {
-      seconds_to_record: 10000,
-    },
-  };
-
-  return Object.assign(config, options);
-};

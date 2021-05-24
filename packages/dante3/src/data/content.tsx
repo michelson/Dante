@@ -97,12 +97,977 @@ export const jsonContentD = {
 
 export const jsonContent2 = {"type":"doc","content":[{"content":[{"text":"https://www.youtu","marks":[{"type":"link","attrs":{"href":"https://www.youtube.com ","target":"_blank"}}],"type":"text"},{"text":"be.","marks":[{"type":"textStyle","attrs":{"color":"#dd1010"}},{"type":"link","attrs":{"href":"https://www.youtube.com ","target":"_blank"}}],"type":"text"},{"text":"com ","marks":[{"type":"link","attrs":{"href":"https://www.youtube.com ","target":"_blank"}}],"type":"text"},{"text":" iho","type":"text"},{"text":"ij o","marks":[{"type":"bold"}],"type":"text"},{"text":"ij","type":"text"}],"type":"paragraph"}]}
 
-export const contentDemo = `
-<div class="ProseMirror" aria-expanded="false" contenteditable="true" tabindex="0"><h1 class="graf graf--h"><strong>Dante 3 - This is it!</strong></h1><h2 class="graf graf--h"><strong>Just another medium clone built on top of ProseMirror's / TipTap</strong></h2><blockquote><p class="graf graf--p">Dante3 is a ProseMirror port of&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" class="markup--anchor" href="https://github.com/michelson/Dante/tree/master/packages/dante2">Dante2 (Draftjs)&nbsp;</a>. This version is built on top of&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" class="markup--anchor" href="https://www.tiptap.dev/">TipTap's Prosemirror</a>&nbsp;and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture.</p></blockquote><p class="graf graf--p">See the demo at:&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" class="markup--anchor" href="https://dante.vercel.com/">dante-editor.dev</a></p><h2 class="graf graf--h"><strong>Why rewrite a new version of Dante?</strong></h2><p class="graf graf--p">The previous version (Dante2) was made on DraftJs, that's a facebook library to build WYSIWYG editor, I'd choose that technology because it implemented a very interesting data model and abstracted many parts of the heuristics implementation that&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" class="markup--anchor" href="https://github.com/michelson/Dante/tree/master/packages/dante1-legacy">Dante1 (the previous version)</a>&nbsp;built as a naive implementation relying a lot on DOM manipulation, So Dante2 was great and is working on a ton of production websites. Sadly over the last years this library has not received much attention from maintainers. Among the ~700 unattended reported issues there are some that have become a deal breaker for me:</p><ul><li class="graf graf--li"><p class="graf graf--p">Bad mobile support.</p></li><li class="graf graf--li"><p class="graf graf--p">~1MB added to your bundle (inmuttablejs is heavy)</p></li><li class="graf graf--li"><p class="graf graf--p">Not created for realtime collab.</p></li></ul><h2 class="graf graf--h"><strong>My bet, ProseMirror/TipTap</strong></h2><p class="graf graf--p">After shopping many editors libraries, I mean after tried to implement Dante on almost all of them&nbsp;<strong>(Trix, Editorjs, Quilljs, Slate, Prosemirror)</strong>&nbsp;I've choosen Prosemirror's TipTap library., I guess all editors libraries have their own flaws but after review it all TipTap is the best of it's class, very well designed/architectured, and I love the community around their ecosystem. So that's it.</p><p class="graf graf--p"><strong>Features:</strong></p><ul><li class="graf graf--li"><p class="graf graf--p">Configurable and extensible extensions / plugins / components</p></li><li class="graf graf--li"><p class="graf graf--p">Undo/redo.</p></li><li class="graf graf--li"><p class="graf graf--p">Save Content as a data JSON/HTML structure.</p></li><li class="graf graf--li"><p class="graf graf--p">Load Content as a data JSON/HTML structure.</p></li><li class="graf graf--li"><p class="graf graf--p">Styled components Theme support (built in light/dark themes).</p></li></ul><p class="graf graf--p"><strong>Block based content</strong>:</p><p class="graf graf--p">Dante editor can be extended with (React) components to, currently there are default components to be used as is:</p><ul><li class="graf graf--li"><p class="graf graf--p">Image upload for paste html.</p></li><li class="graf graf--li"><p class="graf graf--p">Video embed.</p></li><li class="graf graf--li"><p class="graf graf--p">Video Recorder.</p></li><li class="graf graf--li"><p class="graf graf--p">Embed.</p></li><li class="graf graf--li"><p class="graf graf--p">Divider.</p></li><li class="graf graf--li"><p class="graf graf--p">Speech.</p></li><li class="graf graf--li"><p class="graf graf--p">Giphy.</p></li></ul><h2 class="graf graf--h"><strong>Installation</strong></h2><p class="graf graf--p"><code>npm install dante3</code>&nbsp;or&nbsp;<code>yarn add dante3</code></p><h2 class="graf graf--h"><strong>Usage</strong></h2><p class="graf graf--p">Component Based</p><div class="react-renderer"><div class="css-1cdn40r" data-node-view-wrapper="" style="white-space: normal;"><div class="content"><select contenteditable="false"><option value="null">auto</option><option disabled="">—</option><option value="1c">1c</option><option value="abnf">abnf</option><option value="accesslog">accesslog</option><option value="actionscript">actionscript</option><option value="ada">ada</option><option value="angelscript">angelscript</option><option value="apache">apache</option><option value="applescript">applescript</option><option value="arcade">arcade</option><option value="arduino">arduino</option><option value="armasm">armasm</option><option value="xml">xml</option><option value="asciidoc">asciidoc</option><option value="aspectj">aspectj</option><option value="autohotkey">autohotkey</option><option value="autoit">autoit</option><option value="avrasm">avrasm</option><option value="awk">awk</option><option value="axapta">axapta</option><option value="bash">bash</option><option value="basic">basic</option><option value="bnf">bnf</option><option value="brainfuck">brainfuck</option><option value="c-like">c-like</option><option value="c">c</option><option value="cal">cal</option><option value="capnproto">capnproto</option><option value="ceylon">ceylon</option><option value="clean">clean</option><option value="clojure">clojure</option><option value="clojure-repl">clojure-repl</option><option value="cmake">cmake</option><option value="coffeescript">coffeescript</option><option value="coq">coq</option><option value="cos">cos</option><option value="cpp">cpp</option><option value="crmsh">crmsh</option><option value="crystal">crystal</option><option value="csharp">csharp</option><option value="csp">csp</option><option value="css">css</option><option value="d">d</option><option value="markdown">markdown</option><option value="dart">dart</option><option value="delphi">delphi</option><option value="diff">diff</option><option value="django">django</option><option value="dns">dns</option><option value="dockerfile">dockerfile</option><option value="dos">dos</option><option value="dsconfig">dsconfig</option><option value="dts">dts</option><option value="dust">dust</option><option value="ebnf">ebnf</option><option value="elixir">elixir</option><option value="elm">elm</option><option value="ruby">ruby</option><option value="erb">erb</option><option value="erlang-repl">erlang-repl</option><option value="erlang">erlang</option><option value="excel">excel</option><option value="fix">fix</option><option value="flix">flix</option><option value="fortran">fortran</option><option value="fsharp">fsharp</option><option value="gams">gams</option><option value="gauss">gauss</option><option value="gcode">gcode</option><option value="gherkin">gherkin</option><option value="glsl">glsl</option><option value="gml">gml</option><option value="go">go</option><option value="golo">golo</option><option value="gradle">gradle</option><option value="groovy">groovy</option><option value="haml">haml</option><option value="handlebars">handlebars</option><option value="haskell">haskell</option><option value="haxe">haxe</option><option value="hsp">hsp</option><option value="htmlbars">htmlbars</option><option value="http">http</option><option value="hy">hy</option><option value="inform7">inform7</option><option value="ini">ini</option><option value="irpf90">irpf90</option><option value="isbl">isbl</option><option value="java">java</option><option value="javascript">javascript</option><option value="jboss-cli">jboss-cli</option><option value="json">json</option><option value="julia">julia</option><option value="julia-repl">julia-repl</option><option value="kotlin">kotlin</option><option value="lasso">lasso</option><option value="latex">latex</option><option value="ldif">ldif</option><option value="leaf">leaf</option><option value="less">less</option><option value="lisp">lisp</option><option value="livecodeserver">livecodeserver</option><option value="livescript">livescript</option><option value="llvm">llvm</option><option value="lsl">lsl</option><option value="lua">lua</option><option value="makefile">makefile</option><option value="mathematica">mathematica</option><option value="matlab">matlab</option><option value="maxima">maxima</option><option value="mel">mel</option><option value="mercury">mercury</option><option value="mipsasm">mipsasm</option><option value="mizar">mizar</option><option value="perl">perl</option><option value="mojolicious">mojolicious</option><option value="monkey">monkey</option><option value="moonscript">moonscript</option><option value="n1ql">n1ql</option><option value="nginx">nginx</option><option value="nim">nim</option><option value="nix">nix</option><option value="node-repl">node-repl</option><option value="nsis">nsis</option><option value="objectivec">objectivec</option><option value="ocaml">ocaml</option><option value="openscad">openscad</option><option value="oxygene">oxygene</option><option value="parser3">parser3</option><option value="pf">pf</option><option value="pgsql">pgsql</option><option value="php">php</option><option value="php-template">php-template</option><option value="plaintext">plaintext</option><option value="pony">pony</option><option value="powershell">powershell</option><option value="processing">processing</option><option value="profile">profile</option><option value="prolog">prolog</option><option value="properties">properties</option><option value="protobuf">protobuf</option><option value="puppet">puppet</option><option value="purebasic">purebasic</option><option value="python">python</option><option value="python-repl">python-repl</option><option value="q">q</option><option value="qml">qml</option><option value="r">r</option><option value="reasonml">reasonml</option><option value="rib">rib</option><option value="roboconf">roboconf</option><option value="routeros">routeros</option><option value="rsl">rsl</option><option value="ruleslanguage">ruleslanguage</option><option value="rust">rust</option><option value="sas">sas</option><option value="scala">scala</option><option value="scheme">scheme</option><option value="scilab">scilab</option><option value="scss">scss</option><option value="shell">shell</option><option value="smali">smali</option><option value="smalltalk">smalltalk</option><option value="sml">sml</option><option value="sqf">sqf</option><option value="sql_more">sql_more</option><option value="sql">sql</option><option value="stan">stan</option><option value="stata">stata</option><option value="step21">step21</option><option value="stylus">stylus</option><option value="subunit">subunit</option><option value="swift">swift</option><option value="taggerscript">taggerscript</option><option value="yaml">yaml</option><option value="tap">tap</option><option value="tcl">tcl</option><option value="thrift">thrift</option><option value="tp">tp</option><option value="twig">twig</option><option value="typescript">typescript</option><option value="vala">vala</option><option value="vbnet">vbnet</option><option value="vbscript">vbscript</option><option value="vbscript-html">vbscript-html</option><option value="verilog">verilog</option><option value="vhdl">vhdl</option><option value="vim">vim</option><option value="x86asm">x86asm</option><option value="xl">xl</option><option value="xquery">xquery</option><option value="zephir">zephir</option></select><pre as="pre" class="hljs" data-node-view-content="" style="white-space: pre-wrap;"><div style="white-space: inherit;">&lt;DanteEditor
-  <span class="hljs-attr">content</span>={<span class="hljs-string">'hello world'</span>}
-/&gt;</div></pre></div></div></div><h3 class="graf graf--h"><strong>Options:</strong></h3><p class="graf graf--p">Many configuration options and plugin usage can be found on the documentation page:</p><p class="graf graf--p">See&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" class="markup--anchor" href="https://dante.vercel.com/">dante-editor.dev</a></p><h2 class="graf graf--h"><strong>Development</strong></h2><h3 class="graf graf--h"><strong>Installation</strong></h3><ul><li class="graf graf--li"><p class="graf graf--p"><code>git clone https://github.com/michelson/dante</code></p></li></ul><p class="graf graf--p"><strong>dependencies</strong></p><ul class=""><li class="graf graf--li"><p class="graf graf--p"><code>npm install</code>&nbsp;or&nbsp;<code>yarn install</code></p></li></ul><h3 class="graf graf--h"><strong>Building</strong></h3><ul><li class="graf graf--li"><p class="graf graf--p"><code>npm dante3_build</code>&nbsp;or&nbsp;<code>yarn dante3_build</code></p></li></ul><h3 class="graf graf--h"><strong>dev install:</strong></h3><ul class=""><li class="graf graf--li"><p class="graf graf--p">lerna bootstrap</p></li><li class="graf graf--li"><p class="graf graf--p">yarn dev</p></li></ul><h2 class="graf graf--h"><strong>Status</strong></h2><blockquote><p class="graf graf--p">Dante3 is on beta, actively maintained, with all the features that Dante2 has. As is relying in Prosemirror/TipTap this has better browser support and mobile support. Also has realtime collab capabilities.</p></blockquote><h2 class="graf graf--h"><strong>Monorepo</strong></h2><p class="graf graf--p">This repository now contains prior Dante versions, located in the&nbsp;<a target="_blank" rel="noopener noreferrer nofollow" class="markup--anchor" href="https://github.com/michelson/Dante/tree/master/packages">packages</a>&nbsp;folder. so Dante1*, Dante2 and Dante3 lives in the same repo.</p><blockquote class=""><p class="graf graf--p">* Dante(1) is not maintained anymore.</p></blockquote><h3 class="graf graf--h"><strong>Open source license</strong></h3><p class="graf graf--p">Dante is licensed under MIT, so you are free to do whatever you want. If you are using it commercially, become one of our wonderful sponsors to fund the maintenance, support and development of Dante now and in the future.</p><h3 class="graf graf--h"><strong>💓&nbsp;Your sponsorship</strong></h3><blockquote class=""><p class="graf graf--p">Your sponsorship helps to maintain, update, support and develop all of our open source projects, including tiptap and many more.</p></blockquote><h3 class="graf graf--h"><strong>Acknowledgments</strong></h3><p class="graf graf--p">Prosemirror library &amp; Tiptap authors</p></div>
-
-`
+export const contentDemo = {
+	"type": "doc",
+	"content": [
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 1
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Dante 3 - This is it!"
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Just another medium clone built on top of ProseMirror's / TipTap"
+							}
+					]
+			},
+			{
+					"type": "blockquote",
+					"content": [
+							{
+									"type": "paragraph",
+									"content": [
+											{
+													"type": "text",
+													"text": "Dante3 is a ProseMirror port of "
+											},
+											{
+													"type": "text",
+													"marks": [
+															{
+																	"type": "link",
+																	"attrs": {
+																			"href": "https://github.com/michelson/Dante/tree/master/packages/dante2",
+																			"target": "_blank"
+																	}
+															}
+													],
+													"text": "Dante2 (Draftjs) "
+											},
+											{
+													"type": "text",
+													"text": ". This version is built on top of "
+											},
+											{
+													"type": "text",
+													"marks": [
+															{
+																	"type": "link",
+																	"attrs": {
+																			"href": "https://www.tiptap.dev/",
+																			"target": "_blank"
+																	}
+															}
+													],
+													"text": "TipTap's Prosemirror"
+											},
+											{
+													"type": "text",
+													"text": " and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture."
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "See the demo at: "
+							},
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "link",
+													"attrs": {
+															"href": "https://dante.vercel.com/",
+															"target": "_blank"
+													}
+											}
+									],
+									"text": "dante-editor.dev"
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Why rewrite a new version of Dante?"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "The previous version (Dante2) was made on DraftJs, that's a facebook library to build WYSIWYG editor, I'd choose that technology because it implemented a very interesting data model and abstracted many parts of the heuristics implementation that "
+							},
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "link",
+													"attrs": {
+															"href": "https://github.com/michelson/Dante/tree/master/packages/dante1-legacy",
+															"target": "_blank"
+													}
+											}
+									],
+									"text": "Dante1 (the previous version)"
+							},
+							{
+									"type": "text",
+									"text": " built as a naive implementation relying a lot on DOM manipulation, So Dante2 was great and is working on a ton of production websites. Sadly over the last years this library has not received much attention from maintainers. Among the ~700 unattended reported issues there are some that have become a deal breaker for me:"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Bad mobile support."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "~1MB added to your bundle (inmuttablejs is heavy)"
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Not created for realtime collab."
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "My bet, ProseMirror/TipTap"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "After shopping many editors libraries, I mean after tried to implement Dante on almost all of them "
+							},
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "(Trix, Editorjs, Quilljs, Slate, Prosemirror)"
+							},
+							{
+									"type": "text",
+									"text": " I've choosen Prosemirror's TipTap library., I guess all editors libraries have their own flaws but after review it all TipTap is the best of it's class, very well designed/architectured, and I love the community around their ecosystem. So that's it."
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Features:"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Configurable and extensible extensions / plugins / components"
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Undo/redo."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Save Content as a data JSON/HTML structure."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Load Content as a data JSON/HTML structure."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Styled components Theme support (built in light/dark themes)."
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Block based content"
+							},
+							{
+									"type": "text",
+									"text": ":"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "Dante editor can be extended with (React) components to, currently there are default components to be used as is:"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Image upload for paste html."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Video embed."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Video Recorder."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Embed."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Divider."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Speech."
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "Giphy."
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Installation"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "code"
+											}
+									],
+									"text": "npm install dante3"
+							},
+							{
+									"type": "text",
+									"text": " or "
+							},
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "code"
+											}
+									],
+									"text": "yarn add dante3"
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Usage"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "Component Based"
+							}
+					]
+			},
+			{
+					"type": "codeBlock",
+					"attrs": {
+							"language": null
+					},
+					"content": [
+							{
+									"type": "text",
+									"text": "<DanteEditor\n  content={'hello world'}\n/>"
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Options:"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "Many configuration options and plugin usage can be found on the documentation page:"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "See "
+							},
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "link",
+													"attrs": {
+															"href": "https://dante.vercel.com/",
+															"target": "_blank"
+													}
+											}
+									],
+									"text": "dante-editor.dev"
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Development"
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Installation"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"marks": [
+																			{
+																					"type": "code"
+																			}
+																	],
+																	"text": "git clone https://github.com/michelson/dante"
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "dependencies"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"marks": [
+																			{
+																					"type": "code"
+																			}
+																	],
+																	"text": "npm install"
+															},
+															{
+																	"type": "text",
+																	"text": " or "
+															},
+															{
+																	"type": "text",
+																	"marks": [
+																			{
+																					"type": "code"
+																			}
+																	],
+																	"text": "yarn install"
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Building"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"marks": [
+																			{
+																					"type": "code"
+																			}
+																	],
+																	"text": "npm dante3_build"
+															},
+															{
+																	"type": "text",
+																	"text": " or "
+															},
+															{
+																	"type": "text",
+																	"marks": [
+																			{
+																					"type": "code"
+																			}
+																	],
+																	"text": "yarn dante3_build"
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "dev install:"
+							}
+					]
+			},
+			{
+					"type": "bulletList",
+					"content": [
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "lerna bootstrap"
+															}
+													]
+											}
+									]
+							},
+							{
+									"type": "listItem",
+									"content": [
+											{
+													"type": "paragraph",
+													"content": [
+															{
+																	"type": "text",
+																	"text": "yarn dev"
+															}
+													]
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Status"
+							}
+					]
+			},
+			{
+					"type": "blockquote",
+					"content": [
+							{
+									"type": "paragraph",
+									"content": [
+											{
+													"type": "text",
+													"text": "Dante3 is on beta, actively maintained, with all the features that Dante2 has. As is relying in Prosemirror/TipTap this has better browser support and mobile support. Also has realtime collab capabilities."
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 2
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Monorepo"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "This repository now contains prior Dante versions, located in the "
+							},
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "link",
+													"attrs": {
+															"href": "https://github.com/michelson/Dante/tree/master/packages",
+															"target": "_blank"
+													}
+											}
+									],
+									"text": "packages"
+							},
+							{
+									"type": "text",
+									"text": " folder. so Dante1*, Dante2 and Dante3 lives in the same repo."
+							}
+					]
+			},
+			{
+					"type": "blockquote",
+					"content": [
+							{
+									"type": "paragraph",
+									"content": [
+											{
+													"type": "text",
+													"text": "* Dante(1) is not maintained anymore."
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Open source license"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "Dante is licensed under MIT, so you are free to do whatever you want. If you are using it commercially, become one of our wonderful sponsors to fund the maintenance, support and development of Dante now and in the future."
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "💓 Your sponsorship"
+							}
+					]
+			},
+			{
+					"type": "blockquote",
+					"content": [
+							{
+									"type": "paragraph",
+									"content": [
+											{
+													"type": "text",
+													"text": "Your sponsorship helps to maintain, update, support and develop all of our open source projects, including tiptap and many more."
+											}
+									]
+							}
+					]
+			},
+			{
+					"type": "heading",
+					"attrs": {
+							"level": 3
+					},
+					"content": [
+							{
+									"type": "text",
+									"marks": [
+											{
+													"type": "bold"
+											}
+									],
+									"text": "Acknowledgments"
+							}
+					]
+			},
+			{
+					"type": "paragraph",
+					"content": [
+							{
+									"type": "text",
+									"text": "Prosemirror library & Tiptap authors"
+							}
+					]
+			}
+	]
+}
 //{"type":"doc","content":[{"type":"VideoRecorderBlock","attrs":{"rejectedReason":"","secondsLeft":0,"fileReady":true,"paused":false,"url":"/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaFFHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4664966424744f6acc1eed3be6667bf6e73dda8b/recorded","recording":false,"granted":true,"loading":false,"direction":"center"}},{"content":[],"type":"paragraph"},{"content":[],"type":"paragraph"},{"type":"EmbedBlock","attrs":{"embed_data":{"url":"https://www.youtube.com/watch?v=LfonmMEWEyU","title":"Manuel Riesco: \"La verdad es que el sistema de AFP no le da pensiones a nadie\"","description":null,"html":"\u003ciframe width=\"200\" height=\"150\" src=\"https://www.youtube.com/embed/LfonmMEWEyU?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen\u003e\u003c/iframe\u003e","provider_url":"https://www.youtube.com","images":[{"url":null}],"media":{"html":"\u003ciframe width=\"200\" height=\"150\" src=\"https://www.youtube.com/embed/LfonmMEWEyU?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen\u003e\u003c/iframe\u003e"}}}},{"type":"VideoBlock","attrs":{"embed_data":{"url":"https://www.youtube.com/watch?v=LfonmMEWEyU","title":"Manuel Riesco: \"La verdad es que el sistema de AFP no le da pensiones a nadie\"","description":null,"html":"\u003ciframe width=\"200\" height=\"150\" src=\"https://www.youtube.com/embed/LfonmMEWEyU?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen\u003e\u003c/iframe\u003e","provider_url":"https://www.youtube.com","images":[{"url":null}],"media":{"html":"\u003ciframe width=\"200\" height=\"150\" src=\"https://www.youtube.com/embed/LfonmMEWEyU?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen\u003e\u003c/iframe\u003e"}},"provisory_text":"https://www.youtube.com/watch?v=LfonmMEWEyU\u0026lc=UggndzR2V4htengCoAEC"},"content":[{"text":"https://www.youtube.com/watch?v=LfonmMEWEyU\u0026lc=UggndzR2V4htengCoAEC","type":"text"}]},{"type":"DividerBlock"},{"content":[{"text":"Ruby Ranges: How Do They Work?","type":"text"}],"type":"heading","attrs":{"level":1}},{"type":"ImageBlock","attrs":{"aspect_ratio":{"width":164,"height":20,"ratio":12.195121951219512},"width":164,"caption":"type a caption (optional)","height":20,"forceUpload":false,"url":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKQAAAAUCAMAAAA0oWYGAAAANlBMVEUAAACkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT0RuBeAAAAEXRSTlMAECAwQFBgcHuEj5+vv8/f7w0rGDcAAANcSURBVEjHzZbLlsMoDEQLMMYBPaj//9lZCDt2Oj1nZtesHCKbS0klwLFnACh9SwDQWkaM1Cj4I2OSDUAjtQAw8gUAyD6V9e9AcgA7SW6AktQEJPeMKQCaqqpKBoDDVNX2c1JVVW0k1PUsvRUAQLOIA4BNVVUK0FRUKwBsomIdaajoyEhdRaUAQFfRkZC6yjm0wUmyBSQTlAH9YgLMAQySJHcAyUiS/ZokSc6Mdv3wUXC+1AOyne/3a/IgSUH2kCa+ewBISnKW9c8agkmSc0G+ApIFOoFEeUN2ANtcUbHeN8i1nb7iznVJWa8bAAhJ1kCZZYXMbQV7RnpCxq9SSZKWZGHIBIQbLh5NpyZvSJ8+fVpaW/TYA7cH5NrZLME2CwLOErKR9BOSCiRZkEaSM8YIJblvS5SAHGjcPXyzIM9FbpBHziWXkhe9lLL7Eu0GeYreVlgD6krNByRf4YkTctZccsklLyUXJBekAJOyfSxS/Am5X+5rj4KY2w0yGTktdMoeBd+X3tnu6SZZcFdylru7b0qOpSTKtgI6yemkoMbDBemiotpPyHFV236DrCR186AakWZb5fOpJA39nm4TUbEd35Uctx7VSfqYtHSQIj+MY+kOOT4hB8kODaV3kiz59PJDSZ8kj3aH5Anzm5IPyNmMswp5/F/I7CQbDpKewrS1Lis/lRyNqzB+Qv4nJbkP0ia93iF9iIgej3RrNJcLcilTYhqD5OgkJX0qqauz3NM9RMT2S8n6r0pyjyYj2X43zgBQZzTOC1JJej/GOtgqSc7w+IeSM+X5hJz5q3F+VzI+cKS7cY6Ucsr5akE575M3/76Ajc+ufzZpz/hRk+Xsw+8WlFJKKYfTyJYXZP8FMuLqA3KamZnbFoaYFgTz1sxfd0i2q5jjfvVQ0q9GfKXbYwFdbx1L0bR9h2zhn8jIx7HI/ddjMVlk+3WMdWotaSu+KYnI14dxOKOk2deyCfMTUmITe1wJvlwwWG+QM46AdcF4G+p0VBh1poCc9wtGwepRzDjLM8Z1WkRgjtK+QzYz84piZg1J3XyPyTXcCup6VjnWVc3NfMfuZlavGavAy8183Y+yuLkWpOHmmgFkdXPJSOLvFWRZs68LSAkD/pkr+XuUPg8AqDozgPya/W8B/gPQAm/tWHkI8wAAAABJRU5ErkJggg==","loading_progress":0,"selected":false,"loading":false,"direction":"center"}},{"content":[{"text":"What is a Range in Ruby \u0026 how does it work?","type":"text"}],"type":"paragraph"},{"content":[{"text":"A range is an object which has a starting value \u0026 ending value, they help you create sequences that span the whole range between these two values.","type":"text"}],"type":"paragraph"},{"content":[{"text":"You could go from ","type":"text"},{"text":"1 to ","type":"text"},{"text":"20, or from ","type":"text"},{"text":"\"a\" to ","type":"text"},{"text":"\"z\".","type":"text"}],"type":"paragraph"},{"content":[{"text":"In this article you’ll discover:","type":"text"}],"type":"paragraph"},{"content":[{"text":"Let’s do this!","type":"text"}],"type":"paragraph"},{"content":[{"text":"Understanding Ranges","type":"text"}],"type":"heading","attrs":{"level":2}},{"content":[{"text":"Just as a reminder, this is what Ruby range syntax looks like:","type":"text"}],"type":"paragraph"},{"content":[{"text":"(1..20","type":"text"},{"text":")","marks":[{"type":"bold"}],"type":"text"}],"type":"paragraph"},{"content":[{"text":"The parenthesis are not necessary to define a ","type":"text"},{"text":"Range.","type":"text"}],"type":"paragraph"},{"content":[{"text":"But if you want to call methods on your range you will need them. Otherwise, you are calling the method on the 2nd element of the range, instead of the range itself.","type":"text"}],"type":"paragraph"},{"content":[{"text":"The ","type":"text"},{"text":"Range class includes Enumerable, so you get all the powerful iteration methods without having to convert the range into an array.","type":"text"}],"type":"paragraph"},{"content":[{"text":"Ruby Step Method","type":"text"}],"type":"heading","attrs":{"level":2}},{"content":[{"text":"Range has some useful methods, like the ","type":"text"},{"text":"step method.","type":"text"}],"type":"paragraph"},{"content":[{"text":"Get My Ultimate Ruby Cheatsheet: This handy 7-page PDF helps you QUICKLY find the Ruby syntax you need, that Ruby method you're looking for or that built-in class which you can't quite remember the name.","type":"text"}],"type":"paragraph"},{"content":[{"text":"Get Free Ruby CheatSheet","type":"text"}],"type":"paragraph"},{"content":[{"text":"Example:","type":"text"}],"type":"paragraph"},{"content":[{"text":"(10..20","type":"text"},{"text":").step","type":"text"},{"text":"(2","type":"text"},{"text":").to_a","type":"text"}],"type":"paragraph"},{"content":[{"text":"# [10, 12, 14, 16, 18, 20]","type":"text"}],"type":"paragraph"},{"content":[{"text":"Using this method you can iterate over the range in increments of ","type":"text"},{"text":"n, where ","type":"text"},{"text":"n is the argument passed to ","type":"text"},{"text":"step.","type":"text"}],"type":"paragraph"},{"content":[{"text":"How to Find Out If A Number is Inside a Range","type":"text"}],"type":"heading","attrs":{"level":2}},{"content":[{"text":"Other ","type":"text"},{"text":"Range methods to be aware of are: ","type":"text"},{"text":"cover? \u0026 ","type":"text"},{"text":"include?.","type":"text"}],"type":"paragraph"},{"content":[{"text":"📷","type":"text"}],"type":"paragraph"},{"content":[{"text":"It would be a mistake to think that they do the same thing, because they don’t.","type":"text"}],"type":"paragraph"},{"content":[{"text":"The ","type":"text"},{"text":"include? method just does what you would expect, check for inclusion inside the range. So it would be equivalent to expanding the ","type":"text"},{"text":"Range into an ","type":"text"},{"text":"Array and checking if something is in there.","type":"text"}],"type":"paragraph"},{"content":[{"text":"But ","type":"text"},{"text":"cover? is different, all it does is ","type":"text"},{"text":"check against the initial \u0026 ending values of the range (","type":"text"},{"text":"begin \u003c= obj \u003c= end), which can yield unexpected results.","type":"text"}],"type":"paragraph"},{"content":[{"text":"Example:","type":"text"}],"type":"paragraph"},{"content":[{"text":"('a'..'z'","type":"text"},{"text":").include? \"cc\" # false","type":"text"}],"type":"paragraph"},{"content":[{"text":"('a'..'z'","type":"text"},{"text":").cover? \"cc\"  # true","type":"text"}],"type":"paragraph"},{"content":[{"text":"The ","type":"text"},{"text":"cover? example is equivalent to:","type":"text"}],"type":"paragraph"},{"content":[{"text":"\"a\" ","type":"text"},{"text":"\u003c= \"cc\" \u0026\u0026 \"cc\" ","type":"text"},{"text":"\u003c= \"z\"","type":"text"}],"type":"paragraph"},{"content":[{"text":"The reason this returns ","type":"text"},{"text":"true is that ","type":"text"},{"text":"strings are compared character by character. Since \"a\" comes before \"c\", the characters that come after the first \"c\" don't matter.","type":"text"}],"type":"paragraph"},{"content":[{"text":"How Ranges Are Implemented in Ruby","type":"text"}],"type":"heading","attrs":{"level":2}},{"content":[{"text":"Ranges are not limited to numbers \u0026 letters, you can use any objects as long as they implement the following methods: ","type":"text"},{"text":"\u003c=\u003e and ","type":"text"},{"text":"succ.","type":"text"}],"type":"paragraph"},{"content":[{"text":"For example, here is a DateTime range:","type":"text"}],"type":"paragraph"},{"content":[{"text":"require 'time'","type":"text"}],"type":"paragraph"},{"content":[{"text":"t1 = DateTime.new","type":"text"}],"type":"paragraph"},{"content":[{"text":"t2 = DateTime.new + 30","type":"text"}],"type":"paragraph"},{"content":[{"text":"next_30_days = t1..t2","type":"text"}],"type":"paragraph"},{"content":[{"text":"# Example use","type":"text"}],"type":"paragraph"},{"content":[{"text":"next_30_days.select","type":"text"},{"text":"(\u0026","type":"text"},{"text":":friday?","type":"text"},{"text":").map","type":"text"},{"text":"(\u0026","type":"text"},{"text":":day","marks":[{"type":"italic"}],"type":"text"},{"text":")","marks":[{"type":"bold"}],"type":"text"}],"type":"paragraph"},{"content":[{"text":"So how does this work? Let's take a look at this implementation:","type":"text"}],"type":"paragraph"},{"content":[{"text":"def range","type":"text"},{"text":"(a, b","type":"text"},{"text":")","marks":[{"type":"bold"}],"type":"text"}],"type":"paragraph"},{"content":[{"text":"# if the first element is bigger than the second","type":"text"}],"type":"paragraph"},{"content":[{"text":"# then this isn't a sequential range","type":"text"}],"type":"paragraph"},{"content":[{"text":"return ","type":"text"},{"text":"[] ","type":"text"},{"text":"if a ","type":"text"},{"text":"\u003e b","type":"text"}],"type":"paragraph"},{"content":[{"text":"out = ","type":"text"},{"text":"[]","marks":[{"type":"bold"}],"type":"text"}],"type":"paragraph"},{"content":[{"text":"# advance until the 2nd element is the same","type":"text"}],"type":"paragraph"},{"content":[{"text":"# as the first one","type":"text"}],"type":"paragraph"},{"content":[{"text":"while a != b","type":"text"}],"type":"paragraph"},{"content":[{"text":"out ","type":"text"},{"text":"\u003c\u003c a","type":"text"}],"type":"paragraph"},{"content":[{"text":"a = a.next","type":"text"}],"type":"paragraph"},{"content":[{"text":"end","marks":[{"type":"bold"}],"type":"text"}],"type":"paragraph"},{"content":[{"text":"# add last element (inclusive range)","type":"text"}],"type":"paragraph"},{"content":[{"text":"# this also returns the results via implicit return","type":"text"}],"type":"paragraph"},{"content":[{"text":"out ","type":"text"},{"text":"\u003c\u003c a","type":"text"}],"type":"paragraph"},{"content":[{"text":"end","marks":[{"type":"bold"}],"type":"text"}],"type":"paragraph"},{"content":[{"text":"p range 1, 10","type":"text"}],"type":"paragraph"},{"content":[{"text":"p range 'a', 'z'","type":"text"}],"type":"paragraph"}]}
 
 // {"type":"doc","content":[{"type":"ImageBlock","attrs":{"aspect_ratio":{"width":606,"height":557,"ratio":91.91419141914191},"width":606,"caption":"type a caption (optional)","height":557,"forceUpload":false,"url":"/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaElHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--6936f8e01935733a05ecc43c4c76fdc9dad63d8a/WhatsApp%20Image%202021-05-16%20at%2010.29.17%20PM.jpeg","loading_progress":0,"selected":false,"loading":true,"file":{},"direction":"center"}},{"content":[{"text":"oijoijoij","type":"text"}],"type":"heading","attrs":{"level":1}},{"content":[{"text":"oijij","type":"text"}],"type":"heading","attrs":{"level":2}},{"content":[{"text":"joioji","type":"text"}],"type":"heading","attrs":{"level":3}},{"type":"ImageBlock","attrs":{"aspect_ratio":{"width":480,"height":270,"ratio":56.25},"width":480,"caption":"type a caption (optional)","height":270,"forceUpload":false,"url":"/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaE1HIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--03eb8abf3892dd4a424ade5c37ee35578e63ebc4/open-uri20210522-1-tpxcbm","loading_progress":0,"selected":false,"loading":true,"direction":"center"}},{"type":"DividerBlock"},{"content":[{"text":"The plugin architecture of chaskiq has multiple kinds of integrations. for example you can set your plugin to display data on your app's dashboard or interact with CRM, add a custom behavior on the text editor or handle external messages from other services.","type":"text"}],"type":"paragraph"},{"content":[],"type":"paragraph"},{"content":[{"text":"App Package Catalog:","type":"text"}],"type":"heading","attrs":{"level":2}},{"content":[{"text":"In the code we have a catalog of integrations when the following basic structure:","type":"text"}],"type":"paragraph"},{"content":[],"type":"paragraph"},{"type":"codeBlock","attrs":{"language":"auto"},"content":[{"type":"text","text":"name: 'Zoom',\ntag_list: ['editor'],\ndescription: 'Zoom conference calls',\nicon: 'https://logo.clearbit.com/zoom.com',\nstate: 'enabled'\n\n"}]},{"content":[{"text":"Tag list:","type":"text"}],"type":"paragraph"},{"content":[{"text":"The tag list tells how the pluggin behaves. ","type":"text"}],"type":"paragraph"},{"content":[{"text":"CRM","type":"text"}],"type":"paragraph"},{"content":[{"text":"CHANNEL","type":"text"}],"type":"paragraph"},{"content":[{"text":"ENRICHMENT","type":"text"}],"type":"paragraph"},{"content":[{"text":"DASHBOARD","type":"text"}],"type":"paragraph"},{"content":[],"type":"paragraph"},{"content":[],"type":"paragraph"},{"content":[],"type":"paragraph"},{"content":[{"text":"Events: ","type":"text"}],"type":"paragraph"},{"content":[{"text":"conversations.added","type":"text"}],"type":"paragraph"},{"content":[{"text":"leads.convert","type":"text"}],"type":"paragraph"},{"content":[{"text":"email_changed","type":"text"}],"type":"paragraph"},{"content":[{"text":"Definitions:","type":"text"}],"type":"heading","attrs":{"level":2}},{"type":"codeBlock","attrs":{"language":"auto"},"content":[{"type":"text","text":"definitions: [{\n  name: 'api_key',\n  type: 'string',\n  grid: { xs: 12, sm: 12 }\n},\n{\n  name: 'api_secret',\n  type: 'string',\n  grid: { xs: 12, sm: 12 }\n},\n{\n  name: 'access_token',\n  type: 'string',\n  grid: { xs: 12, sm: 12 }\n}],\n\n"}]},{"content":[{"text":"Editor definitions:","type":"text"}],"type":"heading","attrs":{"level":2}},{"type":"codeBlock","attrs":{"language":"auto"},"content":[{"type":"text","text":"editor_definitions: {\n requires: [\n   { \n     type: \"input\",\n     name: \"src\",\n     placeholder: \"user email\",\n     hint: \"is the zoom owner email or zoom user id\"\n   }\n],\nschema: [{\n   name: \"zoom\",\n   type: \"button\",\n   label: \"enter video call\",\n   element: \"button\",\n   placeholder: \"click button to open video call\"}\n]}"}]}]}

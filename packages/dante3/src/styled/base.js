@@ -23,15 +23,13 @@ const EditorContainer = styled.div`
   }
 
   @media (max-width: 500px) {
-    .postContent {
-      font-size: ${(props) =>
-        math(`${props.theme.dante_editor_font_size} - 6`)};
-      line-height: ${(props) => props.theme.dante_editor_line_height};
-    }
+    font-size: ${(props) =>
+      math(`${props.theme.dante_editor_font_size} - 6`)};
+    line-height: ${(props) => props.theme.dante_editor_line_height};
   }
 
   .public-DraftEditorPlaceholder-root {
-    color: ${(props) => lighten(0.3, props.theme.dante_text_color)};
+    color: ${(props) => lighten(0.1, props.theme.dante_text_color)};
     position: absolute;
     z-index: 0;
     font-size: ${(props) => math(`${props.theme.dante_editor_font_size}* 0.9`)};
@@ -95,7 +93,7 @@ const EditorContainer = styled.div`
 
     background: ${(props) => props.theme.dante_code_background};
     font-family: ${(props) => props.theme.dante_font_family_mono};
-    font-size: 16px;
+    font-size: ${(props)=> props.theme.dante_editor_font_size };
     margin-bottom: 20px;
     padding: 20px;
     white-space: pre-wrap;
@@ -159,7 +157,7 @@ const EditorContainer = styled.div`
 
   h1.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
-    font-size: 3.6em;
+    font-size: ${(props)=> math(`${props.theme.dante_editor_font_size} * 3.8`) };
     font-style: normal;
     font-weight: 700;
     letter-spacing: -0.04em;
@@ -170,9 +168,18 @@ const EditorContainer = styled.div`
     padding-top: 0;
   }
 
+  @media (max-width: 500px) {
+    h1.graf--h {
+      margin-top: 10px;
+      font-size: ${(props) =>
+      math(`${props.theme.dante_editor_font_size} * 2.2`)};
+      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+    }
+  }
+
   h2.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
-    font-size: 3.3em;
+    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 2.2`)};
     font-style: normal;
     font-weight: 700;
     letter-spacing: -0.04em;
@@ -182,17 +189,35 @@ const EditorContainer = styled.div`
     margin-top: 40px;
     padding-top: 0;
   }
+
+  @media (max-width: 500px) {
+    h2.graf--h {
+      margin-top: 10px;
+      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.6`)};
+      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+    }
+  }
+
   h3.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
     letter-spacing: -0.02em;
     font-weight: 700;
     font-style: normal;
-    font-size: 2.1em;
+    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 2.1`)};
     margin-left: -1.8px;
     line-height: 1.2;
     margin-top: 40px;
     margin-bottom: 0.7em;
   }
+
+  @media (max-width: 500px) {
+    h3.graf--h {
+      margin-top: 10px;
+      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.6`)};
+      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 1`)};
+    }
+  }
+
   .public-DraftStyleDefault-pre {
     overflow: inherit;
   }
@@ -630,12 +655,12 @@ const EditorContainer = styled.div`
     content: "Title";
   }
 
-  /*.ProseMirror p.empty-node:first-child::before {
+  /*.ProseMirror p.empty-node:first-of-type::before {
     content: 'Contents';
   }*/
 
   /* Placeholder (at the top) */
-  .ProseMirror p.is-editor-empty:first-child::before {
+  .ProseMirror p.is-editor-empty:first-of-type::before {
     content: attr(data-placeholder);
     float: left;
     color: #ced4da;
@@ -643,7 +668,7 @@ const EditorContainer = styled.div`
     height: 0;
   }
 
-  .ProseMirror .is-node-empty:first-child::before {
+  .ProseMirror .is-node-empty:first-of-type::before {
     content: attr(data-placeholder);
     float: left;
     color: #ced4da;
