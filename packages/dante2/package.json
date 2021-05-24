@@ -1,6 +1,6 @@
 {
   "name": "Dante2",
-  "version": "0.5.1-rc26.0",
+  "version": "0.5.1",
   "description": "Dante wysiwyg rewritten in draft-js",
   "author": "Miguel Michelson",
   "license": "MIT",
