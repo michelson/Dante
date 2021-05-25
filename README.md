@@ -12,7 +12,7 @@ See the demo at: [dante-editor.dev](https://dante.vercel.com)
 The previous version (Dante2) was made on DraftJs, that's a facebook library to build WYSIWYG editor, I'd choose that technology because it implemented a very interesting data model and abstracted many parts of the heuristics implementation that [Dante1 (the previous version)](https://github.com/michelson/Dante/tree/master/packages/dante1-legacy) built as a naive implementation relying a lot on DOM manipulation, So Dante2 was great and is working on a ton of production websites. Sadly over the last years this library has not received much attention from maintainers. Among the ~700 unattended reported issues there are some that have become a deal breaker for me:
 
 + Bad mobile support.
-+ ~1MB added to your bundle (inmuttablejs is heavy)
++ ~1MB added to your bundle (immutablejs is heavy)
 + Not created for realtime collab.
 
 ## My bet, ProseMirror/TipTap

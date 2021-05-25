@@ -113,7 +113,7 @@ export default function MenuBar({ editor, fixed }) {
     });
   }
 
-  function _clickBlockInlineStyle(ev, style) {
+  function _clickBlockInlineStyle(style) {
     editor.chain().focus().setColor(style).run();
   }
 

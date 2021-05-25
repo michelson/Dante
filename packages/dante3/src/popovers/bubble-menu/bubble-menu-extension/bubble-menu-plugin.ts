@@ -1,4 +1,4 @@
-import { Editor, posToDOMRect } from "@tiptap/core";
+import { Editor, isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import tippy, { Instance, Props } from "tippy.js";
@@ -103,14 +103,15 @@ export class BubbleMenuView {
 
     this.tippy.setProps({
       getReferenceClientRect: () => {
-        // if(this.editor.view && this.editor.view.lastSelectedViewDesc.dom){
-        const selectedElement =
-          this.editor.view.dom.querySelector(".is-selected");
-        if (selectedElement) {
-          return selectedElement.getBoundingClientRect();
-        } else {
-          return posToDOMRect(view, from, to);
+        if (isNodeSelection(view.state.selection)) {
+          const node = view.nodeDOM(from) as HTMLElement
+
+          if (node) {
+            return node.getBoundingClientRect()
+          }
         }
+
+        return posToDOMRect(view, from, to)
       },
     });
 

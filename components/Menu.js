@@ -60,7 +60,9 @@ export default function Example({name, mode, version, basePath, setMode}) {
                 <div className="hidden sm:block sm:ml-6">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
-											<Link href={item.href}>
+											<Link 
+                        key={item.name}
+                        href={item.href}>
 												<a className={
 													`${item.current ? 'border-green-500' : '' } text-gray-900 dark:text-gray-200 inline-flex items-center px-1 pt-1 pb-1 border-b-2 text-sm font-medium`
 												}>

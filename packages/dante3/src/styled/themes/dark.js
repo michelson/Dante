@@ -1,6 +1,9 @@
-const dante_font_family_sans = `'jaf-bernino-sans', 'Playfair Display', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans_serif;`;
-//const dante_font_family_sans_serif = `'freight-text-pro', 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;`;
-const dante_font_family_sans_serif = `'freight-text-pro','Playfair Display', 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;`;
+const dante_font_family_sans = 'ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji'
+const dante_font_family_sans_serif = 'ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji'
+
+// const dante_font_family_sans = `'jaf-bernino-sans', 'Playfair Display', 'Open Sans', "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans_serif;`;
+// const dante_font_family_sans_serif = `'freight-text-pro', 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;`;
+// const dante_font_family_sans_serif = `'freight-text-pro','Playfair Display', 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;`;
 
 const tooltip_size = "32px";
 const dante_control_color = "#333333";
@@ -9,13 +12,13 @@ const dante_accent_color = "#5BD974";
 const dante_text_color = "#fefefe";
 
 const theme = {
-  dante_font_family_serif: `'freight-text-pro', 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;`,
+  dante_font_family_serif: dante_font_family_sans_serif,
   dante_font_family_sans: dante_font_family_sans,
   dante_font_family_mono: `Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;`,
   dante_font_family_base: dante_font_family_sans,
 
   // Editor
-  dante_editor_font_size: "1rem",
+  dante_editor_font_size: "1.4rem",
   dante_editor_line_height: "1.9",
   dante_font_family_sans_serif: dante_font_family_sans_serif,
   dante_visual_debugger: "false",

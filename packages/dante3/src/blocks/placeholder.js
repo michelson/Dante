@@ -5,7 +5,10 @@ import styled from "@emotion/styled";
 
 export const StyleWrapper = styled(NodeViewWrapper)`
   .editable-content {
-    background: #f5f5f5;
+    color: ${(props) => props.theme.dante_text_color};
+    background: ${(props) => props.theme.dante_bg_color};
+    //border-color: ${(props) => props.theme.dante_text_color};
+    //border-width: 1px;
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0px 1px 3px 0px #9e9e9e54;
@@ -16,6 +19,9 @@ export const StyleWrapper = styled(NodeViewWrapper)`
       width: 100%;
       border-top: 1px solid #c1c1c1;
       padding-top: 1px;
+    }
+    button{
+      float: right;
     }
   }
 `;
@@ -28,8 +34,9 @@ export default function PlaceholderBlock(props) {
       <div className="content">
         <NodeViewContent
           className="editable-content"
-          data-placeholder={props.node.attrs.blockKind.options.placeholder}
-        />
+          data-placeholder={props.node.attrs.blockKind.options.placeholder}>
+          <button onClick={()=> props.deleteNode()}>x</button>
+        </NodeViewContent>
       </div>
     </StyleWrapper>
   );

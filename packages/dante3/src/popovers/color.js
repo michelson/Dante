@@ -1,41 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 import { fontColor } from "../icons.js";
-import { debounce } from "lodash";
+import useDebounce from '../hooks/useDebounce'
 
-export default class DanteTooltipColor extends React.Component {
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      open: false,
-      value: this.props.value,
-    };
+export default function DanteTooltipColor(props) {
 
-    this.handleChange = debounce((e, value) => {
-      this.handleClick(e, value);
-    }, 200);
-  }
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState(props.value)
 
-  componentDidMount() {
-  }
+  const debouncedValue = useDebounce( value , 200);
 
-  componentWillUmount() {
-    this.handleChange.cancel();
-  }
-
-  toggle = (ev) => {
+  function toggle(ev) {
     // let selection = this.props.editorState.getSelection()
     // prevent unselection of selection
     ev.preventDefault();
-    this.setState({ open: !this.state.open });
+    setOpen(!open)
   };
 
-  handleClick = (e, item) => {
-    e && e.preventDefault();
-    this.props.handleClick(e, item);
-  };
+  useEffect(
+    () => {
+      if (debouncedValue) {
+        props.handleClick(value);
+      }
+    },
+    [debouncedValue] // Only call effect if debounced search term changes
+  );
 
-  currentValue = () => {
+  function currentValue() {
     /*let selection = this.props.editorState.getSelection()
     if (!selection.isCollapsed()) {
       return this.props.styles[this.props.style_type].current(this.props.editorState)
@@ -44,10 +35,10 @@ export default class DanteTooltipColor extends React.Component {
     }*/
   };
 
-  renderColor = () => {
-    const v = this.currentValue() || this.props.value;
+  function renderColor(){
+    const v = currentValue() || props.value;
 
-    if (this.state.open) {
+    if (open) {
       return (
         <div
           style={{
@@ -59,7 +50,8 @@ export default class DanteTooltipColor extends React.Component {
           <HexColorPicker
             color={v}
             onChange={(color, e) => {
-              this.handleChange(e, color);
+              setValue(color)
+              //handleChange(e, color);
               //this.handleClick(e,  color )
             }}
           />
@@ -68,15 +60,12 @@ export default class DanteTooltipColor extends React.Component {
     }
   };
 
-  render() {
-    return (
-      <li className="dante-menu-button">
-        <span className={"dante-icon"} onMouseDown={this.toggle}>
-          {fontColor()}
-        </span>
-
-        {this.renderColor()}
-      </li>
-    );
-  }
+  return (
+    <li className="dante-menu-button">
+      <span className={"dante-icon"} onMouseDown={toggle}>
+        {fontColor()}
+      </span>
+      {renderColor()}
+    </li>
+  );
 }

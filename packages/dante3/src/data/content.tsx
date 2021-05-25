@@ -272,7 +272,7 @@ export const contentDemo = {
 													"content": [
 															{
 																	"type": "text",
-																	"text": "~1MB added to your bundle (inmuttablejs is heavy)"
+																	"text": "~1MB added to your bundle (immutablejs is heavy)"
 															}
 													]
 											}

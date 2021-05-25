@@ -15,6 +15,9 @@ const EditorContainer = styled.div`
   color: ${(props) => props.theme.dante_text_color};
   background-color: ${(props) => props.theme.dante_bg_color};
 
+  text-rendering: optimizeLegibility;
+
+
   .ProseMirror{
     &:focus-visible {
       outline-color: transparent;
@@ -24,7 +27,7 @@ const EditorContainer = styled.div`
 
   @media (max-width: 500px) {
     font-size: ${(props) =>
-      math(`${props.theme.dante_editor_font_size} - 6`)};
+      math(`${props.theme.dante_editor_font_size} * 0.9`)};
     line-height: ${(props) => props.theme.dante_editor_line_height};
   }
 
@@ -155,47 +158,34 @@ const EditorContainer = styled.div`
     }
   }
 
+  .public-DraftStyleDefault-pre {
+    overflow: inherit;
+  }
+
   h1.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
-    font-size: ${(props)=> math(`${props.theme.dante_editor_font_size} * 3.8`) };
+    font-size: ${(props)=> math(`${props.theme.dante_editor_font_size} * 3.2`) };
     font-style: normal;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.04em;
     line-height: 1;
     margin-bottom: 0.4em;
     margin-left: -3px;
     margin-top: 40px;
     padding-top: 0;
-  }
-
-  @media (max-width: 500px) {
-    h1.graf--h {
-      margin-top: 10px;
-      font-size: ${(props) =>
-      math(`${props.theme.dante_editor_font_size} * 2.2`)};
-      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
-    }
   }
 
   h2.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
-    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 2.2`)};
+    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 2`)};
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1;
     margin-bottom: 0.4em;
     margin-left: -3px;
     margin-top: 40px;
     padding-top: 0;
-  }
-
-  @media (max-width: 500px) {
-    h2.graf--h {
-      margin-top: 10px;
-      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.6`)};
-      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
-    }
   }
 
   h3.graf--h {
@@ -203,35 +193,60 @@ const EditorContainer = styled.div`
     letter-spacing: -0.02em;
     font-weight: 700;
     font-style: normal;
-    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 2.1`)};
+    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.3`)};
     margin-left: -1.8px;
     line-height: 1.2;
     margin-top: 40px;
     margin-bottom: 0.7em;
+    font-weight: 300;
   }
 
-  @media (max-width: 500px) {
-    h3.graf--h {
-      margin-top: 10px;
-      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.6`)};
-      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 1`)};
-    }
-  }
-
-  .public-DraftStyleDefault-pre {
-    overflow: inherit;
-  }
   h4.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
     letter-spacing: -0.02em;
     font-weight: 300;
     font-style: normal;
-    font-size: 1.5em;
+    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.2`)};
     margin-left: -1.5px;
     line-height: 1.2;
     color: ${(props) => lighten(0.3, props.theme.dante_text_color)};
     margin-top: 40px;
     margin-bottom: 0.6em;
+  }
+
+
+  @media (max-width: 500px) {
+    h1.graf--h {
+      margin-top: 10px;
+      font-size: ${(props) =>
+      math(`${props.theme.dante_editor_font_size} * 1.6`)};
+      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+    }
+
+    h2.graf--h {
+      margin-top: 10px;
+      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.2`)};
+      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+    }
+
+    h3.graf--h {
+      margin-top: 10px;
+      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 0.9`)};
+      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+    }
+  }
+
+
+  @media (max-width: 500px) {
+    .graf--h2 {
+      font-size: 2.6em;
+    }
+    .graf--h3 {
+      font-size: 1.6em;
+    }
+    .graf--h4 {
+      font-size: 1.4em;
+    }
   }
 
   .section--first .graf--h2.graf--first,
@@ -297,11 +312,11 @@ const EditorContainer = styled.div`
     font-weight: 400;
     letter-spacing: 0.16px;
     letter-spacing: 0.02rem;
-    margin-left: -17px;
+    margin-left: -12px;
     padding-left: 15px;
     margin-bottom: 25px;
-    font-size: 1.2em;
-    line-height: 1.9em;
+    //font-size: 1.2em;
+    line-height: 1.5em;
     margin-top: 20px;
   }
   .graf--blockquote + .graf--blockquote {
@@ -450,18 +465,6 @@ const EditorContainer = styled.div`
   .markup--anchor {
     text-decoration: underline;
     color: inherit;
-  }
-
-  @media (max-width: 500px) {
-    .graf--h2 {
-      font-size: 2.6em;
-    }
-    .graf--h3 {
-      font-size: 1.6em;
-    }
-    .graf--h4 {
-      font-size: 1.4em;
-    }
   }
 
   .graf--divider {

@@ -216,7 +216,7 @@ export default function ImageBlock(props) {
   }
 
   const { width, height, ratio } = props.node.attrs.aspect_ratio;
-  console.log("WWW", width, height, ratio);
+  //console.log("WWW", width, height, ratio);
   return (
     <StyleWrapper
       selected={props.selected}
