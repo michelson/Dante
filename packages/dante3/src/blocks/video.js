@@ -91,7 +91,7 @@ export default function VideoBlock(props) {
   );
 }
 
-export const VideoBlockConfig = (options={})=>{
+export const VideoBlockConfig = (options = {}) => {
   return {
     icon: video,
     name: "VideoBlock",
@@ -115,8 +115,8 @@ export const VideoBlockConfig = (options={})=>{
       },
       provisory_text: { default: null },
     },
-  }
-}
+  };
+};
 
 /*
 export const VideoBlockConfig = (options={})=>{

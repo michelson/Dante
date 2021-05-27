@@ -12,11 +12,11 @@ import Link from "@tiptap/extension-link";
 import TextStyle from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
-import OrderedList from '@tiptap/extension-ordered-list'
-import ListItem from '@tiptap/extension-list-item'
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
 
-import TaskList from '@tiptap/extension-task-list'
-import TaskItem from '@tiptap/extension-task-item'
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 
 //import './styles.scss'
 import { ThemeProvider } from "@emotion/react";
@@ -24,7 +24,7 @@ import defaultTheme from "../styled/themes/default";
 import { extensionFactory } from "../blocks/extension";
 import CodeBlock from "../blocks/code";
 
-import {defaultPlugins as factoryPlugins} from '../index'
+import { defaultPlugins as factoryPlugins } from "../index";
 
 import AddButton from "../popovers/addButton";
 import MenuBar from "../popovers/menuBar";
@@ -37,14 +37,14 @@ import lowlight from "lowlight";
 import EditorContainer, { LogWrapper } from "../styled/base";
 
 export default function Editor({
-	widgets, 
-	theme, 
-	fixed, 
-	content,
+  widgets,
+  theme,
+  fixed,
+  content,
   onUpdate,
   readOnly,
   bodyPlaceholder,
-  extensions
+  extensions,
 }) {
   function basePlugins() {
     return [
@@ -66,16 +66,15 @@ export default function Editor({
           },
         },
 
-        orderedList:{
+        orderedList: {
           HTMLAttributes: {
             class: "graf graf--ol",
           },
-        }
-
+        },
       }),
       //Image,
       Placeholder.configure({
-        placeholder:  bodyPlaceholder || "Write something …"
+        placeholder: bodyPlaceholder || "Write something …",
       }),
       TextStyle,
       Color,
@@ -105,8 +104,8 @@ export default function Editor({
   }
 
   function optionalPlugins() {
-		if(widgets) return widgets
-    return factoryPlugins
+    if (widgets) return widgets;
+    return factoryPlugins;
   }
 
   function newPluginsConfig() {
@@ -114,8 +113,8 @@ export default function Editor({
   }
 
   function pluginsConfig() {
-    const newExtensions = extensions ? extensions : []
-    return basePlugins().concat([ ...newPluginsConfig(), ...newExtensions]);
+    const newExtensions = extensions ? extensions : [];
+    return basePlugins().concat([...newPluginsConfig(), ...newExtensions]);
   }
 
   const editor = useEditor({
@@ -124,8 +123,8 @@ export default function Editor({
     editable: !readOnly,
     onUpdate({ editor }) {
       // The content has changed.
-      console.log("changed!", editor.getJSON());
-      onUpdate && onUpdate(editor)
+      // console.log("changed!", editor.getJSON());
+      onUpdate && onUpdate(editor);
       //setLog(JSON.parse(JSON.stringify(editor.getJSON())))
     },
   });
@@ -138,16 +137,15 @@ export default function Editor({
     if (comp.type.name === "paragraph") return true;
   }
 
-  const resolvedTheme = theme ? theme : defaultTheme
-  
+  const resolvedTheme = theme ? theme : defaultTheme;
+
   return (
     <ThemeProvider theme={resolvedTheme}>
       <EditorContainer
       //style={{width: '600px', margin: '0 auto'}}
       >
-
         <div
-          //className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto"
+        //className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto"
         >
           <MenuBar fixed={fixed} editor={editor} />
 
@@ -172,17 +170,17 @@ export default function Editor({
             </FloatingMenu>
           )}
 
-          {
-            fixed && editor && <AddButton
+          {fixed && editor && (
+            <AddButton
               //ref={sideBarControls}
               //position={bounds}
               fixed={fixed}
               editor={editor}
-              position={{width: '100%'}}
+              position={{ width: "100%" }}
               display={true || "displaySidebar"}
               widgets={optionalPlugins()}
             />
-          }
+          )}
         </div>
       </EditorContainer>
     </ThemeProvider>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { AnchorStyle } from "../styled/menu";
 import ImagePopover from "./image";
 import { BubbleMenu } from "./bubble-menu/bubble-menu-react";
@@ -41,7 +41,6 @@ function DanteTooltipLink({ enableLinkMode, selected }) {
 }
 
 export default function MenuBar({ editor, fixed }) {
-
   const [linkState, setLinkState] = useState({
     link_mode: false,
     menu_style: {
@@ -117,11 +116,10 @@ export default function MenuBar({ editor, fixed }) {
     editor.chain().focus().setColor(style).run();
   }
 
-  function fixedStyles(){
-    if(!fixed) return { width: `${11 * 43}px` }
-    if(fixed) return { position: `sticky`, top: '0' }
+  function fixedStyles() {
+    if (!fixed) return { width: `${11 * 43}px` };
+    if (fixed) return { position: `sticky`, top: "0" };
   }
-
 
   function renderMenu() {
     if (!editor.isEditable) return null;
@@ -238,7 +236,7 @@ export default function MenuBar({ editor, fixed }) {
           //console.log("AAA", e);
           editor.commands.updateAttributes("ImageBlock", { direction: e });
           const pos = editor?.view?.lastSelectedViewDesc?.spec?.getPos();
-          console.log("POS", pos);
+          //console.log("POS", pos);
           pos && editor.commands.setNodeSelection(pos);
         }}
       />
@@ -247,17 +245,14 @@ export default function MenuBar({ editor, fixed }) {
 
   return (
     <>
+      {fixed && renderMenu()}
 
-      {
-        fixed && renderMenu()
-      }
-
-      { !fixed && 
+      {!fixed && (
         <BubbleMenu editor={editor}>
           {renderMenu()}
           {renderImageTooptip()}
         </BubbleMenu>
-      }
+      )}
     </>
   );
 }

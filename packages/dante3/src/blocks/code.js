@@ -142,7 +142,7 @@ export default function Code(props) {
   );
 }
 
-export const CodeBlockConfig = (options={})=>{
+export const CodeBlockConfig = (options = {}) => {
   let config = {
     name: "CodeBlock",
     tag: "code-block",
@@ -150,7 +150,7 @@ export const CodeBlockConfig = (options={})=>{
     attributes: {
       url: { default: "" },
     },
-  }
-    
-  return Object.assign(config, options)
-}
+  };
+
+  return Object.assign(config, options);
+};

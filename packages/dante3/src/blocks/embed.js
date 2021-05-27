@@ -39,7 +39,7 @@ export default function EmbedBlock(props) {
   }
 
   function deleteSelf() {
-    props.deleteNode()
+    props.deleteNode();
   }
 
   function updateData(data) {
@@ -143,8 +143,7 @@ export default function EmbedBlock(props) {
   );
 }
 
-
-export const EmbedBlockConfig = (options={})=>{
+export const EmbedBlockConfig = (options = {}) => {
   let config = {
     icon: embed,
     name: "EmbedBlock",
@@ -166,7 +165,7 @@ export const EmbedBlockConfig = (options={})=>{
       },
       provisory_text: { default: null },
     },
-  }
-    
-  return Object.assign(config, options)
-}
+  };
+
+  return Object.assign(config, options);
+};

@@ -1,8 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import {
-  nodeInputRule,
-} from '@tiptap/core'
+import { nodeInputRule } from "@tiptap/core";
 
 export function extensionFactory(options) {
   return Node.create({
@@ -91,12 +89,10 @@ export function extensionFactory(options) {
       return ReactNodeViewRenderer(options.component);
     },
     addInputRules() {
-      if(!options.addInputRules) return []
-      return options.addInputRules().map(
-        (rule)=> { 
-          return nodeInputRule(rule, this.type) 
-        }
-      )
+      if (!options.addInputRules) return [];
+      return options.addInputRules().map((rule) => {
+        return nodeInputRule(rule, this.type);
+      });
     },
   });
 }

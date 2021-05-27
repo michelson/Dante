@@ -1,51 +1,52 @@
 /* eslint-disable import/no-anonymous-default-export */
-import babel from 'rollup-plugin-babel';
-import postcss from 'rollup-plugin-postcss'
-import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import typescript from 'rollup-plugin-typescript2';
-import json from '@rollup/plugin-json'
+import babel from "rollup-plugin-babel";
+import postcss from "rollup-plugin-postcss";
+import peerDepsExternal from "rollup-plugin-peer-deps-external";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import typescript from "rollup-plugin-typescript2";
+import json from "@rollup/plugin-json";
 
 // this override is needed because Module format cjs does not support top-level await
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJson = require('./package.json');
+const packageJson = require("./package.json");
 
 const globals = {
   ...packageJson.devDependencies,
 };
 
 export default {
-  input: 'src/index.ts',
+  input: "src/index.ts",
   output: [
     {
-      name: 'Dante',
+      name: "Dante",
       file: packageJson.browser,
-      format: 'umd'
+      format: "umd",
+      exports: "named" /** Disable warning for default imports */,
     },
     {
       file: packageJson.main,
-      format: 'cjs', // commonJS
+      format: "cjs", // commonJS
       sourcemap: true,
-      exports: 'named', /** Disable warning for default imports */
+      exports: "named" /** Disable warning for default imports */,
     },
     {
       file: packageJson.module,
-      format: 'esm', // ES Modules
+      format: "esm", // ES Modules
       sourcemap: true,
-      exports: 'named', /** Disable warning for default imports */
+      exports: "named" /** Disable warning for default imports */,
     },
   ],
   plugins: [
     peerDepsExternal(),
     postcss({}),
     babel({
-      exclude: 'node_modules/**',
-      runtimeHelpers: true ,
+      exclude: "node_modules/**",
+      runtimeHelpers: true,
       babelrc: false,
       presets: [
         ["@babel/preset-env", { modules: false }],
-        ["@babel/preset-react", {flow:true}]
+        ["@babel/preset-react", { flow: true }],
       ],
       plugins: [
         "@babel/plugin-proposal-class-properties",
@@ -53,37 +54,39 @@ export default {
         "@babel/plugin-proposal-logical-assignment-operators",
         ["@babel/plugin-proposal-optional-chaining", { loose: false }],
         ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
-        ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: false }],
+        [
+          "@babel/plugin-proposal-nullish-coalescing-operator",
+          { loose: false },
+        ],
         "@babel/plugin-proposal-do-expressions",
-      ]
+      ],
     }),
     json(),
     resolve({
-      mainFields: ['module', 'main'], // Default: ['module', 'main']
-      jsnext: true,  // Default: false
-      main: true,  // Default: true
-      browser: true,  // Default: false
+      mainFields: ["module", "main"], // Default: ['module', 'main']
+      jsnext: true, // Default: false
+      main: true, // Default: true
+      browser: true, // Default: false
       // not all files you want to resolve are .js files
-      extensions: ['.mjs', '.js', '.jsx', '.json', 'tsx', 'ts', 'tsx'],  // Default: [ '.mjs', '.js', '.json', '.node' ]
-      dedupe: ['react', 'react-dom'], // Default: []
+      extensions: [".mjs", ".js", ".jsx", ".json", "tsx", "ts", "tsx"], // Default: [ '.mjs', '.js', '.json', '.node' ]
+      dedupe: ["react", "react-dom"], // Default: []
       customResolveOptions: {
-        moduleDirectory: 'js_modules'
-      }
+        moduleDirectory: "js_modules",
+      },
     }),
     commonjs({
-      exclude: 'node_modules',
+      exclude: "node_modules",
       ignoreGlobal: true,
     }),
     typescript({
       useTsconfigDeclarationDir: true,
       tsconfigOverride: {
-        exclude: ['**/*.stories.*'],
+        exclude: ["**/*.stories.*"],
       },
-    })
+    }),
   ],
   external: Object.keys(globals),
 };
-
 
 /*
 const pluginsConfig = [
@@ -201,5 +204,3 @@ export default [
   }
 ];
 */
-
-

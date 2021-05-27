@@ -20,7 +20,7 @@ export const StyleWrapper = styled(NodeViewWrapper)`
       border-top: 1px solid #c1c1c1;
       padding-top: 1px;
     }
-    button{
+    button {
       float: right;
     }
   }
@@ -34,15 +34,16 @@ export default function PlaceholderBlock(props) {
       <div className="content">
         <NodeViewContent
           className="editable-content"
-          data-placeholder={props.node.attrs.blockKind.options.placeholder}>
-          <button onClick={()=> props.deleteNode()}>x</button>
+          data-placeholder={props.node.attrs.blockKind.options.placeholder}
+        >
+          <button onClick={() => props.deleteNode()}>x</button>
         </NodeViewContent>
       </div>
     </StyleWrapper>
   );
 }
 
-export const PlaceholderBlockConfig = (options={})=>{
+export const PlaceholderBlockConfig = (options = {}) => {
   let config = {
     name: "PlaceholderBlock",
     tag: "placeholder-block",
@@ -88,6 +89,6 @@ export const PlaceholderBlockConfig = (options={})=>{
         default: {},
       },
     },
-  }
-  return Object.assign(config, options)
-}
+  };
+  return Object.assign(config, options);
+};

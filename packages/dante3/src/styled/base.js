@@ -17,8 +17,7 @@ const EditorContainer = styled.div`
 
   text-rendering: optimizeLegibility;
 
-
-  .ProseMirror{
+  .ProseMirror {
     &:focus-visible {
       outline-color: transparent;
       outline-width: 0px;
@@ -61,12 +60,12 @@ const EditorContainer = styled.div`
     margin-left: 1.5em;
   }
   li {
-      list-style-type: disc;
+    list-style-type: disc;
   }
 
   ul {
-      list-style-type: square;
-      position: relative;
+    list-style-type: square;
+    position: relative;
   }
 
   li {
@@ -78,11 +77,11 @@ const EditorContainer = styled.div`
   ul[data-type="taskList"] {
     list-style: none;
     padding: 0;
-  
+
     li {
       display: flex;
       align-items: center;
-  
+
       > label {
         flex: 0 0 auto;
         margin-right: 0.5rem;
@@ -96,7 +95,7 @@ const EditorContainer = styled.div`
 
     background: ${(props) => props.theme.dante_code_background};
     font-family: ${(props) => props.theme.dante_font_family_mono};
-    font-size: ${(props)=> props.theme.dante_editor_font_size };
+    font-size: ${(props) => props.theme.dante_editor_font_size};
     margin-bottom: 20px;
     padding: 20px;
     white-space: pre-wrap;
@@ -164,7 +163,8 @@ const EditorContainer = styled.div`
 
   h1.graf--h {
     font-family: ${(props) => props.theme.dante_font_family_sans};
-    font-size: ${(props)=> math(`${props.theme.dante_editor_font_size} * 3.2`) };
+    font-size: ${(props) =>
+      math(`${props.theme.dante_editor_font_size} * 3.2`)};
     font-style: normal;
     font-weight: 800;
     letter-spacing: -0.04em;
@@ -193,7 +193,8 @@ const EditorContainer = styled.div`
     letter-spacing: -0.02em;
     font-weight: 700;
     font-style: normal;
-    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.3`)};
+    font-size: ${(props) =>
+      math(`${props.theme.dante_editor_font_size} * 1.3`)};
     margin-left: -1.8px;
     line-height: 1.2;
     margin-top: 40px;
@@ -206,7 +207,8 @@ const EditorContainer = styled.div`
     letter-spacing: -0.02em;
     font-weight: 300;
     font-style: normal;
-    font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.2`)};
+    font-size: ${(props) =>
+      math(`${props.theme.dante_editor_font_size} * 1.2`)};
     margin-left: -1.5px;
     line-height: 1.2;
     color: ${(props) => lighten(0.3, props.theme.dante_text_color)};
@@ -214,28 +216,31 @@ const EditorContainer = styled.div`
     margin-bottom: 0.6em;
   }
 
-
   @media (max-width: 500px) {
     h1.graf--h {
       margin-top: 10px;
       font-size: ${(props) =>
-      math(`${props.theme.dante_editor_font_size} * 1.6`)};
-      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+        math(`${props.theme.dante_editor_font_size} * 1.6`)};
+      line-height: ${(props) =>
+        math(`${props.theme.dante_editor_line_height} * 0.6`)};
     }
 
     h2.graf--h {
       margin-top: 10px;
-      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 1.2`)};
-      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+      font-size: ${(props) =>
+        math(`${props.theme.dante_editor_font_size} * 1.2`)};
+      line-height: ${(props) =>
+        math(`${props.theme.dante_editor_line_height} * 0.6`)};
     }
 
     h3.graf--h {
       margin-top: 10px;
-      font-size: ${(props) => math(`${props.theme.dante_editor_font_size} * 0.9`)};
-      line-height: ${(props) => math(`${props.theme.dante_editor_line_height} * 0.6`)};
+      font-size: ${(props) =>
+        math(`${props.theme.dante_editor_font_size} * 0.9`)};
+      line-height: ${(props) =>
+        math(`${props.theme.dante_editor_line_height} * 0.6`)};
     }
   }
-
 
   @media (max-width: 500px) {
     .graf--h2 {
@@ -487,7 +492,7 @@ const EditorContainer = styled.div`
     display: inline-block;
     margin-left: 0.6em;
     position: relative;
-    color: ${({theme})=> theme.dante_text_color};
+    color: ${({ theme }) => theme.dante_text_color};
     top: -3px;
   }
 

@@ -16,7 +16,7 @@ export default function DividerBlock(props) {
   );
 }
 
-export const DividerBlockConfig = (options={})=>{
+export const DividerBlockConfig = (options = {}) => {
   let config = {
     icon: divider,
     name: "DividerBlock",
@@ -32,18 +32,16 @@ export const DividerBlockConfig = (options={})=>{
     priority: 1,
     parseHTML: [
       {
-        tag: 'divider-block',
+        tag: "divider-block",
       },
       {
-        tag: 'HR'
-      }
+        tag: "HR",
+      },
     ],
     addInputRules() {
-      return [ 
-        /^(?:---|—-|___\s|\*\*\*\s)$/ ,
-      ]
+      return [/^(?:---|—-|___\s|\*\*\*\s)$/];
     },
-  }
-    
-  return Object.assign(config, options)
-}
+  };
+
+  return Object.assign(config, options);
+};

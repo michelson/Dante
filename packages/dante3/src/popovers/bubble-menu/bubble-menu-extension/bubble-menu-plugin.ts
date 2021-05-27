@@ -20,6 +20,8 @@ export class BubbleMenuView {
 
   public view: EditorView;
 
+  public enabled: boolean; //<-- added this
+
   public preventHide = false;
 
   public tippy!: Instance;
@@ -28,10 +30,20 @@ export class BubbleMenuView {
     this.editor = editor;
     this.element = element;
     this.view = view;
+
+    this.enabled = false;
+
     this.element.addEventListener("mousedown", this.mousedownHandler, {
       capture: true,
     });
-    this.editor.on("focus", this.focusHandler);
+
+    this.view.dom.addEventListener("mouseup", this.mouseupHandler, {
+      capture: true,
+    });
+
+    // console.log("INSTANTIATED") // <-- this is called twice ! why?
+
+    //this.editor.on("focus", this.focusHandler); // <-- removed this
     this.editor.on("blur", this.blurHandler);
     this.createTooltip(tippyOptions);
     this.element.style.visibility = "visible";
@@ -41,12 +53,20 @@ export class BubbleMenuView {
     this.preventHide = true;
   };
 
+  mouseupHandler = () => {
+    // console.log("MOUSE UP HANDLER")
+    this.focusHandler(); // <-- call the focus here
+  };
+
   focusHandler = () => {
+    // console.log("FOCUSSSS")
+    this.enabled = true;
     // we use `setTimeout` to make sure `selection` is already updated
     setTimeout(() => this.update(this.editor.view));
   };
 
   blurHandler = ({ event }: { event: FocusEvent }) => {
+    //console.log("BLUR HANDLER")
     if (this.preventHide) {
       this.preventHide = false;
 
@@ -79,6 +99,9 @@ export class BubbleMenuView {
   update(view: EditorView, oldState?: EditorState) {
     const { state, composing } = view;
     const { doc, selection } = state;
+
+    //console.log("UPDATE SELECTION ON", selection.from, selection.to)
+
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
@@ -97,21 +120,30 @@ export class BubbleMenuView {
     // So we check also for an empty text size.
     if (empty || !$anchor.parent.textContent) {
       this.hide();
-
       return;
     }
 
-    this.tippy.setProps({
+    // RETURN IF NOT ENABLED
+    if (!this.enabled) return;
+    // IF PASS SET DISABLED HERE
+    this.enabled = false;
+
+    this.tippy && this.tippy.setProps({
       getReferenceClientRect: () => {
         if (isNodeSelection(view.state.selection)) {
-          const node = view.nodeDOM(from) as HTMLElement
+          const node = view.nodeDOM(from) as HTMLElement;
 
-          if (node) {
-            return node.getBoundingClientRect()
+          if (node && node.getBoundingClientRect) {
+            // return node.getBoundingClientRect()
+            if (node.children[0]) {
+              return node.children[0].getBoundingClientRect(); // THIS
+            } else {
+              return node.getBoundingClientRect();
+            }
           }
         }
 
-        return posToDOMRect(view, from, to)
+        return posToDOMRect(view, from, to);
       },
     });
 
@@ -119,16 +151,18 @@ export class BubbleMenuView {
   }
 
   show() {
-    this.tippy.show();
+    this.tippy && this.tippy.show();
   }
 
   hide() {
-    this.tippy.hide();
+    this.tippy && this.tippy.hide();
   }
 
   destroy() {
     this.tippy.destroy();
+    this.tippy = null
     this.element.removeEventListener("mousedown", this.mousedownHandler);
+    this.view.dom.removeEventListener("mouseup", this.mouseupHandler); // <-- REMOVE THE EVENT
     this.editor.off("focus", this.focusHandler);
     this.editor.off("blur", this.blurHandler);
   }

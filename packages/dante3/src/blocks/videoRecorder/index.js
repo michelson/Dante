@@ -403,8 +403,7 @@ function Loader({ toggle, progress }) {
   );
 }
 
-
-export const VideoRecorderBlockConfig  = (options={}) => {
+export const VideoRecorderBlockConfig = (options = {}) => {
   return {
     name: "VideoRecorderBlock",
     icon: videoRecorderIcon,
@@ -450,5 +449,5 @@ export const VideoRecorderBlockConfig  = (options={}) => {
       },*/
       seconds_to_record: 10000,
     },
-  }
-}
+  };
+};

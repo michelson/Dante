@@ -64,6 +64,7 @@ export default function Index({ }) {
               onUpdate={
                 (editor)=>{
                   console.log("content", editor.getJSON())
+                  window.editor = editor
                   //console.log("content", JSON.stringify(editor.getJSON()))
                 }
               }

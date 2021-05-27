@@ -9,7 +9,7 @@ import { image } from "../icons";
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
 export default function ImageBlock(props) {
-  console.log("IMAGE:", props);
+  // console.log("IMAGE:", props);
   const imageUrl = props.node.attrs.url || props.node.attrs.src;
 
   let img = null;
@@ -47,16 +47,27 @@ export default function ImageBlock(props) {
     });
   }
 
+  function startLoader() {
+    props.updateAttributes({
+      loading: true,
+    });
+  }
+
+  function stopLoader() {
+    props.updateAttributes({
+      loading: false,
+    });
+  }
+
   function handleUpload() {
-    //this.startLoader()
-    //this.updateData()
-    return uploadFile();
+    startLoader()
+    uploadFile();
   }
 
   function formatData() {
     let formData = new FormData();
     if (props.node.attrs.file) {
-      let formName = "file"; // this.props.config.upload_formName || 'file'
+      let formName = props.extension.options.upload_formName || 'file'
 
       formData.append(formName, props.node.attrs.file);
       return formData;
@@ -76,15 +87,15 @@ export default function ImageBlock(props) {
       );
     }
 
-    //if (!this.config.upload_url){
-    //  this.stopLoader()
-    //  return
-    //}
+    if (!props.extension.options.upload_url){
+      stopLoader()
+      return
+    }
 
     //this.props.blockProps.addLock()
 
     function getUploadUrl() {
-      let url = "http://localhost:4000/upload"; //this.props.config.upload_url
+      let url = props.extension.options.upload_url
       if (typeof url === "function") {
         return url();
       } else {
@@ -93,10 +104,9 @@ export default function ImageBlock(props) {
     }
 
     function getUploadHeaders() {
-      return {}; //this.props.config.upload_headers || {}
+      return props.extension.options.upload_headers || {}
     }
 
-    /*
     axios({
       method: 'post',
       url: getUploadUrl(),
@@ -104,34 +114,42 @@ export default function ImageBlock(props) {
       data: formatData(),
       onUploadProgress: e => {
 				console.log("PROCVESSS ", e)
-        //return this.updateProgressBar(e)
+        return updateProgressBar(e)
       }
     }).then(result => {
-			debugger
-      //this.uploadCompleted(result.data.url)
-      //if (this.config.upload_callback) {
-      //  return this.config.upload_callback(result, this)
-      //}
+      uploadCompleted(result.data.url)
+        if (props.extension.options.upload_callback) {
+          return props.extension.options.upload_callback(result, props)
+        }
     }).catch(error => {
       //this.uploadFailed()
       console.log(`ERROR: got error uploading file ${ error }`)
-      //if (this.config.upload_error_callback) {
-      //  return this.config.upload_error_callback(error, this)
-      //}
+      if (props.extension.options.upload_error_callback) {
+        return props.extension.options.upload_error_callback(error, props)
+      }
     })
-		*/
 
-    //return json_response => {
-    return uploadCompleted("https://i.imgur.com/XUWx1hA.jpeg");
-    //return this.uploadCompleted(json_response.url)
-    //}
+    return json_response => {
+      // return uploadCompleted("https://i.imgur.com/XUWx1hA.jpeg");
+      return uploadCompleted(json_response.url)
+    }
   }
 
   function uploadCompleted(url) {
     setImage(url);
     //this.props.blockProps.removeLock()
-    //this.stopLoader()
+    stopLoader()
     file = null;
+  }
+
+  function updateProgressBar(e) {
+    let complete = props.node.attrs.loading_progress
+    if (e.lengthComputable) {
+      complete = e.loaded / e.total * 100
+      complete = complete != null ? complete : { complete: 0 }
+      props.updateAttributes({ loading_progress: complete })
+      console.log(`complete: ${ complete }`)
+    }
   }
 
   function getAspectRatio(w, h) {
@@ -160,43 +178,12 @@ export default function ImageBlock(props) {
     return result;
   }
 
-  function defaultAspectRatio(data) {
-    if (!isEmpty(data.aspect_ratio)) {
-      return {
-        width: data.aspect_ratio["width"],
-        height: data.aspect_ratio["height"],
-        ratio: data.aspect_ratio["ratio"],
-      };
-    } else {
-      return {
-        width: 0,
-        height: 0,
-        ratio: 100,
-      };
-    }
-  }
-
-  function aspectRatio() {
-    return {
-      maxWidth: `${props.node.attrs.aspect_ratio.width}`,
-      maxHeight: `${props.node.attrs.aspect_ratio.height}`,
-      ratio: `${props.node.attrs.aspect_ratio.height}`,
-    };
-  }
-
   function setActive() {
     props.editor.commands.setNodeSelection(props.getPos());
   }
 
   function handleClick(e) {
     console.log("clicked, ", e);
-    setActive();
-  }
-
-  function handleTooptipClick(direction) {
-    props.updateAttributes({
-      direction: direction,
-    });
     setActive();
   }
 
@@ -273,7 +260,7 @@ export default function ImageBlock(props) {
   );
 }
 
-export const ImageBlockConfig = (options={})=>{
+export const ImageBlockConfig = (options = {}) => {
   let config = {
     name: "ImageBlock",
     icon: image,
@@ -300,7 +287,7 @@ export const ImageBlockConfig = (options={})=>{
     },
     options: {
       upload_handler: (file, ctx) => {
-        //debugger;
+        console.log("UPLOADED FILE", file)
       },
     },
     parseHTML: [
@@ -336,7 +323,7 @@ export const ImageBlockConfig = (options={})=>{
         },
       };
     },
-  }
+  };
 
-  return Object.assign(config, options)
-}
+  return Object.assign(config, options);
+};

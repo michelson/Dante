@@ -325,7 +325,6 @@ export const AnchorStyle = styled.div`
   .dante-menu-button .tooltip-icon {
     padding: 10px;
     display: inline-block;
-
   }
 
   .dante-menu-button .dante-icon:hover .icon-fillcolor {

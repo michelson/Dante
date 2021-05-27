@@ -1,4 +1,3 @@
+import { darkTheme, defaultTheme } from "./styled/themes";
 
-import {darkTheme, defaultTheme} from './styled/themes'
-
-export default darkTheme
+export default darkTheme;

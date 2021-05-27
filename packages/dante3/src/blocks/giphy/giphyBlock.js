@@ -1,7 +1,7 @@
 import React from "react";
 
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
-import styled from '@emotion/styled'
+import styled from "@emotion/styled";
 import { giphyLogo } from "../../icons";
 
 import Giphy from "./giphy";
@@ -13,12 +13,12 @@ const Modal = styled.div`
   bottom: 0;
   left: 0;
   z-index: 10;
-  //background-color: ${(props)=> props.theme.dante_control_color };
+  //background-color: ${(props) => props.theme.dante_control_color};
   position: fixed;
   justify-content: center;
   align-items: center;
   display: flex;
-`
+`;
 
 const ModalWrapper = styled.div`
   padding: 1.5rem;
@@ -31,14 +31,14 @@ const ModalWrapper = styled.div`
   position: relative;
   box-shadow: 1px 2px 7px 0px #27262673;
   border: 1px solid #2f2f2f3b;
-  background-color: ${(props)=> props.theme.dante_inversed_color };
+  background-color: ${(props) => props.theme.dante_inversed_color};
 
   input {
-    padding: .4em;
+    padding: 0.4em;
     border: 1px solid #ccc;
     width: 100%;
   }
-`
+`;
 
 const GiphyLogo = () => {
   return (
@@ -115,12 +115,12 @@ export default class GiphyBlock extends React.Component {
   defaultData = () => {
     //const existing_data = this.props.block.getData().toJS();
     //return existing_data.embed_data || {};
-    return {}
+    return {};
   };
 
   deleteSelf = (e) => {
     e.preventDefault();
-    this.props.deleteNode()
+    this.props.deleteNode();
   };
 
   getAspectRatio = (w, h) => {
@@ -162,37 +162,33 @@ export default class GiphyBlock extends React.Component {
     });
   };
 
-  selfDestroy = ()=>{
-    this.props.deleteNode()
-  }
+  selfDestroy = () => {
+    this.props.deleteNode();
+  };
 
   render() {
     // console.log(this.state.collection)
     return (
       <NodeViewWrapper className="dante-giphy-wrapper">
         <div contentEditable={false}>
-            <Modal>
-              <ModalWrapper>
-                <button onClick={this.selfDestroy}>
-                  close
-                </button>
-                <Giphy
-                  apiKey={this.props.extension.config.defaultOptions.key}
-                  handleSelected={(data) => {
-                    this.selectImage(data);
-                  }}
-                />              
-              </ModalWrapper>
-            </Modal>
+          <Modal>
+            <ModalWrapper>
+              <button onClick={this.selfDestroy}>close</button>
+              <Giphy
+                apiKey={this.props.extension.config.defaultOptions.key}
+                handleSelected={(data) => {
+                  this.selectImage(data);
+                }}
+              />
+            </ModalWrapper>
+          </Modal>
         </div>
-        
       </NodeViewWrapper>
     );
   }
 }
 
-
-export const GiphyBlockConfig = (options = {})=>{
+export const GiphyBlockConfig = (options = {}) => {
   let config = {
     icon: giphyLogo,
     name: "GiphyBlock",
@@ -201,12 +197,12 @@ export const GiphyBlockConfig = (options = {})=>{
     atom: true,
     widget_options: {
       displayOnInlineTooltip: true,
-      insertion: 'insertion',
-      insert_block: 'GiphyBlock'
+      insertion: "insertion",
+      insert_block: "GiphyBlock",
     },
     options: {
-      placeholder: 'Search any gif on giphy',
-      key: '97g39PuUZ6Q49VdTRBvMYXRoKZYd1ScZ'
+      placeholder: "Search any gif on giphy",
+      key: "97g39PuUZ6Q49VdTRBvMYXRoKZYd1ScZ",
     },
     attributes: {
       embed_data: {
@@ -214,11 +210,10 @@ export const GiphyBlockConfig = (options = {})=>{
       },
       provisory_text: { default: null },
     },
-  }
+  };
 
-  return Object.assign(config, options)
-}
-
+  return Object.assign(config, options);
+};
 
 /*
 export const GiphyBlockConfig = (options = {}) => {

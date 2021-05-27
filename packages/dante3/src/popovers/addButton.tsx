@@ -3,16 +3,26 @@ import { add } from "../icons.js";
 import { InlinetooltipWrapper } from "../styled/base";
 
 const AddButton = React.forwardRef(
-  (props: { display: any, position: any, widgets: any, editor: any, fixed: any }, ref: any) => {
-    
-    const {display, position, widgets, editor, fixed} = props
+  (
+    props: {
+      display: any;
+      position: any;
+      widgets: any;
+      editor: any;
+      fixed: any;
+    },
+    ref: any
+  ) => {
+    const { display, position, widgets, editor, fixed } = props;
     const [scaled, setScaled] = React.useState(false);
-    const [scaledWidth, setScaledWidth] = React.useState(fixed ? '100%' : '0px');
+    const [scaledWidth, setScaledWidth] = React.useState(
+      fixed ? "100%" : "0px"
+    );
 
     let fileInput = React.useRef(null);
 
     React.useEffect(() => {
-      const val = scaled ? '300px' : '0'
+      const val = scaled ? "300px" : "0";
       setScaledWidth(val);
     }, [scaled]);
 
@@ -153,24 +163,28 @@ const AddButton = React.forwardRef(
         className={`inlineTooltip ${activeClass()} ${scaledClass()}`}
         style={position}
       >
-        {!fixed && <button
-          type="button"
-          className="inlineTooltip-button control"
-          title="Close Menu"
-          data-action="inline-menu"
-          onMouseDown={_toggleScaled}
-        >
-          {add()}
-        </button>}
+        {!fixed && (
+          <button
+            type="button"
+            className="inlineTooltip-button control"
+            title="Close Menu"
+            data-action="inline-menu"
+            onMouseDown={_toggleScaled}
+          >
+            {add()}
+          </button>
+        )}
 
         <div
-          className={`inlineTooltip-menu ${fixed ? 'inlineTooltip-menu-fixed' : '' }`}
-          style={{ width: `${fixed ? '-1' : scaledWidth}` }}
+          className={`inlineTooltip-menu ${
+            fixed ? "inlineTooltip-menu-fixed" : ""
+          }`}
+          style={{ width: `${fixed ? "-1" : scaledWidth}` }}
         >
           {getItems().map((item, i) => {
             return (
               <InlineTooltipItem
-                title={''}
+                title={""}
                 item={item}
                 key={i}
                 clickHandler={clickHandler}

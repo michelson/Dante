@@ -1,21 +1,26 @@
-import { Dialog, Transition } from '@headlessui/react'
-import { Fragment, useState , useEffect} from 'react'
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, useState, useEffect } from "react";
 
-export default function MyModal({isOpen, setIsOpen, title, description, children}) {
-
+export default function MyModal({
+  isOpen,
+  setIsOpen,
+  title,
+  description,
+  children,
+}) {
   function closeModal() {
-    setIsOpen(false)
+    setIsOpen(false);
   }
 
   function openModal() {
-    setIsOpen(true)
+    setIsOpen(true);
   }
 
-	useEffect(()=>{
-		setTimeout(()=>{
-			setIsOpen(true)
-		}, 200)
-	}, [])
+  useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true);
+    }, 200);
+  }, []);
 
   return (
     <>
@@ -71,9 +76,7 @@ export default function MyModal({isOpen, setIsOpen, title, description, children
                 >
                   {title}
                 </Dialog.Title>
-                <div className="mt-2">
-                  {children}
-                </div>
+                <div className="mt-2">{children}</div>
 
                 <div className="mt-4">
                   <button
@@ -90,5 +93,5 @@ export default function MyModal({isOpen, setIsOpen, title, description, children
         </Dialog>
       </Transition>
     </>
-  )
+  );
 }

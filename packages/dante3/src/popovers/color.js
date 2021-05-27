@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 import { fontColor } from "../icons.js";
-import useDebounce from '../hooks/useDebounce'
+import useDebounce from "../hooks/useDebounce";
 
 export default function DanteTooltipColor(props) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(props.value);
 
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState(props.value)
-
-  const debouncedValue = useDebounce( value , 200);
+  const debouncedValue = useDebounce(value, 200);
 
   function toggle(ev) {
     // let selection = this.props.editorState.getSelection()
     // prevent unselection of selection
     ev.preventDefault();
-    setOpen(!open)
-  };
+    setOpen(!open);
+  }
 
   useEffect(
     () => {
@@ -33,9 +32,9 @@ export default function DanteTooltipColor(props) {
     } else {
       return
     }*/
-  };
+  }
 
-  function renderColor(){
+  function renderColor() {
     const v = currentValue() || props.value;
 
     if (open) {
@@ -50,7 +49,7 @@ export default function DanteTooltipColor(props) {
           <HexColorPicker
             color={v}
             onChange={(color, e) => {
-              setValue(color)
+              setValue(color);
               //handleChange(e, color);
               //this.handleClick(e,  color )
             }}
@@ -58,7 +57,7 @@ export default function DanteTooltipColor(props) {
         </div>
       );
     }
-  };
+  }
 
   return (
     <li className="dante-menu-button">

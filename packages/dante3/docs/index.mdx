@@ -14,54 +14,45 @@ order: 10
 This is an empty editor. Will be initialized with default tooltips
 
 ```js live=true
-  <Dante />
+<Dante />
 ```
-
 
 Is the same as
 
 ```js live=true
-  <Dante content={null} />
+<Dante content={null} />
 ```
 
 ## Body placeholder
 
 ```js live=true
-  <Dante bodyPlaceholder={"Do what you will" } 
-  />
+<Dante bodyPlaceholder={"Do what you will"} />
 ```
-
 
 ## Read Only
 
 Read only will disable all interaction
 
 ```js live=true
-<Dante readOnly={true} content={"hello this is a non editable content"}/>
+<Dante readOnly={true} content={"hello this is a non editable content"} />
 ```
-
 
 ## onUpdate callback
 
-onUpdate func will return the entire instance of the editor, so you can use all it's methods. 
+onUpdate func will return the entire instance of the editor, so you can use all it's methods.
 
 ### Save override example:
 
 ```js live=true
-
 <State initial={{ data: "" }}>
-	{({ state, setState }) => (
-		<div>
-			<Dante onUpdate={ 
-        (editor)=> setState({data:  editor.getHTML()}) }
-      />
+  {({ state, setState }) => (
+    <div>
+      <Dante onUpdate={(editor) => setState({ data: editor.getHTML() })} />
 
-			<div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
         {`${state.data}`}
       </div>
-			
-		</div>
-	)}
+    </div>
+  )}
 </State>
 ```
-
