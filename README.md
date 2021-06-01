@@ -5,7 +5,11 @@
 > Dante3 is a ProseMirror port of [Dante2 (Draftjs) ](https://github.com/michelson/Dante/tree/master/packages/dante2). 
 This version is built on top of [TipTap's Prosemirror](https://www.tiptap.dev/) and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture.
 
-See the demo at: [dante-editor.dev](https://dante.vercel.com)
+See the demo at: [dante-editor.dev](https://dante-editor.dev)
+
+
+https://user-images.githubusercontent.com/11976/120087165-bb5c4f00-c0b3-11eb-9002-97c480f3725a.mp4
+
 
 ## Why rewrite a new version of Dante?
 
@@ -94,7 +98,7 @@ This repository now contains prior Dante versions, located in the [packages](htt
 Dante is licensed under MIT, so you are free to do whatever you want. If you are using it commercially, become one of our wonderful sponsors to fund the maintenance, support and development of Dante now and in the future.
 
 #### 💓 Your sponsorship
-> Your sponsorship helps to maintain, update, support and develop all of our open source projects, including tiptap and many more.
+> Your sponsorship helps to maintain, update, support and develop all of our open source projects.
 
 ### Acknowledgments
 
