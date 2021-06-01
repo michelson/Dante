@@ -84,6 +84,20 @@ export default function EmbedBlock(props) {
     //}
   }
 
+  function parseEmbedData(){
+    if(typeof(props.node.attrs.embed_data) === "string"){
+      try {
+        return JSON.parse(props.node.attrs.embed_data)        
+      } catch (error) {
+        return {}
+      }
+    } else {
+      return props.node.attrs.embed_data
+    }
+  }
+
+  const embed_data = parseEmbedData()
+
   return (
     <StyleWrapper
       selected={props.selected}
@@ -97,7 +111,7 @@ export default function EmbedBlock(props) {
             <a
               target="_blank"
               className={`js-mixtapeImage mixtapeImage ${classForImage()}`}
-              href={props.node.attrs.embed_data.url}
+              href={embed_data.url}
               style={{ backgroundImage: `url('${picture()}')` }}
               rel={"noreferrer"}
             />
@@ -120,22 +134,22 @@ export default function EmbedBlock(props) {
           <a
             className="markup--anchor markup--mixtapeEmbed-anchor"
             target="_blank"
-            href={props.node.attrs.embed_data.url}
+            href={embed_data.url}
             onClick={handleClick}
-            contentEditable={false}
+            contentEditable={false} 
+            rel="noreferrer"
           >
             <strong className="markup--strong markup--mixtapeEmbed-strong">
-              {props.node.attrs.embed_data.title}
+              {embed_data.title}
             </strong>
 
             <em className="markup--em markup--mixtapeEmbed-em">
-              {props.node.attrs.embed_data.description}
+              {embed_data.description}
             </em>
           </a>
 
           <span contentEditable={false}>
-            {props.node.attrs.embed_data.provider_url ||
-              props.node.attrs.embed_data.url}
+            {embed_data.provider_url || embed_data.url}
           </span>
         </span>
       </NodeViewContent>
@@ -164,6 +178,12 @@ export const EmbedBlockConfig = (options = {}) => {
         default: {},
       },
       provisory_text: { default: null },
+    },
+    dataSerializer: (data)=>{
+      return {
+        ...data, 
+        embed_data: JSON.stringify(data.embed_data),
+      }
     },
   };
 

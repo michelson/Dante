@@ -25,7 +25,7 @@ export const Color = Extension.create({
               };
             },
             parseHTML: (element) => ({
-              color: element.style.fontFamily.replace(/['"]+/g, ""),
+              color: element.style.color.replace(/['"]+/g, ""),
             }),
           },
         },

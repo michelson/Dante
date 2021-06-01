@@ -1,5 +1,5 @@
-import { Node, mergeAttributes } from "@tiptap/core";
-import { ReactNodeViewRenderer } from "@tiptap/react";
+import { Node } from "@tiptap/core";
+import { ReactNodeViewRenderer, mergeAttributes } from "@tiptap/react";
 import { nodeInputRule } from "@tiptap/core";
 
 export function extensionFactory(options) {
@@ -82,8 +82,9 @@ export function extensionFactory(options) {
       );
     },
     renderHTML({ HTMLAttributes }) {
-      //mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)
-      return [options.tag, mergeAttributes(HTMLAttributes)];
+      console.log(HTMLAttributes)
+      const attributes = options.dataSerializer ? options.dataSerializer(HTMLAttributes) : HTMLAttributes
+      return [options.tag, mergeAttributes(attributes)];
     },
     addNodeView() {
       return ReactNodeViewRenderer(options.component);

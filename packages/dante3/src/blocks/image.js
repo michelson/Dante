@@ -36,7 +36,8 @@ export default function ImageBlock(props) {
     //  return;
     //}
 
-    return (img.onload = () => {
+    if(props.node.attrs.aspect_ratio) return
+    img.onload = () => {
       props.updateAttributes({
         width: img.width,
         height: img.height,
@@ -44,7 +45,7 @@ export default function ImageBlock(props) {
       });
 
       return handleUpload();
-    });
+    }
   }
 
   function startLoader() {
@@ -202,8 +203,19 @@ export default function ImageBlock(props) {
     }
   }
 
-  const { width, height, ratio } = props.node.attrs.aspect_ratio;
-  //console.log("WWW", width, height, ratio);
+  function parseAspectRatio(){
+    if(typeof(props.node.attrs.aspect_ratio) === "string"){
+      try {
+        return JSON.parse(props.node.attrs.aspect_ratio)        
+      } catch (error) {
+        return {}
+      }
+    } else {
+      return props.node.attrs.aspect_ratio
+    }
+  }
+
+  const { width, height, ratio } = parseAspectRatio();
   return (
     <StyleWrapper
       selected={props.selected}
@@ -284,6 +296,13 @@ export const ImageBlockConfig = (options = {}) => {
           ratio: 100,
         },
       },
+    },
+    dataSerializer: (data)=>{
+      return {
+        ...data, 
+        aspect_ratio: JSON.stringify(data.aspect_ratio),
+        file: null
+      }
     },
     options: {
       upload_handler: (file, ctx) => {

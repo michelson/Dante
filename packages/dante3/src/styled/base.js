@@ -59,12 +59,14 @@ const EditorContainer = styled.div`
     counter-reset: ol0;
     margin-left: 1.5em;
   }
-  li {
-    list-style-type: disc;
-  }
 
   ul {
-    list-style-type: square;
+    list-style-type: disc;
+    position: relative;
+  }
+
+  ol {
+    list-style-type: decimal;
     position: relative;
   }
 

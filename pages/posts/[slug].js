@@ -38,7 +38,7 @@ export default function PostPage({ source, frontMatter, posts }) {
 
         <div className="min-w-0 w-full flex-auto lg:static lg:max-h-full lg:overflow-visible">
           
-          <main className="p-10 bg-gray-200">
+          <main className="sm:p-10 p-2 bg-gray-200">
 
             <div className="bg-white p-4 lg:p-10  shadow-md">
               <h1>

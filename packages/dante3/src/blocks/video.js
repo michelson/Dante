@@ -59,15 +59,29 @@ export default function VideoBlock(props) {
   }
 
   function renderEmbedHtml() {
+    const embed_data = parseEmbedData()
+
     if (dataForUpdate().mediaRenderHandler) {
       return dataForUpdate().mediaRenderHandler();
     } else {
-      return props.node.attrs.embed_data.media
-        ? props.node.attrs.embed_data.media.html
-        : props.node.attrs.embed_data.html;
+      return embed_data.media
+        ? embed_data.media.html
+        : embed_data.html;
     }
   }
 
+  function parseEmbedData(){
+    if(typeof(props.node.attrs.embed_data) === "string"){
+      try {
+        return JSON.parse(props.node.attrs.embed_data)        
+      } catch (error) {
+        return {}
+      }
+    } else {
+      return props.node.attrs.embed_data
+    }
+  }
+  
   return (
     <StyleWrapper
       as="figure"
@@ -114,6 +128,12 @@ export const VideoBlockConfig = (options = {}) => {
         default: {},
       },
       provisory_text: { default: null },
+    },
+    dataSerializer: (data)=>{
+      return {
+        ...data, 
+        embed_data: JSON.stringify(data.embed_data),
+      }
     },
   };
 };

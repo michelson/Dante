@@ -102,13 +102,12 @@ export default class GiphyBlock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      embed_data: this.defaultData(),
       open: true,
     };
   }
 
   componentDidMount() {
-    console.log("GIPYH", this.props);
+    // console.log("GIPYH", this.props);
     //this.props.blockProps.toggleEditable();
   }
 
@@ -204,12 +203,7 @@ export const GiphyBlockConfig = (options = {}) => {
       placeholder: "Search any gif on giphy",
       key: "97g39PuUZ6Q49VdTRBvMYXRoKZYd1ScZ",
     },
-    attributes: {
-      embed_data: {
-        default: {},
-      },
-      provisory_text: { default: null },
-    },
+    attributes: {},
   };
 
   return Object.assign(config, options);

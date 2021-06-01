@@ -1,8 +1,14 @@
 import Layout from '../components/Layout'
 import {Component, useEffect, useState} from 'react'
 
-import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3/src' //'../packages/dante3'
-import {contentDemo} from "../packages/dante3/src/data/content";
+import Dante, {
+  darkTheme, 
+  defaultTheme, 
+  defaultPlugins
+} from '../packages/dante3/src' //
+// from '../packages/dante3'
+
+import { contentDemo as htmlContent} from "../packages/dante3/src/data/content";
 
 import {version, name} from '../packages/dante3/package.json'
 
@@ -34,7 +40,7 @@ export default function Index({ }) {
       <div className={`sm:mx-10 mx-2 py-8 ${mode}`} 
         heme={theme}>
         <div>
-          <div className={`sm:w-3/4 sm:p-10 p-2 md:mx-auto shadow-md- bg-gray-50- dark:bg-black light`}>
+          <div className={`sm:w-3/4 p-10 md:mx-auto shadow-md- bg-gray-50- dark:bg-black light`}>
 
             {/*<button
               className="inline-flex items-center px-6 py-3 border 
@@ -49,7 +55,7 @@ export default function Index({ }) {
               widgets={defaultPlugins}
               theme={theme}
               fixed={fixed}
-              content={contentDemo}
+              content={htmlContent}
               /*widgets={[
                 ImageBlockConfig(),
                 CodeBlockConfig(),
@@ -63,8 +69,7 @@ export default function Index({ }) {
               read_only={false}
               onUpdate={
                 (editor)=>{
-                  console.log("content", editor.getJSON())
-                  window.editor = editor
+                  console.log("content", editor.getHTML())
                   //console.log("content", JSON.stringify(editor.getJSON()))
                 }
               }
