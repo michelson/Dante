@@ -62,7 +62,7 @@ Component Based
 
 Many configuration options and plugin usage can be found on the documentation page:
 
-See [dante-editor.dev](https://dante.vercel.com)
+See [dante-editor.dev](https://dante-editor.dev)
 
 
 ## Development
