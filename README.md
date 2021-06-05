@@ -5,6 +5,8 @@
 
 > Dante3 is a port from [Dante2 (Draftjs) ](https://github.com/michelson/Dante/tree/master/packages/dante2). This version is built on top of [TipTap](https://www.tiptap.dev/) and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture.
 
+https://user-images.githubusercontent.com/11976/120087165-bb5c4f00-c0b3-11eb-9002-97c480f3725a.mp4
+
 See the demo at: [dante-editor.dev](https://dante.vercel.com/)
 
 **Why rewrite a new version of Dante?**
