@@ -36,7 +36,7 @@ export default function ImageBlock(props) {
     //  return;
     //}
 
-    if(props.node.attrs.aspect_ratio) return
+    //if(props.node.attrs.aspect_ratio) return
     img.onload = () => {
       props.updateAttributes({
         width: img.width,
