@@ -60,7 +60,7 @@ export default function DanteTooltipColor(props) {
   }
 
   return (
-    <li className="dante-menu-button">
+    <li className="dante-menu-button dante-menu-button--color">
       <span className={"dante-icon"} onMouseDown={toggle}>
         {fontColor()}
       </span>

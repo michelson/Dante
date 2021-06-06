@@ -16,7 +16,6 @@ import {
   h1,
   h2,
   h3,
-  h4,
   blockquote,
   code,
 } from "../icons";
@@ -32,7 +31,7 @@ function DanteTooltipLink({ enableLinkMode, selected }) {
 
   return (
     <li
-      className={`dante-menu-button ${selected ? "active" : ""}`}
+      className={`dante-menu-button dante-menu-button--link ${selected && "active"}`}
       onMouseDown={promptForLink}
     >
       <span className={"dante-icon"}>{link()}</span>
@@ -57,9 +56,9 @@ export default function MenuBar({ editor, fixed }) {
   function displayLinkMode() {
     if (linkState.link_mode) {
       return "dante-menu--linkmode";
-    } else {
-      return "";
     }
+
+    return "";
   }
 
   function displayActiveMenu() {
@@ -70,10 +69,10 @@ export default function MenuBar({ editor, fixed }) {
     }
   }
 
-  function itemClass(kind, opts = null) {
-    if (!opts)
-      return `dante-menu-button ${editor.isActive(kind) ? "active" : ""}`;
-    return `dante-menu-button ${editor.isActive(kind, opts) ? "active" : ""}`;
+  function itemClass(kind, opts) {
+    const hasOptions = opts && `-${Object.values(opts)[0]}`;
+
+    return `dante-menu-button dante-menu-button--${kind}${hasOptions} ${editor.isActive(kind, opts) && "active"}`;
   }
 
   function handleInputEnter(e) {
@@ -117,8 +116,9 @@ export default function MenuBar({ editor, fixed }) {
   }
 
   function fixedStyles() {
-    if (!fixed) return { width: `${11 * 43}px` };
-    if (fixed) return { position: `sticky`, top: "0" };
+    if (!fixed) return { width: 'max-content' };
+
+    return { position: `sticky`, top: "0" };
   }
 
   function renderMenu() {
@@ -131,19 +131,19 @@ export default function MenuBar({ editor, fixed }) {
         className={`dante-menu ${displayLinkMode()}`}
         style={fixedStyles()}
       >
-        <div className="dante-menu-linkinput" style={{ width: `${11 * 43}px` }}>
+        <div className="dante-menu-linkinput">
           <input
             className="dante-menu-input"
             placeholder={"put your souce here"}
             onKeyPress={handleInputEnter}
-            //defaultValue={ this.getDefaultValue() }
+          //defaultValue={ this.getDefaultValue() }
           />
           <div className="dante-menu-button" onMouseDown={_disableLinkMode}>
             <span className={"dante-icon"}>{close()}</span>
           </div>
         </div>
 
-        <div className="dante-menu-buttons" style={linkState.menu_style}>
+        <ul className="dante-menu-buttons" style={linkState.menu_style}>
           <li
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={itemClass("bold")}
@@ -220,7 +220,7 @@ export default function MenuBar({ editor, fixed }) {
           >
             <span className={"dante-icon"}>{blockquote()}</span>
           </li>
-        </div>
+        </ul>
       </AnchorStyle>
     );
   }
