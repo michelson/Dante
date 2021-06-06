@@ -89,6 +89,7 @@ export class BubbleMenuView {
       getReferenceClientRect: null,
       content: this.element,
       interactive: true,
+      maxWidth: "",
       trigger: "manual",
       placement: "top",
       hideOnClick: "toggle",
@@ -128,24 +129,25 @@ export class BubbleMenuView {
     // IF PASS SET DISABLED HERE
     this.enabled = false;
 
-    this.tippy && this.tippy.setProps({
-      getReferenceClientRect: () => {
-        if (isNodeSelection(view.state.selection)) {
-          const node = view.nodeDOM(from) as HTMLElement;
+    this.tippy &&
+      this.tippy.setProps({
+        getReferenceClientRect: () => {
+          if (isNodeSelection(view.state.selection)) {
+            const node = view.nodeDOM(from) as HTMLElement;
 
-          if (node && node.getBoundingClientRect) {
-            // return node.getBoundingClientRect()
-            if (node.children[0]) {
-              return node.children[0].getBoundingClientRect(); // THIS
-            } else {
-              return node.getBoundingClientRect();
+            if (node && node.getBoundingClientRect) {
+              // return node.getBoundingClientRect()
+              if (node.children[0]) {
+                return node.children[0].getBoundingClientRect(); // THIS
+              } else {
+                return node.getBoundingClientRect();
+              }
             }
           }
-        }
 
-        return posToDOMRect(view, from, to);
-      },
-    });
+          return posToDOMRect(view, from, to);
+        },
+      });
 
     this.show();
   }
@@ -160,7 +162,7 @@ export class BubbleMenuView {
 
   destroy() {
     this.tippy.destroy();
-    this.tippy = null
+    this.tippy = null;
     this.element.removeEventListener("mousedown", this.mousedownHandler);
     this.view.dom.removeEventListener("mouseup", this.mouseupHandler); // <-- REMOVE THE EVENT
     this.editor.off("focus", this.focusHandler);

@@ -1,43 +1,43 @@
 import Layout from '../components/Layout'
-import {Component, useEffect, useState} from 'react'
+import { Component, useEffect, useState } from 'react'
 
 import Dante, {
-  darkTheme, 
-  defaultTheme, 
+  darkTheme,
+  defaultTheme,
   defaultPlugins
 } from '../packages/dante3/src' //
 // from '../packages/dante3'
 
-import { contentDemo as htmlContent} from "../packages/dante3/src/data/content";
+import { contentDemo as htmlContent } from "../packages/dante3/src/data/content";
 
-import {version, name} from '../packages/dante3/package.json'
+import { version, name } from '../packages/dante3/package.json'
 
 export default function Index({ }) {
   const [theme, setTheme] = useState(defaultTheme)
   const [mode, setMode] = useState('light')
   const [fixed, setFixed] = useState(false)
 
-  function onClick(m){
+  function onClick(m) {
     console.log(m)
     const t = m == 'dark' ? darkTheme : defaultTheme
-    setTheme( t )
+    setTheme(t)
     setMode(m)
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     setTheme(mode === 'light' ? defaultTheme : darkTheme)
   }, [mode])
 
   return (
-    <Layout 
+    <Layout
       version={version}
       name={name}
-      theme={theme} 
-      setTheme={setTheme} 
+      theme={theme}
+      setTheme={setTheme}
       mode={mode}
       setMode={setMode}>
-      
-      <div className={`sm:mx-10 mx-2 py-8 ${mode}`} 
+
+      <div className={`sm:mx-10 mx-2 py-8 ${mode}`}
         heme={theme}>
         <div>
           <div className={`sm:w-3/4 p-10 md:mx-auto shadow-md- bg-gray-50- dark:bg-black light`}>
@@ -51,10 +51,11 @@ export default function Index({ }) {
               {mode === 'dark' ? 'light mode' : 'dark mode'}
             </button>*/}
 
-            <Dante 
+            <Dante
               widgets={defaultPlugins}
               theme={theme}
               fixed={fixed}
+              hasPopOver={true}
               content={htmlContent}
               /*widgets={[
                 ImageBlockConfig(),
@@ -66,17 +67,17 @@ export default function Index({ }) {
                 VideoRecorderBlockConfig()
               ]}*/
               style={{}}
-              read_only={false}
+              readOnly={false}
               onUpdate={
-                (editor)=>{
+                (editor) => {
                   console.log("content", editor.getHTML())
                   //console.log("content", JSON.stringify(editor.getJSON()))
                 }
               }
-              data_storage={ 
+              data_storage={
                 {
                   interval: 10000,
-                  save_handler: (context, content)=>{
+                  save_handler: (context, content) => {
                     //console.log(context, content)
                   }
                 }

@@ -29,6 +29,7 @@ export const AnchorStyle = styled.div`
   // &:after  -> Triangulo
 
   &.dante-menu {
+    position: relative;
     &:after {
       content: "";
       height: 0;
@@ -223,16 +224,16 @@ export const AnchorStyle = styled.div`
 
     &:first-of-type {
       border-top-left-radius: ${(props) =>
-        props.theme.dante_menu_border_radius};
+    props.theme.dante_menu_border_radius};
       border-bottom-left-radius: ${(props) =>
-        props.theme.dante_menu_border_radius};
+    props.theme.dante_menu_border_radius};
       padding-left: 18px;
     }
     &:last-child {
       border-top-right-radius: ${(props) =>
-        props.theme.dante_menu_border_radius};
+    props.theme.dante_menu_border_radius};
       border-bottom-right-radius: ${(props) =>
-        props.theme.dante_menu_border_radius};
+    props.theme.dante_menu_border_radius};
       padding-right: 18px;
     }
   }
@@ -268,7 +269,8 @@ export const AnchorStyle = styled.div`
     top: 0;
     left: 0;
     width: 100%;
-    padding: 13px 40px 13px 10px;
+    height: 100%;
+    padding: 0 40px 0 10px;
     color: ${(props) => props.theme.dante_menu_color};
     background: transparent;
     border: none;
