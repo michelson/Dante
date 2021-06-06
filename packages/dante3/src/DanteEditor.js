@@ -1,17 +1,4 @@
-import React, { useEffect, useState } from "react";
-//import { getNodeType } from "@tiptap/core";
-import {
-  useEditor,
-  EditorContent,
-  FloatingMenu,
-  ReactNodeViewRenderer,
-} from "@tiptap/react";
-
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import TextStyle from "@tiptap/extension-text-style";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import Focus from "@tiptap/extension-focus";
+import React, { useState } from "react";
 
 //import './styles.scss'
 import { ThemeProvider } from "@emotion/react";
@@ -20,14 +7,14 @@ import darkTheme from "./styled/themes/dark";
 
 import { ImageBlockConfig } from "./blocks/image";
 import { VideoRecorderBlockConfig } from "./blocks/videoRecorder";
-import CodeBlock, { CodeBlockConfig } from "./blocks/code";
+import { CodeBlockConfig } from "./blocks/code";
 import { PlaceholderBlockConfig } from "./blocks/placeholder";
 import { DividerBlockConfig } from "./blocks/divider";
 import { GiphyBlockConfig } from "./blocks/giphy/giphyBlock";
 import { EmbedBlockConfig } from "./blocks/embed";
 import { VideoBlockConfig } from "./blocks/video";
 
-import defaultContent, { jsonContent } from "./data/content";
+import { jsonContent } from "./data/content";
 // load all highlight.js languages
 import lowlight from "lowlight";
 //import SaveBehavior from './data/save_content'
@@ -52,6 +39,7 @@ export default function Editor() {
   const [log, setLog] = useState(null);
   const [theme, setTheme] = useState("light");
   const [fixed, setFixed] = useState(false);
+  const [hasPopOver, setHasPopOver] = useState(false);
 
   const [themeOptions, setThemeOptions] = useState(getDefaultTheme());
 
@@ -147,6 +135,7 @@ export default function Editor() {
           appendPlugins={optionalPlugins}
           theme={themeOptions}
           fixed={fixed}
+          hasPopOver={hasPopOver}
           content={jsonContent}
         />
       </EditorContainer>
