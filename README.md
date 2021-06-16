@@ -7,7 +7,7 @@
 
 https://user-images.githubusercontent.com/11976/120087165-bb5c4f00-c0b3-11eb-9002-97c480f3725a.mp4
 
-See the demo at: [dante-editor.dev](https://dante.vercel.com/)
+See the demo at: [dante-editor.dev](https://dante-editor.dev)
 
 **Why rewrite a new version of Dante?**
 ---------------------------------------
