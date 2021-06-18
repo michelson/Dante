@@ -91,8 +91,8 @@ const AddButton = React.forwardRef(
       editor.commands.insertContent({
         type: "PlaceholderBlock",
         attrs: {
-          blockKind: block
-        }
+          blockKind: block,
+        },
       });
       console.log("placeholder: to be implemented", block);
     }
@@ -100,7 +100,7 @@ const AddButton = React.forwardRef(
     function handleInsertion(block) {
       editor.commands.insertContent({
         type: block.name,
-        attrs: {}
+        attrs: {},
       });
       console.log("insertion: to be implemented", block);
     }
@@ -128,7 +128,7 @@ const AddButton = React.forwardRef(
 
       let opts = {
         url: URL.createObjectURL(file),
-        file
+        file,
       };
       // cleans input image value
       fileInput.current.value = "";
@@ -142,8 +142,8 @@ const AddButton = React.forwardRef(
         type: "ImageBlock",
         attrs: {
           file: file,
-          url: URL.createObjectURL(file)
-        }
+          url: URL.createObjectURL(file),
+        },
       });
     }
 
@@ -215,7 +215,7 @@ function InlineTooltipItem({ item, clickHandler, title }) {
   return (
     <button
       type="button"
-      className="inlineTooltip-button scale"
+      className={`inlineTooltip-button inlineTooltip-button--${item.tag} scale`}
       title={title}
       onMouseDown={onMouseDown}
       onClick={(e) => e.preventDefault()}

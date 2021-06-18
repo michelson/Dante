@@ -6,6 +6,7 @@ import {
   FloatingMenu,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
+import { Editor as IEditor } from "@tiptap/core";
 
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -36,16 +37,26 @@ import lowlight from "lowlight";
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
 
+interface Props extends Record<string, any> {
+  fixed: boolean;
+  hasPopOver: boolean;
+  content: string;
+  onUpdate: (args: IEditor) => void;
+  readOnly: boolean;
+  bodyPlaceholder: string;
+}
+
 export default function Editor({
   widgets,
   theme,
-  fixed,
+  fixed = false,
+  hasPopOver = true,
   content,
   onUpdate,
   readOnly,
   bodyPlaceholder,
   extensions,
-}) {
+}: Props) {
   function basePlugins() {
     return [
       StarterKit.configure({
@@ -131,10 +142,11 @@ export default function Editor({
 
   //window.editor = editor;
 
-  function isPopOverEnabledFor(a) {
+  function isPopOverEnabled() {
     //console.log("ENABLED FOR ", editor.state.selection.$anchor.parent);
     const comp = editor.state.selection.$anchor.parent;
-    if (comp.type.name === "paragraph") return true;
+
+    return comp.type.name === "paragraph" && hasPopOver;
   }
 
   const resolvedTheme = theme ? theme : defaultTheme;
@@ -155,7 +167,7 @@ export default function Editor({
 
           {editor && !fixed && (
             <FloatingMenu editor={editor}>
-              {isPopOverEnabledFor("AddButton") && (
+              {isPopOverEnabled() && (
                 <div style={{ position: "absolute", top: -15, left: -60 }}>
                   <AddButton
                     //ref={sideBarControls}
