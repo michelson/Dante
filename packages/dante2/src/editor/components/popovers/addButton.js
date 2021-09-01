@@ -131,7 +131,12 @@ export default class DanteInlineTooltip extends React.Component {
   // expand , 1, widht 2. class
   // collapse , class, width
 
-  clickOnFileUpload = () => {
+  clickOnFileUpload = (e, block) => {
+    const { file_types } = block.widget_options;
+    if (file_types) {
+      this.fileInput.current.accept = file_types;
+    }
+
     this.fileInput.current.click();
     this.collapse();
     return this.hide();
@@ -179,6 +184,11 @@ export default class DanteInlineTooltip extends React.Component {
     return this.props.onChange(addNewBlock(this.props.editorState, e.type, {}));
   };
 
+  handleFunc = (e) => {
+    this.hide();
+    return e.widget_options.funcHandler && e.widget_options.funcHandler(this);
+  };
+
   widgets = () => {
     return this.props.editor.props.widgets;
   };
@@ -192,6 +202,8 @@ export default class DanteInlineTooltip extends React.Component {
         return this.handlePlaceholder(request_block);
       case "insertion":
         return this.handleInsertion(request_block);
+      case "func":
+        return this.handleFunc(request_block);
       default:
         return console.log(
           `WRONG TYPE FOR ${request_block.widget_options.insertion}`
@@ -340,6 +352,7 @@ class InlineTooltipItem extends React.Component {
         type="button"
         className="inlineTooltip-button scale"
         title={this.props.title}
+        data-cy={`inline-tooltip-button-${this.props.item.type}`}
         onMouseDown={this.clickHandler}
         onClick={(e) => e.preventDefault()}
         style={{ fontSize: "21px" }}

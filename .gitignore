@@ -3,3 +3,5 @@ node_modules
 packages/**/*/package
 
 .vercel
+
+lerna-debug.log
