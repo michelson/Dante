@@ -32,6 +32,7 @@ export default class DanteInlineTooltip extends React.Component {
     this.initialPosition = 0;
     this.tooltip = React.createRef();
     this.fileInput = React.createRef();
+    this.currentBlock = null;
   }
 
   componentDidMount() {
@@ -132,9 +133,11 @@ export default class DanteInlineTooltip extends React.Component {
   // collapse , class, width
 
   clickOnFileUpload = (e, block) => {
+    this.currentBlock = block;
     const { file_types } = block.widget_options;
     if (file_types) {
       this.fileInput.current.accept = file_types;
+      this.fileInput.current.dataset.blockType = file_types;
     }
 
     this.fileInput.current.click();
@@ -163,9 +166,9 @@ export default class DanteInlineTooltip extends React.Component {
     };
     // cleans input image value
     this.fileInput.current.value = "";
-
+    const { insert_block } = this.currentBlock?.widget_options;
     return this.props.onChange(
-      addNewBlock(this.props.editorState, "image", opts)
+      addNewBlock(this.props.editorState, insert_block || "image", opts)
     );
   };
 
