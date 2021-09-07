@@ -52,6 +52,10 @@
     "y-webrtc": "^10.1.8",
     "yjs": "^13.5.6"
   },
+  "resolutions": {
+    "prosemirror-model": "^1.14.3",
+    "prosemirror-view": "^1.19.3"
+  },
   "scripts": {
     "start": "react-scripts start",
     "test": "react-scripts test",
