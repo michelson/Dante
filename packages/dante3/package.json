@@ -13,7 +13,8 @@
     "package/lib",
     "package/build",
     "package/dist",
-    "package/es"
+    "package/es",
+    "package/esm"
   ],
   "dependencies": {
     "@emotion/core": "^11.0.0",

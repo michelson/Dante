@@ -6,6 +6,9 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "rollup-plugin-typescript2";
 import json from "@rollup/plugin-json";
+import multiInput from "rollup-plugin-multi-input";
+import autoExternal from "rollup-plugin-auto-external";
+import pkg from "./package.json";
 
 // this override is needed because Module format cjs does not support top-level await
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -15,78 +18,103 @@ const globals = {
   ...packageJson.devDependencies,
 };
 
-export default {
-  input: "src/index.ts",
-  output: [
-    {
-      name: "Dante",
-      file: packageJson.browser,
-      format: "umd",
-      exports: "named" /** Disable warning for default imports */,
+const pluginsConfig = [
+  autoExternal({
+    packagePath: [pkg],
+  }),
+  peerDepsExternal(),
+  postcss({}),
+  babel({
+    exclude: "node_modules/**",
+    runtimeHelpers: true,
+    babelrc: false,
+    presets: [
+      ["@babel/preset-env", { modules: false }],
+      ["@babel/preset-react", { flow: true }],
+    ],
+    plugins: [
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-proposal-export-default-from",
+      "@babel/plugin-proposal-logical-assignment-operators",
+      ["@babel/plugin-proposal-optional-chaining", { loose: false }],
+      ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
+      ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: false }],
+      "@babel/plugin-proposal-do-expressions",
+    ],
+  }),
+  json(),
+  resolve({
+    mainFields: ["module", "main"], // Default: ['module', 'main']
+    jsnext: true, // Default: false
+    main: true, // Default: true
+    browser: true, // Default: false
+    // not all files you want to resolve are .js files
+    extensions: [".mjs", ".js", ".jsx", ".json", "tsx", "ts", "tsx"], // Default: [ '.mjs', '.js', '.json', '.node' ]
+    dedupe: ["react", "react-dom"], // Default: []
+    customResolveOptions: {
+      moduleDirectory: "js_modules",
     },
-    {
-      file: packageJson.main,
-      format: "cjs", // commonJS
-      sourcemap: true,
-      exports: "named" /** Disable warning for default imports */,
+  }),
+  commonjs({
+    exclude: "node_modules",
+    ignoreGlobal: true,
+  }),
+  typescript({
+    useTsconfigDeclarationDir: true,
+    tsconfigOverride: {
+      exclude: ["**/*.stories.*"],
     },
-    {
-      file: packageJson.module,
-      format: "esm", // ES Modules
-      sourcemap: true,
-      exports: "named" /** Disable warning for default imports */,
-    },
-  ],
-  plugins: [
-    peerDepsExternal(),
-    postcss({}),
-    babel({
-      exclude: "node_modules/**",
-      runtimeHelpers: true,
-      babelrc: false,
-      presets: [
-        ["@babel/preset-env", { modules: false }],
-        ["@babel/preset-react", { flow: true }],
-      ],
-      plugins: [
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-proposal-export-default-from",
-        "@babel/plugin-proposal-logical-assignment-operators",
-        ["@babel/plugin-proposal-optional-chaining", { loose: false }],
-        ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
-        [
-          "@babel/plugin-proposal-nullish-coalescing-operator",
-          { loose: false },
-        ],
-        "@babel/plugin-proposal-do-expressions",
-      ],
-    }),
-    json(),
-    resolve({
-      mainFields: ["module", "main"], // Default: ['module', 'main']
-      jsnext: true, // Default: false
-      main: true, // Default: true
-      browser: true, // Default: false
-      // not all files you want to resolve are .js files
-      extensions: [".mjs", ".js", ".jsx", ".json", "tsx", "ts", "tsx"], // Default: [ '.mjs', '.js', '.json', '.node' ]
-      dedupe: ["react", "react-dom"], // Default: []
-      customResolveOptions: {
-        moduleDirectory: "js_modules",
+  }),
+];
+
+export default [
+  {
+    input: "src/index.ts",
+    output: [
+      {
+        name: "Dante",
+        file: packageJson.browser,
+        format: "umd",
+        exports: "named" /** Disable warning for default imports */,
       },
-    }),
-    commonjs({
-      exclude: "node_modules",
-      ignoreGlobal: true,
-    }),
-    typescript({
-      useTsconfigDeclarationDir: true,
-      tsconfigOverride: {
-        exclude: ["**/*.stories.*"],
+      {
+        file: packageJson.main,
+        format: "cjs", // commonJS
+        sourcemap: true,
+        exports: "named" /** Disable warning for default imports */,
       },
-    }),
-  ],
-  external: Object.keys(globals),
-};
+      {
+        file: packageJson.module,
+        format: "esm", // ES Modules
+        sourcemap: true,
+        exports: "named" /** Disable warning for default imports */,
+      },
+    ],
+    plugins: pluginsConfig,
+    external: Object.keys(globals),
+  },
+
+  {
+    input: [
+      "src/editor/**/*.tsx",
+      "src/blocks/**/*.tsx",
+      "src/plugins/**/*.js",
+      "src/popovers/**/*.js",
+      "src/popovers/**/*.ts",
+    ],
+    /*output: {
+    name: 'Dante',
+    file: pkg.browser,
+    format: 'umd'
+  },*/
+
+    output: {
+      format: "esm",
+      dir: "package/esm",
+    },
+    plugins: [multiInput(), ...pluginsConfig],
+  },
+];
 
 /*
 const pluginsConfig = [
