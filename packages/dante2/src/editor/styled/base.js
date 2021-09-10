@@ -1,32 +1,30 @@
-import styled from '@emotion/styled'
-import { math, lighten, opacify, desaturate } from 'polished'
+import styled from "@emotion/styled";
+import { math, lighten, opacify, desaturate } from "polished";
 
 const EditorContainer = styled.div`
-  
-  @import url('//fonts.googleapis.com/css?family=Merriweather:400,700,400italic,700italic|Open+Sans:400,300,800');
+  @import url("//fonts.googleapis.com/css?family=Merriweather:400,700,400italic,700italic|Open+Sans:400,300,800");
 
-  font-family: ${props => props.theme.dante_font_family_serif};
+  font-family: ${(props) => props.theme.dante_font_family_serif};
   letter-spacing: 0.01rem;
   font-weight: 400;
   font-style: normal;
-  font-size: ${props => props.theme.dante_editor_font_size};
-  line-height: ${props => props.theme.dante_editor_line_height};
-  color: ${props => props.theme.dante_text_color};
+  font-size: ${(props) => props.theme.dante_editor_font_size};
+  line-height: ${(props) => props.theme.dante_editor_line_height};
+  color: ${(props) => props.theme.dante_text_color};
 
   @media (max-width: 500px) {
-
     .postContent {
-      font-size: ${props => math(`${props.theme.dante_editor_font_size} - 6`)};
-      line-height: ${props => props.theme.dante_editor_line_height};
+      font-size: ${(props) =>
+        math(`${props.theme.dante_editor_font_size} - 6`)};
+      line-height: ${(props) => props.theme.dante_editor_line_height};
     }
-
   }
 
   .public-DraftEditorPlaceholder-root {
-    color: ${props => lighten(0.3, props.theme.dante_text_color)};
+    color: ${(props) => lighten(0.3, props.theme.dante_text_color)};
     position: absolute;
     z-index: 0;
-    font-size: ${props=> math(`${props.theme.dante_editor_font_size}* 0.9`)};
+    font-size: ${(props) => math(`${props.theme.dante_editor_font_size}* 0.9`)};
     background-color: transparent;
   }
 
@@ -48,19 +46,19 @@ const EditorContainer = styled.div`
   }
 
   .graf--code {
-    position:relative;
+    position: relative;
     overflow: visible;
 
-    background: ${props => props.theme.dante_code_background};
-    font-family: ${props => props.theme.dante_font_family_mono};
+    background: ${(props) => props.theme.dante_code_background};
+    font-family: ${(props) => props.theme.dante_font_family_mono};
     font-size: 16px;
     margin-bottom: 20px;
     padding: 20px;
     white-space: pre-wrap;
-    color: ${props => props.theme.dante_code_color};
+    color: ${(props) => props.theme.dante_code_color};
 
-    .dante-code-syntax{
-      color: ${props => props.theme.dante_code_background};
+    .dante-code-syntax {
+      color: ${(props) => props.theme.dante_code_background};
       position: absolute;
       top: 4px;
       right: 4px;
@@ -68,13 +66,13 @@ const EditorContainer = styled.div`
   }
 
   .graf--pre {
-      background: #000 !important;
-      font-family: ${props => props.theme.dante_font_family_mono};
-      font-size: 16px;
-      margin-bottom: 20px;
-      padding: 20px;
-      white-space: pre-wrap;
-      color: #fff !important;
+    background: #000 !important;
+    font-family: ${(props) => props.theme.dante_font_family_mono};
+    font-size: 16px;
+    margin-bottom: 20px;
+    padding: 20px;
+    white-space: pre-wrap;
+    color: #fff !important;
   }
 
   .postList {
@@ -91,31 +89,31 @@ const EditorContainer = styled.div`
     line-height: 1em;
   }
 
-  .graf--p.dante--spinner{
-    position:relative;
+  .graf--p.dante--spinner {
+    position: relative;
   }
 
   .graf--hr {
-    hr{
+    hr {
       border: 1px solid #ccc;
       margin: 26px;
     }
   }
 
   .graf--h2 {
-    font-family: ${props => props.theme.dante_font_family_sans};
+    font-family: ${(props) => props.theme.dante_font_family_sans};
     font-size: 3.6em;
     font-style: normal;
     font-weight: 800;
     letter-spacing: -0.04em;
     line-height: 1;
-    margin-bottom: .4em;
+    margin-bottom: 0.4em;
     margin-left: -3px;
     margin-top: 40px;
     padding-top: 0;
   }
   .graf--h3 {
-    font-family: ${props => props.theme.dante_font_family_sans};
+    font-family: ${(props) => props.theme.dante_font_family_sans};
     letter-spacing: -0.02em;
     font-weight: 700;
     font-style: normal;
@@ -123,22 +121,22 @@ const EditorContainer = styled.div`
     margin-left: -1.8px;
     line-height: 1.2;
     margin-top: 40px;
-    margin-bottom: .7em;
+    margin-bottom: 0.7em;
   }
-  .public-DraftStyleDefault-pre{
+  .public-DraftStyleDefault-pre {
     overflow: inherit;
   }
   .graf--h4 {
-    font-family: ${props => props.theme.dante_font_family_sans};
+    font-family: ${(props) => props.theme.dante_font_family_sans};
     letter-spacing: -0.02em;
     font-weight: 300;
     font-style: normal;
     font-size: 1.5em;
     margin-left: -1.5px;
     line-height: 1.2;
-    color: ${props => lighten(0.3, props.theme.dante_text_color)};
+    color: ${(props) => lighten(0.3, props.theme.dante_text_color)};
     margin-top: 40px;
-    margin-bottom: .6em;
+    margin-bottom: 0.6em;
   }
 
   .section--first .graf--h2.graf--first,
@@ -195,10 +193,10 @@ const EditorContainer = styled.div`
     margin-top: -8px;
   }
 
-
-  .graf--blockquote, blockquote {
-    font-family: ${props => props.theme.dante_font_family_serif};
-    border-left: 3px solid rgba(0, 0, 0, .8);
+  .graf--blockquote,
+  blockquote {
+    font-family: ${(props) => props.theme.dante_font_family_serif};
+    border-left: 3px solid rgba(0, 0, 0, 0.8);
 
     font-style: italic;
     font-weight: 400;
@@ -210,7 +208,6 @@ const EditorContainer = styled.div`
     font-size: 1.2em;
     line-height: 1.9em;
     margin-top: 20px;
-
   }
   .graf--blockquote + .graf--blockquote {
     margin-top: -30px;
@@ -224,7 +221,7 @@ const EditorContainer = styled.div`
     margin: 48px -160px;
     border: none;
     padding: 0;
-    font-family: ${props => props.theme.dante_font_family_serif};
+    font-family: ${(props) => props.theme.dante_font_family_serif};
     letter-spacing: 0.01rem;
     font-weight: 400;
     font-style: italic;
@@ -237,7 +234,6 @@ const EditorContainer = styled.div`
   }
 
   .graf--figure {
-  
     box-sizing: border-box;
     clear: both;
     margin-bottom: 30px;
@@ -258,7 +254,7 @@ const EditorContainer = styled.div`
       box-shadow: 0 0 0 1px #57ad68;
     }
 
-    .graf--media-embed-close{
+    .graf--media-embed-close {
       position: absolute;
       top: 1px;
       display: inline-block;
@@ -268,13 +264,13 @@ const EditorContainer = styled.div`
       text-shadow: 0px 0px 0px white;
     }
 
-    border-color: ${props => props.theme.dante_control_color};
+    border-color: ${(props) => props.theme.dante_control_color};
     border-radius: 5px;
     border-style: solid;
     border-width: 1px;
     box-sizing: border-box;
     //color: rgba(0, 0, 0, 0.6);
-    font-family: ${props => props.theme.dante_font_family_sans};
+    font-family: ${(props) => props.theme.dante_font_family_sans};
     font-size: 12px;
     font-style: normal;
     font-weight: 300;
@@ -288,48 +284,45 @@ const EditorContainer = styled.div`
     position: relative;
 
     .is-postEditMode iframe {
-        border: 3px solid rgba(255, 255, 255, 0);
+      border: 3px solid rgba(255, 255, 255, 0);
     }
 
     .mixtapeImage {
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-size: cover;
-        float: right;
-        height: 310px;
-        margin: -30px -30px 0 25px;
-        width: 310px;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      float: right;
+      height: 310px;
+      margin: -30px -30px 0 25px;
+      width: 310px;
     }
 
     .mixtapeImage--empty {
-        height: 0;
-        width: 0;
+      height: 0;
+      width: 0;
     }
 
     .markup--mixtapeEmbed-strong {
-        //color: #000;
-        display: block;
-        font-family: $dante-font-family-sans;
-        font-size: 30px;
-        font-style: normal;
-        font-weight: 300;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
-        margin-bottom: 0px;
+      //color: #000;
+      display: block;
+      font-family: $dante-font-family-sans;
+      font-size: 30px;
+      font-style: normal;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0px;
     }
 
     .markup--mixtapeEmbed-em {
-        display: block;
-        font-size: 16px;
-        font-style: normal;
-        margin-bottom: 10px;
-        max-height: 120px;
-        overflow: hidden;
+      display: block;
+      font-size: 16px;
+      font-style: normal;
+      margin-bottom: 10px;
+      max-height: 120px;
+      overflow: hidden;
     }
-
   }
-
-
 
   .graf--h4 + .graf--figure,
   .graf--h3 + .graf--figure,
@@ -357,7 +350,7 @@ const EditorContainer = styled.div`
 
   .markup--anchor,
   .graf--sectionCaption {
-      cursor: text;
+    cursor: text;
   }
   .markup--anchor {
     text-decoration: underline;
@@ -365,7 +358,6 @@ const EditorContainer = styled.div`
   }
 
   @media (max-width: 500px) {
-
     .graf--h2 {
       font-size: 2.6em;
     }
@@ -375,10 +367,9 @@ const EditorContainer = styled.div`
     .graf--h4 {
       font-size: 1.4em;
     }
-
   }
 
-  .graf--divider span{
+  .graf--divider span {
     text-align: center;
     width: 100%;
     display: block;
@@ -392,177 +383,173 @@ const EditorContainer = styled.div`
     letter-spacing: 18px;
     content: "...";
     display: inline-block;
-    margin-left: .6em;
+    margin-left: 0.6em;
     position: relative;
     color: #757575;
     top: -3px;
   }
 
-
-
   .graf--layoutOutsetLeft {
-      margin-left: -160px;
+    margin-left: -160px;
   }
 
   .graf--layoutFillWidth {
-      margin-left: -200px;
-      margin-right: -200px;
+    margin-left: -200px;
+    margin-right: -200px;
   }
 
   .graf--layoutOutsetLeft {
-      width: 75%;
+    width: 75%;
   }
-  .graf--layoutInsetLeft, .graf--layoutOutsetLeft {
-      float: left;
-      margin-right: 30px;
-      padding-top: 10px;
-      padding-bottom: 10px;
+  .graf--layoutInsetLeft,
+  .graf--layoutOutsetLeft {
+    float: left;
+    margin-right: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 
   .imageCaption {
-
     top: 0;
     text-align: center;
     margin-top: 0;
-    font-family: ${props => props.theme.dante_font_family_sans};
+    font-family: ${(props) => props.theme.dante_font_family_sans};
     letter-spacing: 0;
     font-weight: 400;
     font-size: 13px;
     line-height: 1.4;
-    color: ${props => lighten(0.2, props.theme.dante_text_color)};
+    color: ${(props) => lighten(0.2, props.theme.dante_text_color)};
     outline: 0;
     z-index: 300;
     margin-top: 10px;
-    position:relative;
+    position: relative;
 
-    .danteDefaultPlaceholder{
+    .danteDefaultPlaceholder {
       margin-bottom: -18px !important;
       display: block;
     }
   }
 
-
   // FIGURE WRAPPER
 
-    .aspectRatioPlaceholder {
-      margin: 0 auto;
-      position: relative;
+  .aspectRatioPlaceholder {
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+  }
+
+  .graf-image:before,
+  .iframeContainer:before {
+    .is-postEditMode & {
+      bottom: 0;
+      content: "";
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 500;
+    }
+  }
+
+  .aspectRatioPlaceholder.is-locked .graf-image,
+  .aspectRatioPlaceholder.is-locked .graf-imageAnchor {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  .graf-image,
+  .graf-imageAnchor,
+  .iframeContainer > iframe,
+  .iframeContainer {
+    box-sizing: border-box;
+    display: block;
+    margin: auto;
+    max-width: 100%;
+  }
+
+  .aspectRatioPlaceholder {
+    .image-upoader-loader {
+      position: absolute;
+      bottom: 0px;
+      left: 0%;
+      background-color: #fff;
       width: 100%;
-    }
-
-    .graf-image:before,
-    .iframeContainer:before {
-      .is-postEditMode & {
-        bottom: 0;
-        content: "";
-        left: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
-        z-index: 500;
+      /* height: 3px; */
+      text-align: center;
+      top: 0px;
+      vertical-align: text-bottom;
+      opacity: 0.7;
+      p {
+        line-height: 5px;
+        /* font-weight: 700; */
+        /* text-transform: uppercase; */
+        font-size: 14px;
+        margin-top: 49%;
       }
     }
+  }
 
-    .aspectRatioPlaceholder.is-locked .graf-image, 
-    .aspectRatioPlaceholder.is-locked .graf-imageAnchor {
-        height: 100%;
-        left: 0;
-        position: absolute;
-        top: 0;
-        width: 100%;
-    }
-
-    .graf-image,
-    .graf-imageAnchor,
-    .iframeContainer > iframe,
-    .iframeContainer {
-      box-sizing: border-box;
-      display: block;
-      margin: auto;
-      max-width: 100%;
-    }
-
-    .aspectRatioPlaceholder {
-      .image-upoader-loader{
-        position: absolute;
-        bottom: 0px;
-        left: 0%;
-        background-color: #fff;
-        width: 100%;
-        /* height: 3px; */
-        text-align: center;
-        top: 0px;
-        vertical-align: text-bottom;
-        opacity: 0.7;
-        p{
-          line-height: 5px;
-          /* font-weight: 700; */
-          /* text-transform: uppercase; */
-          font-size: 14px;
-          margin-top: 49%;
-        }
-      }
-    }
-
-    div[contenteditable="false"] {
-      .danteDefaultPlaceholder{
-        display:none;
-      }
-    }
-
-    div[contenteditable="false"] {
-      a.markup--anchor {
-        cursor: pointer;
-      }
-    }
-
-    figcaption .public-DraftStyleDefault-block {
-        text-align: center;
-    }
-
-    @media (max-width: 1200px) {
-      .imageCaption,
-      .postField--outsetCenterImage > .imageCaption {
-        position: relative;
-        width: 100%;
-        text-align: center;
-        left: 0;
-        margin-top: 10px;
-      }
-    }
-
-    figure.graf--layoutOutsetLeft {
-      .imageCaption,
-      .postField--outsetCenterImage > .imageCaption {
-        position: relative;
-        width: 100%;
-        text-align: center;
-        left: 0;
-        margin-top: 10px;
-      }
-    }
-
-    figure.is-defaultValue .imageCaption,
-    .graf--sectionCaption.is-defaultValue {
+  div[contenteditable="false"] {
+    .danteDefaultPlaceholder {
       display: none;
     }
+  }
 
-    .graf--figure.is-mediaFocused .imageCaption,
-    .graf--figure.is-defaultValue.is-selected .imageCaption,
-    section.is-mediaFocused .graf--sectionCaption,
-    .graf--sectionCaption.is-defaultValue.is-selected {
-      display: block;
+  div[contenteditable="false"] {
+    a.markup--anchor {
+      cursor: pointer;
     }
+  }
 
-`
+  figcaption .public-DraftStyleDefault-block {
+    text-align: center;
+  }
 
+  @media (max-width: 1200px) {
+    .imageCaption,
+    .postField--outsetCenterImage > .imageCaption {
+      position: relative;
+      width: 100%;
+      text-align: center;
+      left: 0;
+      margin-top: 10px;
+    }
+  }
+
+  figure.graf--layoutOutsetLeft {
+    .imageCaption,
+    .postField--outsetCenterImage > .imageCaption {
+      position: relative;
+      width: 100%;
+      text-align: center;
+      left: 0;
+      margin-top: 10px;
+    }
+  }
+
+  figure.is-defaultValue .imageCaption,
+  .graf--sectionCaption.is-defaultValue {
+    display: none;
+  }
+
+  .graf--figure.is-mediaFocused .imageCaption,
+  .graf--figure.is-defaultValue.is-selected .imageCaption,
+  section.is-mediaFocused .graf--sectionCaption,
+  .graf--sectionCaption.is-defaultValue.is-selected {
+    display: block;
+  }
+`;
 
 export const InlinetooltipWrapper = styled.div`
   // BASE
-  position: absolute;
+  ${({ fixed }) => (!fixed ? `position: absolute;` : "")}
+  
   z-index: 10;
-  width: ${props => props.theme.tooltip_size};
-  height: ${props => props.theme.tooltip_size};
+  width: ${(props) => props.theme.tooltip_size};
+  height: ${(props) => props.theme.tooltip_size};
   -webkit-transition: opacity 100ms, width 0 linear 250ms;
   transition: opacity 100ms, width 0 linear 250ms;
   padding: 0;
@@ -581,21 +568,29 @@ export const InlinetooltipWrapper = styled.div`
     width: auto;
 
     .control {
-            -webkit-transition: -webkit-${props => props.theme.tooltip_backward_transition}, ${props => props.theme.tooltip_default_transition};
-              transition: ${props => props.theme.tooltip_backward_transition}, ${props => props.theme.tooltip_default_transition};
+            -webkit-transition: -webkit-${(props) =>
+              props.theme.tooltip_backward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition};
+              transition: ${(props) =>
+                props.theme.tooltip_backward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition};
        -webkit-transform: rotate(45deg) !important;
            -ms-transform: rotate(45deg) !important;
                transform: rotate(45deg) !important;
-            border-color: ${props => props.theme.tooltip_color};
-                   color: ${props => props.theme.tooltip_color};
+            border-color: ${(props) => props.theme.tooltip_color};
+                   color: ${(props) => props.theme.tooltip_color};
     }
 
     .scale {
        -webkit-transform: scale(1) !important;
            -ms-transform: scale(1) !important;
                transform: scale(1) !important;
-      -webkit-transition: -webkit-${props => props.theme.tooltip_backward_transition}, ${props => props.theme.tooltip_default_transition} !important;
-              transition: ${props => props.theme.tooltip_backward_transition}, ${props => props.theme.tooltip_default_transition} !important;
+      -webkit-transition: -webkit-${(props) =>
+        props.theme.tooltip_backward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition} !important;
+              transition: ${(props) =>
+                props.theme.tooltip_backward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition} !important;
     }
 
   }
@@ -604,11 +599,22 @@ export const InlinetooltipWrapper = styled.div`
   // MENU
   .inlineTooltip-menu {
     display: inline-block;
-    margin-left: ${props => math(`${props.theme.tooltip_size} + ${props.theme.tooltip_menu_spacing}`)};
-    svg path{
-      fill: ${props => props.theme.tooltip_color};
-    }
 
+    ${({ fixed }) =>
+      !fixed
+        ? `
+    
+    margin-left: ${(props) =>
+      math(
+        `${props.theme.tooltip_size} + ${props.theme.tooltip_menu_spacing}`
+      )};
+    
+    `
+        : ""}
+
+    svg path{
+      fill: ${(props) => props.theme.tooltip_color};
+    }
 
     svg {
       display: inline !important;
@@ -622,18 +628,18 @@ export const InlinetooltipWrapper = styled.div`
     // BASE
 
     float: left;
-    margin-right: ${props => props.theme.tooltip_button_spacing};
+    margin-right: ${(props) => props.theme.tooltip_button_spacing};
     display: inline-block;
     position: relative;
     outline: 0;
     padding: 0;
     vertical-align: bottom;
     box-sizing: border-box;
-    border-radius: ${props => props.theme.tooltip_border_radius};
+    border-radius: ${(props) => props.theme.tooltip_border_radius};
     cursor: pointer;
     font-size: 14px;
     text-decoration: none;
-    font-family: ${props => props.theme.dante_font_family_sans};
+    font-family: ${(props) => props.theme.dante_font_family_sans};
     letter-spacing: -0.02em;
     font-weight: 400;
     font-style: normal;
@@ -644,23 +650,24 @@ export const InlinetooltipWrapper = styled.div`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -moz-font-feature-settings: "liga" on;
-    width: ${props => props.theme.tooltip_size};
-    height: ${props => props.theme.tooltip_size};
-    line-height: ${props => props.theme.tooltip_line_height};
+    width: ${(props) => props.theme.tooltip_size};
+    height: ${(props) => props.theme.tooltip_size};
+    line-height: ${(props) => props.theme.tooltip_line_height};
     -webkit-transition: 100ms border-color, 100ms color;
     transition: 100ms border-color, 100ms color;
-    background: ${props => props.theme.tooltip_background_color};
-    border: ${props => props.theme.tooltip_border_width} solid;
-    border-color: ${props => opacify(0.2, props.theme.tooltip_border_color)};
-    color: ${props => props.theme.tooltip_color};
+    background: ${(props) => props.theme.tooltip_background_color};
+    border: ${(props) => props.theme.tooltip_border_width} solid;
+    border-color: ${(props) => opacify(0.2, props.theme.tooltip_border_color)};
+    color: ${(props) => props.theme.tooltip_color};
 
     &:hover {
-      border-color: ${props => opacify(0.4, props.theme.tooltip_border_color)}
-      color: rgba(${props => props.theme.tooltip_color}, ${props => props.theme.tooltip_color_opacity_hover});
+      border-color: ${(props) => opacify(0.4, props.theme.tooltip_border_color)}
+      color: rgba(${(props) => props.theme.tooltip_color}, ${(props) =>
+  props.theme.tooltip_color_opacity_hover});
     }
 
     svg path {
-      fill: ${props => props.theme.tooltip_color};
+      fill: ${(props) => props.theme.tooltip_color};
     }
 
     // SCALE
@@ -669,19 +676,26 @@ export const InlinetooltipWrapper = styled.div`
        -webkit-transform: scale(0);
            -ms-transform: scale(0);
                transform: scale(0);
-      -webkit-transition: -webkit-${props => props.theme.tooltip_forward_transition}, ${props => props.theme.tooltip_default_transition};
-              transition: ${props => props.theme.tooltip_forward_transition}, ${props => props.theme.tooltip_default_transition};
+      -webkit-transition: -webkit-${(props) =>
+        props.theme.tooltip_forward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition};
+              transition: ${(props) =>
+                props.theme.tooltip_forward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition};
 
 
       svg path {
-        fill: ${props => props.theme.tooltip_color};
+        fill: ${(props) => props.theme.tooltip_color};
       }
-      //@while ${props => props.theme.tooltip_items} > 0 {
-      //  &:nth-of-type(${props => props.theme.tooltip_items + 1}) {
-      //    -webkit-transition-delay: ${props => props.theme.tooltip_item_delay * props.theme.tooltip_items} + "ms"};
-      //            transition-delay: ${props => props.theme.tooltip_item_delay * props.theme.tooltip_items} + "ms"};
+      //@while ${(props) => props.theme.tooltip_items} > 0 {
+      //  &:nth-of-type(${(props) => props.theme.tooltip_items + 1}) {
+      //    -webkit-transition-delay: ${(props) =>
+        props.theme.tooltip_item_delay * props.theme.tooltip_items} + "ms"};
+      //            transition-delay: ${(props) =>
+        props.theme.tooltip_item_delay * props.theme.tooltip_items} + "ms"};
       //  }
-      //  ${props => props.theme.tooltip_items}: ${props => props.theme.tooltip_items - 1 };
+      //  ${(props) => props.theme.tooltip_items}: ${(props) =>
+  props.theme.tooltip_items - 1};
       //}
     }
 
@@ -690,17 +704,20 @@ export const InlinetooltipWrapper = styled.div`
       
       display: block;
       position: absolute;
-      margin-right: ${props => props.theme.tooltip_menu_spacing};
+      margin-right: ${(props) => props.theme.tooltip_menu_spacing};
       padding-top: 4px;
 
-      -webkit-transition: -webkit-${props => props.theme.tooltip_forward_transition}, ${props => props.theme.tooltip_default_transition};
-              transition: ${props => props.theme.tooltip_forward_transition}, ${props => props.theme.tooltip_default_transition};
+      -webkit-transition: -webkit-${(props) =>
+        props.theme.tooltip_forward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition};
+              transition: ${(props) =>
+                props.theme.tooltip_forward_transition}, ${(props) =>
+  props.theme.tooltip_default_transition};
        -webkit-transform: rotate(0);
            -ms-transform: rotate(0);
                transform: rotate(0);
     }
 
-`
+`;
 
-
-export default EditorContainer
+export default EditorContainer;
