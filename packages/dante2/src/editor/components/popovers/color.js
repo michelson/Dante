@@ -21,7 +21,6 @@ export default class DanteTooltipColor extends React.Component {
   }
 
   toggle = (ev) => {
-    console.log(ev.currentTarget);
     // let selection = this.props.editorState.getSelection()
     // prevent unselection of selection
     ev.preventDefault();
