@@ -1,19 +1,18 @@
-import React from 'react'
+import React from "react";
 import { HexColorPicker } from "react-colorful";
-import {fontColor} from "../icons.js"
+import { fontColor } from "../icons.js";
 import { debounce } from "lodash";
 
 export default class DanteTooltipColor extends React.Component {
-
   constructor(...args) {
-    super(...args)
+    super(...args);
     this.state = {
       open: false,
-      value: this.props.value
-    }
+      value: this.props.value,
+    };
 
     this.handleChange = debounce((e, value) => {
-      this.handleClick(e, value)
+      this.handleClick(e, value);
     }, 500);
   }
 
@@ -21,63 +20,61 @@ export default class DanteTooltipColor extends React.Component {
     this.handleChange.cancel();
   }
 
-  toggle =(ev)=> {
+  toggle = (ev) => {
+    console.log(ev.currentTarget);
     // let selection = this.props.editorState.getSelection()
     // prevent unselection of selection
-    ev.preventDefault()
-    this.setState({open: true }) //!this.state.open})
-  }
+    ev.preventDefault();
+    this.setState({ open: !this.state.open });
+  };
 
-  handleClick =(e, item)=>{
-    e && e.preventDefault()
-    this.setState({value: item},
-      ()=>{
-        let o = { [this.props.style_type]: this.state.value }
-        this.props.handleClick(e, o)
-      }
-    )
-  }
+  handleClick = (e, item) => {
+    e && e.preventDefault();
+    this.setState({ value: item }, () => {
+      let o = { [this.props.style_type]: this.state.value };
+      this.props.handleClick(e, o);
+    });
+  };
 
-  currentValue =()=>{
-    let selection = this.props.editorState.getSelection()
+  currentValue = () => {
+    let selection = this.props.editorState.getSelection();
     if (!selection.isCollapsed()) {
-      return this.props.styles[this.props.style_type].current(this.props.editorState)
+      return this.props.styles[this.props.style_type].current(
+        this.props.editorState
+      );
     } else {
-      return
+      return;
     }
+  };
 
-  }
-
-  renderColor =()=>{
+  renderColor = () => {
     //console.log(`${this.currentValue()} vs ${this.props.value}`)
-    const v = this.currentValue() || this.props.value
+    const v = this.currentValue() || this.props.value;
     //console.log(`this should be ${v}`)
 
-    if(this.state.open){
+    if (this.state.open) {
       return (
-        <div style={{position: 'absolute'}}>
+        <div style={{ position: "absolute" }}>
           <HexColorPicker
-            color={ v }
-            onChange={(color, e)=>{
-              this.handleChange(e, color)
+            color={v}
+            onChange={(color, e) => {
+              this.handleChange(e, color);
               //this.handleClick(e,  color )
             }}
           />
         </div>
-      )
+      );
     }
-  }
+  };
 
   render() {
     return (
-      <li className="dante-menu-button"
-        onMouseDown={ this.toggle }>
-        <span className={ 'dante-icon'}>
+      <li className="dante-menu-button">
+        <span className={"dante-icon"} onMouseDown={this.toggle}>
           {fontColor()}
         </span>
-
-        { this.renderColor()}
+        {this.state.open && this.renderColor()}
       </li>
-    )
+    );
   }
 }
