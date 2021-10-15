@@ -82,8 +82,10 @@ export function extensionFactory(options) {
       );
     },
     renderHTML({ HTMLAttributes }) {
-      console.log(HTMLAttributes)
-      const attributes = options.dataSerializer ? options.dataSerializer(HTMLAttributes) : HTMLAttributes
+      console.log(HTMLAttributes);
+      const attributes = options.dataSerializer
+        ? options.dataSerializer(HTMLAttributes)
+        : HTMLAttributes;
       return [options.tag, mergeAttributes(attributes)];
     },
     addNodeView() {
@@ -92,7 +94,7 @@ export function extensionFactory(options) {
     addInputRules() {
       if (!options.addInputRules) return [];
       return options.addInputRules().map((rule) => {
-        return nodeInputRule(rule, this.type);
+        return nodeInputRule({ find: rule, type: this.type });
       });
     },
   });
