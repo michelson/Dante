@@ -255,6 +255,7 @@ class DanteTooltip extends React.Component {
     let { editorState } = this.props;
     let urlValue = e.currentTarget.value;
     let selection = editorState.getSelection();
+    if ((/^javascript:/).test(urlValue.trim())) return
 
     let opts = {
       url: urlValue,
@@ -263,7 +264,6 @@ class DanteTooltip extends React.Component {
     };
 
     let entityKey = Entity.create("LINK", "MUTABLE", opts);
-    //contentState.createEntity('LINK', 'MUTABLE', opts)
 
     if (selection.isCollapsed()) {
       return;
@@ -294,39 +294,36 @@ class DanteTooltip extends React.Component {
     });
   };
 
+  getSelectedBlockElement = () => {
+    var selection = window.getSelection()
+    if (selection.rangeCount == 0) return null
+    var node = selection.getRangeAt(0).startContainer
+    do {
+      if (node.getAttribute && node.getAttribute('data-block') == 'true')
+        return node
+      node = node.parentNode
+    } while (node != null)
+    return null
+  };
+
   getDefaultValue = () => {
-    if (this.dante_menu.current_input) {
-      this.dante_menu.current_input.value = "";
+    //if (this.dante_menu.current_input) {
+    //  this.dante_menu.current_input.value = "";
+    //}
+
+    const editorState = this.props.editorState
+    const contentState = editorState.getCurrentContent();
+    const startKey = editorState.getSelection().getStartKey();
+    const startOffset = editorState.getSelection().getStartOffset();
+    const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+    const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
+
+    let url = '';
+    if (linkKey) {
+      const linkInstance = contentState.getEntity(linkKey);
+      url = linkInstance.getData().url;
     }
-
-    let currentBlock = getCurrentBlock(this.props.editorState);
-    let selection = this.props.editor.state.editorState.getSelection();
-    let contentState = this.props.editorState.getCurrentContent();
-    let selectedEntity = null;
-    let defaultUrl = null;
-    return currentBlock.findEntityRanges(
-      (character) => {
-        let entityKey = character.getEntity();
-        selectedEntity = entityKey;
-        return (
-          entityKey !== null &&
-          contentState.getEntity(entityKey).getType() === "LINK"
-        );
-      },
-      (start, end) => {
-        let selStart = selection.getAnchorOffset();
-        let selEnd = selection.getFocusOffset();
-        if (selection.getIsBackward()) {
-          selStart = selection.getFocusOffset();
-          selEnd = selection.getAnchorOffset();
-        }
-
-        if (start === selStart && end === selEnd) {
-          defaultUrl = contentState.getEntity(selectedEntity).getData().url;
-          return (this.dante_menu.current_input.value = defaultUrl);
-        }
-      }
-    );
+    return url
   };
 
   linkBlock = () => {
@@ -360,14 +357,14 @@ class DanteTooltip extends React.Component {
         style={this.getPosition()}
         arrowPosition={this.state.tooltipArrowPosition}
       >
-        {this.linkBlock() ? (
+        {this.linkBlock() && this.displayLinkMode() ? (
           <div className="dante-menu-linkinput">
             <input
               className="dante-menu-input"
               ref={this.dante_menu_input}
               placeholder={this.linkBlock().placeholder}
               onKeyPress={this.handleInputEnter}
-              //defaultValue={ this.getDefaultValue() }
+              defaultValue={ this.getDefaultValue() }
             />
             <div
               className="dante-menu-button"
