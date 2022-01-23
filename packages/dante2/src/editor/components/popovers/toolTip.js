@@ -294,23 +294,7 @@ class DanteTooltip extends React.Component {
     });
   };
 
-  getSelectedBlockElement = () => {
-    var selection = window.getSelection()
-    if (selection.rangeCount == 0) return null
-    var node = selection.getRangeAt(0).startContainer
-    do {
-      if (node.getAttribute && node.getAttribute('data-block') == 'true')
-        return node
-      node = node.parentNode
-    } while (node != null)
-    return null
-  };
-
   getDefaultValue = () => {
-    //if (this.dante_menu.current_input) {
-    //  this.dante_menu.current_input.value = "";
-    //}
-
     const editorState = this.props.editorState
     const contentState = editorState.getCurrentContent();
     const startKey = editorState.getSelection().getStartKey();
