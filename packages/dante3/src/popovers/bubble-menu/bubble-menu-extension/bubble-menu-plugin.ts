@@ -62,6 +62,7 @@ export class BubbleMenuView {
     // console.log("FOCUSSSS")
     this.enabled = true;
     // we use `setTimeout` to make sure `selection` is already updated
+    //@ts-ignore
     setTimeout(() => this.update(this.editor.view));
   };
 
@@ -142,7 +143,7 @@ export class BubbleMenuView {
             }
           }
         }
-
+        //@ts-ignore
         return posToDOMRect(view, from, to);
       },
     });
