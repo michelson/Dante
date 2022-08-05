@@ -4,7 +4,7 @@ import "@tiptap/extension-text-style";
 export const Color = Extension.create({
   name: "color",
 
-  defaultOptions: {
+  addOptions: {
     types: ["textStyle"],
   },
 

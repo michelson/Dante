@@ -5,7 +5,7 @@ import { Plugin } from "prosemirror-state";
 export const Placeholder = Extension.create({
   name: "placeholder",
 
-  defaultOptions: {
+  addOptions: {
     emptyEditorClass: "is-editor-empty",
     emptyNodeClass: "is-empty",
     placeholder: "Write something …",

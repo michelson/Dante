@@ -513,6 +513,11 @@ export const jsonContent2 = {
 
 export const contentDemo = {
   type: "doc",
+  content: []
+}
+
+export const contentDemoOld = {
+  type: "doc",
   content: [
     {
       type: "heading",

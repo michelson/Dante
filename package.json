@@ -41,6 +41,11 @@
     "react-dom": "^17.0.2",
     "tailwindcss": "^2.1.1"
   },
+  "resolutions": {
+    "prosemirror-model": "^1.18.1",
+    "prosemirror-view": "^1.27.0",
+    "prosemirror-state": "^1.4.1"
+  },
   "scripts": {
     "stories": "start-storybook -p 5555",
     "dev": "next -p 3001",
