@@ -11,7 +11,7 @@ export type BubbleMenuOptions = Omit<
 export const BubbleMenu = Extension.create<BubbleMenuOptions>({
   name: "bubbleMenu",
 
-  addOptions: {
+  defaultOptions: {
     element: null,
     tippyOptions: {},
   },

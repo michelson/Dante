@@ -13,7 +13,7 @@ import Dante ,{
   Icons,
   //CustomWidgetconfig,
   CodeBlockConfig,
-} from '../packages/dante3'  //'../packages/dante3/src'
+} from '../packages/dante3/src' // '../packages/dante3'
 
 import contentData from '../data/poc.js'
 import { State, Toggle } from 'react-powerplug'

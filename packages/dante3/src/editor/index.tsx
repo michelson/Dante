@@ -32,7 +32,8 @@ import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
 
 // load all highlight.js languages
-import { lowlight } from 'lowlight'
+// import { lowlight } from 'lowlight'
+import { lowlight } from "lowlight/lib/common.js";
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
 
@@ -117,10 +118,10 @@ export default function Editor({
     const newExtensions = extensions ? extensions : [];
     return basePlugins().concat([...newPluginsConfig(), ...newExtensions]);
   }
-
+  
   const editor = useEditor({
     extensions: pluginsConfig(),
-    content: content, //defaultContent(),
+    content: content || null, //defaultContent(),
     editable: !readOnly,
     onUpdate({ editor }) {
       // The content has changed.
