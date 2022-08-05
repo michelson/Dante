@@ -32,7 +32,7 @@ import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
 
 // load all highlight.js languages
-import lowlight from "lowlight";
+import { lowlight } from 'lowlight'
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
 

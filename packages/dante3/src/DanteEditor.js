@@ -15,8 +15,7 @@ import { EmbedBlockConfig } from "./blocks/embed";
 import { VideoBlockConfig } from "./blocks/video";
 
 import defaultContent, { jsonContent } from "./data/content";
-// load all highlight.js languages
-import lowlight from "lowlight";
+
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "./styled/base";
 import { SpeechToTextBlockConfig } from "./blocks/speechToText";
