@@ -8,7 +8,7 @@
     "@babel/runtime": "^7.13.10",
     "@tailwindcss/typography": "^0.4.0",
     "gray-matter": "^4.0.2",
-    "next": "^11.1.2",
+    "next": "^12.2",
     "next-mdx-remote": "^1.0.0",
     "next-remote-watch": "0.2.0",
     "prism-react-renderer": "^1.2.0",
@@ -40,6 +40,11 @@
     "react-dev-utils": "^5.0.0",
     "react-dom": "^17.0.2",
     "tailwindcss": "^2.1.1"
+  },
+  "resolutions": {
+    "prosemirror-model": "^1.18.1",
+    "prosemirror-view": "^1.27.0",
+    "prosemirror-state": "^1.4.1"
   },
   "scripts": {
     "stories": "start-storybook -p 5555",

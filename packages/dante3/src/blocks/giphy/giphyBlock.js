@@ -174,7 +174,7 @@ export default class GiphyBlock extends React.Component {
             <ModalWrapper>
               <button onClick={this.selfDestroy}>close</button>
               <Giphy
-                apiKey={this.props.extension.config.defaultOptions.key}
+                apiKey={this.props.extension.config.addOptions.key}
                 handleSelected={(data) => {
                   this.selectImage(data);
                 }}
