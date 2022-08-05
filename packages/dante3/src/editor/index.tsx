@@ -148,7 +148,7 @@ export default function Editor({
         <div
         //className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto"
         >
-          {/*<MenuBar fixed={fixed} editor={editor} />*/}
+          <MenuBar fixed={fixed} editor={editor} />
 
           {/*<ImageBar editor={editor} />*/}
 

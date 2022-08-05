@@ -511,12 +511,12 @@ export const jsonContent2 = {
   ],
 };
 
-export const contentDemo = {
+export const contentDemoDDD = {
   type: "doc",
   content: []
 }
 
-export const contentDemoOld = {
+export const contentDemo = {
   type: "doc",
   content: [
     {
