@@ -53,6 +53,8 @@
     "build": "next build",
     "start": "next start",
     "deploy": "vercel --prod",
+    "publish_d3": "lerna publish --force-publish=dante3",
+    "publish_d2": "lerna publish --force-publish=dante2",
     "dante2_build": "lerna run build --scope Dante2  --stream",
     "dante3_build": "lerna run build --scope dante3  --stream"
   }
