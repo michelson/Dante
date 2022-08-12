@@ -3,7 +3,7 @@
   "description": "a tiptap prosemirror dante wysiwyg",
   "author": "Miguel Michelson",
   "license": "MIT",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "package/Dante.cjs.js",
   "jsnext:main": "package/Dante.es.js",
   "module": "package/Dante.es.js",
