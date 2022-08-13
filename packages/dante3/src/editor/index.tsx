@@ -36,7 +36,6 @@ import { Color } from "../plugins/colorStyle";
 import { lowlight } from "lowlight/lib/common.js";
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
-import CustomParagraph from '../blocks/custom'
 
 export default function Editor({
   widgets,
@@ -74,10 +73,7 @@ export default function Editor({
             class: "graf graf--ol",
           },
         },
-      }),
-
-      //CustomParagraph,
-      
+      }),      
       TextStyle,
       Color,      
       Placeholder.configure({
