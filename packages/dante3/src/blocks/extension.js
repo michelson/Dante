@@ -46,7 +46,6 @@ export function extensionFactory(options) {
     },
     addKeyboardShortcuts() {
       if (!options.keyboardShortcuts) return {};
-      console.log(options.keyboardShortcuts && options.keyboardShortcuts(this.editor))
       return (
         options.keyboardShortcuts && options.keyboardShortcuts(this.editor)
       );

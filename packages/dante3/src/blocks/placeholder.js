@@ -27,8 +27,7 @@ export const StyleWrapper = styled(NodeViewWrapper)`
 `;
 
 export default function PlaceholderBlock(props) {
-  console.log(props.node.attrs.blockKind);
-
+  // console.log(props.node.attrs.blockKind);
   return (
     <StyleWrapper selected={props.selected}>
       <div className="content">
