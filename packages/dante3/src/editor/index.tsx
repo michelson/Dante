@@ -36,6 +36,7 @@ import { Color } from "../plugins/colorStyle";
 import { lowlight } from "lowlight/lib/common.js";
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
+import CustomParagraph from '../blocks/custom'
 
 export default function Editor({
   widgets,
@@ -49,6 +50,7 @@ export default function Editor({
 }) {
   function basePlugins() {
     return [
+      
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3],
@@ -73,8 +75,11 @@ export default function Editor({
           },
         },
       }),
-      //Image,
+
+      //CustomParagraph,
       
+      TextStyle,
+      Color,      
       Placeholder.configure({
         placeholder: bodyPlaceholder || "Write something …",
       }),
@@ -85,9 +90,6 @@ export default function Editor({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlock);
         },
-        //renderHTML({ HTMLAttributes }) {
-        //  return ['a', HTMLAttributes, 0]
-        //},
       }).configure({
         HTMLAttributes: {
           class: "markup--anchor",
@@ -99,6 +101,7 @@ export default function Editor({
         },
       }).configure({ lowlight }),
       OrderedList,
+      
       ListItem,
       TaskList,
       TaskItem,

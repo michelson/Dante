@@ -113,6 +113,7 @@ export default function MenuBar({ editor, fixed }) {
   }
 
   function _clickBlockInlineStyle(style) {
+    editor.chain().focus().setColor && 
     editor.chain().focus().setColor(style).run();
   }
 

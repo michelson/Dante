@@ -48,25 +48,14 @@ export const PlaceholderBlockConfig = (options = {}) => {
     name: "PlaceholderBlock",
     tag: "placeholder-block",
     component: PlaceholderBlock,
-    onUpdate: (editor) => {
-      //console.log("CONTENT CHANGED ON PLACEHOLDER!!!", editor)
-    },
+    priority: 20,
+    //onUpdate: (editor) => {
+    //  console.log("CONTENT CHANGED ON PLACEHOLDER!!!", editor)
+    //},
     keyboardShortcuts: (editor) => {
       return {
-        Enter: ({ editor }) => {
-          //getNodeType('PlaceholderBlock' , editor.schema)
-          //if (
-          //  editor.view?.trackWrites?.pmViewDesc?.parent?.spec?.extension
-          //    ?.name === "PlaceholderBlock"
-          //)
-
+        Enter: () => {
           if (editor.isActive("PlaceholderBlock")) {
-            /*console.log("YES MADA!", editor.view?.trackWrites?.pmViewDesc);
-            const comp =
-              editor.view.trackWrites.pmViewDesc.parent.node.attrs.blockKind
-                .name;
-            const text = editor.view.trackWrites.pmViewDesc.node.text;*/
-
             const parentComp = editor.state.selection.$anchor.parent;
             const comp = parentComp.attrs.blockKind;
             const text = parentComp.textContent;
