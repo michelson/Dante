@@ -56,20 +56,11 @@ export default function Index({}) {
               theme={theme}
               fixed={fixed}
               content={htmlContent}
-              /*widgets={[
-                ImageBlockConfig(),
-                CodeBlockConfig(),
-                EmbedBlockConfig(),
-                VideoBlockConfig(),
-                PlaceholderBlockConfig(),
-                DividerBlockConfig(),
-                VideoRecorderBlockConfig()
-              ]}*/
               style={{}}
               read_only={false}
               onUpdate={(editor) => {
                 //console.log("content", editor.getHTML())
-                console.log("content", JSON.stringify(editor.getJSON()));
+                // console.log("content", JSON.stringify(editor.getJSON()));
               }}
               data_storage={{
                 interval: 10000,

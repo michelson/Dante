@@ -21,7 +21,7 @@ import {
 } from "./styled";
 
 export default function VideoRecorderBlock(props) {
-  let file = null;
+  //let file = null;
   let app = React.useRef();
   let mediaRecorder = React.useRef();
   let video = React.useRef();
@@ -33,6 +33,8 @@ export default function VideoRecorderBlock(props) {
   const [fileReady, setFileReady] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [loadingProgress, setLoadingProgress] = React.useState(null);
+  const [file, setFile] = React.useState(null);
+
 
   const { countdown, start, reset, pause, isRunning } = useCountdownTimer({
     timer: props.extension.options.seconds_to_record,
@@ -88,8 +90,8 @@ export default function VideoRecorderBlock(props) {
     releaseStreamFromVideo();
 
     console.log("Recording Stopped.");
-    file = blob;
-    setStreamToVideo(file);
+    setFile(blob)
+    setStreamToVideo(blob);
     playMode();
   }
 
@@ -153,15 +155,15 @@ export default function VideoRecorderBlock(props) {
 
   function formatData() {
     let formData = new FormData();
-
+    //if (props.node.attrs.file) {
     if (file) {
-      let formName = props.extension.options.upload_formName || "file";
+      let formName = props.extension.options.upload_formName || 'file'
 
-      formData.append(formName, file);
+      formData.append(formName, file) //props.node.attrs.file);
       return formData;
     } else {
-      //formData.append('url', this.props.blockProps.data.get("url"))
-      formData.append("url", props.node.attrs.url);
+      // TODO: check this
+      formData.append("url", props.node.attrs.src);
       return formData;
     }
   }
@@ -185,12 +187,13 @@ export default function VideoRecorderBlock(props) {
   }
 
   function uploadFile(blob) {
-    file = blob;
+    // file = blob;
+    setFile(blob)
 
     // custom upload handler
     if (props.extension.options.upload_handler) {
       return props.extension.options.upload_handler(
-        formatData().get("file"),
+        formatData(blob).get("file"),
         props,
         { uploadCompleted, updateProgressBar, uploadFailed }
       );
@@ -245,7 +248,7 @@ export default function VideoRecorderBlock(props) {
     //this.setState({ url }, this.updateData)
     //this.props.blockProps.removeLock()
     stopLoader();
-    file = null;
+    setFile(null);
     setUrlToVideo(url);
   }
 
@@ -404,7 +407,7 @@ function Loader({ toggle, progress }) {
 }
 
 export const VideoRecorderBlockConfig = (options = {}) => {
-  return {
+  let config = {
     name: "VideoRecorderBlock",
     icon: videoRecorderIcon,
     tag: "recorded-video",
@@ -441,6 +444,11 @@ export const VideoRecorderBlockConfig = (options = {}) => {
     },
     options: {
       upload_formName: "file",
+ 
+      upload_handler: (file, ctx) => {
+        console.log("UPLOADED FILE", file, ctx)
+      },
+      
       /*upload_handler: (file, props, { uploadCompleted }) => {
         console.log("UPLOADED video");
         const url =
@@ -450,4 +458,7 @@ export const VideoRecorderBlockConfig = (options = {}) => {
       seconds_to_record: 10000,
     },
   };
+
+  return Object.assign(config, options);
+
 };

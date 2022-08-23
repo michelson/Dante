@@ -31,10 +31,15 @@ const ModalWrapper = styled.div`
   position: relative;
   box-shadow: 1px 2px 7px 0px #27262673;
   border: 1px solid #2f2f2f3b;
+  display: flex;
+  flex-direction: column;
   background-color: ${(props) => props.theme.dante_inversed_color};
+  .close {
 
+    self-align: end
+  }
   input {
-    padding: 0.4em;
+    padding: 0.2em;
     border: 1px solid #ccc;
     width: 100%;
   }
@@ -172,7 +177,11 @@ export default class GiphyBlock extends React.Component {
         <div contentEditable={false}>
           <Modal>
             <ModalWrapper>
-              <button onClick={this.selfDestroy}>close</button>
+              <button className="close" onClick={this.selfDestroy}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
               <Giphy
                 apiKey={this.props.extension.config.addOptions.key}
                 handleSelected={(data) => {
