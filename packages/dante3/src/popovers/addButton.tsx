@@ -94,7 +94,6 @@ const AddButton = React.forwardRef(
           blockKind: block
         }
       });
-      console.log("placeholder: to be implemented", block);
     }
 
     function handleInsertion(block) {
@@ -102,7 +101,6 @@ const AddButton = React.forwardRef(
         type: block.name,
         attrs: {}
       });
-      console.log("insertion: to be implemented", block);
     }
 
     function clickHandler(e, type) {

@@ -113,6 +113,7 @@ export default function MenuBar({ editor, fixed }) {
   }
 
   function _clickBlockInlineStyle(style) {
+    editor.chain().focus().setColor && 
     editor.chain().focus().setColor(style).run();
   }
 
@@ -161,7 +162,8 @@ export default function MenuBar({ editor, fixed }) {
             styles={{}}
             editor={editor}
             enableLinkMode={_enableLinkMode}
-            value={"#000"}
+            value={null}
+            defaultValue={"#555"}
             style_type="color"
             handleClick={_clickBlockInlineStyle}
             show={show}

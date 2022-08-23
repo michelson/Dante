@@ -27,8 +27,7 @@ export const StyleWrapper = styled(NodeViewWrapper)`
 `;
 
 export default function PlaceholderBlock(props) {
-  console.log(props.node.attrs.blockKind);
-
+  // console.log(props.node.attrs.blockKind);
   return (
     <StyleWrapper selected={props.selected}>
       <div className="content">
@@ -36,7 +35,11 @@ export default function PlaceholderBlock(props) {
           className="editable-content"
           data-placeholder={props.node.attrs.blockKind.options.placeholder}
         >
-          <button onClick={() => props.deleteNode()}>x</button>
+          <button onClick={() => props.deleteNode()}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </NodeViewContent>
       </div>
     </StyleWrapper>
@@ -48,25 +51,14 @@ export const PlaceholderBlockConfig = (options = {}) => {
     name: "PlaceholderBlock",
     tag: "placeholder-block",
     component: PlaceholderBlock,
-    onUpdate: (editor) => {
-      //console.log("CONTENT CHANGED ON PLACEHOLDER!!!", editor)
-    },
+    priority: 20,
+    //onUpdate: (editor) => {
+    //  console.log("CONTENT CHANGED ON PLACEHOLDER!!!", editor)
+    //},
     keyboardShortcuts: (editor) => {
       return {
-        Enter: ({ editor }) => {
-          //getNodeType('PlaceholderBlock' , editor.schema)
-          //if (
-          //  editor.view?.trackWrites?.pmViewDesc?.parent?.spec?.extension
-          //    ?.name === "PlaceholderBlock"
-          //)
-
+        Enter: () => {
           if (editor.isActive("PlaceholderBlock")) {
-            /*console.log("YES MADA!", editor.view?.trackWrites?.pmViewDesc);
-            const comp =
-              editor.view.trackWrites.pmViewDesc.parent.node.attrs.blockKind
-                .name;
-            const text = editor.view.trackWrites.pmViewDesc.node.text;*/
-
             const parentComp = editor.state.selection.$anchor.parent;
             const comp = parentComp.attrs.blockKind;
             const text = parentComp.textContent;

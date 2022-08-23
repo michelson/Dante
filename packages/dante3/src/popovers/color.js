@@ -35,7 +35,7 @@ export default function DanteTooltipColor(props) {
   }
 
   function renderColor() {
-    const v = currentValue() || props.value;
+    const v = currentValue() || props.value || props.defaultValue;
 
     if (open) {
       return (

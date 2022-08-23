@@ -11,7 +11,7 @@ export function extensionFactory(options) {
     draggable: true,
     atom: options.atom || false,
     addOptions: options.options || {},
-    priority: options.priority || 1,
+    // priority: options.priority || 1, // somehow this option breaks the addKeyboardShortcut
     onBeforeCreate({ editor }) {
       // Before the view is created.
       options.onBeforeCreate && options.onBeforeCreate(editor);

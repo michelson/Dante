@@ -45,7 +45,7 @@ export const EditorControls = styled.div`
   -ms-flex-pack: center;
   //margin-top: 25px;
   //margin-left: 17px;
-  height: 100%;
+  height: 84%;
   z-index: 10;
   width: 100%;
   align-items: center;
@@ -105,25 +105,25 @@ export const RecButton = styled.div`
     position: absolute;
     width: 26px;
     height: 26px;
-    top: 4px;
+    top: 15px;
     content: "";
     border-radius: 50px;
     background: #e80415;
     cursor: pointer;
-    left: 4px;
+    left: 16px;
   }
 
   &.recording {
     &:before {
       position: absolute;
-      width: 20px;
-      height: 20px;
-      top: 6px;
+      width: 26px;
+      height: 26px;
+      top: 15px;
       content: "";
-      border-radius: 2px;
+      border-radius: 50px;
       background: #e80415;
       cursor: pointer;
-      left: 7px;
+      left: 16px;
     }
   }
 
@@ -131,8 +131,8 @@ export const RecButton = styled.div`
     position: absolute;
     width: 30px;
     height: 30px;
-    top: 6px;
-    left: 6px;
+    top: 19px;
+    left: 19px;
     content: "";
     -webkit-transform: translate(-6px, -6px);
     -ms-transform: translate(-6px, -6px);
@@ -168,6 +168,8 @@ export const Button = styled.button`
 
   font-size: 12px;
   font-weight: bold;
+  padding-left: 11px;
+  padding-right: 11px;
 
   cursor: pointer;
   transition: all 0.25s ease;

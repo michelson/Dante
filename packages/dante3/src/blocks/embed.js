@@ -114,20 +114,20 @@ export default function EmbedBlock(props) {
               href={embed_data.url}
               style={{ backgroundImage: `url('${picture()}')` }}
               rel={"noreferrer"}
-            />
+            > </a>
           ) : undefined}
           {error ? <h2>{error}</h2> : undefined}
 
           {
             //!this.props.blockProps.getEditor().props.read_only
             props.editor.isEditable ? (
-              <a
+              <button
                 href="#"
                 className={"graf--media-embed-close"}
                 onClick={deleteSelf}
               >
                 x
-              </a>
+              </button>
             ) : null
           }
 
@@ -171,7 +171,7 @@ export const EmbedBlockConfig = (options = {}) => {
     options: {
       endpoint: "//noembed.com/embed?url=",
       placeholder:
-        "Paste a link to embed content from another site (e.g. Twitter) and press Enter",
+        "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
     },
     attributes: {
       embed_data: {

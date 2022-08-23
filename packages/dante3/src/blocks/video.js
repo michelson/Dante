@@ -106,7 +106,7 @@ export default function VideoBlock(props) {
 }
 
 export const VideoBlockConfig = (options = {}) => {
-  return {
+  let config = {
     icon: video,
     name: "VideoBlock",
     tag: "video-block",
@@ -136,6 +136,8 @@ export const VideoBlockConfig = (options = {}) => {
       }
     },
   };
+
+  return Object.assign(config, options)
 };
 
 /*
