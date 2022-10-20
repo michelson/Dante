@@ -8,6 +8,8 @@ import {
 } from "../../model/index.js";
 
 import { getVisibleSelectionRect } from "draft-js";
+import { usePopperTooltip } from "react-popper-tooltip";
+import 'react-popper-tooltip/dist/styles.css';
 
 import {
   getSelectionRect,
@@ -343,27 +345,49 @@ export default class DanteInlineTooltip extends React.Component {
   }
 }
 
-class InlineTooltipItem extends React.Component {
-  clickHandler = (e) => {
+function InlineTooltipItem ({ item: { type, popper, icon } , clickHandler, title }) {
+  const onClick = (e) => {
     e.preventDefault();
-    return this.props.clickHandler(e, this.props.item.type);
+    return clickHandler(e, type);
   };
 
-  render() {
-    return (
+  const popperPlacement = popper && popper.placement ? popper.placement : "bottom"
+  const popperOffset = popper && popper.offset ? popper.offset : [0, 7]
+
+  const {
+    getArrowProps,
+    getTooltipProps,
+    setTooltipRef,
+    setTriggerRef,
+    visible,
+  } = usePopperTooltip({ placement: popperPlacement, offset: popperOffset });
+
+  return (
+    <div className="button-container">
       <button
+        ref={setTriggerRef}
         type="button"
         className="inlineTooltip-button scale"
-        title={this.props.title}
-        data-cy={`inline-tooltip-button-${this.props.item.type}`}
-        onMouseDown={this.clickHandler}
+        title={title}
+        data-cy={`inline-tooltip-button-${type}`}
+        onMouseDown={onClick}
         onClick={(e) => e.preventDefault()}
         style={{ fontSize: "21px" }}
       >
-        {<span className={"tooltip-icon"}>{this.props.item.icon()}</span>}
+        {<span className={"tooltip-icon"}>{icon()}</span>}
       </button>
-    );
-  }
+      {(popper && visible) && (
+        <div
+          ref={setTooltipRef}
+          {...getTooltipProps({ className: 'tooltip-container', style: { fontSize: "12px", borderRadius: "5px" } })}
+        >
+          <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+          {popper && popper.name}
+        </div>
+      )}
+    </div>
+  );
+  
 }
 
 export const DanteInlineTooltipConfig = (options = {}) => {

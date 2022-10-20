@@ -623,6 +623,10 @@ export const InlinetooltipWrapper = styled.div`
   }
 
   // BUTTON
+  .button-container {
+    display: inline-block;
+  }
+    
   .inlineTooltip-button {
 
     // BASE
