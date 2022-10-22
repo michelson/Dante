@@ -14,8 +14,8 @@ import {
   POSTS_PATH2 as POSTS_PATH,
 } from "../../utils/mdxUtils";
 import Sidebar from "../../components/Sidebar";
-import { version } from "../../packages/dante3/package.json";
-
+import pkg from "../../packages/dante3/package.json";
+const {version} = pkg
 //import Dante2 from 'Dante2'
 const components = {
   a: CustomLink,

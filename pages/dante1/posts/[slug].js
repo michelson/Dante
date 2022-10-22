@@ -9,8 +9,8 @@ import path from 'path'
 import Layout from '../../../components/Layout'
 //import Live from '../components/Live'
 import Sidebar from '../../../components/Sidebar'
-import {version} from '../../../packages/dante3/package.json'
-
+import pkg from '../../../packages/dante3/package.json'
+const {version} = pkg
 
 // POSTS_PATH is useful when you want to get the path to a specific file
 const POSTS_PATH = path.join(process.cwd(), 'packages/dante1-legacy/docs')

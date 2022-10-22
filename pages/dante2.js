@@ -10,8 +10,9 @@ import {Component, useEffect, useState} from 'react'
 //import {Readme as demo} from '../data/poc'
 import {Readme as jsonContent} from '../data/poc'
 
-import {version, name} from '../packages/dante2/package.json'
+import pkg from '../packages/dante2/package.json'
 
+const {version, name} = pkg
 
 export default function Index({ }) {
   const [theme, setTheme] = useState(defaultTheme)
