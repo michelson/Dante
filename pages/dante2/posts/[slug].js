@@ -11,8 +11,8 @@ import Layout from "../../../components/Layout";
 import Live from "../../../components/Live";
 import { postFilePaths, POSTS_PATH } from "../../../utils/mdxUtils";
 import Sidebar from "../../../components/Sidebar";
-import { version } from "Dante2/package";
-
+import pkg from "Dante2/package";
+const { version } = pkg
 //import Dante2 from 'Dante2'
 const components = {
   a: CustomLink,

@@ -213,3 +213,21 @@ The default options for dante tooltip are:
   widgets={[CustomWidgetconfig()]}
 />
 ```
+
+## Add a popper to the button
+
+```js live=true
+<Dante
+  content={null}
+  tooltips={[
+    DanteInlineTooltipConfig({
+      fixed: true,
+    }),
+  ]}
+  widgets={[CustomWidgetconfig({ popper: { name: "Left", placement: "left" }}), 
+            CustomWidgetconfig({ popper: { name: "Top", placement: "top" }}),
+            CustomWidgetconfig({ popper: { name: "Bottom (default)", placement: "bottom" }}),
+            CustomWidgetconfig({ popper: { name: "Right", placement: "right" }}),
+            CustomWidgetconfig({ popper: { name: "Offset", placement: "bottom", offset: [8, 15] }})]}
+/>
+```

@@ -10,7 +10,8 @@ import Dante, {
 
 import { contentDemo as htmlContent } from "../packages/dante3/src/data/content";
 
-import { version, name } from "../packages/dante3/package.json";
+import pkg from "../packages/dante3/package.json";
+const { version, name } = pkg
 
 export default function Index({}) {
   const [theme, setTheme] = useState(defaultTheme);

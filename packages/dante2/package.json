@@ -48,6 +48,7 @@
     "react-colorful": "^5.1.2",
     "react-dev-utils": "^11.0.4",
     "react-popper": "^1.0.0",
+    "react-popper-tooltip": "^4.4.2",
     "react-select": "^2.0.0",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-multi-input": "^1.3.1"

@@ -11,8 +11,8 @@ import Dante, {darkTheme, defaultTheme, defaultPlugins} from '../packages/dante3
 import jsonContent from "../packages/dante3/src/data/content";
 //import {Readme as demo} from '../data/poc'
 
-import {version} from '../packages/dante3/package.json'
-
+import pkg from '../packages/dante3/package.json'
+const {version} from pkg
 
 export default function Index({ }) {
   const [theme, setTheme] = useState(defaultTheme)
