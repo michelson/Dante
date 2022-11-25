@@ -18,8 +18,11 @@ export {utils}
 import {LinkDecorator, PrismDraftDecorator} from '../decorators'
 export {LinkDecorator, PrismDraftDecorator}
 
+import FileBlock, {FileBlockConfig} from '../blocks/file.js'
+export { FileBlock, FileBlockConfig}
+
 import ImageBlock, {ImageBlockConfig} from '../blocks/image.js'
-export { ImageBlock, ImageBlockConfig} 
+export { ImageBlock, ImageBlockConfig}
 
 import EmbedBlock, {EmbedBlockConfig} from '../blocks/embed.js'
 export { EmbedBlock, EmbedBlockConfig}  

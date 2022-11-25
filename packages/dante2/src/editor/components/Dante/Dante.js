@@ -10,6 +10,7 @@ import {DanteImagePopoverConfig} from '../popovers/image.js'
 import {DanteAnchorPopoverConfig} from '../popovers/link.js'
 import {DanteInlineTooltipConfig} from '../popovers/addButton.js' //'Dante2/es/components/popovers/addButton.js'
 import {DanteTooltipConfig} from '../popovers/toolTip.js' //'Dante2/es/components/popovers/toolTip.js'
+import {FileBlockConfig} from '../blocks/file.js'
 import {ImageBlockConfig} from '../blocks/image.js'
 import {EmbedBlockConfig} from '../blocks/embed.js'
 import {VideoBlockConfig} from '../blocks/video.js'
@@ -191,6 +192,7 @@ Dante.defaultProps = {
   
   widgets: [
     ImageBlockConfig(),
+    FileBlockConfig(),
     EmbedBlockConfig(),
     VideoBlockConfig(),
     PlaceholderBlockConfig(),

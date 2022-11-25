@@ -459,6 +459,7 @@ export default class DanteEditor extends React.Component {
 
     switch (currentBlock.getType()) {
       case "image":
+      case "file":
       case "video":
       case "placeholder":
         const newContent = Modifier.replaceText(
