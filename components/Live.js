@@ -3,6 +3,7 @@ import Highlight, { defaultProps } from "prism-react-renderer";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
 import { mdx } from "@mdx-js/react";
 import Dante, {
+  FileBlockConfig,
   ImageBlockConfig,
   EmbedBlockConfig,
   VideoBlockConfig,
@@ -53,6 +54,7 @@ export default function Live({ children, className, live, render }) {
           scope={{
             mdx,
             Dante,
+            FileBlockConfig,
             ImageBlockConfig,
             EmbedBlockConfig,
             VideoBlockConfig,
