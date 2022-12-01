@@ -491,6 +491,7 @@ export default class DanteEditor extends React.Component {
     // TODO: make this configurable
     switch (currentBlock.getType()) {
       case "image":
+      case "file":
       case "video":
       case "placeholder":
         return this.handleTXTPaste(text, html);
