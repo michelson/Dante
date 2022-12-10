@@ -1,5 +1,7 @@
+import { Theme, useTheme } from "@emotion/react"
+
 /** @TODO: These could be validated with typescript's string literal types. Sounds like a project for another day. */
-export interface DanteTheme {
+export interface DanteTheme extends Theme {
   dante_font_family_serif: string
   dante_font_family_sans: string
   dante_font_family_mono: string
@@ -80,3 +82,5 @@ export interface DanteTheme {
   hljs_link_color: string
   hljs_deletion_color: string
 }
+
+export const useDanteTheme = () => useTheme() as DanteTheme

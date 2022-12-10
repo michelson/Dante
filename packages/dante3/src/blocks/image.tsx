@@ -2,8 +2,6 @@ import React from "react";
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import axios from "axios";
 import styled from "@emotion/styled";
-import { isEmpty } from "../utils";
-import MediumImage from "./mediumImage";
 import { image } from "../icons";
 
 export const StyleWrapper = styled(NodeViewWrapper)``;

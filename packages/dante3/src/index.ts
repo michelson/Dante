@@ -40,6 +40,7 @@ import GiphyBlock, { GiphyBlockConfig } from "./blocks/giphy/giphyBlock";
 import SpeechToTextBlock, {
   SpeechToTextBlockConfig,
 } from "./blocks/speechToText";
+import { Node } from "@tiptap/core";
 
 //export {DanteEditor}
 export { darkTheme, defaultTheme };
