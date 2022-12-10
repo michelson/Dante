@@ -1,3 +1,5 @@
+import { DanteTheme } from "./theme";
+
 const dante_font_family_sans =
   "ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji";
 const dante_font_family_sans_serif =
@@ -13,7 +15,7 @@ const dante_inversed_color = "#000";
 const dante_accent_color = "#5BD974";
 const dante_text_color = "#fefefe";
 
-const theme = {
+const theme: DanteTheme = {
   dante_font_family_serif: dante_font_family_sans_serif,
   dante_font_family_sans: dante_font_family_sans,
   dante_font_family_mono: `Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;`,
@@ -36,6 +38,8 @@ const theme = {
   tooltip_color: "#fff",
   tooltip_background_color: "#000",
   tooltip_border_color: "#fff",
+  tooltip_color_opacity: "0.44",
+  tooltip_color_opacity_hover: "0.9",
   tooltip_background_opacity: "0",
   tooltip_border_width: "1px",
   tooltip_border_radius: "999em",
@@ -92,4 +96,5 @@ const theme = {
   hljs_link_color: "#ff55ff",
   hljs_deletion_color: "#55ffff",
 };
+
 export default theme;

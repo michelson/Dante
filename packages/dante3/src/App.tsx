@@ -1,6 +1,6 @@
-import logo from "./logo.svg";
 import "./App.css";
 import Editor from "./DanteEditor";
+import React from "react";
 
 function App() {
   return (
