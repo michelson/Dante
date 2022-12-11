@@ -40,8 +40,21 @@ function DanteTooltipLink({ enableLinkMode, selected }) {
   );
 }
 
-export default function MenuBar({ editor, fixed }) {
-  const [linkState, setLinkState] = useState({
+interface MenuBarProps {
+  editor: any
+  fixed: boolean
+}
+
+interface LinkState {
+  link_mode: boolean
+  menu_style: {
+    minWidth?: string
+  }
+  url?: string
+}
+
+const MenuBar: React.FC<MenuBarProps> = ({ editor, fixed }) => {
+  const [linkState, setLinkState] = useState<LinkState>({
     link_mode: false,
     menu_style: {
       minWidth: "200px",
@@ -62,6 +75,7 @@ export default function MenuBar({ editor, fixed }) {
     }
   }
 
+  /*
   function displayActiveMenu() {
     if (this.state.show) {
       return "dante-menu--active";
@@ -69,6 +83,7 @@ export default function MenuBar({ editor, fixed }) {
       return "";
     }
   }
+  */
 
   function itemClass(kind, opts = null) {
     if (!opts)
@@ -118,8 +133,8 @@ export default function MenuBar({ editor, fixed }) {
   }
 
   function fixedStyles() {
-    if (!fixed) return { width: `${11 * 43}px` };
-    if (fixed) return { position: `sticky`, top: "0" };
+    if (!fixed) return { width: `${11 * 43}px` } as const;
+    if (fixed) return { position: `sticky`, top: "0" } as const;
   }
 
   function renderMenu() {
@@ -128,7 +143,7 @@ export default function MenuBar({ editor, fixed }) {
 
     return (
       <AnchorStyle
-        fixed={fixed}
+        //fixed={fixed}
         className={`dante-menu ${displayLinkMode()}`}
         style={fixedStyles()}
       >
@@ -171,7 +186,7 @@ export default function MenuBar({ editor, fixed }) {
 
           <DanteTooltipLink
             selected={editor.isActive("link")}
-            editor={editor}
+            //editor={editor}
             enableLinkMode={_enableLinkMode}
           />
           <li
@@ -258,3 +273,5 @@ export default function MenuBar({ editor, fixed }) {
     </>
   );
 }
+
+export default MenuBar

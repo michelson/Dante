@@ -1,6 +1,4 @@
 import React from "react";
-import axios from "axios";
-import styled from "@emotion/styled";
 import { AnchorStyle } from "../styled/menu";
 
 import { imageFill, imageCenter, imageLeft, imageWide } from "../icons";
