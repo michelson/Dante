@@ -1,4 +1,4 @@
-import { DanteTheme } from "./theme";
+import { Theme } from "@emotion/react";
 
 const dante_font_family_sans =
   "ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji";
@@ -15,7 +15,7 @@ const dante_inversed_color = "#000";
 const dante_accent_color = "#5BD974";
 const dante_text_color = "#fefefe";
 
-const theme: DanteTheme = {
+const theme: Theme = {
   dante_font_family_serif: dante_font_family_sans_serif,
   dante_font_family_sans: dante_font_family_sans,
   dante_font_family_mono: `Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;`,
