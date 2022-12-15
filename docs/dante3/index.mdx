@@ -7,7 +7,38 @@ order: 10
 
 ## Installation
 
-`npm install --save dante3`
+```shell
+# with npm
+npm install --save dante3
+# with yarn
+yarn add dante3
+# with pnpm
+pnpm install dante3
+```
+
+**Required**: 
+
+```shell
+# with npm
+npm install --save prop-types
+# with yarn
+yarn add prop-types
+# with pnpm
+pnpm install prop-types
+```
+
+**Note**: Since Tiptap is based on Prosemirror, you will need to install the Prosemirror dependencies if you don't have them installed already to avoid version clashes.
+
+**Note**: If you use NPM 7 or higher, peerDependencies are automatically installed.
+
+```shell
+# Installation with NPM 6 or lower
+npm install --save prosemirror-commands prosemirror-keymap prosemirror-model prosemirror-schema-list prosemirror-state prosemirror-transform prosemirror-view prosemirror-history prosemirror-dropcursor prosemirror-gapcursor
+# Installation with yarn
+yarn add prosemirror-commands prosemirror-keymap prosemirror-model prosemirror-schema-list prosemirror-state prosemirror-transform prosemirror-view prosemirror-history prosemirror-dropcursor prosemirror-gapcursor
+# Installation with pnpm
+pnpm install prosemirror-commands prosemirror-keymap prosemirror-model prosemirror-schema-list prosemirror-state prosemirror-transform prosemirror-view prosemirror-history prosemirror-dropcursor prosemirror-gapcursor
+```
 
 ## Basic usage
 
