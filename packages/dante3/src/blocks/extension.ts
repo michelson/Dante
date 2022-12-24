@@ -1,7 +1,10 @@
-import { Node } from "@tiptap/core";
+import { Editor, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer, mergeAttributes } from "@tiptap/react";
 import { nodeInputRule } from "@tiptap/core";
 
+interface NodeThis {
+  name: string; options: any; storage: any; editor: Editor; type: any; parent: () => void;
+}
 export function extensionFactory(options) {
   return Node.create({
     name: options.name,
@@ -12,33 +15,33 @@ export function extensionFactory(options) {
     atom: options.atom || false,
     addOptions: options.options || {},
     // priority: options.priority || 1, // somehow this option breaks the addKeyboardShortcut
-    onBeforeCreate({ editor }) {
+    onBeforeCreate() {
       // Before the view is created.
-      options.onBeforeCreate && options.onBeforeCreate(editor);
+      options.onBeforeCreate && options.onBeforeCreate(this.editor);
     },
-    onCreate({ editor }) {
+    onCreate() {
       // The editor is ready.
-      options.onCreate && options.onCreate(editor);
+      options.onCreate && options.onCreate(this.editor);
     },
-    onUpdate({ editor }) {
+    onUpdate() {
       // The content has changed.
-      options.onUpdate && options.onUpdate(editor);
+      options.onUpdate && options.onUpdate(this.editor);
     },
-    onSelectionUpdate({ editor }) {
+    onSelectionUpdate() {
       // The selection has changed.
-      options.onSelectionUpdate && options.onSelectionUpdate(editor);
+      options.onSelectionUpdate && options.onSelectionUpdate(this.editor);
     },
-    onTransaction({ editor, transaction }) {
+    onTransaction() {
       // The editor state has changed.
-      options.onTransaction && options.onTransaction(editor);
+      options.onTransaction && options.onTransaction(this.editor);
     },
-    onFocus({ editor, event }) {
+    onFocus() {
       // The editor is focused.
-      options.onFocus && options.onFocus(editor);
+      options.onFocus && options.onFocus(this.editor);
     },
-    onBlur({ editor, event }) {
+    onBlur() {
       // The editor isn’t focused anymore.
-      options.onBlur && options.onBlur(editor);
+      options.onBlur && options.onBlur(this.editor);
     },
     onDestroy() {
       // The editor is being destroyed.
