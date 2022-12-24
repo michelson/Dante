@@ -1,10 +1,7 @@
-import { Editor, Node } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 import { ReactNodeViewRenderer, mergeAttributes } from "@tiptap/react";
 import { nodeInputRule } from "@tiptap/core";
 
-interface NodeThis {
-  name: string; options: any; storage: any; editor: Editor; type: any; parent: () => void;
-}
 export function extensionFactory(options) {
   return Node.create({
     name: options.name,
