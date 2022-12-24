@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import { AnchorStyle } from "../styled/menu";
 import ImagePopover from "./image";
 import { BubbleMenu } from "./bubble-menu/bubble-menu-react";
@@ -125,7 +125,7 @@ export default function MenuBar({ editor, fixed }) {
     editor.chain().focus().setColor(style).run();
   }
 
-  function fixedStyles() {
+  function fixedStyles(): CSSProperties {
     if (!fixed) return { width: `${11 * 43}px` };
     if (fixed) return { position: `sticky`, top: "0" };
   }
@@ -136,7 +136,7 @@ export default function MenuBar({ editor, fixed }) {
 
     return (
       <AnchorStyle
-        fixed={fixed}
+        //fixed={fixed}  // This wasn't present in the type for AnchorStyle and didn't appear to be referenced anywhere
         className={`dante-menu ${displayLinkMode()}`}
         style={fixedStyles()}
       >
