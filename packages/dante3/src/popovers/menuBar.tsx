@@ -20,7 +20,7 @@ import {
   blockquote,
   code,
 } from "../icons";
- 
+
 function DanteTooltipLink({ enableLinkMode, selected }) {
   function promptForLink(ev) {
     /*let selection = this.props.editorState.getSelection()
