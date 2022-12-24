@@ -20,7 +20,7 @@ import {
   blockquote,
   code,
 } from "../icons";
-
+ 
 function DanteTooltipLink({ enableLinkMode, selected }) {
   function promptForLink(ev) {
     /*let selection = this.props.editorState.getSelection()
@@ -40,8 +40,16 @@ function DanteTooltipLink({ enableLinkMode, selected }) {
   );
 }
 
+interface LinkState {
+  link_mode: boolean
+  url?: string
+  menu_style: {
+    minWidth?: string,
+  }
+}
+
 export default function MenuBar({ editor, fixed }) {
-  const [linkState, setLinkState] = useState({
+  const [linkState, setLinkState] = useState<LinkState>({
     link_mode: false,
     menu_style: {
       minWidth: "200px",
@@ -63,7 +71,7 @@ export default function MenuBar({ editor, fixed }) {
   }
 
   function displayActiveMenu() {
-    if (this.state.show) {
+    if (show) {
       return "dante-menu--active";
     } else {
       return "";
@@ -171,7 +179,7 @@ export default function MenuBar({ editor, fixed }) {
 
           <DanteTooltipLink
             selected={editor.isActive("link")}
-            editor={editor}
+            //editor={editor}
             enableLinkMode={_enableLinkMode}
           />
           <li
