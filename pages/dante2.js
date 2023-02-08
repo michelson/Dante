@@ -2,7 +2,10 @@ import Dante, {
   darkTheme,
   defaultTheme,
   ImageBlockConfig
-} from 'Dante2'
+} from '../packages/dante2/src/editor/components/Dante'
+
+import { VideoRecorderBlockConfig } from '../packages/dante2/src/editor/components/blocks/videoRecorder/index';
+
 
 import Layout from '../components/Layout'
 import {Component, useEffect, useState} from 'react'
@@ -50,15 +53,23 @@ export default function Index({ }) {
             <Dante 
               theme={theme}
               content={jsonContent}
-              /*widgets={[
-                ImageBlockConfig(),
-                CodeBlockConfig(),
-                EmbedBlockConfig(),
-                VideoBlockConfig(),
-                PlaceholderBlockConfig(),
-                DividerBlockConfig(),
-                VideoRecorderBlockConfig()
-              ]}*/
+              //widgets={[
+              // VideoRecorderBlockConfig({
+              //   options: {
+              //     seconds_to_record: 20000,
+              //     mediaType: "video/mp4",
+              //     upload_handler: (e)=>{console.log(e)},
+              //     //upload_url: `/attachments.json?id=${this.props.data.id}&app_id=${this.props.app.key}`,
+              //   },
+              // })
+              //  ImageBlockConfig(),
+              //  CodeBlockConfig(),
+              //  EmbedBlockConfig(),
+              //  VideoBlockConfig(),
+              //  PlaceholderBlockConfig(),
+              //  DividerBlockConfig(),
+              //  VideoRecorderBlockConfig()
+              ]}
               style={{}}
               read_only={false}
               data_storage={ 

@@ -48,7 +48,7 @@
   },
   "scripts": {
     "stories": "start-storybook -p 5555",
-    "dev": "next -p 3001",
+    "dev": "next -p 3002",
     "dev:watch": "next-remote-watch ./posts",
     "build": "next build",
     "start": "next start",

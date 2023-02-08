@@ -20,6 +20,7 @@ class ReactMediaRecorder extends Component {
     this.stream = null;
     this.mediaRecorder = null;
     this.mediaChunk = [];
+    this.mediaType = props.mediaType
 
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
@@ -121,7 +122,7 @@ class ReactMediaRecorder extends Component {
 
     try {
       let options = {};
-      let types = ['video/webm;codecs=vp8', 'video/webm', ''];
+      let types = ['video/mp4', 'video/webm;codecs=vp8', 'video/webm', ''];
 
       if(this.props.mimeType) types.unshift(this.props.mimeType);
 
@@ -206,7 +207,7 @@ class ReactMediaRecorder extends Component {
       recording: false
     });
 
-    let blob = new Blob(this.mediaChunk, { type: 'video/webm' });
+    let blob = new Blob(this.mediaChunk, { type: this.mediaType });
     this.props.onStop(blob);
 
     this.stopStream()

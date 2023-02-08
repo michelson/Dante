@@ -295,7 +295,7 @@ export default class DanteInlineTooltip extends React.Component {
 
   scaledWidthStyle = () => {
     if (!this.props.configTooltip.fixed) {
-      return { width: `${this.state.scaledWidth}px` };
+      return { width: `${this.state.scaledWidth}px`, left: `43px`, position: 'absolute' };
     } else {
       return {};
     }

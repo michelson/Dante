@@ -266,7 +266,7 @@ class VideoRecorderBlock extends React.Component {
     this.setStreamToVideo = this.setStreamToVideo.bind(this);
     this.releaseStreamFromVideo = this.releaseStreamFromVideo.bind(this);
     this.downloadVideo = this.downloadVideo.bind(this);
-
+    this.mediaType = this.config.mediaType
     this.app = React.createRef()
     this.mediaRecorder = React.createRef();
   }
@@ -572,6 +572,7 @@ class VideoRecorderBlock extends React.Component {
             onPause={this.handlePause}
             onResume={this.handleResume}
             onError={this.handleError} 
+            mediaType={this.mediaType}
             render={({ start, stop, pause, resume }) => 
             <div>
 
@@ -733,6 +734,7 @@ export const VideoRecorderBlockConfig = (options={})=>{
     breakOnContinuous: true,
     wrapper_class: "graf graf--video",
     selected_class: "is-selected",
+    mediaType: options.mediaType || "video/webm",
     selectedFn: block => {},
     /*handleEnterWithoutText(ctx, block) {
       const { editorState } = ctx.state
