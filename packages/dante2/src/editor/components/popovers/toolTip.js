@@ -116,7 +116,7 @@ class DanteTooltip extends React.Component {
 
     let selectionBoundary = getSelectionRect(nativeSelection);
 
-    let parent = ReactDOM.findDOMNode(this.props.editor);
+    let parent = this.props.editor.editorRef.editor
 
     // hide if selected node is not in editor
     if (!this.isDescendant(parent, nativeSelection.anchorNode)) {

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { math,darken } from 'polished'
+import { math } from 'polished'
 
 
 export const AnchorStyle = styled.div`

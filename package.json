@@ -36,10 +36,12 @@
     "autoprefixer": "^10.2.5",
     "lerna": "^4.0.0",
     "postcss": "^8.2.9",
-    "react": "^17.0.2",
+    "react": "^18.2.0",
     "react-dev-utils": "^11.0.4",
-    "react-dom": "^17.0.2",
-    "tailwindcss": "^2.1.1"
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^2.1.1",
+    "@headlessui/react": "^1.2.0",
+    "@heroicons/react": "^1.0.1"
   },
   "resolutions": {
     "prosemirror-model": "^1.18.1",
@@ -48,7 +50,7 @@
   },
   "scripts": {
     "stories": "start-storybook -p 5555",
-    "dev": "next -p 3001",
+    "dev": "next -p 3002",
     "dev:watch": "next-remote-watch ./posts",
     "build": "next build",
     "start": "next start",

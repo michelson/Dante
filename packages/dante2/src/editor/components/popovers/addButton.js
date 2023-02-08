@@ -234,6 +234,7 @@ export default class DanteInlineTooltip extends React.Component {
   };
 
   relocate = () => {
+
     if (!this.props.editor.focus) return this.hide();
 
     const { editorState } = this.props;
@@ -254,7 +255,7 @@ export default class DanteInlineTooltip extends React.Component {
 
     let selectionRect = getSelectionRect(nativeSelection);
 
-    let parent = ReactDOM.findDOMNode(this.props.editor);
+    let parent = this.props.editor.editorRef.editor
 
     // hide if selected node is not in editor
     if (!this.isDescendant(parent, nativeSelection.anchorNode)) {
@@ -354,18 +355,19 @@ function InlineTooltipItem ({ item: { type, popper, icon } , clickHandler, title
   const popperPlacement = popper && popper.placement ? popper.placement : "bottom"
   const popperOffset = popper && popper.offset ? popper.offset : [0, 7]
 
-  const {
+  /*const {
     getArrowProps,
     getTooltipProps,
     setTooltipRef,
     setTriggerRef,
     visible,
-  } = usePopperTooltip({ placement: popperPlacement, offset: popperOffset });
+  } = usePopperTooltip({ placement: popperPlacement, offset: popperOffset });*/
 
   return (
     <div className="button-container">
+    
       <button
-        ref={setTriggerRef}
+        //ref={setTriggerRef}
         type="button"
         className="inlineTooltip-button scale"
         title={title}
@@ -376,6 +378,7 @@ function InlineTooltipItem ({ item: { type, popper, icon } , clickHandler, title
       >
         {<span className={"tooltip-icon"}>{icon()}</span>}
       </button>
+      {/*
       {(popper && visible) && (
         <div
           ref={setTooltipRef}
@@ -384,7 +387,7 @@ function InlineTooltipItem ({ item: { type, popper, icon } , clickHandler, title
           <div {...getArrowProps({ className: 'tooltip-arrow' })} />
           {popper && popper.name}
         </div>
-      )}
+      )}*/}
     </div>
   );
   

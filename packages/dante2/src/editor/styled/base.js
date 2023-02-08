@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { math, lighten, opacify, desaturate } from "polished";
+import { math, lighten, opacify } from "polished";
 
 const EditorContainer = styled.div`
   @import url("//fonts.googleapis.com/css?family=Merriweather:400,700,400italic,700italic|Open+Sans:400,300,800");

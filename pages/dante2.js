@@ -2,7 +2,7 @@ import Dante, {
   darkTheme,
   defaultTheme,
   ImageBlockConfig
-} from 'Dante2'
+} from '../packages/dante2/index'  //'Dante2'
 
 import Layout from '../components/Layout'
 import {Component, useEffect, useState} from 'react'

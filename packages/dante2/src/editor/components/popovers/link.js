@@ -54,8 +54,6 @@ class DanteAnchorPopover extends React.Component {
 
     let selectionRect = node.getBoundingClientRect()
 
-    let parent = ReactDOM.findDOMNode(this.props.editor)
-
     const relativeParent = getRelativeParent(this.dante_popover.current.parentElement);
     const toolbarHeight = this.dante_popover.current.clientHeight;
     const toolbarWidth = this.dante_popover.current.clientWidth;

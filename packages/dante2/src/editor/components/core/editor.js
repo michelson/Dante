@@ -1,6 +1,6 @@
 import React from "react";
 import { Map } from "immutable";
-import { isEmpty } from "lodash";
+// import { isEmpty } from "lodash";
 import {
   convertToRaw,
   convertFromRaw,
@@ -38,7 +38,7 @@ export default class DanteEditor extends React.Component {
     super(props);
 
     this.render = this.render.bind(this);
-
+    this.editorRef = null
     this.decorator = this.props.decorators(this);
 
     this.blockRenderMap = Map({
@@ -412,6 +412,7 @@ export default class DanteEditor extends React.Component {
   };
 
   handleTooltipDisplayOn = (prop, display) => {
+
     // for button click on after inline style set,
     // avoids inline popver to reappear on previous selection
     if (this.props.read_only) {
@@ -426,9 +427,9 @@ export default class DanteEditor extends React.Component {
       const items = this.tooltipsWithProp(prop);
       //console.log(items)
       return items.map((o) => {
-        if (!this || !this.refs || !this.refs[o.ref]) return;
-        this.refs[o.ref].display(display);
-        return this.refs[o.ref].relocate();
+        if (!this?.getRef(o.ref)) return;
+        this.getRef(o.ref).display(display);
+        return this.getRef(o.ref).relocate();
       });
     }, 20);
   };
@@ -838,19 +839,19 @@ export default class DanteEditor extends React.Component {
 
   closePopOvers = () => {
     return this.props.tooltips.map((o) => {
-      return this.refs[o.ref].hide();
+      return this.getRef(o.ref).hide();
     });
   };
 
   relocateTooltips = () => {
     if (this.props.read_only) return;
 
-    if (isEmpty(this.refs)) return;
+    // if (isEmpty(this.refs)) return;
 
     if (!getCurrentBlock(this.state.editorState)) return;
 
     return this.props.tooltips.map((o) => {
-      return this.refs[o.ref].relocate();
+      return this.getRef(o.ref).relocate();
     });
   };
 
@@ -879,33 +880,33 @@ export default class DanteEditor extends React.Component {
   showPopLinkOver = (el) => {
     // handles popover display
     // using anchor or from popover
-    if (!this.refs.anchor_popover) return;
+    if (!this.anchor_popover_ref) return;
 
     // set url first in order to calculate popover width
     let coords;
-    this.refs.anchor_popover.setState({
-      url: el ? el.href : this.refs.anchor_popover.state.url,
+    this.anchor_popover_ref.setState({
+      url: el ? el.href : this.anchor_popover_ref.state.url,
     });
 
     if (el) {
-      coords = this.refs.anchor_popover.relocate(el);
+      coords = this.anchor_popover_ref.relocate(el);
     }
 
     if (coords) {
-      this.refs.anchor_popover.setPosition(coords);
+      this.anchor_popover_ref.setPosition(coords);
     }
 
-    this.refs.anchor_popover.setState({ show: true });
+    this.anchor_popover_ref.setState({ show: true });
 
     this.isHover = true;
     return this.cancelHide();
   };
 
   hidePopLinkOver = () => {
-    if (!this.refs.anchor_popover) return;
+    if (!this.anchor_popover_ref) return;
 
     return (this.hideTimeout = setTimeout(() => {
-      return this.refs.anchor_popover.hide();
+      return this.anchor_popover_ref.hide();
     }, 300));
   };
 
@@ -925,7 +926,7 @@ export default class DanteEditor extends React.Component {
   renderTooltips = (o, i) => {
     return (
       <o.component
-        ref={o.ref}
+        ref={(r) => this.setRef(r, o.ref)}
         key={i}
         editor={this}
         editorState={this.state.editorState}
@@ -940,6 +941,14 @@ export default class DanteEditor extends React.Component {
       />
     );
   };
+
+  setRef = (r, t) => {
+    return this[`${t}_ref`] = r
+  };
+
+  getRef = (t) => {
+    return this[`${t}_ref`]
+  }
 
   //##############################
 
@@ -977,7 +986,7 @@ export default class DanteEditor extends React.Component {
               handleBeforeInput={this.handleBeforeInput}
               readOnly={this.props.read_only}
               placeholder={this.props.body_placeholder}
-              ref="editor"
+              ref={(r)=> this.editorRef = r }
             />
           </div>
 

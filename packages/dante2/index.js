@@ -1,2 +1,3 @@
-const a = "HOLAAAA"
-export default a
+
+import Dante from './src/editor/components/Dante/Dante.js'
+export default Dante
