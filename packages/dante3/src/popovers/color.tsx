@@ -32,6 +32,7 @@ export default function DanteTooltipColor(props) {
     } else {
       return
     }*/
+    return undefined
   }
 
   function renderColor() {
@@ -48,7 +49,7 @@ export default function DanteTooltipColor(props) {
         >
           <HexColorPicker
             color={v}
-            onChange={(color, e) => {
+            onChange={color => {
               setValue(color);
               //handleChange(e, color);
               //this.handleClick(e,  color )

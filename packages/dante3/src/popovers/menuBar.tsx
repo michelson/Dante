@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import { AnchorStyle } from "../styled/menu";
 import ImagePopover from "./image";
 import { BubbleMenu } from "./bubble-menu/bubble-menu-react";
@@ -40,8 +40,16 @@ function DanteTooltipLink({ enableLinkMode, selected }) {
   );
 }
 
+interface LinkState {
+  link_mode: boolean
+  url?: string
+  menu_style: {
+    minWidth?: string,
+  }
+}
+
 export default function MenuBar({ editor, fixed }) {
-  const [linkState, setLinkState] = useState({
+  const [linkState, setLinkState] = useState<LinkState>({
     link_mode: false,
     menu_style: {
       minWidth: "200px",
@@ -63,7 +71,7 @@ export default function MenuBar({ editor, fixed }) {
   }
 
   function displayActiveMenu() {
-    if (this.state.show) {
+    if (show) {
       return "dante-menu--active";
     } else {
       return "";
@@ -117,7 +125,7 @@ export default function MenuBar({ editor, fixed }) {
     editor.chain().focus().setColor(style).run();
   }
 
-  function fixedStyles() {
+  function fixedStyles(): CSSProperties {
     if (!fixed) return { width: `${11 * 43}px` };
     if (fixed) return { position: `sticky`, top: "0" };
   }
@@ -128,7 +136,7 @@ export default function MenuBar({ editor, fixed }) {
 
     return (
       <AnchorStyle
-        fixed={fixed}
+        //fixed={fixed}  // This wasn't present in the type for AnchorStyle and didn't appear to be referenced anywhere
         className={`dante-menu ${displayLinkMode()}`}
         style={fixedStyles()}
       >
@@ -171,7 +179,7 @@ export default function MenuBar({ editor, fixed }) {
 
           <DanteTooltipLink
             selected={editor.isActive("link")}
-            editor={editor}
+            //editor={editor}
             enableLinkMode={_enableLinkMode}
           />
           <li

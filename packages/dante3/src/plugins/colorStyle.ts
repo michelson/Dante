@@ -1,11 +1,24 @@
 import { Extension } from "@tiptap/core";
 import "@tiptap/extension-text-style";
 
+// Recommended approach for extending commands
+// @see https://tiptap.dev/guide/typescript#command-type
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    customExtension: {
+      setColor: (color: string) => ReturnType,
+      unsetColor: () => ReturnType
+    }
+  }
+}
+
 export const Color = Extension.create({
   name: "color",
 
-  addOptions: {
-    types: ["textStyle"],
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    }
   },
 
   addGlobalAttributes() {
