@@ -1,16 +1,26 @@
-import { Extension, isNodeEmpty } from "@tiptap/core";
+import { Editor, Extension, isNodeEmpty } from "@tiptap/core";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { Plugin } from "prosemirror-state";
 
-export const Placeholder = Extension.create({
+interface PlaceholderOptions{
+  emptyEditorClass: string
+  emptyNodeClass: string
+  placeholder: string | (<Node>(ctx: {node: Node, editor: Editor}) => string)
+  showOnlyWhenEditable: boolean
+  showOnlyCurrent: boolean
+}
+
+export const Placeholder = Extension.create<PlaceholderOptions>({
   name: "placeholder",
 
-  addOptions: {
-    emptyEditorClass: "is-editor-empty",
-    emptyNodeClass: "is-empty",
-    placeholder: "Write something …",
-    showOnlyWhenEditable: true,
-    showOnlyCurrent: true,
+  addOptions() {
+    return {
+      emptyEditorClass: "is-editor-empty",
+      emptyNodeClass: "is-empty",
+      placeholder: "Write something …",
+      showOnlyWhenEditable: true,
+      showOnlyCurrent: true,
+    }
   },
 
   addProseMirrorPlugins() {
@@ -21,7 +31,7 @@ export const Placeholder = Extension.create({
             const active =
               this.editor.isEditable || !this.options.showOnlyWhenEditable;
             const { anchor } = selection;
-            const decorations = [];
+            const decorations: Decoration[] = [];
 
             if (!active) {
               return;

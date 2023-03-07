@@ -1,11 +1,22 @@
-import { Extension } from "@tiptap/core";
+import { CommandProps, Extension } from "@tiptap/core";
 import "@tiptap/extension-text-style";
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    color: {
+      setColor: (color: string) => ReturnType,
+      unsetColor: () => ReturnType
+    }
+  }
+}
 
 export const Color = Extension.create({
   name: "color",
 
-  addOptions: {
-    types: ["textStyle"],
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    }
   },
 
   addGlobalAttributes() {
@@ -36,13 +47,15 @@ export const Color = Extension.create({
   addCommands() {
     return {
       setColor:
-        (color) =>
-        ({ chain }) => {
-          return chain().setMark("textStyle", { color }).run();
+        () =>
+        ({ chain }: CommandProps) => {
+          return chain()
+            .setMark("textStyle", { color: null })
+            .run();
         },
       unsetColor:
         () =>
-        ({ chain }) => {
+        ({ chain }: CommandProps) => {
           return chain()
             .setMark("textStyle", { color: null })
             .removeEmptyTextStyle()

@@ -45,14 +45,14 @@ export default function Editor() {
     return theme === "light" ? defaultTheme : darkTheme;
   }
 
-  function mergeThemeOptions(size) {
+  function mergeThemeOptions(size: string) {
     setThemeOptions({
       ...themeOptions,
       dante_editor_font_size: size || "1rem",
     });
   }
 
-  function toggleTheme(t) {
+  function toggleTheme(t: string) {
     setThemeOptions(t === "light" ? defaultTheme : darkTheme);
   }
 
@@ -76,7 +76,7 @@ export default function Editor() {
 
   return (
     <ThemeProvider theme={themeOptions}>
-      <EditorContainer
+      <EditorContainer theme={themeOptions}
       //style={{width: '600px', margin: '0 auto'}}
       >
         <DanteEditor

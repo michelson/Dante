@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 //import { EditorBlock } from 'draft-js'
 //import { updateDataOfBlock, addNewBlockAt } from '../../model/index.js'
 import axios from "axios";
@@ -11,8 +11,8 @@ import { isEmpty } from "../utils";
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
-export default function VideoBlock(props) {
-  React.useEffect(() => {
+const VideoBlock: React.FC = (props) => {
+  useEffect(() => {
     if (!isEmpty(props.node.attrs.embed_data)) {
       return;
     }
@@ -104,6 +104,8 @@ export default function VideoBlock(props) {
     </StyleWrapper>
   );
 }
+
+export default VideoBlock
 
 export const VideoBlockConfig = (options = {}) => {
   let config = {

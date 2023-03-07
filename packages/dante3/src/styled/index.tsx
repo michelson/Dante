@@ -1,7 +1,10 @@
 import EditorContainer from "./base";
 //import DraftBaseStyles from './draft-styled'
 import { AnchorStyle } from "./menu";
-export default {
+
+const moduleExport = {
   EditorContainer,
   AnchorStyle,
-};
+}
+
+export default moduleExport;

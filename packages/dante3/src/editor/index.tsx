@@ -5,7 +5,11 @@ import {
   EditorContent,
   FloatingMenu,
   ReactNodeViewRenderer,
+  Extension,
+  Mark,
 } from "@tiptap/react";
+
+import { Node as TiptapNode } from "@tiptap/react";
 
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -37,7 +41,18 @@ import { lowlight } from "lowlight/lib/common.js";
 //import SaveBehavior from './data/save_content'
 import EditorContainer, { LogWrapper } from "../styled/base";
 
-export default function Editor({
+export interface EditorProps {
+  widgets: any
+  theme: any
+  fixed: any
+  content: any
+  onUpdate: any
+  readOnly: any
+  bodyPlaceholder: any
+  extensions?: Extension[]
+}
+
+const Editor: React.FC<EditorProps> = ({
   widgets,
   theme,
   fixed,
@@ -46,10 +61,9 @@ export default function Editor({
   readOnly,
   bodyPlaceholder,
   extensions,
-}) {
-  function basePlugins() {
+}) => {
+  function basePlugins(): (TiptapNode|Mark|Extension)[] {
     return [
-      
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3],
@@ -187,3 +201,5 @@ export default function Editor({
     </ThemeProvider>
   );
 }
+
+export default Editor

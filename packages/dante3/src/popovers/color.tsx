@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, MouseEventHandler } from "react";
 import { HexColorPicker } from "react-colorful";
 import { fontColor } from "../icons.js";
 import useDebounce from "../hooks/useDebounce";
 
-export default function DanteTooltipColor(props) {
+export interface DanteTooltipColorProps {
+  value?: string
+  defaultValue: string
+  handleClick: (value?: string) => void
+}
+
+const DanteTooltipColor: React.FC<DanteTooltipColorProps> = (props) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(props.value);
 
   const debouncedValue = useDebounce(value, 200);
 
-  function toggle(ev) {
+  const toggle: MouseEventHandler<HTMLSpanElement> = (ev) => {
     // let selection = this.props.editorState.getSelection()
     // prevent unselection of selection
     ev.preventDefault();
@@ -25,17 +31,19 @@ export default function DanteTooltipColor(props) {
     [debouncedValue] // Only call effect if debounced search term changes
   );
 
+  /*
   function currentValue() {
-    /*let selection = this.props.editorState.getSelection()
+    let selection = this.props.editorState.getSelection()
     if (!selection.isCollapsed()) {
       return this.props.styles[this.props.style_type].current(this.props.editorState)
     } else {
       return
-    }*/
+    }
   }
+  */
 
   function renderColor() {
-    const v = currentValue() || props.value || props.defaultValue;
+    const v = /*currentValue() ||*/ props.value || props.defaultValue;
 
     if (open) {
       return (
@@ -48,7 +56,7 @@ export default function DanteTooltipColor(props) {
         >
           <HexColorPicker
             color={v}
-            onChange={(color, e) => {
+            onChange={(color: string) => {
               setValue(color);
               //handleChange(e, color);
               //this.handleClick(e,  color )
@@ -68,3 +76,5 @@ export default function DanteTooltipColor(props) {
     </li>
   );
 }
+
+export default DanteTooltipColor
