@@ -124,10 +124,6 @@ const AddButton = React.forwardRef(
     function insertImage(file) {
       if (!file) return;
 
-      let opts = {
-        url: URL.createObjectURL(file),
-        file
-      };
       // cleans input image value
       fileInput.current.value = "";
 
@@ -139,7 +135,7 @@ const AddButton = React.forwardRef(
       editor.commands.insertContent({
         type: "ImageBlock",
         attrs: {
-          file: file,
+          file,
           url: URL.createObjectURL(file)
         }
       });
