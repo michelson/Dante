@@ -1,0 +1,101 @@
+{
+  "name": "Dante2",
+  "version": "0.5.11",
+  "description": "Dante wysiwyg rewritten in draft-js",
+  "author": "Miguel Michelson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michelson/dante2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/michelson/dante2/issues"
+  },
+  "homepage": "https://michelson.github.io/dante2",
+  "main": "package/Dante.cjs.js",
+  "jsnext:main": "package/es/components/Dante/index.js",
+  "module": "package/Dante.es.js",
+  "browser": "package/umd/Dante.js",
+  "files": [
+    "package/umd",
+    "package/src",
+    "package/esm"
+  ],
+  "keywords": [
+    "dante",
+    "dante2",
+    "react",
+    "wysiwyg",
+    "draft-js"
+  ],
+  "dependencies": {
+    "@emotion/cache": "^11.10.7",
+    "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@headlessui/react": "^1.2.0",
+    "axios": "^1.3.5",
+    "draft-convert": "^2.1.8",
+    "draft-js": "0.11.7",
+    "draft-js-custom-styles": "^2.1.1",
+    "draft-js-export-html": "^1.2.0",
+    "draft-js-multidecorators": "^1.0.0",
+    "draft-js-prism": "^1.0.6",
+    "emotion-theming": "^11.0.0",
+    "polished": "^4.2.2",
+    "prismjs": "^1.15.0",
+    "react-colorful": "^5.1.2",
+    "react-dev-utils": "^12.0.1",
+    "react-popper": "^2.3.0",
+    "react-popper-tooltip": "^4.4.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/helper-regex": "^7.10.5",
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-function-bind": "^7.0.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.13.13",
+    "@babel/runtime": "^7.13.10",
+    "@headlessui/react": "^1.2.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.35",
+    "esbuild": "^0.11.5",
+    "esbuild-plugin-babel": "^0.2.3",
+    "rollup": "^3.20.2",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-babel": "^4.0.0-beta.8",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-multi-entry": "^2.1.0",
+    "rollup-plugin-multi-input": "^1.3.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-resolve": "^0.0.1-predev.1",
+    "typescript": "^5.0.4"
+  },
+  "peerDependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "scripts": {
+    "docz:dev": "docz dev",
+    "start": "yarn docz dev",
+    "predeploy": "PUBLIC_URL=https://michelson.github.io/dante2 yarn docz build",
+    "deploy": "node build.js",
+    "build": "NODE_ENV=production rollup -c",
+    "build2": "NODE_ENV=production esbuild ./src/editor/components/Dante/index.js --bundle --outfile=out.js",
+    "dev-rollup": "rollup -c -w",
+    "package": "NODE_ENV=production ./node_modules/.bin/babel-node tools/build-cli.js; yarn build",
+    "prepublish222": "yarn package",
+    "publish-beta": "yarn publish --next",
+    "build3": "node esbuild.config.js"
+  }
+}

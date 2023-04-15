@@ -1,0 +1,10 @@
+import 'react';
+export { V as VideoRecorderBlockConfig, b as default } from '../../index-b54efeff.js';
+import 'axios';
+import '@tiptap/react';
+import 'use-countdown-timer';
+import '../../icons-a41ff4e6.js';
+import './styled.js';
+import 'prop-types';
+import '../../tslib.es6-0837746f.js';
+import '@emotion/styled';

@@ -1,0 +1,35 @@
+---
+title: Default Wrappers
+order: 6
+---
+
+# Default Wrappers
+
+Default wrapper classes for editor elements. This option is a mapping of block and className. 
+
+This option is just for style the default elements with a top level class, let's say you need to add the html class ".custom-h1" to all your H1 elements.
+
+
+```js
+{ className: 'graf--p', block: 'unstyled' },
+{ className: 'graf--h2', block: 'header-one' },
+{ className: 'graf--h3', block: 'header-two' },
+{ className: 'graf--h4', block: 'header-three' },
+{ className: 'graf--blockquote', block: 'blockquote' },
+{ className: 'graf--insertunorderedlist', block: 'unordered-list-item' },
+{ className: 'graf--insertorderedlist', block: 'ordered-list-item' },
+{ className: 'graf--code', block: 'code-block' },
+{ className: 'graf--bold', block: 'BOLD' },
+{ className: 'graf--italic', block: 'ITALIC' }
+```
+
+## If you need to customize any element class , this is the place
+
+```js live=true
+  <Dante 
+    content={contentData.h1}
+    default_wrappers={[ 
+      { className: 'text-sm text-red-300', block: 'header-one' } 
+    ]}
+  />
+```

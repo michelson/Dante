@@ -1,0 +1,25 @@
+---
+title: Debug
+order: 0
+---
+
+# Debug
+
+```js live=true
+<Toggle initial={false}>
+  {({ on, toggle }) => {
+    return <div>
+      <Dante 
+        debug={on}
+      />
+
+      <button className="btn" onClick={toggle}>
+        {on ? 'hide' : 'show' } debug
+      </button>
+      
+    </div>
+  }
+  }
+</Toggle>
+```
+
