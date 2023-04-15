@@ -1,43 +1,145 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Dante 3 - This is it! 🔥
 
-## Getting Started
+**Just another medium clone built on top of ProseMirror's / TipTap**
+--------------------------------------------------------------------
 
-First, run the development server:
+> Dante3 is a port from [Dante2 (Draftjs) ](https://github.com/michelson/Dante/tree/master/packages/dante2). This version is built on top of [TipTap](https://www.tiptap.dev/) and reaches all Dante2's features with a shiny ultra mega super uber maintainable architecture.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+https://user-images.githubusercontent.com/11976/120087165-bb5c4f00-c0b3-11eb-9002-97c480f3725a.mp4
+
+See the demo at: [dante-editor.dev](https://dante-editor.dev)
+
+**Why rewrite a new version of Dante?**
+---------------------------------------
+
+The previous version (Dante2) was made on DraftJs, that's a facebook library to build WYSIWYG editor, I'd choose that technology because it implemented a very interesting data model and abstracted many parts of the heuristics implementation that [Dante1 (the previous version)](https://github.com/michelson/Dante/tree/master/packages/dante1-legacy) built as a naive implementation relying a lot on DOM manipulation, So Dante2 was great and is working on a ton of production websites. Sadly over the last years this library has not received much attention from maintainers. Among the ~700 unattended reported issues there are some that have become a deal breaker for me:
+
+-   Bad mobile support.
+
+-   ~1MB added to your bundle (immutablejs is heavy)
+
+-   Not created for realtime collab.
+
+**My bet, TipTap**
+
+After shopping many editors libraries, I mean after tried to implement Dante on almost all of them **(Trix, Editorjs, Quilljs, Slate, Prosemirror)** I've **TipTap** library (which is based on Prosemirror)., I guess all editors libraries have their own flaws but after review it all TipTap is the best of it's class, very well designed/architectured, and I love the community around their ecosystem. So that's it.
+
+**Features:**
+
+-   Configurable and extensible extensions / plugins / components
+
+-   Undo/redo.
+
+-   Save Content as a data JSON/HTML structure.
+
+-   Load Content as a data JSON/HTML structure.
+
+-   Styled components Theme support (built in light/dark themes).
+
+**Block based content**:
+
+Dante editor can be extended with (React) components to, currently there are default components to be used as is:
+
+-   Image upload for paste html.
+
+-   Video embed.
+
+-   Video Recorder.
+
+-   Embed.
+
+-   Divider.
+
+-   Speech.
+
+-   Giphy.
+
+**Installation**
+----------------
+
+`npm install dante3` or `yarn add dante3`
+
+**Usage**
+---------
+
+Component Based
+
+```
+<DanteEditor
+  content={'hello world'}
+/>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Options:**
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Many configuration options and plugin usage can be found on the documentation page:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+See [dante-editor.dev](https://dante-editor.dev)
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+**Development**
+---------------
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### **Installation**
 
-## Learn More
+-   `git clone https://github.com/michelson/dante`
 
-To learn more about Next.js, take a look at the following resources:
+**dependencies**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-   `npm install` or `yarn install`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### **Building**
 
-## Deploy on Vercel
+-   `npm dante3_build` or `yarn dante3_build`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### **dev install:**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+-   lerna bootstrap
+
+-   yarn dev
+
+**Status**
+----------
+
+> Dante3 is on beta, actively maintained, with all the features that Dante2 has. As is relying on TipTap (which is based on Prosemirror) which has a better browser support and mobile support. Also has realtime collab capabilities.
+
+**Monorepo**
+------------
+
+This repository now contains prior Dante versions, located in the [packages](https://github.com/michelson/Dante/tree/master/packages) folder. so Dante1*, Dante2 and Dante3 lives in the same repo.
+
+> * Dante(1) is not maintained anymore.
+
+### **Open source license**
+
+Dante is licensed under MIT, so you are free to do whatever you want. If you are using it commercially, become one of our wonderful sponsors to fund the maintenance, support and development of Dante now and in the future.
+
+### **💓 Your sponsorship**
+
+> Your sponsorship helps to maintain, update, support and develop all of our open source projects, including tiptap and many more.
+
+### **Acknowledgments**
+
+Prosemirror library & Tiptap authors
 
 
+## Workspaces
+
+we use npm workspaces to manage the monorepo, for instance to install a dependence in some package, use:
+
+`npm install --workspace=Dante2`    
+
+`npm install some-dep --workspace=Dante2`    
+
+
+### build
+
++ npm run dante3:build
++ npm run dante2:build
+
+### deploy
+
++ npm run dante3:publish
++ npm run dante2:publish
 
 
 npm install rollup-plugin-auto-external --save-dev --workspace=dante3
