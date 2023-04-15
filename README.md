@@ -1,5 +1,7 @@
 # Dante 3 - This is it! 🔥
 
+[![Rollup Build](https://github.com/michelson/Dante/actions/workflows/ci.yml/badge.svg)](https://github.com/michelson/Dante/actions/workflows/ci.yml)
+
 **Just another medium clone built on top of ProseMirror's / TipTap**
 --------------------------------------------------------------------
 
