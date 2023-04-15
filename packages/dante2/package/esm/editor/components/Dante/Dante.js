@@ -19,7 +19,7 @@ import { CompositeDecorator } from 'draft-js';
 import findEntities from '../../utils/find_entities.js';
 import MultiDecorator from 'draft-js-multidecorators';
 import EditorContainer from '../../styled/base.js';
-import { ThemeProvider } from 'emotion-theming';
+import { ThemeProvider } from '@emotion/react';
 import PropTypes from 'prop-types';
 import theme from './themes/default.js';
 import 'lodash';

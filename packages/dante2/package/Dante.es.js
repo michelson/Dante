@@ -14,7 +14,7 @@ import { HexColorPicker } from 'react-colorful';
 import Prism from 'prismjs';
 import PrismDecorator from 'draft-js-prism';
 import MultiDecorator from 'draft-js-multidecorators';
-import { ThemeProvider } from 'emotion-theming';
+import { ThemeProvider } from '@emotion/react';
 import PropTypes from 'prop-types';
 
 function _classCallCheck(instance, Constructor) {

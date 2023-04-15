@@ -16,7 +16,7 @@ var reactColorful = require('react-colorful');
 var Prism = require('prismjs');
 var PrismDecorator = require('draft-js-prism');
 var MultiDecorator = require('draft-js-multidecorators');
-var emotionTheming = require('emotion-theming');
+var react = require('@emotion/react');
 var PropTypes = require('prop-types');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
@@ -4685,7 +4685,7 @@ var Dante = /*#__PURE__*/function (_React$Component) {
   _createClass(Dante, [{
     key: "render",
     value: function render() {
-      return /*#__PURE__*/React__default["default"].createElement(emotionTheming.ThemeProvider, {
+      return /*#__PURE__*/React__default["default"].createElement(react.ThemeProvider, {
         theme: this.props.theme || theme
       }, /*#__PURE__*/React__default["default"].createElement(EditorContainer, {
         style: this.props.style

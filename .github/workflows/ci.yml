@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [19.2]
 
     steps:
     - name: Checkout repository
@@ -27,8 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install
-        npm add --save-dev @types/node
+        npm install --force
 
     - name: Run NPM commands
       run: |

@@ -32,7 +32,7 @@ import '../../utils/find_entities.js';
 import 'draft-js-multidecorators';
 import '../../styled/base.js';
 import 'polished';
-import 'emotion-theming';
+import '@emotion/react';
 import 'prop-types';
 import 'lodash';
 import 'draft-convert';

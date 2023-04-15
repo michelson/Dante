@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('immutable'), require('lodash'), require('draft-js'), require('draft-convert'), require('axios'), require('draft-js-custom-styles'), require('@emotion/styled'), require('polished'), require('react-dom'), require('react-popper-tooltip'), require('react-popper-tooltip/dist/styles.css'), require('react-colorful'), require('prismjs'), require('draft-js-prism'), require('draft-js-multidecorators'), require('emotion-theming'), require('prop-types')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'react', 'immutable', 'lodash', 'draft-js', 'draft-convert', 'axios', 'draft-js-custom-styles', '@emotion/styled', 'polished', 'react-dom', 'react-popper-tooltip', 'react-popper-tooltip/dist/styles.css', 'react-colorful', 'prismjs', 'draft-js-prism', 'draft-js-multidecorators', 'emotion-theming', 'prop-types'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Dante = {}, global.React, global.Immutable, global.lodash, global.draftJs, global.draftConvert, global.axios, global.createStyles, global.styled, global.polished, global.ReactDOM, global.reactPopperTooltip, null, global.reactColorful, global.Prism, global.PrismDecorator, global.MultiDecorator, global.emotionTheming, global.PropTypes));
-})(this, (function (exports, React, Immutable, lodash, draftJs, draftConvert, axios, createStyles, styled, polished, ReactDOM, reactPopperTooltip, styles_css, reactColorful, Prism, PrismDecorator, MultiDecorator, emotionTheming, PropTypes) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('immutable'), require('lodash'), require('draft-js'), require('draft-convert'), require('axios'), require('draft-js-custom-styles'), require('@emotion/styled'), require('polished'), require('react-dom'), require('react-popper-tooltip'), require('react-popper-tooltip/dist/styles.css'), require('react-colorful'), require('prismjs'), require('draft-js-prism'), require('draft-js-multidecorators'), require('@emotion/react'), require('prop-types')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'react', 'immutable', 'lodash', 'draft-js', 'draft-convert', 'axios', 'draft-js-custom-styles', '@emotion/styled', 'polished', 'react-dom', 'react-popper-tooltip', 'react-popper-tooltip/dist/styles.css', 'react-colorful', 'prismjs', 'draft-js-prism', 'draft-js-multidecorators', '@emotion/react', 'prop-types'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Dante = {}, global.React, global.Immutable, global.lodash, global.draftJs, global.draftConvert, global.axios, global.createStyles, global.styled, global.polished, global.ReactDOM, global.reactPopperTooltip, null, global.reactColorful, global.Prism, global.PrismDecorator, global.MultiDecorator, global.react, global.PropTypes));
+})(this, (function (exports, React, Immutable, lodash, draftJs, draftConvert, axios, createStyles, styled, polished, ReactDOM, reactPopperTooltip, styles_css, reactColorful, Prism, PrismDecorator, MultiDecorator, react, PropTypes) { 'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -4777,7 +4777,7 @@
     _createClass(Dante, [{
       key: "render",
       value: function render() {
-        return /*#__PURE__*/React__default["default"].createElement(emotionTheming.ThemeProvider, {
+        return /*#__PURE__*/React__default["default"].createElement(react.ThemeProvider, {
           theme: this.props.theme || theme$1
         }, /*#__PURE__*/React__default["default"].createElement(EditorContainer, {
           style: this.props.style
