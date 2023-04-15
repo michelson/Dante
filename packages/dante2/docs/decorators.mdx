@@ -1,0 +1,33 @@
+---
+title: Decorators
+order: 4
+---
+
+
+# Decorators
+
+To support flexibility for custom rich text, Draft provides a "decorator" system.
+https://draftjs.org/docs/advanced-topics-decorators.html
+
+Here is an example of the default decorators 
+
+
+```js live=true
+  <Dante 
+    content={contentData.code}
+    debug={true}
+    widgets={[CodeBlockConfig()]}
+    decorators={ (context)=> {
+      return new MultiDecorator([
+        PrismDraftDecorator({prism: Prism }),
+        new CompositeDecorator(
+          [{
+            strategy: utils.findEntities.bind(null, 'LINK', context),
+            component: LinkDecorator
+          } ]
+        )
+      ])
+      }
+    }
+  />
+```
