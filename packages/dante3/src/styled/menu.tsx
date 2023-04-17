@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { math } from "polished";
 
-export const AnchorStyle = styled.div`
+export const AnchorStyle = styled.div<any>`
   // MENU
   //position: absolute;
   //visibility: hidden;
@@ -36,7 +36,7 @@ export const AnchorStyle = styled.div`
       position: absolute;
       left: ${(props : any) => (props.arrowPosition ? props.arrowPosition : "50%")};
       pointer-events: none;
-      border: ${(props : any) => props.theme.dante_menu_caret_size} solid transparent;
+      border: ${({theme, fixed} : {theme: any, fixed: any}) => fixed ? 0 : theme.dante_menu_caret_size} solid transparent;
       margin-left: -${(props : any) => math(`${props.theme.dante_menu_caret_size} / 2`)};
     }
     &:after {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function Index({ posts, path }) {
+export default function Index({ posts, path }: { posts: any, path: any }) {
   return (
     <div className="py-5 fixed z-10 inset-0 flex-none h-full dark:bg-black bg-opacity-25 w-full lg:bg-white lg:static lg:h-auto lg:overflow-y-visible lg:pt-0 lg:w-60 xl:w-72 lg:block hidden">
       <div className="py-5 h-full overflow-y-auto scrolling-touch lg:h-auto lg:block lg:relative lg:sticky lg:bg-transparent overflow-hidden lg:top-18 bg-white mr-24 lg:mr-0">
@@ -8,7 +8,7 @@ export default function Index({ posts, path }) {
           Articles
         </p>
         <ul>
-          {posts.map((post) => (
+          {posts.map((post: any) => (
             <li key={post.filePath}>
               <Link
                 className="px-3 py-2 transition-colors duration-200 relative block hover:text-gray-900 text-gray-500 dark:text-gray-400"

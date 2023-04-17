@@ -1,5 +1,5 @@
 //import {Readme as demo} from '../site/data/poc'
-import {License as license} from '../../../data/poc'
+import {License as license} from '../../../../data/poc'
 import Dante from 'Dante2'
 
 import Layout from '../../../components/Layout'

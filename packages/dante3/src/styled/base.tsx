@@ -726,8 +726,15 @@ export const InlinetooltipWrapper = styled.div`
   padding: 0;
   font-size: 0;
 
+  top: -15px;
+  left: -60px;
+
   opacity: 0;
   pointer-events: none;
+
+  &.is-fixed {
+    position: static;
+  }
 
   &.is-active {
     opacity: 1;

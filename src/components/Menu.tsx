@@ -8,11 +8,11 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, Bars4Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 
-function classNames(...classes) {
+function classNames(...classes : any) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example({name, mode, version, basePath, setMode}) {
+export default function Example({name, mode, version, basePath, setMode} : {name: any, mode: any, version: any, basePath: any, setMode: any}) {
 
 	const path = basePath ? basePath : '/'
 
@@ -58,7 +58,8 @@ export default function Example({name, mode, version, basePath, setMode}) {
                 <div className="hidden sm:block sm:ml-6">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
-											<Link 
+											<Link
+                        // @ts-ignore 
                         key={item.name}
                         href={item.href}
 												className={
@@ -95,7 +96,7 @@ export default function Example({name, mode, version, basePath, setMode}) {
 								</div>
 								<a href="http://github.com/michelson/dante" target="blank">
 									<Image
-											className="block lg:hidden h-8 w-auto"
+											//className="block lg:hidden h-8 w-auto"
 											src="/images/site/github-logo.png"
 											alt="Picture of the author"
 											width={31}
@@ -109,7 +110,7 @@ export default function Example({name, mode, version, basePath, setMode}) {
 
           <Disclosure.Panel className="sm:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {navigation.map((item) => (
+              {navigation.map((item: any) => (
                 <a
                   key={item.name}
                   href={item.href}

@@ -19,10 +19,11 @@ const {version, name} = pkg
 
 export default function Index({ }) {
   const [theme, setTheme] = useState(defaultTheme)
-  const [mode, setMode] = useState('light')
+  const [mode, setMode] = useState<any>('light')
   const [fixed, setFixed] = useState(false)
 
   useEffect(()=>{
+    // @ts-ignore
     setTheme(mode === 'light' ? defaultTheme : darkTheme)
   }, [mode])
 
@@ -31,13 +32,12 @@ export default function Index({ }) {
       version={version}
       basePath={"/dante2/"}
       theme={theme} 
-      setTheme={setTheme} 
+      //setTheme={setTheme} 
       mode={mode}
       setMode={setMode}
       name={name}>
       
-      <div className={`sm:mx-10 mx-2 py-8 ${mode}`} 
-        heme={theme}>
+      <div className={`sm:mx-10 mx-2 py-8 ${mode}`} >
         <div>
           <div className={`sm:w-3/4 sm:p-10 p-2 md:mx-auto shadow-md- bg-gray-50- dark:bg-black light`}>
 

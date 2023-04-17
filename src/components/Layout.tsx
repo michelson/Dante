@@ -1,8 +1,8 @@
 import React from 'react'
 
 import Menu from './Menu'
-export default function Layout({ children, name, mode, version, basePath, setMode } : 
-  { children: any, name : any, mode : any, version : any, basePath: any, setMode : any }) {
+export default function Layout({ children, theme, name, mode, version, basePath, setMode } : 
+  { children: any, name : any, theme: any, mode : any, version : any, basePath?: any, setMode : any }) {
   return (
     <div className={ `h-screen min-h-full ${mode == "light" ? '' : 'dark'}`}>
       <Menu 
