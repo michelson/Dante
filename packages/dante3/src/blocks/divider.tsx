@@ -5,7 +5,7 @@ import { divider } from "../icons";
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
-export default function DividerBlock(props) {
+export default function DividerBlock(props: any) {
   return (
     <StyleWrapper
       data-drag-handle="true"

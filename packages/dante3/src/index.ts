@@ -1,5 +1,5 @@
 import Dante from "./editor";
-//import DemoEditor from './DanteEditor'
+import DanteEditor from './DanteEditor'
 //import DanteEditor from './core/editor'
 
 import { darkTheme, defaultTheme } from "./styled/themes";
@@ -30,8 +30,9 @@ import CodeBlock, { CodeBlockConfig } from "./blocks/code";
 
 //import {DanteImagePopoverConfig} from './popovers/image'
 //import {DanteAnchorPopoverConfig} from './popovers/link'
-//import {DanteInlineTooltipConfig} from './popovers/addButton'
-//import {DanteTooltipConfig} from './popovers/toolTip'
+import { MenuBarConfig } from './popovers/menuBar'
+import { AddButtonConfig } from './popovers/addButton'
+import Renderer from "./renderer";
 
 import GiphyBlock, { GiphyBlockConfig } from "./blocks/giphy/giphyBlock";
 
@@ -51,12 +52,16 @@ export { VideoRecorderBlock, VideoRecorderBlockConfig, MediaRecorder };
 export { DividerBlock, DividerBlockConfig };
 export { GiphyBlock, GiphyBlockConfig };
 export { SpeechToTextBlock, SpeechToTextBlockConfig };
+export { Renderer }
 
 export { CodeBlock, CodeBlockConfig };
 //export {DanteImagePopoverConfig}
 //export {DanteAnchorPopoverConfig} //'./popovers/addButton'
 //export {DanteInlineTooltipConfig}
 //export {DanteTooltipConfig}
+
+export { MenuBarConfig }
+export { AddButtonConfig }
 
 const defaultPlugins = [
   ImageBlockConfig(),
@@ -70,8 +75,11 @@ const defaultPlugins = [
   SpeechToTextBlockConfig(),
 ];
 
+
+
 export { defaultPlugins };
 
 //export { CardBlock, CardBlockConfig}
 //export {DemoEditor}
-export default Dante;
+export { Dante };
+export default DanteEditor

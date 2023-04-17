@@ -107,7 +107,7 @@ const PickerBlock = styled.div`
   }
 `;
 
-const App = (props) => {
+const App = (props: any) => {
   const [gifs, setGifs] = useState([]);
   const [limit, setLimit] = useState(10);
   const [term, setTerm] = useState('');
@@ -118,17 +118,18 @@ const App = (props) => {
     search('', 'trend');
   }, []);
 
-  const onSearchSubmit = (e) => {
+  const onSearchSubmit = (e: any) => {
     if (e.key !== 'Enter') {
       return;
     }
 
+    // @ts-ignore
     const term = inputRef.current.value;
 
     search(term);
   };
 
-  const search = (term, kind = 'search') => {
+  const search = (term: any, kind: any = 'search') => {
     const url =
       kind === 'search'
         ? `https://api.giphy.com/v1/gifs/search?q=${term}`
@@ -148,11 +149,11 @@ const App = (props) => {
       });
   };
 
-  const limitSubmit = (limit) => {
+  const limitSubmit = (limit: any) => {
     setLimit(limit);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const term = e.target.value;
     setTerm(term);
   };
@@ -173,7 +174,7 @@ const App = (props) => {
 
       <GridListOverflow>
         <GridList>
-          {gifs.map((o) => (
+          {gifs.map((o : any) => (
             <img
               alt="giphy"
               key={`giphy-${o.id}`}

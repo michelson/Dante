@@ -8,7 +8,7 @@ export const StyleWrapper = styled(NodeViewWrapper)`
   ${(props) => `border: 3px solid ${props.selected ? "purple" : "black"};`}
 `;
 
-export default function EmbedBlock(props) {
+export default function EmbedBlock(props: any) {
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
@@ -42,7 +42,7 @@ export default function EmbedBlock(props) {
     props.deleteNode();
   }
 
-  function updateData(data) {
+  function updateData(data: any) {
     props.updateAttributes({
       embed_data: data,
     });
@@ -78,7 +78,7 @@ export default function EmbedBlock(props) {
       });
   }
 
-  function handleClick(e) {
+  function handleClick(e: any) {
     //if(!this.props.blockProps.getEditor().props.read_only){
     //  e.preventDefault()
     //}
@@ -180,7 +180,7 @@ export const EmbedBlockConfig = (options = {}) => {
       },
       provisory_text: { default: null },
     },
-    dataSerializer: (data)=>{
+    dataSerializer: (data: any)=>{
       return {
         ...data, 
         embed_data: JSON.stringify(data.embed_data),

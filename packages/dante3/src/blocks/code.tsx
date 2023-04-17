@@ -99,10 +99,10 @@ export const StyleWrapper = styled(NodeViewWrapper)`
   }
 `;
 
-export default function Code(props) {
+export default function Code(props: any) {
   console.log(props.selected);
 
-  function changeLanguage(e) {
+  function changeLanguage(e: any) {
     props.updateAttributes({
       language: e.target.value,
     });
@@ -127,7 +127,7 @@ export default function Code(props) {
 
             <option disabled>—</option>
 
-            {props.extension.options.lowlight.listLanguages().map((o) => (
+            {props.extension.options.lowlight.listLanguages().map((o: any) => (
               <option value={o} key={o}>
                 {o}
               </option>

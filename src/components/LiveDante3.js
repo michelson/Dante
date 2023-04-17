@@ -2,7 +2,7 @@ import React from 'react'
 import Highlight, {defaultProps} from 'prism-react-renderer'
 import {LiveProvider, LiveEditor, LiveError, LivePreview} from 'react-live'
 import {mdx} from '@mdx-js/react'
-import Dante ,{ 
+import DanteEditor ,{ 
   ImageBlockConfig,
   EmbedBlockConfig,
   VideoBlockConfig,
@@ -12,7 +12,10 @@ import Dante ,{
   DanteTooltipConfig,
   Icons,
   //CustomWidgetconfig,
+  MenuBarConfig,
+  AddButtonConfig,
   CodeBlockConfig,
+  Renderer
 } from '../../packages/dante3/src' // '../packages/dante3'
 
 import contentData from '../../data/poc.js'
@@ -36,21 +39,24 @@ export default function Live({children, className, live, render}) {
           transformCode={code => '/** @jsx mdx */' + code}
           scope={{
             mdx, 
-            Dante,
+            DanteEditor,
             ImageBlockConfig,
             EmbedBlockConfig,
             VideoBlockConfig,
             PlaceholderBlockConfig,
             VideoRecorderBlockConfig,
-            //DanteInlineTooltipConfig,
-            //DanteTooltipConfig,
+            DanteInlineTooltipConfig,
+            DanteTooltipConfig,
+            MenuBarConfig,
+            AddButtonConfig,
             Icons,
             CodeBlockConfig,
             Button, 
             contentData, 
             State, 
             Toggle,
-            config
+            config,
+            Renderer
           }}
         >
 

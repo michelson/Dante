@@ -11,7 +11,7 @@ import { isEmpty } from "../utils";
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
-export default function VideoBlock(props) {
+export default function VideoBlock(props: any) {
   React.useEffect(() => {
     if (!isEmpty(props.node.attrs.embed_data)) {
       return;
@@ -35,7 +35,7 @@ export default function VideoBlock(props) {
       });
   }, []);
 
-  function updateData(data) {
+  function updateData(data: any) {
     props.updateAttributes({
       embed_data: data,
     });
@@ -130,7 +130,7 @@ export const VideoBlockConfig = (options = {}) => {
       },
       provisory_text: { default: null },
     },
-    dataSerializer: (data)=>{
+    dataSerializer: (data: any)=>{
       return {
         ...data, 
         embed_data: JSON.stringify(data.embed_data),

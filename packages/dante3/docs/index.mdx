@@ -14,19 +14,19 @@ order: 10
 This is an empty editor. Will be initialized with default tooltips
 
 ```js live=true
-<Dante />
+<DanteEditor />
 ```
 
 Is the same as
 
 ```js live=true
-<Dante content={null} />
+<DanteEditor content={null} />
 ```
 
 ## Body placeholder
 
 ```js live=true
-<Dante bodyPlaceholder={"Do what you will"} />
+<DanteEditor bodyPlaceholder={"Do what you will"} />
 ```
 
 ## Read Only
@@ -34,7 +34,7 @@ Is the same as
 Read only will disable all interaction
 
 ```js live=true
-<Dante readOnly={true} content={"hello this is a non editable content"} />
+<DanteEditor readOnly={true} content={"hello this is a non editable content"} />
 ```
 
 ## onUpdate callback
@@ -47,7 +47,7 @@ onUpdate func will return the entire instance of the editor, so you can use all 
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div>
-      <Dante onUpdate={(editor) => setState({ data: editor.getHTML() })} />
+      <DanteEditor onUpdate={(editor) => setState({ data: editor.getHTML() })} />
 
       <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
         {`${state.data}`}
@@ -55,4 +55,84 @@ onUpdate func will return the entire instance of the editor, so you can use all 
     </div>
   )}
 </State>
+```
+
+
+## Tooltip position
+
+Placement default
+```js live=true
+<DanteEditor readOnly={false} 
+  tooltips={[
+    AddButtonConfig({
+      fixed: true
+    }),
+  ]} 
+  content={"hello this is a non editable content"} 
+/>
+```
+
+Placement Up
+```js live=true
+<DanteEditor readOnly={false} 
+  tooltips={[
+    AddButtonConfig({
+      placement: "up",
+      fixed: true
+    }),
+  ]} 
+  content={null} 
+/>
+```
+
+
+Menu fixed on top
+```js live=true
+<DanteEditor readOnly={false} 
+  tooltips={[
+    MenuBarConfig({
+      placement: "up",
+      fixed: true
+    }),
+  ]} 
+  content={null} 
+/>
+```
+
+Fixed Menu on bottom
+```js live=true
+<DanteEditor readOnly={false} 
+  tooltips={[
+    MenuBarConfig({
+      fixed: true
+    }),
+  ]} 
+  content={null} 
+/>
+```
+
+
+Editor Props 
+[prosemirror editor props](https://prosemirror.net/docs/ref/#view.Props)
+```js live=true
+<DanteEditor readOnly={false} 
+  editorProps={
+    {
+      handleKeyDown(view, event) {
+        if(event.key === "Enter"){
+          console.log("YES!!")
+          return false
+        }
+        console.log(view, event)
+      },
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
+      },
+      transformPastedText(text) {
+        return text.toUpperCase()
+      }
+    }
+  }
+  content={null} 
+/>
 ```

@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useEditor, EditorContent , FloatingMenu } from '@tiptap/react'
 import { lowlight } from 'lowlight/lib/core'
 
 import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
-import EditorContainer, { LogWrapper } from "../styled/base";
 
 import StarterKit from "@tiptap/starter-kit";
 import TextStyle from "@tiptap/extension-text-style";
@@ -21,14 +20,12 @@ import TaskItem from "@tiptap/extension-task-item";
 */
 
 import { extensionFactory } from "../blocks/extension";
-import { ThemeProvider } from "@emotion/react";
-import defaultTheme from "../styled/themes/default";
-import AddButton from "../popovers/addButton";
-import MenuBar from "../popovers/menuBar";
+import {AddButtonConfig} from "../popovers/addButton";
+import {MenuBarConfig} from "../popovers/menuBar";
 
 import { defaultPlugins as factoryPlugins } from "./constants";
 
-type TipTapProps = {
+type DanteEditorProps = {
   bodyPlaceholder?: any,
   widgets?: any,
   extensions?: any,
@@ -37,23 +34,30 @@ type TipTapProps = {
   content?: any,
   onUpdate?: any
   readOnly?: any,
+  autofocus?: any
+  tooltips: any[],
+  editorProps: any
 }
 
-const Tiptap = ({
+const DanteEditor = ({
   bodyPlaceholder, 
   widgets, 
   extensions,
-  theme,
   fixed,
   content,
   onUpdate,
   readOnly,
-}: TipTapProps ) => {
+  autofocus,
+  tooltips,
+  editorProps
+}: DanteEditorProps ) => {
 
   const editor = useEditor({
     extensions: pluginsConfig(),
-    content: content || "null", //defaultContent(),
+    content: content || null,
     editable: !readOnly,
+    autofocus: autofocus,
+    editorProps: editorProps,
     onUpdate({ editor }) {
       // The content has changed.
       // console.log("changed!", editor.getJSON());
@@ -61,6 +65,10 @@ const Tiptap = ({
       //setLog(JSON.parse(JSON.stringify(editor.getJSON())))
     },
   })
+
+  React.useEffect(()=>{
+    if(editor) editor.setEditable(!readOnly)
+  }, [editor, readOnly])
 
   function basePlugins() {
     return [
@@ -133,6 +141,15 @@ const Tiptap = ({
     return factoryPlugins;
   }
 
+  function defaultTooltips(){
+    if(!editor) return []
+    if(tooltips) return tooltips
+    return [
+      AddButtonConfig({}),
+      MenuBarConfig({})
+    ]
+  }
+
   function newPluginsConfig() {
     return optionalPlugins().map((o : any) => extensionFactory(o));
   }
@@ -142,56 +159,51 @@ const Tiptap = ({
     return basePlugins().concat([...newPluginsConfig(), ...newExtensions]);
   }
 
-  function isPopOverEnabledFor(a: any) {
-    //console.log("ENABLED FOR ", editor.state.selection.$anchor.parent);
-    const comp = editor?.state.selection.$anchor.parent;
-    if (comp && comp.type.name === "paragraph") return true;
-  }
 
-  const resolvedTheme = theme ? theme : defaultTheme;
+  function renderTooltip(o, i) {
+    return (
+      <o.component
+        key={i}
+        editor={editor}
+        display={true || "displaySidebar"}
+        widgets={optionalPlugins()}
+        //editorState={this.state.editorState}
+        //onChange={this.onChange}
+        //styles={this.styles}
+        configTooltip={ o || {} }
+        //widget_options={o.widget_options}
+        //showPopLinkOver={this.showPopLinkOver}
+        //hidePopLinkOver={this.hidePopLinkOver}
+        //handleOnMouseOver={this.handleShowPopLinkOver}
+        //handleOnMouseOut={this.handleHidePopLinkOver}
+      />
+    );
+  };
+
 
   return (
-    <ThemeProvider theme={resolvedTheme}>
-      <EditorContainer>
-        <>
+    <>
 
-        {editor && <MenuBar fixed={fixed} editor={editor} />}
+      { 
+        defaultTooltips()
+        .filter((o) => o.placement === "up")
+        .map((o, i) => {
+          return renderTooltip(o, i)
+        })
+      }
 
-        <EditorContent editor={editor} />
-        {editor && !fixed &&
-          <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
-              {isPopOverEnabledFor("AddButton") && (
-                <div style={{ position: "absolute", top: -15, left: -60 }}>
-                  <AddButton
-                    //ref={sideBarControls}
-                    fixed={fixed}
-                    position={{}}
-                    editor={editor}
-                    display={true || "displaySidebar"}
-                    widgets={optionalPlugins()}
-                  />
-                </div>
-              )}
-          </FloatingMenu>
-        }
+      <EditorContent editor={editor} />
+ 
+      { 
+        defaultTooltips()
+        .filter((o) => o.placement !== "up")
+        .map((o, i) => {
+          return renderTooltip(o, i)
+        })
+      }
 
-
-        {fixed && editor && (
-          <AddButton
-            //ref={sideBarControls}
-            //position={bounds}
-            fixed={fixed}
-            editor={editor}
-            position={{ width: "100%" }}
-            display={true || "displaySidebar"}
-            widgets={optionalPlugins()}
-          />
-        )}
-
-        </>
-      </EditorContainer>
-    </ThemeProvider>
+    </>
   )
 }
 
-export default Tiptap
+export default DanteEditor

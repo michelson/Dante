@@ -105,7 +105,7 @@ const GiphyLogo = () => {
 };
 
 
-const GiphyBlock = (props) => {
+const GiphyBlock = (props: any) => {
   const [open] = React.useState(true);
 
   const defaultData = () => {
@@ -114,12 +114,12 @@ const GiphyBlock = (props) => {
     return {};
   };
 
-  const deleteSelf = (e) => {
+  const deleteSelf = (e: any) => {
     e.preventDefault();
     props.deleteNode();
   };
 
-  const getAspectRatio = (w, h) => {
+  const getAspectRatio = (w: any, h: any) => {
     
 
     const maxWidth = 1000;
@@ -149,7 +149,7 @@ const GiphyBlock = (props) => {
 
   };
 
-  const selectImage = (giphyblock) => {
+  const selectImage = (giphyblock: any) => {
     const { url, height, width } = giphyblock.images.original;
 
     props.editor.commands.insertContent({
@@ -248,7 +248,7 @@ const GiphyBlock = (props) => {
               </button>
               <Giphy
                 apiKey={props.extension.config.addOptions.key}
-                handleSelected={(data) => {
+                handleSelected={(data: any) => {
                   selectImage(data);
                 }}
               />

@@ -1,7 +1,7 @@
 import React from "react";
 import mediumZoom from "medium-zoom";
 
-function ReactMediumZoom(props) {
+function ReactMediumZoom(props: any) {
 
   let imgRef = React.useRef();
 
@@ -12,11 +12,11 @@ function ReactMediumZoom(props) {
 
   React.useEffect(() => {
     if (!props.isEditable) {
-      zoom.current.attach(imgRef.current);
+      imgRef.current && zoom.current.attach(imgRef.current);
       
     }
     if (props.isEditable) {
-      zoom.current.detach(imgRef.current);
+      imgRef.current && zoom.current.detach(imgRef.current);
     }
   }, [props.isEditable]);
 

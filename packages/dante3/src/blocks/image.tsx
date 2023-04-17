@@ -8,7 +8,7 @@ import { image } from "../icons";
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
-export default function ImageBlock(props) {
+export default function ImageBlock(props: any) {
   // console.log("IMAGE:", props);
   const imageUrl = props.node.attrs.url || props.node.attrs.src;
 
@@ -19,7 +19,7 @@ export default function ImageBlock(props) {
     replaceImg();
   }, []);
 
-  function setImage(url) {
+  function setImage(url: any) {
     props.updateAttributes({
       url: url,
     });
@@ -130,20 +130,20 @@ export default function ImageBlock(props) {
       }
     })
 
-    return json_response => {
+    return (json_response: any) => {
       // return uploadCompleted("https://i.imgur.com/XUWx1hA.jpeg");
       return uploadCompleted(json_response.url)
     }
   }
 
-  function uploadCompleted(url) {
+  function uploadCompleted(url: any) {
     setImage(url);
     //this.props.blockProps.removeLock()
     stopLoader()
     file = null;
   }
 
-  function updateProgressBar(e) {
+  function updateProgressBar(e: any) {
     let complete = props.node.attrs.loading_progress
     if (e.lengthComputable) {
       complete = e.loaded / e.total * 100
@@ -153,7 +153,7 @@ export default function ImageBlock(props) {
     }
   }
 
-  function getAspectRatio(w, h) {
+  function getAspectRatio(w: any, h: any) {
     let maxWidth = 1000;
     let maxHeight = 1000;
     let ratio = 0;
@@ -183,7 +183,7 @@ export default function ImageBlock(props) {
     props.editor.commands.setNodeSelection(props.getPos());
   }
 
-  function handleClick(e) {
+  function handleClick(e: any) {
     // console.log("clicked, ", e);
     setActive();
   }
@@ -299,7 +299,7 @@ export const ImageBlockConfig = (options = {}) => {
         },
       },
     },
-    dataSerializer: (data)=>{
+    dataSerializer: (data: any)=>{
       return {
         ...data, 
         aspect_ratio: JSON.stringify(data.aspect_ratio),
@@ -307,7 +307,7 @@ export const ImageBlockConfig = (options = {}) => {
       }
     },
     options: {
-      upload_handler: (file, ctx) => {
+      upload_handler: (file: any, ctx: any) => {
         console.log("UPLOADED FILE", file)
       },
     },
@@ -324,9 +324,9 @@ export const ImageBlockConfig = (options = {}) => {
       insertion: "upload",
       insert_block: "image",
     },
-    keyboardShortcuts: (editor) => {
+    keyboardShortcuts: (editor: any) => {
       return {
-        Enter: ({ editor }) => {
+        Enter: ({ editor } : {editor: any}) => {
           if (editor.isActive("ImageBlock")) {
             //editor.commands.selectNodeForward()
             editor.commands.insertContent({

@@ -26,7 +26,7 @@ export const StyleWrapper = styled(NodeViewWrapper)`
   }
 `;
 
-export default function PlaceholderBlock(props) {
+export default function PlaceholderBlock(props: any) {
   // console.log(props.node.attrs.blockKind);
   return (
     <StyleWrapper 
@@ -56,7 +56,7 @@ export const PlaceholderBlockConfig = (options = {}) => {
     //onUpdate: (editor) => {
     //  console.log("CONTENT CHANGED ON PLACEHOLDER!!!", editor)
     //},
-    keyboardShortcuts: (editor) => {
+    keyboardShortcuts: (editor: any) => {
       return {
         Enter: () => {
           if (editor.isActive("PlaceholderBlock")) {

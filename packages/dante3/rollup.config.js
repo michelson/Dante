@@ -102,8 +102,10 @@ export default [
       "src/editor/**/*.tsx",
       "src/blocks/**/*.tsx",
       "src/plugins/**/*.js",
-      "src/popovers/**/*.js",
-      "src/popovers/**/*.ts",
+      "src/popovers/**/*.tsx",
+      "src/styled/**/*.tsx",
+      "src/styled/**/*.js",
+      "src/index.ts",
     ],
     /*output: {
     name: 'Dante',

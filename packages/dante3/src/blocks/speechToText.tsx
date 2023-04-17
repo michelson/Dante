@@ -55,11 +55,11 @@ const DeleteSelf = styled.button`
   top: 12px;
 `;
 
-const SpeechToTextBlock = ({editor, deleteNode}) => {
+const SpeechToTextBlock = ({editor, deleteNode} : {editor: any, deleteNode: any}) => {
   const [error, setError] = useState('');
   const [transcript, setTranscript] = useState([]);
   const [recording, setRecording] = useState(false);
-  const [recognition, setRecognition] = useState(null);
+  const [recognition, setRecognition] = useState<any>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -74,19 +74,19 @@ const SpeechToTextBlock = ({editor, deleteNode}) => {
       newRecognition.continuous = true;
       newRecognition.interimResults = true;
 
-      newRecognition.onstart = (event) => {
+      newRecognition.onstart = (event: any) => {
         setRecording(true);
       };
 
-      newRecognition.onresult = (event) => {
-        let res = [];
+      newRecognition.onresult = (event: any) => {
+        let res : any = [];
         for (let i = 0; i < event.results.length; ++i) {
           res.push(event.results[i][0].transcript);
         }
         setTranscript(res);
       };
 
-      newRecognition.onerror = (event) => {
+      newRecognition.onerror = (event: any) => {
         console.log(event);
       };
       newRecognition.onend = () => {
@@ -97,30 +97,30 @@ const SpeechToTextBlock = ({editor, deleteNode}) => {
     }
   }, []);
 
-  const deleteSelf = (e) => {
+  const deleteSelf = (e: any) => {
     e.preventDefault();
-    recognition.stop();
+    recognition && recognition.stop();
     deleteNode();
   };
 
-  const startButton = (e) => {
+  const startButton = (e: any) => {
     e.preventDefault();
     if (recording) {
-      recognition.stop();
+      recognition && recognition.stop();
     } else {
       recognition.start();
     }
   };
 
-  const resetRecorder = (e) => {
+  const resetRecorder = (e: any) => {
     e.preventDefault();
-    recognition.stop();
+    recognition && recognition.stop();
     setTranscript([]);
   };
 
-  const convert = (e) => {
+  const convert = (e: any) => {
     e.preventDefault();
-    recognition.stop();
+    recognition && recognition.stop();
 
     editor
       .chain()

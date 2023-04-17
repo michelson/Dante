@@ -1,0 +1,27 @@
+---
+title: Renderer
+order: 11
+---
+
+# Editor
+
+## Installation
+
+`npm install --save dante3`
+
+## Basic usage
+
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div>
+      <Renderer />
+
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+        {`${state.data}`}
+      </div>
+    </div>
+  )}
+</State>
+```

@@ -1,3 +1,4 @@
+import { FloatingMenu } from "@tiptap/react";
 import React from "react";
 import { add } from "../icons.js";
 import { InlinetooltipWrapper } from "../styled/base";
@@ -6,17 +7,17 @@ const AddButton = React.forwardRef(
   (
     props: {
       display?: any;
-      position?: any;
       widgets?: any;
       editor?: any;
-      fixed: any;
+      configTooltip: any
     },
     ref: any
   ) => {
-    const { display, position, widgets, editor, fixed } = props;
+    const { display, widgets, editor, configTooltip } = props;
+    const { fixed } = configTooltip
     const [scaled, setScaled] = React.useState(false);
     const [scaledWidth, setScaledWidth] = React.useState(
-      fixed ? "100%" : "0px"
+      fixed ? "100%" : "auto"
     );
 
     let fileInput = React.useRef(null);
@@ -105,6 +106,15 @@ const AddButton = React.forwardRef(
       });
     }
 
+    function handleFunc(e) {
+      // this.hide();
+      const ctx = {
+        configTooltip: configTooltip,
+        editor: editor
+      }
+      return e.widget_options.funcHandler && e.widget_options.funcHandler(ctx);
+    };
+
     function clickHandler(e: any, type: any) {
       //console.log("TYPE", type);
       let request_block = widgets.find((o: any) => o.tag === type);
@@ -116,6 +126,8 @@ const AddButton = React.forwardRef(
           return handlePlaceholder(request_block);
         case "insertion":
           return handleInsertion(request_block);
+        case "func":
+          return handleFunc(request_block);
         default:
           return console.log(
             `WRONG TYPE FOR ${request_block.widget_options.insertion}`
@@ -158,56 +170,91 @@ const AddButton = React.forwardRef(
       return insertImage(fileList[0]);
     }
 
+    function scaledWidthStyle() {
+      if (!configTooltip.fixed) {
+        return { width: `${scaledWidth}px`, left: `43px`, position: 'absolute' };
+      } else {
+        return {};
+      }
+    };
+
+
+   function fixedClass(){
+    if(fixed)
+      return 'is-fixed'
+    return ""
+   }
+
     return (
-      <InlinetooltipWrapper
-        ref={ref}
-        className={`inlineTooltip ${activeClass()} ${scaledClass()}`}
-        style={position}
-      >
-        {!fixed && (
-          <button
-            type="button"
-            className="inlineTooltip-button control"
-            title="Close Menu"
-            data-action="inline-menu"
-            onClick={_toggleScaled}
-          >
-            {add()}
-          </button>
-        )}
-
-        <div
-          className={`inlineTooltip-menu ${
-            fixed ? "inlineTooltip-menu-fixed" : ""
-          }`}
-          style={{ width: `${fixed ? "-1" : scaledWidth}` }}
+      <MaybeFloating editor={editor} fixed={fixed}>
+        <InlinetooltipWrapper
+          ref={ref}
+          className={`inlineTooltip ${fixedClass()} ${activeClass()} ${scaledClass()}`}
         >
-          {getItems().map((item: any, i: any) => {
-            return (
-              <InlineTooltipItem
-                title={""}
-                item={item}
-                key={i}
-                clickHandler={clickHandler}
-              />
-            );
-          })}
+          {!fixed && (
+            <button
+              type="button"
+              className="inlineTooltip-button control"
+              title="Close Menu"
+              data-action="inline-menu"
+              onClick={_toggleScaled}
+            >
+              {add()}
+            </button>
+          )}
 
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            ref={fileInput}
-            multiple={true}
-            onChange={handleFileInput}
-          />
-        </div>
-      </InlinetooltipWrapper>
+          <div
+            className={`inlineTooltip-menu ${
+              fixed ? "inlineTooltip-menu-fixed" : ""
+            }`}
+            //style={scaledWidthStyle()}
+            style={{ width: `${fixed ? "-1" : scaledWidth}` }}
+          >
+            {getItems().map((item: any, i: any) => {
+              return (
+                <InlineTooltipItem
+                  title={""}
+                  item={item}
+                  key={i}
+                  clickHandler={clickHandler}
+                />
+              );
+            })}
+
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={fileInput}
+              multiple={true}
+              onChange={handleFileInput}
+            />
+          </div>
+        </InlinetooltipWrapper>
+    
+      </MaybeFloating>
     );
   }
 );
 
 AddButton.displayName = "AddButton"
+
+
+function MaybeFloating({editor, children, fixed}){
+
+
+  function isPopOverEnabledFor(a: any) {
+    //console.log("ENABLED FOR ", editor.state.selection.$anchor.parent);
+    const comp = editor?.state.selection.$anchor.parent;
+    if (comp && comp.type.name === "paragraph") return true;
+  }
+
+  
+  if(!fixed) return <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
+                    {isPopOverEnabledFor("AddButton") && (children)}
+                  </FloatingMenu>
+
+  return children }
 
 // @ts-ignore
 function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHandler: any, title: any }) {
@@ -230,4 +277,14 @@ function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHand
   );
 }
 
+
+export const AddButtonConfig = (options = {}) => {
+  let config = {
+    ref: "add_tooltip",
+    component: AddButton,
+  };
+  return Object.assign(config, options);
+};
+
 export default AddButton;
+

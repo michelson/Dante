@@ -42,13 +42,15 @@ function DanteTooltipLink({ enableLinkMode, selected, editor }: { editor: any, e
   );
 }
 
-export default function MenuBar({ editor, fixed } : { editor: any, fixed: any }) {
+export default function MenuBar({ editor, configTooltip } : { editor: any, configTooltip: any }) {
   const [linkState, setLinkState] = useState<any>({
     link_mode: false,
     menu_style: {
       minWidth: "200px",
     },
   });
+
+  const {fixed} = configTooltip
 
   const [show, setShow] = useState(false);
 
@@ -263,3 +265,12 @@ export default function MenuBar({ editor, fixed } : { editor: any, fixed: any })
     </>
   );
 }
+
+
+export const MenuBarConfig = (options = {}) => {
+  let config = {
+    ref: "menu_bar",
+    component: MenuBar,
+  };
+  return Object.assign(config, options);
+};

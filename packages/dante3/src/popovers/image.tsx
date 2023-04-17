@@ -49,3 +49,12 @@ export default function ImageTooltip({ item, handleClick } : { item: any, handle
     </AnchorStyle>
   );
 }
+
+
+export const DanteImagePopoverConfig = (options={})=>{
+  let config = {
+      ref: 'image_popover',
+      component: ImageTooltip
+  }
+  return Object.assign(config, options)
+}
