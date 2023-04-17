@@ -6,7 +6,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "next dev",
+    "deploy": "vercel --prod",
+    "dev": "next dev -p 8080",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
