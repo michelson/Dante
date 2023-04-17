@@ -15,6 +15,9 @@
 # production
 /build
 /packages/dante3/package
+/packages/dante3/node_modules
+
+/packages/dante2/node_modules
 
 # misc
 .DS_Store
