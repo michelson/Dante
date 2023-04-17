@@ -83,6 +83,7 @@ export function extensionFactory(options) {
     },
     renderHTML({ HTMLAttributes }) {
       console.log(HTMLAttributes);
+      if( options.renderHTML) return options.renderHTML(HTMLAttributes)
       const attributes = options.dataSerializer
         ? options.dataSerializer(HTMLAttributes)
         : HTMLAttributes;

@@ -30,7 +30,8 @@
     "**/*.tsx",
     "packages/dante3/src/blocks/videoRecorder/index.js",
     "packages/dante3/src/blocks/videoRecorder/MediaRecorder.js",
-    "packages/dante3/src/blocks/extension.js"
+    "packages/dante3/src/blocks/extension.js",
+    "packages/dante3/src/renderer.tsx"
   ],
   "exclude": [
     "node_modules"

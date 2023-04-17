@@ -1,0 +1,100 @@
+---
+title: Renderer
+order: 11
+---
+
+# Editor
+
+## Installation
+
+`npm install --save dante3`
+
+## Basic usage
+
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div>
+      <Renderer raw={{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
+}/>
+
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+        {`${state.data}`}
+      </div>
+    </div>
+  )}
+</State>
+```
+
+## Color usage
+
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div>
+      <Renderer raw={{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
+}/>
+
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+        {`${state.data}`}
+      </div>
+    </div>
+  )}
+</State>
+```
+
+## Links
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div>
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"hola "},{"type":"text","marks":[{"type":"link","attrs":{"href":"http://fkfjfj.com","target":"_blank","class":null}}],"text":"http://fkfjfj.com"},{"type":"text","text":" "},{"type":"text","marks":[{"type":"link","attrs":{"href":"http://google.com","target":"_blank","class":null}}],"text":"google.com"}]}]}
+      }/>
+
+
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+        {`${state.data}`}
+      </div>
+    </div>
+  )}
+</State>
+```
+
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div>
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"ImageBlock","attrs":{"url":"https://miro.medium.com/v2/resize:fit:1400/format:webp/1*cg_wdzpS-Me6_CQyL1pHiA.jpeg","src":null,"width":1686,"height":1580,"loading":true,"loading_progress":0,"caption":"caption!","direction":"center","file":{},"aspect_ratio":{"width":1000,"height":937.129300118624,"ratio":93.7129300118624}}}]}
+      }/>
+
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+        {`${state.data}`}
+      </div>
+    </div>
+  )}
+</State>
+```
+
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div className="break-words">
+      <Renderer raw={
+        contentJSON
+      }/>
+
+      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto ">
+        {`${state.data}`}
+      </div>
+    </div>
+  )}
+</State>
+```
+

@@ -1,6 +1,7 @@
 import React from 'react'
 import Highlight, {defaultProps} from 'prism-react-renderer'
 import {LiveProvider, LiveEditor, LiveError, LivePreview} from 'react-live'
+import {contentJSON} from '../../data/d3_content_html'
 import {mdx} from '@mdx-js/react'
 import DanteEditor ,{ 
   ImageBlockConfig,
@@ -56,7 +57,8 @@ export default function Live({children, className, live, render}) {
             State, 
             Toggle,
             config,
-            Renderer
+            Renderer,
+            contentJSON
           }}
         >
 

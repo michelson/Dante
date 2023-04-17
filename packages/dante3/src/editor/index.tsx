@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useEditor, EditorContent , FloatingMenu } from '@tiptap/react'
 import { lowlight } from 'lowlight/lib/core'
 
+// import { lowlight } from 'lowlight'
+
 import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
 
@@ -9,15 +11,7 @@ import StarterKit from "@tiptap/starter-kit";
 import TextStyle from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
-
-/*
 import Link from "@tiptap/extension-link";
-import Code from "@tiptap/extension-code";
-import OrderedList from "@tiptap/extension-ordered-list";
-import ListItem from "@tiptap/extension-list-item";
-import TaskList from "@tiptap/extension-task-list";
-import TaskItem from "@tiptap/extension-task-item";
-*/
 
 import { extensionFactory } from "../blocks/extension";
 import {AddButtonConfig} from "../popovers/addButton";
@@ -97,11 +91,12 @@ const DanteEditor = ({
           },
         },
         
-        codeBlock: {
-          HTMLAttributes: {
-            class: "graf code"
-          }
-        },
+        codeBlock: false,
+        //{
+        //  HTMLAttributes: {
+        //    class: "graf code"
+        //  }
+        //},
         code: {
           HTMLAttributes: {
             class: "graf code"
@@ -116,6 +111,7 @@ const DanteEditor = ({
       TextStyle,
       Color,
       Focus,
+      Link,
       /*Link.extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlock);
@@ -126,7 +122,10 @@ const DanteEditor = ({
         },
       }),*/
       CodeBlockLowlight.configure({
-        lowlight,
+        lowlight: lowlight,
+        HTMLAttributes: {
+          class: "graf graf--pre",
+        },
       }),
       //OrderedList,
       

@@ -1,10 +1,13 @@
 import React from "react";
+import {renderToString} from 'react-dom/server'
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import axios from "axios";
 import styled from "@emotion/styled";
 // import { isEmpty } from "../utils";
 import MediumImage from "./mediumImage";
 import { image } from "../icons";
+import ReactMediumZoom from "./mediumImage";
+
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
@@ -300,8 +303,10 @@ export const ImageBlockConfig = (options = {}) => {
       },
     },
     dataSerializer: (data: any)=>{
+     
       return {
-        ...data, 
+        ...data,
+        src: data.url, 
         aspect_ratio: JSON.stringify(data.aspect_ratio),
         file: null
       }
@@ -319,6 +324,7 @@ export const ImageBlockConfig = (options = {}) => {
         tag: "img[src]",
       },
     ],
+    // renderHTML: function(attributes){},
     widget_options: {
       displayOnInlineTooltip: true,
       insertion: "upload",
@@ -348,3 +354,65 @@ export const ImageBlockConfig = (options = {}) => {
 
   return Object.assign(config, options);
 };
+
+
+export function ImageRenderer({ blockKey, data }) {
+
+  const { url, aspect_ratio, caption } = data;
+
+  var height, width, ratio;
+
+  if (!aspect_ratio) {
+    height = '100%';
+    width = '100%';
+    ratio = '100';
+  } else {
+    height = aspect_ratio.height;
+    width = aspect_ratio.width;
+    ratio = aspect_ratio.ratio;
+  }
+
+  const defaultStyle = { maxWidth: `${width}px`, maxHeight: `${height}px` };
+
+  function directionClass(direction) {
+    switch (direction) {
+      case 'left':
+        return 'graf--layoutOutsetLeft';
+      case 'center':
+        return '';
+      case 'wide':
+        return 'sectionLayout--fullWidth';
+      case 'fill':
+        return 'graf--layoutFillWidth';
+      default:
+        return '';
+    }
+  }
+
+  let defaultAlignment = directionClass(data.direction);
+  return (
+    <figure key={blockKey} className={`graf graf--figure ${defaultAlignment}`}>
+      <div>
+        <div className="aspectRatioPlaceholder is-locked" style={defaultStyle}>
+          <div
+            className="aspect-ratio-fill"
+            style={{ paddingBottom: `${ratio}%` }}
+          ></div>
+
+          <ReactMediumZoom src={url} width={width} height={height} className={"graf-image medium-zoom-image"}/>
+
+          {/*<ConnectedImage url={url} width={width} height={height} />*/}
+
+        </div>
+      </div>
+
+      {caption && caption !== 'type a caption (optional)' && (
+        <figcaption className="imageCaption">
+          <span>
+            <span data-text="true">{caption}</span>
+          </span>
+        </figcaption>
+      )}
+    </figure>
+  );
+}
