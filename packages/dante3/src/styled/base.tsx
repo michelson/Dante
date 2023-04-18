@@ -874,6 +874,11 @@ export const InlinetooltipWrapper = styled.div`
     margin-left: 0px !important;
   }
 
+  .inlineTooltip-menu-inline {
+    display: flex;
+    margin-left: 47px !important;
+  }
+
   // BUTTON
   .inlineTooltip-button {
 

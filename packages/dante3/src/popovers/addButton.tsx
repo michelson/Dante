@@ -24,8 +24,7 @@ const AddButton = React.forwardRef(
     let fileInput = React.useRef(null);
 
     React.useEffect(() => {
-      const w = getItems().length * 41
-      const val = scaled ? `${w}px` : "0";
+      const val = scaled ? `auto` : "0";
       setScaledWidth(val);
     }, [scaled]);
 
@@ -208,10 +207,13 @@ const AddButton = React.forwardRef(
 
           <div
             className={`inlineTooltip-menu ${
-              fixed ? "inlineTooltip-menu-fixed" : ""
+              fixed ? "inlineTooltip-menu-fixed" : "inlineTooltip-menu-inline"
             }`}
             //style={scaledWidthStyle()}
-            style={{ width: `${fixed ? "-1" : scaledWidth}` }}
+            style={
+
+              { width: `${fixed ? "-1" : scaledWidth}` }
+            }
           >
             {getItems().map((item: any, i: any) => {
               return (
@@ -260,7 +262,7 @@ function MaybeFloating({editor, children, fixed}: {editor: any, children: any, f
   return children }
 
 // @ts-ignore
-function InlineTooltipItem2({ item, clickHandler, title }: { item: any, clickHandler: any, title: any }) {
+function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHandler: any, title: any }) {
   function onMouseDown(e: any) {
     e.preventDefault();
     return clickHandler(e, item.tag);
@@ -281,9 +283,10 @@ function InlineTooltipItem2({ item, clickHandler, title }: { item: any, clickHan
 }
 
 
-function InlineTooltipItem ({ item: { type, popper, icon } , clickHandler, title }) {
+function InlineTooltipItem222({ item: { type, popper, icon } , clickHandler, title }) {
   const onClick = (e) => {
     e.preventDefault();
+    debugger
     return clickHandler(e, type);
   };
 
