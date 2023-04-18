@@ -5,9 +5,9 @@ import defaultTheme from "./styled/themes/default";
 import EditorContainer from "./styled/base";
 import {ImageRenderer} from './blocks/image'
 
-function Renderer({raw, html, theme}) {
+function Renderer({raw, html, theme} : {raw: any, html?: any, theme?: any}) {
 
-  const convertNodeToElement = (node) => {
+  const convertNodeToElement = (node: any) => {
     
     switch (node.type) {
       case 'heading':
@@ -47,7 +47,7 @@ function Renderer({raw, html, theme}) {
        const textElement = <React.Fragment key={node.id}>{node.text}</React.Fragment>;
 
         if (node.marks && node.marks.length > 0) {
-          return node.marks.reduce((element, mark) => {
+          return node.marks.reduce((element: any, mark: any) => {
             return handleMark(element, mark, node)
           }, textElement);
         }
@@ -61,7 +61,7 @@ function Renderer({raw, html, theme}) {
     }
   };
 
-  const handleMark = (element, mark, node) => {
+  const handleMark = (element: any, mark: any, node: any) => {
     switch(mark.type) {
       case 'textStyle': 
         const { color } = mark.attrs;
@@ -81,8 +81,8 @@ function Renderer({raw, html, theme}) {
     }
   }
 
-  const traverseNodes = (nodes) => {
-    return nodes.map((node) => {
+  const traverseNodes = (nodes: any) => {
+    return nodes.map((node : any) => {
       //console.log(node)
       return convertNodeToElement(node)
     });

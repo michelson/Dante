@@ -3,14 +3,12 @@ import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import axios from "axios";
 import styled from "@emotion/styled";
 // import { isEmpty } from "../utils";
-import MediumImage from "./mediumImage";
-import { image } from "../icons";
-import ReactMediumZoom from "./mediumImage";
+import { file as FileIcon } from "../icons.js";
 
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
-export default function ImageBlock(props: any) {
+export default function FileBlock(props: any) {
   // console.log("IMAGE:", props);
   const imageUrl = props.node.attrs.url || props.node.attrs.src;
 
@@ -18,7 +16,7 @@ export default function ImageBlock(props: any) {
   let file = null;
 
   React.useEffect(() => {
-    replaceImg();
+    replaceFile();
   }, []);
 
   function setImage(url: any) {
@@ -27,27 +25,15 @@ export default function ImageBlock(props: any) {
     });
   }
 
-  function replaceImg() {
-    let img = new Image();
-    img.src = imageUrl; //props.node.attrs.src;
-
-    // setImage(img.src)
-
+  function replaceFile() {
     // exit only when not blob and not forceUload
-    if (!img.src.includes("blob:") && !props.node.attrs.forceUpload) {
+    if (
+      !props.node.attrs.url.includes('blob:') &&
+      !props.node.attrs.forceUpload
+    ) {
       return;
     }
-
-    //if(props.node.attrs.aspect_ratio) return
-    img.onload = () => {
-      props.updateAttributes({
-        width: img.width,
-        height: img.height,
-        aspect_ratio: getAspectRatio(img.width, img.height),
-      });
-
-      return handleUpload();
-    }
+    return handleUpload();
   }
 
   function startLoader() {
@@ -155,31 +141,6 @@ export default function ImageBlock(props: any) {
     }
   }
 
-  function getAspectRatio(w: any, h: any) {
-    let maxWidth = 1000;
-    let maxHeight = 1000;
-    let ratio = 0;
-    let width = w; // Current image width
-    let height = h; // Current image height
-
-    // Check if the current width is larger than the max
-    if (width > maxWidth) {
-      ratio = maxWidth / width; // get ratio for scaling image
-      height = height * ratio; // Reset height to match scaled image
-      width = width * ratio; // Reset width to match scaled image
-
-      // Check if current height is larger than max
-    } else if (height > maxHeight) {
-      ratio = maxHeight / height; // get ratio for scaling image
-      width = width * ratio; // Reset width to match scaled image
-      height = height * ratio; // Reset height to match scaled image
-    }
-
-    let fill_ratio = (height / width) * 100;
-    let result = { width, height, ratio: fill_ratio };
-    // console.log result
-    return result;
-  }
 
   function setActive() {
     props.editor.commands.setNodeSelection(props.getPos());
@@ -190,79 +151,34 @@ export default function ImageBlock(props: any) {
     setActive();
   }
 
-  function directionClass() {
-    switch (props.node.attrs.direction) {
-      case "left":
-        return "graf--layoutOutsetLeft";
-      case "center":
-        return "";
-      case "wide":
-        return "sectionLayout--fullWidth";
-      case "fill":
-        return "graf--layoutFillWidth";
-      default:
-        return "";
-    }
-  }
 
-  function parseAspectRatio(){
-    if(typeof(props.node.attrs.aspect_ratio) === "string"){
-      try {
-        return JSON.parse(props.node.attrs.aspect_ratio)        
-      } catch (error) {
-        return {}
-      }
-    } else {
-      return props.node.attrs.aspect_ratio
-    }
-  }
-
-  const { width, height, ratio } = parseAspectRatio();
   return (
     <StyleWrapper
       selected={props.selected}
       as="figure"
       data-drag-handle="true"
-      className={`graf graf--figure ${directionClass()} ${
-        props.selected ? "is-selected is-mediaFocused" : ""
-      }`}
     >
-      <div
-        onClick={handleClick}
-        className="aspectRatioPlaceholder is-locked"
-        style={{
-          maxHeight: height,
-          maxWidth: width,
-        }}
-      >
-        <div
-          className="aspect-ratio-fill"
-          style={{ paddingBottom: `${ratio}%` }}
-        />
+      
 
-        {/*<img
-          src={imageUrl}
-          height={width}
-          width={height}
-          className="graf-image"
-          contentEditable={false}
-          alt={imageUrl}
-        />*/}
+      {/*!loading && (
+        <a
+          href={url}
+          target="blank"
+          className="flex items-center border rounded text-sm text-gray-100 bg-gray-500 border-gray-600 p-2 py-2"
+        >
+          <FileIcon />
+          {'fileName'}
+        </a>
+      )*}
 
-        <MediumImage
-          src={imageUrl}
-          height={width}
-          width={height}
-          className={`graf-image ${props.editor.isEditable ? ".no-zoom" : ""}`}
-          disabled={props.editor.isEditable}
-          contentEditable={false}
-          isEditable={props.editor.isEditable}
-          //onOpen={() => {
-          //  return false;
-          //}}
-          //onClosed={() => console.log("Image closed")}
+      {/*loading && (
+        <Loader
+          toggle={loading}
+          progress={loading_progress}
         />
-      </div>
+      )*/}
+
+      {imageUrl}
 
       <NodeViewContent as={"figcaption"} className="imageCaption">
         {props.node.content.size === 0 && (
@@ -275,12 +191,32 @@ export default function ImageBlock(props: any) {
   );
 }
 
-export const ImageBlockConfig = (options = {}) => {
+function Loader(props) {
+  return (
+    <div>
+      {props.toggle ? (
+        <div className="image-upoader-loader">
+          <p>
+            {props.progress === 100 ? (
+              "processing image..."
+            ) : (
+              <span>
+                <span>loading</span> {Math.round(props.progress)}
+              </span>
+            )}
+          </p>
+        </div>
+      ) : undefined}
+    </div>
+  );
+}
+
+export const FileBlockConfig = (options = {}) => {
   let config = {
-    name: "ImageBlock",
-    icon: image,
-    tag: "image-block",
-    component: ImageBlock,
+    name: "FileBlock",
+    icon: FileIcon,
+    tag: "file-block",
+    component: FileBlock,
     atom: false,
     draggable: true,
     attributes: {
@@ -327,13 +263,13 @@ export const ImageBlockConfig = (options = {}) => {
     widget_options: {
       displayOnInlineTooltip: true,
       insertion: "upload",
-      insert_block: "ImageBlock",
-      file_types: "image/*",
+      insert_block: "FileBlock",
+      file_types: '*',
     },
     keyboardShortcuts: (editor: any) => {
       return {
         Enter: ({ editor } : {editor: any}) => {
-          if (editor.isActive("ImageBlock")) {
+          if (editor.isActive("FileBlock")) {
             //editor.commands.selectNodeForward()
             editor.commands.insertContent({
               type: "paragraph",
@@ -354,68 +290,3 @@ export const ImageBlockConfig = (options = {}) => {
 
   return Object.assign(config, options);
 };
-
-
-export function ImageRenderer({ blockKey, data }: { blockKey: any, data: any }) {
-
-  const { url, aspect_ratio, caption } = data;
-
-  var height, width, ratio;
-
-  if (!aspect_ratio) {
-    height = '100%';
-    width = '100%';
-    ratio = '100';
-  } else {
-    height = aspect_ratio.height;
-    width = aspect_ratio.width;
-    ratio = aspect_ratio.ratio;
-  }
-
-  const defaultStyle = { maxWidth: `${width}px`, maxHeight: `${height}px` };
-
-  function directionClass(direction: any) {
-    switch (direction) {
-      case 'left':
-        return 'graf--layoutOutsetLeft';
-      case 'center':
-        return '';
-      case 'wide':
-        return 'sectionLayout--fullWidth';
-      case 'fill':
-        return 'graf--layoutFillWidth';
-      default:
-        return '';
-    }
-  }
-
-  let defaultAlignment = directionClass(data.direction);
-  return (
-    <figure key={blockKey} className={`graf graf--figure ${defaultAlignment}`}>
-      <div>
-        <div className="aspectRatioPlaceholder is-locked" style={defaultStyle}>
-          <div
-            className="aspect-ratio-fill"
-            style={{ paddingBottom: `${ratio}%` }}
-          ></div>
-
-          <ReactMediumZoom 
-            src={url} 
-            width={width} 
-            height={height} 
-            className={"graf-image medium-zoom-image"}
-            alt={caption}
-          />
-        </div>
-      </div>
-
-      {caption && caption !== 'type a caption (optional)' && (
-        <figcaption className="imageCaption">
-          <span>
-            <span data-text="true">{caption}</span>
-          </span>
-        </figcaption>
-      )}
-    </figure>
-  );
-}

@@ -3,31 +3,20 @@ title: Renderer
 order: 11
 ---
 
-# Editor
-
-## Installation
-
-`npm install --save dante3`
-
-## Basic usage
+# Editor Renderer
 
 
-```js live=true
-<State initial={{ data: "" }}>
-  {({ state, setState }) => (
-    <div>
-      <Renderer raw={{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
-}/>
+You can store your content as a JSON object or as a good old HTML string. 
+Both work fine. And of course, you can pass both formats to the editor to restore your content. 
 
-      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
-        {`${state.data}`}
-      </div>
-    </div>
-  )}
-</State>
-```
 
-## Color usage
+If you need to render the content for example to generate the HTML for a blog post, 
+which has been written in Tiptap, you’ll probably want to do just that without an actual editor instance.
+
+That’s what the `Renderer` is for. It’s a helper function which renders HTML without an actual editor instance.
+
+
+## Color styles
 
 
 ```js live=true
@@ -37,15 +26,12 @@ order: 11
       <Renderer raw={{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
 }/>
 
-      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
-        {`${state.data}`}
-      </div>
     </div>
   )}
 </State>
 ```
 
-## Links
+## Links marks
 
 ```js live=true
 <State initial={{ data: "" }}>
@@ -54,16 +40,12 @@ order: 11
       <Renderer raw={
         {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"hola "},{"type":"text","marks":[{"type":"link","attrs":{"href":"http://fkfjfj.com","target":"_blank","class":null}}],"text":"http://fkfjfj.com"},{"type":"text","text":" "},{"type":"text","marks":[{"type":"link","attrs":{"href":"http://google.com","target":"_blank","class":null}}],"text":"google.com"}]}]}
       }/>
-
-
-      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
-        {`${state.data}`}
-      </div>
     </div>
   )}
 </State>
 ```
 
+### Image Block
 
 ```js live=true
 <State initial={{ data: "" }}>
@@ -72,15 +54,12 @@ order: 11
       <Renderer raw={
         {"type":"doc","content":[{"type":"ImageBlock","attrs":{"url":"https://miro.medium.com/v2/resize:fit:1400/format:webp/1*cg_wdzpS-Me6_CQyL1pHiA.jpeg","src":null,"width":1686,"height":1580,"loading":true,"loading_progress":0,"caption":"caption!","direction":"center","file":{},"aspect_ratio":{"width":1000,"height":937.129300118624,"ratio":93.7129300118624}}}]}
       }/>
-
-      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
-        {`${state.data}`}
-      </div>
     </div>
   )}
 </State>
 ```
 
+### Integraiton content
 
 ```js live=true
 <State initial={{ data: "" }}>
@@ -89,10 +68,6 @@ order: 11
       <Renderer raw={
         contentJSON
       }/>
-
-      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto ">
-        {`${state.data}`}
-      </div>
     </div>
   )}
 </State>

@@ -12,7 +12,7 @@ import DanteEditor from "./editor";
 // Registered with a WebRTC provider
 //const provider = new WebrtcProvider('example-document', ydoc)
 
-export default function Editor(props) {
+export default function Editor(props: any) {
   const [log, setLog] = useState(null);
   const [fixed, setFixed] = useState(false);
 

@@ -2,6 +2,7 @@ import { FloatingMenu } from "@tiptap/react";
 import React from "react";
 import { add } from "../icons.js";
 import { InlinetooltipWrapper } from "../styled/base";
+import { usePopperTooltip } from "react-popper-tooltip";
 
 const AddButton = React.forwardRef(
   (
@@ -23,7 +24,8 @@ const AddButton = React.forwardRef(
     let fileInput = React.useRef(null);
 
     React.useEffect(() => {
-      const val = scaled ? "300px" : "0";
+      const w = getItems().length * 41
+      const val = scaled ? `${w}px` : "0";
       setScaledWidth(val);
     }, [scaled]);
 
@@ -85,6 +87,12 @@ const AddButton = React.forwardRef(
 
     function clickOnFileUpload(e: any, block: any) {
       // @ts-ignore
+      const { file_types, insert_block } = block.widget_options;
+      if (file_types) {
+        fileInput.current.accept = file_types;
+        fileInput.current.dataset.blockType = insert_block;
+      }
+
       fileInput && fileInput?.current?.click();
       //this.collapse()
       //return this.hide()
@@ -106,7 +114,7 @@ const AddButton = React.forwardRef(
       });
     }
 
-    function handleFunc(e) {
+    function handleFunc(e: any) {
       // this.hide();
       const ctx = {
         configTooltip: configTooltip,
@@ -146,13 +154,8 @@ const AddButton = React.forwardRef(
       // @ts-ignore
       fileInput.current.value = "";
 
-      /*editor.chain()
-        .focus()
-        .setImage({ src: URL.createObjectURL(file) })
-        .run()*/
-
       editor.commands.insertContent({
-        type: "ImageBlock",
+        type: fileInput.current.dataset.blockType || "ImageBlock",
         attrs: {
           file: file,
           url: URL.createObjectURL(file)
@@ -240,7 +243,7 @@ const AddButton = React.forwardRef(
 AddButton.displayName = "AddButton"
 
 
-function MaybeFloating({editor, children, fixed}){
+function MaybeFloating({editor, children, fixed}: {editor: any, children: any, fixed: any}){
 
 
   function isPopOverEnabledFor(a: any) {
@@ -257,7 +260,7 @@ function MaybeFloating({editor, children, fixed}){
   return children }
 
 // @ts-ignore
-function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHandler: any, title: any }) {
+function InlineTooltipItem2({ item, clickHandler, title }: { item: any, clickHandler: any, title: any }) {
   function onMouseDown(e: any) {
     e.preventDefault();
     return clickHandler(e, item.tag);
@@ -275,6 +278,52 @@ function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHand
       {<span className={"tooltip-icon"}>{item.icon()}</span>}
     </button>
   );
+}
+
+
+function InlineTooltipItem ({ item: { type, popper, icon } , clickHandler, title }) {
+  const onClick = (e) => {
+    e.preventDefault();
+    return clickHandler(e, type);
+  };
+
+  const popperPlacement = popper && popper.placement ? popper.placement : "bottom"
+  const popperOffset = popper && popper.offset ? popper.offset : [0, 7]
+
+  const {
+    getArrowProps,
+    getTooltipProps,
+    setTooltipRef,
+    setTriggerRef,
+    visible,
+  } = usePopperTooltip({ placement: popperPlacement, offset: popperOffset });
+
+  return (
+    <div className="button-container">
+      <button
+        ref={setTriggerRef}
+        type="button"
+        className="inlineTooltip-button scale"
+        title={title}
+        data-cy={`inline-tooltip-button-${type}`}
+        onMouseDown={onClick}
+        onClick={(e) => e.preventDefault()}
+        style={{ fontSize: "21px" }}
+      >
+        {<span className={"tooltip-icon"}>{icon()}</span>}
+      </button>
+      {(popper && visible) && (
+        <div
+          ref={setTooltipRef}
+          {...getTooltipProps({ className: 'tooltip-container', style: { fontSize: "12px", borderRadius: "5px" } })}
+        >
+          <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+          {popper && popper.name}
+        </div>
+      )}
+    </div>
+  );
+  
 }
 
 

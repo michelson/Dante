@@ -159,7 +159,7 @@ const DanteEditor = ({
   }
 
 
-  function renderTooltip(o, i) {
+  function renderTooltip(o: any, i: any) {
     return (
       <o.component
         key={i}

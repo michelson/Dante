@@ -5,8 +5,18 @@ import styled from "@emotion/styled";
 import { giphyLogo } from "../../icons";
 
 import Giphy from "./giphy";
-//const giphyApiKey = "97g39PuUZ6Q49VdTRBvMYXRoKZYd1ScZ";
 
+const PoweredBy = styled.div`
+
+  font-size: 10px;
+  display: flex;
+  justify-content: space-around;
+  justify-items: center;
+  p {
+    margin: 0px;
+  }
+
+`
 const Modal = styled.div`
   top: 0;
   right: 0;
@@ -108,17 +118,6 @@ const GiphyLogo = () => {
 const GiphyBlock = (props: any) => {
   const [open] = React.useState(true);
 
-  const defaultData = () => {
-    //const existing_data = this.props.block.getData().toJS();
-    //return existing_data.embed_data || {};
-    return {};
-  };
-
-  const deleteSelf = (e: any) => {
-    e.preventDefault();
-    props.deleteNode();
-  };
-
   const getAspectRatio = (w: any, h: any) => {
     
 
@@ -153,110 +152,54 @@ const GiphyBlock = (props: any) => {
     const { url, height, width } = giphyblock.images.original;
 
     props.editor.commands.insertContent({
-      type: "ImageBlock",
+      type: 'ImageBlock',
       attrs: {
         url: url,
         aspect_ratio: getAspectRatio(width, height),
         forceUpload: true,
       },
-    });
+      content: [
+        {
+          type: 'text',
+          text: 'Giphy image',
+        },
+      ],
+    })
   };
 
   const selfDestroy = () => {
     props.deleteNode();
   };
 
-  /*export default class GiphyBlock extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: true,
-    };
-  }
 
-  componentDidMount() {
-    // console.log("GIPYH", this.props);
-    //this.props.blockProps.toggleEditable();
-  }
+  return (
+    <NodeViewWrapper className="dante-giphy-wrapper">
+      <div contentEditable={false}
+        data-drag-handle="true">
+        <Modal>
+          <ModalWrapper>
+            <button className="close" onClick={selfDestroy}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-  defaultData = () => {
-    //const existing_data = this.props.block.getData().toJS();
-    //return existing_data.embed_data || {};
-    return {};
-  };
+            <Giphy
+              apiKey={props.extension.config.addOptions.key}
+              handleSelected={(data: any) => {
+                selectImage(data);
+              }}
+            />
 
-    deleteSelf = (e) => {
-      e.preventDefault();
-      this.props.deleteNode();
-    };
-
-    getAspectRatio = (w, h) => {
-      const maxWidth = 1000;
-      const maxHeight = 1000;
-      let ratio = 0;
-      let width = w; // Current image width
-      let height = h; // Current image height
-
-      // Check if the current width is larger than the max
-      if (width > maxWidth) {
-        ratio = maxWidth / width; // get ratio for scaling image
-        height = height * ratio; // Reset height to match scaled image
-        width = width * ratio; // Reset width to match scaled image
-
-        // Check if current height is larger than max
-      } else if (height > maxHeight) {
-        ratio = maxHeight / height; // get ratio for scaling image
-        width = width * ratio; // Reset width to match scaled image
-        height = height * ratio; // Reset height to match scaled image
-      }
-
-      const fill_ratio = (height / width) * 100;
-      const result = { width, height, ratio: fill_ratio };
-      // console.log result
-      return result;
-    };
-
-    selectImage = (giphyblock) => {
-      const { url, height, width } = giphyblock.images.original;
-
-      this.props.editor.commands.insertContent({
-        type: "ImageBlock",
-        attrs: {
-          url: url,
-          aspect_ratio: this.getAspectRatio(width, height),
-          forceUpload: true,
-        },
-      });
-    };
-
-    selfDestroy = () => {
-      this.props.deleteNode();
-    };*/
-
-
-    // console.log(this.state.collection)
-    return (
-      <NodeViewWrapper className="dante-giphy-wrapper">
-        <div contentEditable={false}
-          data-drag-handle="true">
-          <Modal>
-            <ModalWrapper>
-              <button className="close" onClick={selfDestroy}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <Giphy
-                apiKey={props.extension.config.addOptions.key}
-                handleSelected={(data: any) => {
-                  selectImage(data);
-                }}
-              />
-            </ModalWrapper>
-          </Modal>
-        </div>
-      </NodeViewWrapper>
-    );
+            <PoweredBy>
+              <p>Powered by Giphy</p>
+              <GiphyLogo />
+            </PoweredBy>
+          </ModalWrapper>
+        </Modal>
+      </div>
+    </NodeViewWrapper>
+  );
   
 }
 
