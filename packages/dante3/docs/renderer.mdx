@@ -73,3 +73,47 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 </State>
 ```
 
+
+### Integration embeds
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div className="break-words">
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"paragraph"},{"type":"paragraph","content":[{"type":"text","text":"Hello"}]},{"type":"VideoBlock","attrs":{"embed_data":{"provider_url":"https://www.youtube.com/","height":113,"type":"video","html":"<iframe width=\"200\" height=\"113\" src=\"https://www.youtube.com/embed/SjhIlw3Iffs?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" allowfullscreen title=\"GPT-4 Creator Ilya Sutskever\"></iframe>","author_name":"Eye on AI","author_url":"https://www.youtube.com/@eyeonai3425","thumbnail_url":"https://i.ytimg.com/vi/SjhIlw3Iffs/hqdefault.jpg","title":"GPT-4 Creator Ilya Sutskever","thumbnail_width":480,"width":200,"provider_name":"YouTube","thumbnail_height":360,"version":"1.0","url":"https://www.youtube.com/watch?v=SjhIlw3Iffs"},"provisory_text":"https://www.youtube.com/watch?v=SjhIlw3Iffs"},"content":[{"type":"text","marks":[{"type":"link","attrs":{"href":"https://www.youtube.com/watch?v=SjhIlw3Iffs","target":"_blank","class":null}}],"text":"https://www.youtube.com/watch?v=SjhIlw3Iffs"}]},{"type":"paragraph","content":[{"type":"text","text":"hellok"}]},{"type":"paragraph"}]}
+      }/>
+    </div>
+  )}
+</State>
+```
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div className="break-words">
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"paragraph"},{"type":"EmbedBlock","attrs":{"embed_data":{"error":"no matching providers found","url":"https://github.com/michelson"},"provisory_text":"https://github.com/michelson"},"content":[{"type":"text","marks":[{"type":"link","attrs":{"href":"https://github.com/michelson","target":"_blank","class":null}}],"text":"https://github.com/michelson"}]},{"type":"paragraph"}]}
+      }/>
+    </div>
+  )}
+</State>
+```
+
+
+### file
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div className="break-words">
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"paragraph"},{"type":"FileBlock","attrs":{"url":"blob:http://localhost:8080/fda338c3-79d5-4994-bb8a-8f1e6ebcfd52","src":null,"width":"","height":"","loading":true,"loading_progress":0,"caption":"caption!","direction":"center","file":{},"aspect_ratio":{"width":200,"height":200,"ratio":100}}}]}
+      }/>
+    </div>
+  )}
+</State>
+```
+
+
+

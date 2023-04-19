@@ -6,6 +6,7 @@ import styled from "@emotion/styled";
 import MediumImage from "./mediumImage";
 import { image } from "../icons";
 import ReactMediumZoom from "./mediumImage";
+import { getUrl } from "./blockUtils";
 
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
@@ -356,7 +357,7 @@ export const ImageBlockConfig = (options = {}) => {
 };
 
 
-export function ImageRenderer({ blockKey, data }: { blockKey: any, data: any }) {
+export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data: any, domain?: any }) {
 
   const { url, aspect_ratio, caption } = data;
 
@@ -400,7 +401,7 @@ export function ImageRenderer({ blockKey, data }: { blockKey: any, data: any }) 
           ></div>
 
           <ReactMediumZoom 
-            src={url} 
+            src={getUrl(url, domain)} 
             width={width} 
             height={height} 
             className={"graf-image medium-zoom-image"}

@@ -4,6 +4,7 @@ import axios from "axios";
 import styled from "@emotion/styled";
 // import { isEmpty } from "../utils";
 import { file as FileIcon } from "../icons.js";
+import { getUrl } from "./blockUtils";
 
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
@@ -146,12 +147,6 @@ export default function FileBlock(props: any) {
     props.editor.commands.setNodeSelection(props.getPos());
   }
 
-  function handleClick(e: any) {
-    // console.log("clicked, ", e);
-    setActive();
-  }
-
-
   return (
     <StyleWrapper
       selected={props.selected}
@@ -159,17 +154,15 @@ export default function FileBlock(props: any) {
       data-drag-handle="true"
     >
       
-
-      {/*!loading && (
-        <a
-          href={url}
-          target="blank"
-          className="flex items-center border rounded text-sm text-gray-100 bg-gray-500 border-gray-600 p-2 py-2"
-        >
-          <FileIcon />
-          {'fileName'}
-        </a>
-      )*}
+      <a
+        href={imageUrl}
+        target="blank"
+        className="flex items-center border rounded text-sm text-gray-100 bg-gray-500 border-gray-600 p-2 py-2"
+      >
+        <FileIcon />
+        {getFileNameFromUrl(imageUrl)}
+      </a>
+    
 
       {/*loading && (
         <Loader
@@ -177,8 +170,6 @@ export default function FileBlock(props: any) {
           progress={loading_progress}
         />
       )*/}
-
-      {imageUrl}
 
       <NodeViewContent as={"figcaption"} className="imageCaption">
         {props.node.content.size === 0 && (
@@ -191,7 +182,32 @@ export default function FileBlock(props: any) {
   );
 }
 
-function Loader(props) {
+function getFileNameFromUrl(url: any) {
+  if(!url.includes("://"))
+    return url.split("/").at(-1)
+
+  let urlObject = new URL(url);
+
+  const pathname = urlObject.pathname;
+  const blobRegex = /^\/([a-zA-Z0-9-_.]+\/){2}([a-zA-Z0-9-_.]+)$/;
+
+  try {
+    if (blobRegex.test(pathname)) {
+      // Blob URL
+      const blobFileName = urlObject.searchParams.get("filename") || "blob-file";
+      return blobFileName;
+    } else {
+      // Regular URL
+      const segments = pathname.split("/");
+      const fileName = segments[segments.length - 1];
+      return fileName;
+    }  
+  } catch (error) {
+    null
+  }
+}
+
+function Loader(props: any) {
   return (
     <div>
       {props.toggle ? (
@@ -290,3 +306,29 @@ export const FileBlockConfig = (options = {}) => {
 
   return Object.assign(config, options);
 };
+
+export function FileBlockRenderer({ blockKey, data, domain }: { blockKey: any, data: any, domain?: any }) {
+  const { url, caption } = data;
+
+  return (
+    <figure key={blockKey} className={`graf graf--figure`}>
+      
+      <a
+        href={url}
+        target="blank"
+        className="flex items-center border rounded text-sm text-gray-100 bg-gray-500 border-gray-600 p-2 py-2"
+      >
+        <FileIcon />
+        {getFileNameFromUrl(getUrl(url, domain))}
+      </a>
+
+      {caption && caption !== 'type a caption (optional)' && (
+        <figcaption className="imageCaption">
+          <span>
+            <span data-text="true">{caption}</span>
+          </span>
+        </figcaption>
+      )}
+    </figure>
+  )
+}

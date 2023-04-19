@@ -19,6 +19,7 @@ import {
   RecButton,
   Button,
 } from "./styled";
+import { getUrl } from "../blockUtils";
 
 export default function VideoRecorderBlock(props) {
   //let file = null;
@@ -463,3 +464,21 @@ export const VideoRecorderBlockConfig = (options = {}) => {
   return Object.assign(config, options);
 
 };
+
+
+export function VideoRecorderRenderer({ blockKey, data, domain }) {
+
+  const {caption, url} = data
+  return (
+    <VideoContainer>
+      <div>
+        <VideoBody>
+          <VideoPlayer autoPlay muted src={getUrl(url, domain)}/>
+          <figcaption className="imageCaption">
+            {caption}
+          </figcaption>
+        </VideoBody>
+      </div>
+    </VideoContainer>
+  )
+}

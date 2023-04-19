@@ -1,0 +1,39 @@
+---
+title: Configurable Extensions
+order: 14
+---
+
+# Extensions
+
+
+### file
+
+Upload handler example for audio recorder
+
+```js live=true
+<DanteEditor readOnly={false} 
+  widgets={[
+    AudioRecorderBlockConfig({
+      options: {
+        seconds_to_record: 20000,
+        upload_handler: (a, editor)=>{
+          console.log("UPLOAD HANDLER HERE")
+          //editor.updateAttributes({
+          //  url: "/aaaa",
+          //});
+        },
+        //upload_url: `/attachments.json?id=${this.props.data.id}&app_id=${this.props.app.key}`,
+      },
+    })
+  ]}
+  tooltips={[
+    AddButtonConfig({
+      placement: "up",
+      fixed: true
+    }),
+  ]} 
+  content={null} 
+/>
+```
+
+

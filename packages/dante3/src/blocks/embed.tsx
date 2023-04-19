@@ -8,35 +8,35 @@ export const StyleWrapper = styled(NodeViewWrapper)`
   ${(props) => `border: 3px solid ${props.selected ? "purple" : "black"};`}
 `;
 
+function picture(embed_data: any) {
+  if (
+    embed_data.images &&
+    embed_data.images.length > 0
+  ) {
+    return embed_data.images[0].url;
+  } else if (embed_data.thumbnail_url) {
+    return embed_data.thumbnail_url;
+  } else if (embed_data.image) {
+    return embed_data.image;
+  } else {
+    return null;
+  }
+}
+
+function classForImage(embed_data: any) {
+  if (picture(embed_data)) {
+    return "";
+  } else {
+    return "mixtapeImage--empty u-ignoreBlock";
+  }
+}
+
 export default function EmbedBlock(props: any) {
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     initializeCard();
   }, []);
-
-  function picture() {
-    if (
-      props.node.attrs.embed_data.images &&
-      props.node.attrs.embed_data.images.length > 0
-    ) {
-      return props.node.attrs.embed_data.images[0].url;
-    } else if (props.node.attrs.embed_data.thumbnail_url) {
-      return props.node.attrs.embed_data.thumbnail_url;
-    } else if (props.node.attrs.embed_data.image) {
-      return props.node.attrs.embed_data.image;
-    } else {
-      return null;
-    }
-  }
-
-  function classForImage() {
-    if (picture()) {
-      return "";
-    } else {
-      return "mixtapeImage--empty u-ignoreBlock";
-    }
-  }
 
   function deleteSelf() {
     props.deleteNode();
@@ -108,12 +108,12 @@ export default function EmbedBlock(props: any) {
     >
       {/*<NodeViewContent>*/}
         <span contentEditable={false}>
-          {picture() ? (
+          {picture(embed_data) ? (
             <a
               target="_blank"
-              className={`js-mixtapeImage mixtapeImage ${classForImage()}`}
+              className={`js-mixtapeImage mixtapeImage ${classForImage(embed_data)}`}
               href={embed_data.url}
-              style={{ backgroundImage: `url('${picture()}')` }}
+              style={{ backgroundImage: `url('${picture(embed_data)}')` }}
               rel={"noreferrer"}
             > </a>
           ) : undefined}
@@ -190,3 +190,50 @@ export const EmbedBlockConfig = (options = {}) => {
 
   return Object.assign(config, options);
 };
+
+export function EmbedBlockRenderer({ blockKey, data }: { blockKey: any, data: any }) {
+
+  const {embed_data} = data
+
+  return (
+
+    <div
+      className={"graf graf--mixtapeEmbed"}
+    >
+
+      <span contentEditable={false}>
+        {picture(embed_data) ? (
+          <a
+            target="_blank"
+            className={`js-mixtapeImage mixtapeImage ${classForImage(embed_data)}`}
+            href={embed_data.url}
+            style={{ backgroundImage: `url('${picture(embed_data)}')` }}
+            rel={"noreferrer"}
+          > </a>
+        ) : undefined}
+
+        <a
+          className="markup--anchor markup--mixtapeEmbed-anchor"
+          target="_blank"
+          href={embed_data.url}
+          rel="noreferrer"
+        >
+          <strong className="markup--strong markup--mixtapeEmbed-strong">
+            {embed_data.title}
+          </strong>
+
+          <em className="markup--em markup--mixtapeEmbed-em">
+            {embed_data.description}
+          </em>
+        </a>
+
+        <span>
+          {embed_data.provider_url || embed_data.url}
+        </span>
+      </span>
+
+    </div>
+
+  )
+}
+

@@ -88,10 +88,13 @@ const AddButton = React.forwardRef(
       // @ts-ignore
       const { file_types, insert_block } = block.widget_options;
       if (file_types) {
+        // @ts-ignore
         fileInput.current.accept = file_types;
+        // @ts-ignore
         fileInput.current.dataset.blockType = insert_block;
       }
 
+      // @ts-ignore
       fileInput && fileInput?.current?.click();
       //this.collapse()
       //return this.hide()
@@ -154,6 +157,7 @@ const AddButton = React.forwardRef(
       fileInput.current.value = "";
 
       editor.commands.insertContent({
+        // @ts-ignore
         type: fileInput.current.dataset.blockType || "ImageBlock",
         attrs: {
           file: file,
@@ -283,6 +287,7 @@ function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHand
 }
 
 
+/*
 function InlineTooltipItem222({ item: { type, popper, icon } , clickHandler, title }) {
   const onClick = (e) => {
     e.preventDefault();
@@ -328,6 +333,7 @@ function InlineTooltipItem222({ item: { type, popper, icon } , clickHandler, tit
   );
   
 }
+*/
 
 
 export const AddButtonConfig = (options = {}) => {

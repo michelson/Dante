@@ -302,7 +302,7 @@ export default class ImageBlock extends React.Component {
 
   render = () => {
     return (
-      <figure ref="image_tag2" suppressContentEditableWarning={true}>
+      <figure suppressContentEditableWarning={true}>
         <div
           className="aspectRatioPlaceholder is-locked"
           style={this.coords()}

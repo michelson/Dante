@@ -46,3 +46,14 @@ export const DividerBlockConfig = (options = {}) => {
 
   return Object.assign(config, options);
 };
+
+
+export function DividerBlockRenderer({ blockKey, data, domain }: { blockKey: any, data: any, domain?: any }) {
+  return (
+    <div
+      className="graf graf--divider is-selected"
+    >
+      <span />
+    </div>
+  );
+}

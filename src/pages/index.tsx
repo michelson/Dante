@@ -78,7 +78,7 @@ export default function Index({}) {
               readOnly={readOnly}
               onUpdate={(editor: any) => {
                 //console.log("content", editor.getHTML())
-                // console.log("content", JSON.stringify(editor.getJSON()));
+                console.log("content", JSON.stringify(editor.getJSON()));
               }}
               /*data_storage={{
                 interval: 10000,

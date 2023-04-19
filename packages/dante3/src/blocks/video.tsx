@@ -50,14 +50,6 @@ export default function VideoBlock(props: any) {
     return existing_data.embed_data || {};
   }
 
-  function classForImage() {
-    if (props.node.attrs.embed_data.thumbnail_url) {
-      return "";
-    } else {
-      return "mixtapeImage--empty u-ignoreBlock";
-    }
-  }
-
   function renderEmbedHtml() {
     const embed_data = parseEmbedData()
 
@@ -140,6 +132,37 @@ export const VideoBlockConfig = (options = {}) => {
 
   return Object.assign(config, options)
 };
+
+export function VideoBlockRenderer({ blockKey, data }: { blockKey: any, data: any }) {
+
+  
+  const {embed_data, caption} = data
+
+  function renderEmbedHtml(){
+    return embed_data.media
+        ? embed_data.media.html
+        : embed_data.html;
+  }
+
+  return (
+    <figure
+      className={'graf--figure graf--iframe graf--first'}
+    >
+      <div
+        className="iframeContainer"
+        dangerouslySetInnerHTML={{ __html: renderEmbedHtml() }}
+      />
+      <figcaption  className="imageCaption">
+        {caption &&
+          <span className="danteDefaultPlaceholder">
+            {caption}
+          </span>
+        }
+      </figcaption>
+    </figure>
+  )
+}
+
 
 /*
 export const VideoBlockConfig = (options={})=>{

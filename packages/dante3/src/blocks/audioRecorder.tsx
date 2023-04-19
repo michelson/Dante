@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CheckIcon, DeleteIcon, MicIcon } from '../icons';
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import styled from "@emotion/styled";
+import { getUrl } from "./blockUtils";
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
 
@@ -15,7 +16,7 @@ export default function AudioRecorderBlock(props: any) {
   const [loading_progress, setLoadingProgress] = useState(0);
 
   const stream = React.useRef(null);
-  const mediaRecorder = React.useRef(null);
+  const mediaRecorder = React.useRef<any>(null);
   const audioElement = React.useRef(null);
 
   const config = props.config;
@@ -38,6 +39,10 @@ export default function AudioRecorderBlock(props: any) {
     return () => interval && clearInterval(interval);
   }, [count]);
 
+  React.useEffect(() => {
+    if(props.node.attrs?.url) setAudioUrl(props.node.attrs.url)
+  }, [props?.node?.attrs?.url]);
+
   function setAudioUrl222(url: any) {
     props.updateAttributes({
       audioUrl: url,
@@ -51,14 +56,16 @@ export default function AudioRecorderBlock(props: any) {
   
     navigator.mediaDevices
       .getUserMedia({ audio: true })
-      .then((userStream) => {
+      .then((userStream: any) => {
         stream.current = userStream;
+        if(!mediaRecorder.current) return 
+        if(!stream.current) return
         mediaRecorder.current = new MediaRecorder(stream.current);
-        const chunks = [];
+        const chunks : any = [];
   
         mediaRecorder.current.start();
   
-        mediaRecorder.current.addEventListener('dataavailable', (event) => {
+        mediaRecorder.current.addEventListener('dataavailable', (event: any) => {
           chunks.push(event.data);
         });
   
@@ -80,19 +87,20 @@ export default function AudioRecorderBlock(props: any) {
     if (!mediaRecorder?.current) return;
     if (mediaRecorder?.current.state === 'inactive') return;
     mediaRecorder.current.stop();
+    // @ts-ignore
     stream?.current?.getTracks()?.forEach((track) => track.stop()); // stop each of them
     stream.current = null;
     setRecording(false);
     setCount(0);
   };
 
-  function uploadRecording(e) {
+  function uploadRecording(e: any) {
     uploadFile(audioUrl);
   }
 
   function cancelRecording() {
     setAudioUrl(null);
-    setRecording(null);
+    setRecording(false);
     setCount(0);
   }
 
@@ -103,15 +111,11 @@ export default function AudioRecorderBlock(props: any) {
     //const { getEditorState } = blockProps;
     //const { setEditorState } = blockProps;
     //const data = block.getData();
-
     const state = {
       url: audioUrl,
       stored: true,
     };
-
-    debugger
     //const newData = data.merge(state).merge(options);
-
     //return setEditorState(updateDataOfBlock(getEditorState(), block, newData));
   };
 
@@ -122,8 +126,10 @@ export default function AudioRecorderBlock(props: any) {
     });*/
   }
 
-  const uploadFile = async (blob) => {
+  const uploadFile = async (blob: any) => {
     file = await fetch(blob).then((r) => r.blob());
+
+    if(!file.name) file.name = "audio"
 
     const construct = {
       uploadCompleted: uploadCompleted,
@@ -136,7 +142,10 @@ export default function AudioRecorderBlock(props: any) {
 
     // custom upload handler
     if (props.extension.options.upload_handler) {
-      return config.upload_handler(null, construct);
+      return props.extension.options.upload_handler(
+        file,
+        props
+      );
     }
 
     if (!props.extension.options.upload_url) {
@@ -150,7 +159,7 @@ export default function AudioRecorderBlock(props: any) {
     stopLoader();
   }
 
-  function uploadCompleted(url, cb) {
+  function uploadCompleted(url: any, cb: any) {
     setAudioUrl(url);
     updateData({ url: url });
     // blockProps.removeLock();
@@ -160,7 +169,7 @@ export default function AudioRecorderBlock(props: any) {
     cb && cb();
   }
 
-  function updateProgressBar(e) {
+  function updateProgressBar(e: any) {
     let complete = loading_progress as any;
     if (e.lengthComputable) {
       complete = (e.loaded / e.total) * 100;
@@ -170,12 +179,14 @@ export default function AudioRecorderBlock(props: any) {
     }
   }
 
-  function setUrlToAudio(url) {
+  function setUrlToAudio(url: any) {
     //this.playMode();
+
+    // @ts-ignore
     audioElement.current.src = url;
   }
 
-  console.log(props)
+  console.log(props.node.attrs)
 
   return (
     <StyleWrapper
@@ -250,7 +261,8 @@ export const AudioRecorderBlockConfig = (options = {}) => {
     name: "AudioRecorderBlock",
     tag: "audio-recorder",
     component: AudioRecorderBlock,
-    atom: true,
+    atom: false,
+    draggable: true,
     widget_options: {
       displayOnInlineTooltip: true,
       insertion: 'insertion',
@@ -258,9 +270,38 @@ export const AudioRecorderBlockConfig = (options = {}) => {
     },
     options: {
       seconds_to_record: 120,
+      upload_handler: (file: any, ctx: any) => {
+        console.log("UPLOADED FILE", file)
+      },
     },
-    attributes: {},
+    attributes: {
+      url: { default: null }
+    },
   };
 
   return Object.assign(config, options);
 };
+
+
+export function AudioRecorderRenderer({ blockKey, data, domain }: { blockKey: any, data: any, domain?: any }) {
+
+  const { url, caption } = data;
+
+  return (
+    <figure key={blockKey} className={`graf graf--figure`}>
+      <div>
+        <div>
+          {url && <audio src={getUrl(url, domain)} controls />}
+        </div>
+      </div>
+
+      {caption && caption !== 'type a caption (optional)' && (
+        <figcaption className="imageCaption">
+          <span>
+            <span data-text="true">{caption}</span>
+          </span>
+        </figcaption>
+      )}
+    </figure>
+  );
+}

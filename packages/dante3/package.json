@@ -1,7 +1,7 @@
 {
   "name": "dante3",
   "description": "Dante3 is a text editor built on top of TipTap",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "main": "package/Dante.cjs.js",
   "jsnext:main": "package/Dante.es.js",
   "module": "package/Dante.es.js",
