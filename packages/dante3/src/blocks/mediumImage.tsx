@@ -22,7 +22,7 @@ function ReactMediumZoom(props: any) {
 
   const { ...imgProps } = props;
 
-  return <img ref={imgRef} {...imgProps} alt={imgRef} />;
+  return <img ref={imgRef} {...imgProps} />;
 }
 
 export default ReactMediumZoom;

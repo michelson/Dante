@@ -23,7 +23,8 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div>
-      <Renderer raw={{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
 }/>
 
     </div>
@@ -114,6 +115,5 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
   )}
 </State>
 ```
-
 
 

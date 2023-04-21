@@ -278,6 +278,7 @@ function InlineTooltipItem({ item, clickHandler, title }: { item: any, clickHand
       className="inlineTooltip-button scale"
       title={title}
       onMouseDown={onMouseDown}
+      data-cy={`inline-tooltip-button-${item.tag}`}
       onClick={(e) => e.preventDefault()}
       style={{ fontSize: "21px" }}
     >

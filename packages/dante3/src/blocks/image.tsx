@@ -391,6 +391,15 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
   }
 
   let defaultAlignment = directionClass(data.direction);
+
+  function resolveCaption(){
+    if(!caption) return url
+    if(caption === "type a caption (optional)") return url
+    return caption
+  }
+
+
+
   return (
     <figure key={blockKey} className={`graf graf--figure ${defaultAlignment}`}>
       <div>
@@ -405,7 +414,7 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
             width={width} 
             height={height} 
             className={"graf-image medium-zoom-image"}
-            alt={caption}
+            alt={resolveCaption()}
           />
         </div>
       </div>
