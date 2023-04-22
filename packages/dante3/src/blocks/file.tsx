@@ -242,7 +242,7 @@ export const FileBlockConfig = (options = {}) => {
       height: { default: "" },
       loading: { default: false },
       loading_progress: { default: 0 },
-      caption: { default: "caption!" },
+      caption: { default: null },
       direction: { default: "center" },
       file: { default: null },
       aspect_ratio: {
@@ -254,7 +254,6 @@ export const FileBlockConfig = (options = {}) => {
       },
     },
     dataSerializer: (data: any)=>{
-     
       return {
         ...data,
         src: data.url, 
@@ -269,11 +268,8 @@ export const FileBlockConfig = (options = {}) => {
     },
     parseHTML: [
       {
-        tag: "image-block",
-      },
-      {
-        tag: "img[src]",
-      },
+        tag: "file-block[url]",
+      }
     ],
     // renderHTML: function(attributes){},
     widget_options: {

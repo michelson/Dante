@@ -2,7 +2,9 @@ import React from 'react'
 import Highlight, {defaultProps} from 'prism-react-renderer'
 import {LiveProvider, LiveEditor, LiveError, LivePreview} from 'react-live'
 import {contentJSON} from '../../data/d3_content_html'
+import { generateJSON } from '@tiptap/html';
 import {mdx} from '@mdx-js/react'
+import StarterKit from "@tiptap/starter-kit";
 import DanteEditor ,{ 
   ImageBlockConfig,
   EmbedBlockConfig,
@@ -10,6 +12,8 @@ import DanteEditor ,{
   PlaceholderBlockConfig,
   VideoRecorderBlockConfig,
   AudioRecorderBlockConfig,
+  FileBlockConfig,
+  extensionFactory,
   //DanteInlineTooltipConfig,
   //DanteTooltipConfig,
   Icons,
@@ -41,13 +45,17 @@ export default function Live({children, className, live, render}) {
           transformCode={code => '/** @jsx mdx */' + code}
           scope={{
             mdx, 
+            StarterKit,
             DanteEditor,
             ImageBlockConfig,
             EmbedBlockConfig,
             VideoBlockConfig,
+            FileBlockConfig,
             PlaceholderBlockConfig,
             VideoRecorderBlockConfig,
             AudioRecorderBlockConfig,
+            extensionFactory,
+            generateJSON,
             //DanteInlineTooltipConfig,
             //DanteTooltipConfig,
             MenuBarConfig,

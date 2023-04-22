@@ -30,6 +30,7 @@ import CodeBlock, { CodeBlockConfig } from "./blocks/code";
 import { MenuBarConfig } from './popovers/menuBar'
 import { AddButtonConfig } from './popovers/addButton'
 import Renderer from "./renderer";
+import { extensionFactory } from './blocks/extension'
 
 import SpeechToTextBlock, {
   SpeechToTextBlockConfig,
@@ -50,6 +51,7 @@ export { SpeechToTextBlock, SpeechToTextBlockConfig };
 export { AudioRecorderBlock, AudioRecorderBlockConfig };
 export { FileBlock, FileBlockConfig };
 
+export { extensionFactory };
 export { Renderer }
 
 export { CodeBlock, CodeBlockConfig };

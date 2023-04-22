@@ -291,7 +291,7 @@ export const ImageBlockConfig = (options = {}) => {
       height: { default: "" },
       loading: { default: false },
       loading_progress: { default: 0 },
-      caption: { default: "caption!" },
+      caption: { default: null },
       direction: { default: "center" },
       file: { default: null },
       aspect_ratio: {
@@ -303,10 +303,10 @@ export const ImageBlockConfig = (options = {}) => {
       },
     },
     dataSerializer: (data: any)=>{
-     
       return {
         ...data,
-        src: data.url, 
+        src: data.url || data.src,
+        url: data.src,
         aspect_ratio: JSON.stringify(data.aspect_ratio),
         file: null
       }
@@ -318,7 +318,7 @@ export const ImageBlockConfig = (options = {}) => {
     },
     parseHTML: [
       {
-        tag: "image-block",
+        tag: "image-block[src]",
       },
       {
         tag: "img[src]",
@@ -359,7 +359,7 @@ export const ImageBlockConfig = (options = {}) => {
 
 export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data: any, domain?: any }) {
 
-  const { url, aspect_ratio, caption } = data;
+  const { url, src, aspect_ratio, caption } = data;
 
   var height, width, ratio;
 
@@ -393,12 +393,14 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
   let defaultAlignment = directionClass(data.direction);
 
   function resolveCaption(){
-    if(!caption) return url
+    if(!caption) return getSrc()
     if(caption === "type a caption (optional)") return url
     return caption
   }
 
-
+  function getSrc(){
+    return url || src
+  }
 
   return (
     <figure key={blockKey} className={`graf graf--figure ${defaultAlignment}`}>
@@ -410,7 +412,7 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
           ></div>
 
           <ReactMediumZoom 
-            src={getUrl(url, domain)} 
+            src={getUrl(getSrc(), domain)} 
             width={width} 
             height={height} 
             className={"graf-image medium-zoom-image"}

@@ -142,7 +142,7 @@ const EditorContainer = styled.div`
   .graf--p,
   .graf--blockquote,
   .graf--pullquote {
-    margin-bottom: 30px;
+    // margin-bottom: 30px;
   }
 
   .graf--code {

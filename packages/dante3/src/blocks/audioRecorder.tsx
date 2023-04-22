@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CheckIcon, DeleteIcon, MicIcon } from '../icons';
-import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
+import { NodeViewWrapper } from "@tiptap/react";
 import styled from "@emotion/styled";
 import { getUrl } from "./blockUtils";
 
@@ -43,13 +43,6 @@ export default function AudioRecorderBlock(props: any) {
     if(props.node.attrs?.url) setAudioUrl(props.node.attrs.url)
   }, [props?.node?.attrs?.url]);
 
-  function setAudioUrl222(url: any) {
-    props.updateAttributes({
-      audioUrl: url,
-    });
-  }
-
-
   const startRecording = () => {
     setStored(false);
     setAudioUrl(false);
@@ -58,9 +51,7 @@ export default function AudioRecorderBlock(props: any) {
       .getUserMedia({ audio: true })
       .then((userStream: any) => {
         stream.current = userStream;
-        if(!mediaRecorder.current) return 
-        if(!stream.current) return
-        mediaRecorder.current = new MediaRecorder(stream.current);
+        mediaRecorder.current = new MediaRecorder(userStream);
         const chunks : any = [];
   
         mediaRecorder.current.start();
@@ -74,7 +65,7 @@ export default function AudioRecorderBlock(props: any) {
           const audioUrl = URL.createObjectURL(audioBlob);
           setAudioUrl(audioUrl);
         });
-  
+
         setRecording(true);
         setCount(countTotal);
       })
@@ -186,8 +177,6 @@ export default function AudioRecorderBlock(props: any) {
     audioElement.current.src = url;
   }
 
-  console.log(props.node.attrs)
-
   return (
     <StyleWrapper
       selected={props.selected}
@@ -204,7 +193,7 @@ export default function AudioRecorderBlock(props: any) {
             <button
               onClick={!recording ? startRecording : stopRecording}
               //disabled={recording}
-              className={`flex justify-center items-center p-2 rounded-sm ${
+              className={`flex justify-center items-center p-2 rounded-md text-sm ${
                 recording
                   ? 'bg-red-300 text-red-500'
                   : 'bg-gray-300 text-gray-800'
@@ -216,7 +205,7 @@ export default function AudioRecorderBlock(props: any) {
             </button>
 
             {count != 0 && (
-              <span>Recording will finish in {count} seconds</span>
+              <span className="text-xs">Recording will finish in <strong className="font-bold">{count} seconds</strong></span>
             )}
 
           </span>
@@ -231,7 +220,7 @@ export default function AudioRecorderBlock(props: any) {
 
         {audioUrl && !stored && (
           <button
-            className="flex justify-center items-center space-x-2 p-2 rounded-sm bg-green-300 text-green-800"
+            className="flex justify-center items-center p-2 rounded-md text-sm bg-green-300 text-green-800"
             onClick={uploadRecording}
           >
             <CheckIcon />
@@ -241,7 +230,7 @@ export default function AudioRecorderBlock(props: any) {
 
         {audioUrl && !stored && (
           <button
-            className="flex justify-center items-center p-2 rounded-sm text-red-600"
+            className="flex justify-center items-center p-2 rounded-sm text-sm text-red-600"
             onClick={cancelRecording}
           >
             <DeleteIcon />

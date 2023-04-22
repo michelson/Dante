@@ -1,0 +1,55 @@
+---
+title: Parsers
+order: 12
+---
+
+# Editor Parsers
+
+
+Editor parser using @tiptap/html generateJSON
+
+## Color styles
+
+
+```js live=true
+
+<State initial={{ data: "" }}>
+  {({ state, setState }) => {
+    var html = `<p>This is a file parser using image-block</p>
+    <image-block src="https://placehold.co/800x400"/> `
+     var a = generateJSON(html, [
+      StarterKit, 
+      extensionFactory(ImageBlockConfig()),
+      extensionFactory(FileBlockConfig())
+    ])
+
+    return <div>
+      <Renderer raw={a}/>
+      {JSON.stringify(a)}
+    </div>
+  }}
+</State>
+```
+
+
+```js live=true
+
+
+
+<State initial={{ data: "" }}>
+  {({ state, setState }) => {
+    var html = `<p>This is a file parser using file-block </p>
+    <file-block url="https://placehold.co/800x400"/>`
+     var a = generateJSON(html, [
+      StarterKit, 
+      extensionFactory(ImageBlockConfig()),
+      extensionFactory(FileBlockConfig())
+    ])
+
+    return <div>
+      <Renderer raw={a}/>
+      {JSON.stringify(a)}
+    </div>
+  }}
+</State>
+```

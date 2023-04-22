@@ -422,7 +422,7 @@ export const VideoRecorderBlockConfig = (options = {}) => {
       height: { default: "" },
       loading: { default: false },
       loading_progress: { default: 0 },
-      caption: { default: "caption!" },
+      caption: { default: null },
       direction: { default: "center" },
       file: { default: null },
     },

@@ -131,9 +131,13 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
   function renderMenu() {
     if (!editor.isEditable) return null;
 
+    const allowedElements = configTooltip.selectionElements || ["paragraph", "heading"]
+    const currentBlock = editor?.view?.state?.selection?.$head?.parent?.type.name
+
+    if(!allowedElements.includes(currentBlock)) return
     // TODO: use the configuration for this!
-    if (editor.isActive("ImageBlock")) return null;
-    if (editor.isActive("AudioREcorderBlock")) return null;
+    // if (editor.isActive("ImageBlock")) return null;
+    
 
     return (
       <AnchorStyle

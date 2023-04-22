@@ -54,19 +54,19 @@ export function extensionFactory(options) {
       return {
         [`insert${options.name}`]:
           (attributes) =>
-          ({ chain }) => {
-            return chain()
-              .insertContent({
-                type: options.name,
-                attrs: {
-                  url: "",
-                },
-              })
-              .run();
-            //.insertNode(options.name, attributes)
-            //.insertText(" ")
-            //.run();
-          },
+            ({ chain }) => {
+              return chain()
+                .insertContent({
+                  type: options.name,
+                  attrs: {
+                    url: "",
+                  },
+                })
+                .run();
+              //.insertNode(options.name, attributes)
+              //.insertText(" ")
+              //.run();
+            },
       };
     },
     addAttributes() {
@@ -82,8 +82,7 @@ export function extensionFactory(options) {
       );
     },
     renderHTML({ HTMLAttributes }) {
-      console.log(HTMLAttributes);
-      if( options.renderHTML) return options.renderHTML(HTMLAttributes)
+      if (options.renderHTML) return options.renderHTML(HTMLAttributes)
       const attributes = options.dataSerializer
         ? options.dataSerializer(HTMLAttributes)
         : HTMLAttributes;
