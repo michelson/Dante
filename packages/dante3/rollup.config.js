@@ -40,6 +40,7 @@ const pluginsConfig = [
       ["@babel/plugin-proposal-optional-chaining", { loose: false }],
       ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
       ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: false }],
+      '@emotion/babel-plugin',
       "@babel/plugin-proposal-do-expressions",
     ],
   }),
@@ -116,6 +117,7 @@ export default [
     output: {
       format: "esm",
       dir: "package/esm",
+      sourcemap: false,
     },
     //@ts-ignore
     plugins: [multiInput.default(), ...pluginsConfig],

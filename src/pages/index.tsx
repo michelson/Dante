@@ -16,6 +16,11 @@ import {
 import Dante from '../../packages/dante3/src/DanteEditor'
 // from '../packages/dante3'
 
+//import Dante from '../../packages/dante3/src'
+
+//import Dante from '../../packages/dante3/package/esm'
+
+
 import { contentJSON as htmlContent } from "../../data/d3_content_html";
 
 import pkg from "../../packages/dante3/package.json";

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useEditor, EditorContent , FloatingMenu } from '@tiptap/react'
-// import { lowlight } from 'lowlight/lib/core'
+import { lowlight } from 'lowlight/lib/core'
 
 // import { lowlight } from 'lowlight'
 
@@ -122,7 +122,7 @@ const DanteEditor = ({
         },
       }),*/
       CodeBlockLowlight.configure({
-        //lowlight: lowlight,
+        lowlight: lowlight,
         HTMLAttributes: {
           class: "graf graf--pre",
         },
