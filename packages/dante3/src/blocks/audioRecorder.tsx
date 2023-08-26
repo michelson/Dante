@@ -184,7 +184,7 @@ export default function AudioRecorderBlock(props: any) {
       data-drag-handle="true"
     >
       <div
-        className="flex space-x-2 bg-white dark:bg-gray-800 justify-center items-center"
+        className="flex space-x-2 justify-center items-center"
         contentEditable={false}
       >
 

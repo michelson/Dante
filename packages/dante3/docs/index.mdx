@@ -49,7 +49,7 @@ onUpdate func will return the entire instance of the editor, so you can use all 
     <div>
       <DanteEditor onUpdate={(editor) => setState({ data: editor.getHTML() })} />
 
-      <div class="p-4 border-green-600 rounded-md border-2 overflow-auto">
+      <div className="p-4 border-green-600 rounded-md border-2 overflow-auto">
         {`${state.data}`}
       </div>
     </div>
@@ -130,6 +130,42 @@ Editor Props
       },
       transformPastedText(text) {
         return text.toUpperCase()
+      },
+      handleDrop: function (view, event, slice, moved) {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) { 
+          let file = event.dataTransfer.files[0];
+          let filesize = ((file.size/1024)/1024).toFixed(4); 
+
+          const { schema } = view.state;
+          const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+          
+          let _URL = window.URL || window.webkitURL;
+
+          if (file.type.startsWith("image/")) {
+              let image = new Image();
+              image.src = _URL.createObjectURL(file);
+              image.onload = function() {
+                  const node = schema.nodes.ImageBlock.create({ src: image.src });
+                  const transaction = view.state.tr.insert(coordinates.pos, node);
+                  view.dispatch(transaction);
+              }
+          } else if (file.type.startsWith("video/")) {
+              const node = schema.nodes.VideoRecorderBlock.create({ url: _URL.createObjectURL(file) });
+              const transaction = view.state.tr.insert(coordinates.pos, node);
+              view.dispatch(transaction);
+          } else if (file.type.startsWith("audio/")) {
+              const node = schema.nodes.AudioRecorderBlock.create({ url: _URL.createObjectURL(file) });
+              const transaction = view.state.tr.insert(coordinates.pos, node);
+              view.dispatch(transaction);
+          } else {
+              const node = schema.nodes.FileBlock.create({ url: _URL.createObjectURL(file) });
+              const transaction = view.state.tr.insert(coordinates.pos, node);
+              view.dispatch(transaction);
+          }
+          return true
+        }
+
+        return false; // not handled use default behaviour
       }
     }
   }

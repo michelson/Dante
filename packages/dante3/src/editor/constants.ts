@@ -38,6 +38,8 @@ import GiphyBlock, { GiphyBlockConfig } from "../blocks/giphy/giphyBlock";
 import SpeechToTextBlock, {
   SpeechToTextBlockConfig,
 } from "../blocks/speechToText";
+import { AudioRecorderBlockConfig } from "../blocks/audioRecorder";
+import { FileBlockConfig } from "../blocks/file";
 
 //export {DanteEditor}
 export { darkTheme, defaultTheme };
@@ -63,11 +65,13 @@ const defaultPlugins = [
   CodeBlockConfig(),
   DividerBlockConfig(),
   EmbedBlockConfig(),
+  AudioRecorderBlockConfig(),
   PlaceholderBlockConfig(),
   VideoBlockConfig(),
   GiphyBlockConfig(),
   VideoRecorderBlockConfig(),
   SpeechToTextBlockConfig(),
+  FileBlockConfig()
 ];
 
 export { defaultPlugins };

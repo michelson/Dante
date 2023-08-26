@@ -12,6 +12,8 @@ import TextStyle from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
 import Link from "@tiptap/extension-link";
+import Dropcursor from '@tiptap/extension-dropcursor'
+
 
 import { extensionFactory } from "../blocks/extension";
 import {AddButtonConfig} from "../popovers/addButton";
@@ -112,6 +114,7 @@ const DanteEditor = ({
       Color,
       Focus,
       Link,
+      Dropcursor,
       /*Link.extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlock);
