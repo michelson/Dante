@@ -145,7 +145,7 @@ Editor Props
               let image = new Image();
               image.src = _URL.createObjectURL(file);
               image.onload = function() {
-                  const node = schema.nodes.ImageBlock.create({ src: image.src });
+                  const node = schema.nodes.ImageBlock.create({ src: image.src, forceUpload: true });
                   const transaction = view.state.tr.insert(coordinates.pos, node);
                   view.dispatch(transaction);
               }

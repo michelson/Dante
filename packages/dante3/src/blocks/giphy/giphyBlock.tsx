@@ -221,7 +221,9 @@ export const GiphyBlockConfig = (options = {}) => {
       placeholder: "Search any gif on giphy",
       key: "97g39PuUZ6Q49VdTRBvMYXRoKZYd1ScZ",
     },
-    attributes: {},
+    attributes: {
+      forceUpload: {default: false}
+    },
   };
 
   return Object.assign(config, options);

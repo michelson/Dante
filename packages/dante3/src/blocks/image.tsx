@@ -33,7 +33,6 @@ export default function ImageBlock(props: any) {
     img.src = imageUrl; //props.node.attrs.src;
 
     // setImage(img.src)
-
     // exit only when not blob and not forceUload
     if (!img.src.includes("blob:") && !props.node.attrs.forceUpload) {
       return;
@@ -294,6 +293,7 @@ export const ImageBlockConfig = (options = {}) => {
       caption: { default: null },
       direction: { default: "center" },
       file: { default: null },
+      forceUpload: {default: false},
       aspect_ratio: {
         default: {
           width: 200,

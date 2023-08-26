@@ -245,6 +245,7 @@ export const FileBlockConfig = (options = {}) => {
       caption: { default: null },
       direction: { default: "center" },
       file: { default: null },
+      forceUpload: {default: false},
       aspect_ratio: {
         default: {
           width: 200,
