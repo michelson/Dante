@@ -116,4 +116,23 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 </State>
 ```
 
+### Video Recorder
+
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div className="break-words">
+      <Renderer raw={
+        {"type":"doc","content":[{"type":"VideoRecorderBlock","attrs":{
+          "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          "src":null,
+          "width":"","height":"","loading":false,"loading_progress":0,"caption":null,"direction":"center","file":null},"content":[{"type":"text","text":"kokokk"}]}]}
+      }/>
+    </div>
+  )}
+</State>
+```
+
+
+
 

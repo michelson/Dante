@@ -54,7 +54,7 @@ function Renderer({raw, html, theme, domain} : RendererProps) {
         return (
           <FileBlockRenderer blockKey={node.id} data={node.attrs} domain={domain}/>
         )
-      case 'VideoRecorder':
+      case 'VideoRecorderBlock':
         return <VideoRecorderRenderer blockKey={node.id} data={node.attrs} domain={domain}/>
 
       case 'paragraph':

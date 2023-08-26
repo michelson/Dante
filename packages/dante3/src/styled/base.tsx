@@ -15,7 +15,7 @@ const EditorContainer = styled.div`
   font-size: ${(props: any) => props.theme.dante_editor_font_size};
   line-height: ${(props: any) => props.theme.dante_editor_line_height};
   color: ${(props: any) =>  props.theme.dante_text_color };
-  background-color: ${(props: any) => props.theme.dante_bg_color};
+  // background-color: ${(props: any) => props.theme.dante_bg_color};
 
   text-rendering: optimizeLegibility;
 
