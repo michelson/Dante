@@ -14,6 +14,11 @@ import Focus from "@tiptap/extension-focus";
 import Link from "@tiptap/extension-link";
 import Dropcursor from '@tiptap/extension-dropcursor'
 
+import Table from '@tiptap/extension-table'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
+import TableRow from '@tiptap/extension-table-row'
+
 
 import { extensionFactory } from "../blocks/extension";
 import {AddButtonConfig} from "../popovers/addButton";
@@ -115,6 +120,28 @@ const DanteEditor = ({
       Focus,
       Link,
       Dropcursor,
+
+      Table.configure({
+        HTMLAttributes: {
+          class: "table-auto",
+        },
+        resizable: true,
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "graf graf--tr",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "graf graf--th",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "graf graf--tc",
+        },
+      }),
       /*Link.extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlock);

@@ -85,6 +85,27 @@ function Renderer({raw, html, theme, domain} : RendererProps) {
 
         return textElement;
 
+      case 'table':
+        return (
+          <table className="table-auto graf graf--table" key={node.id}>
+            <tbody>{traverseNodes(node.content)}</tbody>
+          </table>
+        );
+      case 'tableRow':
+        return <tr className="graf graf--tr" key={node.id}>{traverseNodes(node.content)}</tr>;
+      case 'tableHeader':
+        return (
+          <th className="graf graf--th" key={node.id} colSpan={node.attrs.colspan} rowSpan={node.attrs.rowspan}>
+            {traverseNodes(node.content)}
+          </th>
+        );
+      case 'tableCell':
+        return (
+          <td className="graf graf--td" key={node.id} colSpan={node.attrs.colspan} rowSpan={node.attrs.rowspan}>
+            {traverseNodes(node.content)}
+          </td>
+        );
+      
       // Add cases for other node types as needed
       default:
         console.warn("no handler for node", node)

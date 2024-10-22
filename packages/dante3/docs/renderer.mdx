@@ -5,28 +5,38 @@ order: 11
 
 # Editor Renderer
 
+You can store your content as a JSON object or as a good old HTML string.
+Both work fine. And of course, you can pass both formats to the editor to restore your content.
 
-You can store your content as a JSON object or as a good old HTML string. 
-Both work fine. And of course, you can pass both formats to the editor to restore your content. 
-
-
-If you need to render the content for example to generate the HTML for a blog post, 
+If you need to render the content for example to generate the HTML for a blog post,
 which has been written in Tiptap, you’ll probably want to do just that without an actual editor instance.
 
 That’s what the `Renderer` is for. It’s a helper function which renders HTML without an actual editor instance.
 
-
 ## Color styles
-
 
 ```js live=true
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div>
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"helo"},{"type":"text","marks":[{"type":"textStyle","attrs":{"color":"#d42323"}}],"text":"o"}]}]}
-}/>
-
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "helo" },
+                {
+                  type: "text",
+                  marks: [{ type: "textStyle", attrs: { color: "#d42323" } }],
+                  text: "o",
+                },
+              ],
+            },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
@@ -38,9 +48,48 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div>
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"hola "},{"type":"text","marks":[{"type":"link","attrs":{"href":"http://fkfjfj.com","target":"_blank","class":null}}],"text":"http://fkfjfj.com"},{"type":"text","text":" "},{"type":"text","marks":[{"type":"link","attrs":{"href":"http://google.com","target":"_blank","class":null}}],"text":"google.com"}]}]}
-      }/>
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "hola " },
+                {
+                  type: "text",
+                  marks: [
+                    {
+                      type: "link",
+                      attrs: {
+                        href: "http://fkfjfj.com",
+                        target: "_blank",
+                        class: null,
+                      },
+                    },
+                  ],
+                  text: "http://fkfjfj.com",
+                },
+                { type: "text", text: " " },
+                {
+                  type: "text",
+                  marks: [
+                    {
+                      type: "link",
+                      attrs: {
+                        href: "http://google.com",
+                        target: "_blank",
+                        class: null,
+                      },
+                    },
+                  ],
+                  text: "google.com",
+                },
+              ],
+            },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
@@ -52,9 +101,32 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div>
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"ImageBlock","attrs":{"url":"https://miro.medium.com/v2/resize:fit:1400/format:webp/1*cg_wdzpS-Me6_CQyL1pHiA.jpeg","src":null,"width":1686,"height":1580,"loading":true,"loading_progress":0,"caption":"caption!","direction":"center","file":{},"aspect_ratio":{"width":1000,"height":937.129300118624,"ratio":93.7129300118624}}}]}
-      }/>
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            {
+              type: "ImageBlock",
+              attrs: {
+                url: "https://miro.medium.com/v2/resize:fit:1400/format:webp/1*cg_wdzpS-Me6_CQyL1pHiA.jpeg",
+                src: null,
+                width: 1686,
+                height: 1580,
+                loading: true,
+                loading_progress: 0,
+                caption: "caption!",
+                direction: "center",
+                file: {},
+                aspect_ratio: {
+                  width: 1000,
+                  height: 937.129300118624,
+                  ratio: 93.7129300118624,
+                },
+              },
+            },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
@@ -66,14 +138,11 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div className="break-words">
-      <Renderer raw={
-        contentJSON
-      }/>
+      <Renderer raw={contentJSON} />
     </div>
   )}
 </State>
 ```
-
 
 ### Integration embeds
 
@@ -81,9 +150,56 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div className="break-words">
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"paragraph"},{"type":"paragraph","content":[{"type":"text","text":"Hello"}]},{"type":"VideoBlock","attrs":{"embed_data":{"provider_url":"https://www.youtube.com/","height":113,"type":"video","html":"<iframe width=\"200\" height=\"113\" src=\"https://www.youtube.com/embed/SjhIlw3Iffs?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" allowfullscreen title=\"GPT-4 Creator Ilya Sutskever\"></iframe>","author_name":"Eye on AI","author_url":"https://www.youtube.com/@eyeonai3425","thumbnail_url":"https://i.ytimg.com/vi/SjhIlw3Iffs/hqdefault.jpg","title":"GPT-4 Creator Ilya Sutskever","thumbnail_width":480,"width":200,"provider_name":"YouTube","thumbnail_height":360,"version":"1.0","url":"https://www.youtube.com/watch?v=SjhIlw3Iffs"},"provisory_text":"https://www.youtube.com/watch?v=SjhIlw3Iffs"},"content":[{"type":"text","marks":[{"type":"link","attrs":{"href":"https://www.youtube.com/watch?v=SjhIlw3Iffs","target":"_blank","class":null}}],"text":"https://www.youtube.com/watch?v=SjhIlw3Iffs"}]},{"type":"paragraph","content":[{"type":"text","text":"hellok"}]},{"type":"paragraph"}]}
-      }/>
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            { type: "paragraph" },
+            { type: "paragraph", content: [{ type: "text", text: "Hello" }] },
+            {
+              type: "VideoBlock",
+              attrs: {
+                embed_data: {
+                  provider_url: "https://www.youtube.com/",
+                  height: 113,
+                  type: "video",
+                  html: '<iframe width="200" height="113" src="https://www.youtube.com/embed/SjhIlw3Iffs?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen title="GPT-4 Creator Ilya Sutskever"></iframe>',
+                  author_name: "Eye on AI",
+                  author_url: "https://www.youtube.com/@eyeonai3425",
+                  thumbnail_url:
+                    "https://i.ytimg.com/vi/SjhIlw3Iffs/hqdefault.jpg",
+                  title: "GPT-4 Creator Ilya Sutskever",
+                  thumbnail_width: 480,
+                  width: 200,
+                  provider_name: "YouTube",
+                  thumbnail_height: 360,
+                  version: "1.0",
+                  url: "https://www.youtube.com/watch?v=SjhIlw3Iffs",
+                },
+                provisory_text: "https://www.youtube.com/watch?v=SjhIlw3Iffs",
+              },
+              content: [
+                {
+                  type: "text",
+                  marks: [
+                    {
+                      type: "link",
+                      attrs: {
+                        href: "https://www.youtube.com/watch?v=SjhIlw3Iffs",
+                        target: "_blank",
+                        class: null,
+                      },
+                    },
+                  ],
+                  text: "https://www.youtube.com/watch?v=SjhIlw3Iffs",
+                },
+              ],
+            },
+            { type: "paragraph", content: [{ type: "text", text: "hellok" }] },
+            { type: "paragraph" },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
@@ -93,14 +209,45 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div className="break-words">
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"paragraph"},{"type":"EmbedBlock","attrs":{"embed_data":{"error":"no matching providers found","url":"https://github.com/michelson"},"provisory_text":"https://github.com/michelson"},"content":[{"type":"text","marks":[{"type":"link","attrs":{"href":"https://github.com/michelson","target":"_blank","class":null}}],"text":"https://github.com/michelson"}]},{"type":"paragraph"}]}
-      }/>
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            { type: "paragraph" },
+            {
+              type: "EmbedBlock",
+              attrs: {
+                embed_data: {
+                  error: "no matching providers found",
+                  url: "https://github.com/michelson",
+                },
+                provisory_text: "https://github.com/michelson",
+              },
+              content: [
+                {
+                  type: "text",
+                  marks: [
+                    {
+                      type: "link",
+                      attrs: {
+                        href: "https://github.com/michelson",
+                        target: "_blank",
+                        class: null,
+                      },
+                    },
+                  ],
+                  text: "https://github.com/michelson",
+                },
+              ],
+            },
+            { type: "paragraph" },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
 ```
-
 
 ### file
 
@@ -108,9 +255,29 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div className="break-words">
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"paragraph"},{"type":"FileBlock","attrs":{"url":"blob:http://localhost:8080/fda338c3-79d5-4994-bb8a-8f1e6ebcfd52","src":null,"width":"","height":"","loading":true,"loading_progress":0,"caption":"caption!","direction":"center","file":{},"aspect_ratio":{"width":200,"height":200,"ratio":100}}}]}
-      }/>
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            { type: "paragraph" },
+            {
+              type: "FileBlock",
+              attrs: {
+                url: "blob:http://localhost:8080/fda338c3-79d5-4994-bb8a-8f1e6ebcfd52",
+                src: null,
+                width: "",
+                height: "",
+                loading: true,
+                loading_progress: 0,
+                caption: "caption!",
+                direction: "center",
+                file: {},
+                aspect_ratio: { width: 200, height: 200, ratio: 100 },
+              },
+            },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
@@ -122,17 +289,312 @@ That’s what the `Renderer` is for. It’s a helper function which renders HTML
 <State initial={{ data: "" }}>
   {({ state, setState }) => (
     <div className="break-words">
-      <Renderer raw={
-        {"type":"doc","content":[{"type":"VideoRecorderBlock","attrs":{
-          "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-          "src":null,
-          "width":"","height":"","loading":false,"loading_progress":0,"caption":null,"direction":"center","file":null},"content":[{"type":"text","text":"kokokk"}]}]}
-      }/>
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            {
+              type: "VideoRecorderBlock",
+              attrs: {
+                url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                src: null,
+                width: "",
+                height: "",
+                loading: false,
+                loading_progress: 0,
+                caption: null,
+                direction: "center",
+                file: null,
+              },
+              content: [{ type: "text", text: "kokokk" }],
+            },
+          ],
+        }}
+      />
     </div>
   )}
 </State>
 ```
 
-
-
-
+```js live=true
+<State initial={{ data: "" }}>
+  {({ state, setState }) => (
+    <div className="break-words">
+      <Renderer
+        raw={{
+          type: "doc",
+          content: [
+            {
+              type: "table",
+              content: [
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableHeader",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Company" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableHeader",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Contact" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableHeader",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Country" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [
+                            { type: "text", text: "Alfreds Futterkiste" },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Maria Anders" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Germany" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [
+                            {
+                              type: "text",
+                              text: "Centro comercial Moctezuma",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Francisco Chang" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Mexico" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Ernst Handel" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Roland Mendel" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Austria" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Island Trading" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Helen Bennett" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "UK" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [
+                            {
+                              type: "text",
+                              text: "Laughing Bacchus Winecellars",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Yoshi Tannamuri" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Canada" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "tableRow",
+                  content: [
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [
+                            {
+                              type: "text",
+                              text: "Magazzini Alimentari Riuniti",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Giovanni Rovelli" }],
+                        },
+                      ],
+                    },
+                    {
+                      type: "tableCell",
+                      attrs: { colspan: 1, rowspan: 1, colwidth: null },
+                      content: [
+                        {
+                          type: "paragraph",
+                          content: [{ type: "text", text: "Italy" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }}
+      />
+    </div>
+  )}
+</State>
+```
