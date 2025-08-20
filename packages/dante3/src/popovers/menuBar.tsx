@@ -11,6 +11,7 @@ import { useState } from "react";
 import {
   bold,
   italic,
+  underline,
   insertunorderedlist,
   insertorderedlist,
   link,
@@ -21,6 +22,9 @@ import {
   h4,
   blockquote,
   code,
+  alignLeft,
+  alignCenter,
+  alignRight,
 } from "../icons";
 
 function DanteTooltipLink({ enableLinkMode, selected, editor }: { editor: any, enableLinkMode: any, selected: any }) {
@@ -51,6 +55,7 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
   });
 
   const {fixed} = configTooltip
+  const tools = configTooltip.allowTools
 
   const [show, setShow] = useState(false);
 
@@ -118,12 +123,12 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
   }
 
   function _clickBlockInlineStyle(style: any) {
-    editor.chain().focus().setColor && 
+    editor.chain().focus().setColor &&
     editor.chain().focus().setColor(style).run();
   }
 
   function fixedStyles() {
-    if (!fixed) return { width: `${11 * 43}px` };
+    if (!fixed) return { width: `${tools.length * 43}px` };
     if (fixed) return { position: `sticky`, top: "0" };
     return {}
   }
@@ -137,7 +142,9 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
     if(!allowedElements.includes(currentBlock)) return
     // TODO: use the configuration for this!
     // if (editor.isActive("ImageBlock")) return null;
-    
+
+    if(configTooltip.allowTools.length == 0) return
+
 
     return (
       <AnchorStyle
@@ -146,7 +153,7 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
         // @ts-ignore
         style={fixedStyles()}
       >
-        <div className="dante-menu-linkinput" style={{ width: `${11 * 43}px` }}>
+        <div className="dante-menu-linkinput" style={{ width: `${tools.length * 43}px` }}>
           <input
             className="dante-menu-input"
             placeholder={"put your souce here"}
@@ -159,20 +166,64 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
         </div>
 
         <div className="dante-menu-buttons" style={linkState.menu_style}>
-          <li
+          {configTooltip.allowTools.includes('bold') && (<li
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={itemClass("bold")}
           >
             <span className={"dante-icon"}>{bold()}</span>
           </li>
-          <li
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={itemClass("italic")}
-          >
-            <span className={"dante-icon"}>{italic()}</span>
-          </li>
+          )}
 
-          <DanteTooltipColor
+          {configTooltip.allowTools.includes('italic') && (
+            <li
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              className={itemClass("italic")}
+            >
+              <span className={"dante-icon"}>{italic()}</span>
+            </li>
+          )}
+          {configTooltip.allowTools.includes('underline') && (
+            <li
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              className={itemClass("underline")}
+            >
+              <span className={"dante-icon"}>{underline()}</span>
+            </li>
+          )}
+
+          {/* <span className="dante-menu-divider"></span> */}
+
+          {configTooltip.allowTools.includes('alignLeft') && (
+            <li
+              onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              className={itemClass({ textAlign: 'left' })}
+            >
+              <span className={"dante-icon"}>{alignLeft()}</span>
+            </li>
+          )}
+
+          {configTooltip.allowTools.includes('alignCenter') && (
+            <li
+              onClick={() => editor.chain().focus().setTextAlign('center').run()}
+              className={itemClass({ textAlign: 'center' })}
+            >
+              <span className={"dante-icon"}>{alignCenter()}</span>
+            </li>
+          )}
+
+
+          {configTooltip.allowTools.includes('alignRight') && (
+            <li
+              onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              className={itemClass({ textAlign: 'right' })}
+            >
+              <span className={"dante-icon"}>{alignRight()}</span>
+            </li>
+          )}
+
+          {/* <span className="dante-menu-divider"></span> */}
+
+          {configTooltip.allowTools.includes('color') && (<DanteTooltipColor
             styles={{}}
             editor={editor}
             enableLinkMode={_enableLinkMode}
@@ -181,14 +232,17 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
             style_type="color"
             handleClick={_clickBlockInlineStyle}
             show={show}
-          />
+          />)}
 
-          <DanteTooltipLink
+          {configTooltip.allowTools.includes('link') && (<DanteTooltipLink
             selected={editor.isActive("link")}
             editor={editor}
             enableLinkMode={_enableLinkMode}
-          />
-          <li
+          />)}
+
+          {/* <span className="dante-menu-divider"></span> */}
+
+          {configTooltip.allowTools.includes('h1') && (<li
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 1 }).run()
             }
@@ -196,46 +250,59 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
           >
             <span className={"dante-icon"}>{h1()}</span>
           </li>
-          <li
+          )}
+
+          {configTooltip.allowTools.includes('h2') && (<li
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 2 }).run()
             }
             className={itemClass("heading", { level: 2 })}
           >
             <span className={"dante-icon"}>{h2()}</span>
-          </li>
-          <li
+          </li>)}
+
+          {configTooltip.allowTools.includes('h3') && (<li
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 3 }).run()
             }
             className={itemClass("heading", { level: 3 })}
           >
             <span className={"dante-icon"}>{h3()}</span>
-          </li>
-          <li
+          </li>)}
+
+          {/* <span className="dante-menu-divider"></span> */}
+
+          {configTooltip.allowTools.includes('bulletList') && (<li
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={itemClass("bulletList")}
           >
             <span className={"dante-icon"}>{insertunorderedlist()}</span>
-          </li>
-          <li
+          </li>)}
+
+          {configTooltip.allowTools.includes('orderedList') && (<li
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={itemClass("orderedList")}
           >
             <span className={"dante-icon"}>{insertorderedlist()}</span>
           </li>
-          <li
+          )}
+
+          {/* <span className="dante-menu-divider"></span> */}
+          {configTooltip.allowTools.includes('code') && (<li
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={itemClass("codeBlock")}
           >
             <span className={"dante-icon"}>{code()}</span>
-          </li>
-          <li
+          </li>)}
+
+          {/* <span className="dante-menu-divider"></span> */}
+          {configTooltip.allowTools.includes('blockquote') && (<li
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={itemClass("blockquote")}
           >
             <span className={"dante-icon"}>{blockquote()}</span>
           </li>
+          )}
         </div>
       </AnchorStyle>
     );
@@ -278,6 +345,23 @@ export const MenuBarConfig = (options = {}) => {
   let config = {
     ref: "menu_bar",
     component: MenuBar,
+    allowTools: [
+      'bold',
+      'italic',
+      'underline',
+      'alignLeft',
+      'alignCenter',
+      'alignRight',
+      'link',
+      'color',
+      'h1',
+      'h2',
+      'h3',
+      'bulletList',
+      'orderedList',
+      'blockquote',
+      'code'
+    ],
   };
   return Object.assign(config, options);
 };
