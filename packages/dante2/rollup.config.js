@@ -7,7 +7,11 @@ import typescript from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
 import multiInput from "rollup-plugin-multi-input";
 import autoExternal from "rollup-plugin-auto-external";
-import packageJson from "./package.json" //assert { type: "json" };
+// import packageJson from "./package.json" //assert { type: "json" };
+
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const packageJson = require("./package.json");
 
 import path from 'path'
 
