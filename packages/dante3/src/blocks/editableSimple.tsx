@@ -1,7 +1,7 @@
 import React from "react";
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 
-export default () => {
+const EditableSimple = () => {
   return (
     <NodeViewWrapper
       className="react-component-with-content"
@@ -15,3 +15,5 @@ export default () => {
     </NodeViewWrapper>
   );
 };
+
+export default EditableSimple

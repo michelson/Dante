@@ -1,13 +1,19 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, useEffect } from "react";
+import React from "react";
+import { Fragment, useEffect } from "react";
 
-export default function MyModal({
+interface MyModalProps {
+  isOpen: boolean,
+  setIsOpen: (open: boolean) => void,
+  title: string,
+}
+
+const MyModal: React.FC<MyModalProps> = ({
   isOpen,
   setIsOpen,
   title,
-  description,
   children,
-}) {
+}) => {
   function closeModal() {
     setIsOpen(false);
   }
@@ -20,7 +26,7 @@ export default function MyModal({
     setTimeout(() => {
       setIsOpen(true);
     }, 200);
-  }, []);
+  }, [setIsOpen]);
 
   return (
     <>
@@ -95,3 +101,5 @@ export default function MyModal({
     </>
   );
 }
+
+export default MyModal

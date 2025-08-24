@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { math } from "polished";
 
-export const AnchorStyle = styled.div`
+export const AnchorStyle = styled.div<{ arrowPosition?: boolean }>`
   // MENU
   //position: absolute;
   //visibility: hidden;

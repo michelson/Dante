@@ -1,3 +1,5 @@
+import { Theme } from "@emotion/react";
+
 const dante_font_family_sans =
   "ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji";
 const dante_font_family_sans_serif =
@@ -9,11 +11,11 @@ const dante_font_family_sans_serif =
 
 const tooltip_size = "32px";
 const dante_control_color = "#333333";
-const dante_inversed_color = "#000";
+const dante_inversed_color = "#FFFFFF";
 const dante_accent_color = "#5BD974";
-const dante_text_color = "#fefefe";
+const dante_text_color = "#4a4a4a";
 
-const theme = {
+const theme: Theme = {
   dante_font_family_serif: dante_font_family_sans_serif,
   dante_font_family_sans: dante_font_family_sans,
   dante_font_family_mono: `Menlo, Monaco, Consolas, "Courier New", "Courier", monospace;`,
@@ -22,7 +24,8 @@ const theme = {
   // Editor
   dante_editor_font_size: "1.4rem",
   dante_editor_line_height: "1.9",
-  dante_font_family_sans_serif: dante_font_family_sans_serif,
+
+  dante_font_family_sans_serif: "comic-sans",
   dante_visual_debugger: "false",
   dante_text_color: dante_text_color,
   dante_inversed_color: dante_inversed_color,
@@ -33,9 +36,11 @@ const theme = {
   //dante_font_size_base:  '24px',
   //line_height_base:     '1.428571429', // 20/14
 
-  tooltip_color: "#fff",
-  tooltip_background_color: "#000",
-  tooltip_border_color: "#fff",
+  tooltip_color: "#999",
+  tooltip_background_color: "#fff",
+  tooltip_border_color: "#999",
+  tooltip_color_opacity: "0.44",
+  tooltip_color_opacity_hover: "0.9",
   tooltip_background_opacity: "0",
   tooltip_border_width: "1px",
   tooltip_border_radius: "999em",
@@ -55,7 +60,7 @@ const theme = {
   tooltip_forward_transition: "transform 100ms",
   tooltip_backward_transition: "transform 250ms",
 
-  dante_code_background: "#444",
+  dante_code_background: "#000",
   dante_code_color: "#fff",
 
   // Menu
@@ -63,18 +68,18 @@ const theme = {
   //background: #2A2B32;
 
   dante_menu_height: "42px",
-  dante_menu_background: "#fff",
-  dante_menu_color: "#0f0",
+  dante_menu_background: dante_control_color,
+  dante_menu_color: dante_inversed_color,
   dante_menu_border_radius: "4px",
-  dante_menu_box_shadow: `1px 1px 3px 0px ${dante_control_color}`,
+  dante_menu_box_shadow: "0 1px 4px 1px #90909087",
   dante_menu_icon_size: "16px",
-  dante_menu_icon_color: "#000",
+  dante_menu_icon_color: dante_inversed_color,
   dante_menu_icon_accent: dante_accent_color,
-  dante_menu_divider_color: dante_control_color,
+  dante_menu_divider_color: "#3D3E49",
   dante_menu_border_width: "0px",
   dante_menu_border_color: "none",
   dante_menu_caret_size: "8px",
-  dante_bg_color: "black",
+  dante_bg_color: "transparent",
 
   // highlight theme
   // highlight theme
@@ -92,4 +97,5 @@ const theme = {
   hljs_link_color: "#ff55ff",
   hljs_deletion_color: "#55ffff",
 };
+
 export default theme;
