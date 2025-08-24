@@ -13,6 +13,8 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
 import Link from "@tiptap/extension-link";
 import Dropcursor from '@tiptap/extension-dropcursor'
+import TextAlign from '@tiptap/extension-text-align'
+
 
 import { extensionFactory } from "../blocks/extension";
 import {AddButtonConfig} from "../popovers/addButton";
@@ -113,7 +115,9 @@ const DanteEditor = ({
       Color,
       Focus,
       Link,
-      Dropcursor,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
 
       /*Link.extend({
         addNodeView() {
