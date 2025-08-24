@@ -148,10 +148,6 @@ const AddButton = React.forwardRef(
     function insertImage(file: any) {
       if (!file) return;
 
-      let opts = {
-        url: URL.createObjectURL(file),
-        file
-      };
       // cleans input image value
       // @ts-ignore
       fileInput.current.value = "";
@@ -160,7 +156,7 @@ const AddButton = React.forwardRef(
         // @ts-ignore
         type: fileInput.current.dataset.blockType || "ImageBlock",
         attrs: {
-          file: file,
+          file,
           url: URL.createObjectURL(file)
         }
       });
