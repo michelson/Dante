@@ -8,7 +8,7 @@ import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
 
 import StarterKit from "@tiptap/starter-kit";
-import TextStyle from "@tiptap/extension-text-style";
+import {TextStyle} from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
 import Link from "@tiptap/extension-link";
@@ -163,7 +163,7 @@ const DanteEditor = ({
 
   function pluginsConfig() {
     const newExtensions = extensions ? extensions : [];
-    return basePlugins().concat([...newPluginsConfig(), ...newExtensions]);
+    return basePlugins().concat(newPluginsConfig(), newExtensions);
   }
 
 

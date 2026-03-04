@@ -256,8 +256,7 @@ function MaybeFloating({editor, children, fixed}: {editor: any, children: any, f
 
   
   if(!fixed) return <FloatingMenu 
-    editor={editor} 
-    tippyOptions={{ duration: 100 , arrow: false, interactive: true}}>
+    editor={editor}>
       {isPopOverEnabledFor("AddButton") && (children)}
    </FloatingMenu>
 
