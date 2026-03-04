@@ -1,4 +1,4 @@
-import { FloatingMenu } from "@tiptap/react";
+import { FloatingMenu } from "@tiptap/react/menus";
 import React from "react";
 import { add } from "../icons.js";
 import { InlinetooltipWrapper } from "../styled/base";
@@ -344,4 +344,3 @@ export const AddButtonConfig = (options = {}) => {
 };
 
 export default AddButton;
-

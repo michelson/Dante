@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useEditor, EditorContent , FloatingMenu } from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
 import { lowlight } from 'lowlight/lib/core'
 
 // import { lowlight } from 'lowlight'
@@ -52,6 +52,7 @@ const DanteEditor = ({
   const editor = useEditor({
     extensions: pluginsConfig(),
     content: content || null,
+    immediatelyRender: false,
     editable: !readOnly,
     autofocus: autofocus,
     editorProps: editorProps,
@@ -198,7 +199,7 @@ const DanteEditor = ({
         })
       }
 
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} suppressHydrationWarning={true} />
  
       { 
         defaultTooltips()

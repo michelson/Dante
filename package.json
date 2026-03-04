@@ -26,6 +26,7 @@
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "gray-matter": "^4.0.3",
+    "happy-dom": "^20.0.2",
     "next": "13.3.0",
     "next-mdx-remote": "^1.0.0",
     "postcss": "8.4.21",

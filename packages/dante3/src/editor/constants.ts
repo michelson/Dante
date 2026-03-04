@@ -20,6 +20,7 @@ import VideoRecorderBlock, {
   VideoRecorderBlockConfig,
 } from "../blocks/videoRecorder";
 import MediaRecorder from "../blocks/videoRecorder/MediaRecorder";
+import ScrollGalleryBlock, { ScrollGalleryBlockConfig } from "../blocks/scrollGallery";
 
 //import ButtonBlock, {ButtonBlockConfig} from './blocks/button'
 //export { ButtonBlock, ButtonBlockConfig}
@@ -53,6 +54,7 @@ export { VideoRecorderBlock, VideoRecorderBlockConfig, MediaRecorder };
 export { DividerBlock, DividerBlockConfig };
 export { GiphyBlock, GiphyBlockConfig };
 export { SpeechToTextBlock, SpeechToTextBlockConfig };
+export { ScrollGalleryBlock, ScrollGalleryBlockConfig };
 
 export { CodeBlock, CodeBlockConfig };
 //export {DanteImagePopoverConfig}
@@ -71,7 +73,8 @@ const defaultPlugins = [
   GiphyBlockConfig(),
   VideoRecorderBlockConfig(),
   SpeechToTextBlockConfig(),
-  FileBlockConfig()
+  FileBlockConfig(),
+  ScrollGalleryBlockConfig(),
 ];
 
 export { defaultPlugins };

@@ -3,7 +3,7 @@ import { AnchorStyle } from "../styled/menu";
 import ImagePopover from "./image";
 import {
   BubbleMenu,
-} from '@tiptap/react'
+} from '@tiptap/react/menus'
 import DanteTooltipColor from "./color";
 
 import { useState } from "react";

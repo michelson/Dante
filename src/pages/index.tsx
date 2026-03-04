@@ -62,7 +62,7 @@ export default function Index({}) {
       <div className={`sm:mx-10 mx-2 py-8 ${mode}`}>
         <div>
           <div
-            className={`sm:w-3/4 p-10 md:mx-auto shadow-md- bg-gray-50- dark:bg-black light`}
+            className={`---sm:w-3/4 ----p-10 ----md:mx-auto ----shadow-md- ---bg-gray-50- dark:bg-black light`}
           >
             {<button
               className="inline-flex items-center px-6 py-3 border 
@@ -79,6 +79,13 @@ export default function Index({}) {
               fixed={fixed}
               content={htmlContent}
               autofocus={true}
+              editorProps={
+                {attributes: {
+                  class: 'flex items-center flex-col',
+                }}
+              }
+    
+              
               //style={{}}
               readOnly={readOnly}
               onUpdate={(editor: any) => {

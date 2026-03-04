@@ -124,7 +124,6 @@ export default [
       sourcemap: false,
     },
     //@ts-ignore
-    plugins: [multiInput.default(), ...pluginsConfig],
+    plugins: [multiInput(), ...pluginsConfig],
   },
 ];
-

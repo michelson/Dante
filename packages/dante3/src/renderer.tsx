@@ -10,6 +10,7 @@ import { EmbedBlockRenderer } from "./blocks/embed";
 import { VideoBlockRenderer } from "./blocks/video";
 import {VideoRecorderRenderer} from './blocks/videoRecorder'
 import {DividerBlockRenderer} from './blocks/divider'
+import { ScrollGalleryRenderer } from "./blocks/scrollGallery";
 
 type RendererProps = {
   message?: any;
@@ -56,6 +57,8 @@ function Renderer({raw, html, theme, domain} : RendererProps) {
         )
       case 'VideoRecorderBlock':
         return <VideoRecorderRenderer blockKey={node.id} data={node.attrs} domain={domain}/>
+      case 'ScrollGalleryBlock':
+        return <ScrollGalleryRenderer blockKey={node.id} data={node.attrs} />
 
       case 'paragraph':
         return <p className="graf graf--p" key={node.id}>

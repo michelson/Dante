@@ -40,6 +40,7 @@ const EditorContainer = styled.div`
     background-color: transparent;
   }
 
+  
   .graf--h2,
   .graf--h3,
   .graf--h4,
@@ -53,6 +54,7 @@ const EditorContainer = styled.div`
   .graf--pullquote,
   .graf--p,
   .graf--pre {
+    width:600px;
     margin: 0;
     //position:relative;
   }
@@ -657,6 +659,10 @@ const EditorContainer = styled.div`
   section.is-mediaFocused .graf--sectionCaption,
   .graf--sectionCaption.is-defaultValue.is-selected {
     display: block;
+  }
+
+  .node-ScrollGalleryBlock {
+    align-self: start;
   }
 
   .ProseMirror .empty-node::before {
