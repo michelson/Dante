@@ -115,7 +115,7 @@ const DanteEditor = ({
       TextStyle,
       Color,
       Focus,
-      Link,
+      // Link,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),

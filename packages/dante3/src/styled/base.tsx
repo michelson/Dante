@@ -360,6 +360,8 @@ const EditorContainer = styled.div`
     margin-bottom: 30px;
     outline: medium none;
     position: relative;
+    width: 100%;
+    min-width: 0;
 
     &.is-mediaFocused .graf-image,
     &.is-mediaFocused iframe {
