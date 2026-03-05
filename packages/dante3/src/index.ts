@@ -19,6 +19,7 @@ import MediaRecorder from "./blocks/videoRecorder/MediaRecorder";
 import GiphyBlock, { GiphyBlockConfig } from "./blocks/giphy/giphyBlock";
 import AudioRecorderBlock, { AudioRecorderBlockConfig } from "./blocks/audioRecorder";
 import FileBlock, { FileBlockConfig } from "./blocks/file";
+import ScrollGalleryBlock, { ScrollGalleryBlockConfig } from "./blocks/scrollGallery";
 
 //import ButtonBlock, {ButtonBlockConfig} from './blocks/button'
 //export { ButtonBlock, ButtonBlockConfig}
@@ -50,6 +51,7 @@ export { GiphyBlock, GiphyBlockConfig };
 export { SpeechToTextBlock, SpeechToTextBlockConfig };
 export { AudioRecorderBlock, AudioRecorderBlockConfig };
 export { FileBlock, FileBlockConfig };
+export { ScrollGalleryBlock, ScrollGalleryBlockConfig };
 
 export { extensionFactory };
 export { Renderer }
@@ -74,7 +76,8 @@ const defaultPlugins = [
   VideoRecorderBlockConfig(),
   SpeechToTextBlockConfig(),
   AudioRecorderBlockConfig(),
-  FileBlockConfig()
+  FileBlockConfig(),
+  ScrollGalleryBlockConfig(),
 ];
 
 

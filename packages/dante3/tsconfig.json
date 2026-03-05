@@ -16,7 +16,7 @@
     ],
     "module": "es2020",
     "noImplicitAny": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "resolveJsonModule": true,
     "rootDir": "./src",

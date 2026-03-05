@@ -1,4 +1,4 @@
-import { FloatingMenu } from "@tiptap/react";
+import { FloatingMenu } from "@tiptap/react/menus";
 import React from "react";
 import { add } from "../icons.js";
 import { InlinetooltipWrapper } from "../styled/base";
@@ -256,8 +256,7 @@ function MaybeFloating({editor, children, fixed}: {editor: any, children: any, f
 
   
   if(!fixed) return <FloatingMenu 
-    editor={editor} 
-    tippyOptions={{ duration: 100 , arrow: false, interactive: true}}>
+    editor={editor}>
       {isPopOverEnabledFor("AddButton") && (children)}
    </FloatingMenu>
 
@@ -344,4 +343,3 @@ export const AddButtonConfig = (options = {}) => {
 };
 
 export default AddButton;
-

@@ -182,11 +182,11 @@ export default function ImageBlock(props: any) {
   }
 
   function setActive() {
-    props.editor.commands.setNodeSelection(props.getPos());
+    props.editor.chain().focus().setNodeSelection(props.getPos()).run();
   }
 
-  function handleClick(e: any) {
-    // console.log("clicked, ", e);
+  function handleMouseDown(e: any) {
+    e.preventDefault();
     setActive();
   }
 
@@ -228,7 +228,7 @@ export default function ImageBlock(props: any) {
       }`}
     >
       <div
-        onClick={handleClick}
+        onMouseDown={handleMouseDown}
         className="aspectRatioPlaceholder is-locked"
         style={{
           maxHeight: height,
@@ -373,7 +373,19 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
     ratio = aspect_ratio.ratio;
   }
 
-  const defaultStyle = { maxWidth: `${width}px`, maxHeight: `${height}px` };
+  const safeRatio = Number.isFinite(Number(ratio)) ? Number(ratio) : 100;
+  const defaultStyle: any = {
+    width: "100%",
+    minWidth: "1px",
+  };
+
+  if (width) {
+    defaultStyle.maxWidth = typeof width === "number" ? `${width}px` : width;
+  }
+
+  if (height) {
+    defaultStyle.maxHeight = typeof height === "number" ? `${height}px` : height;
+  }
 
   function directionClass(direction: any) {
     switch (direction) {
@@ -408,7 +420,7 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
         <div className="aspectRatioPlaceholder is-locked" style={defaultStyle}>
           <div
             className="aspect-ratio-fill"
-            style={{ paddingBottom: `${ratio}%` }}
+            style={{ paddingBottom: `${safeRatio}%` }}
           ></div>
 
           <ReactMediumZoom 

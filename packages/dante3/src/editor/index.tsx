@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useEditor, EditorContent , FloatingMenu } from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
 import { lowlight } from 'lowlight/lib/core'
 
 // import { lowlight } from 'lowlight'
@@ -8,7 +8,7 @@ import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
 
 import StarterKit from "@tiptap/starter-kit";
-import TextStyle from "@tiptap/extension-text-style";
+import {TextStyle} from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
 import Link from "@tiptap/extension-link";
@@ -52,6 +52,7 @@ const DanteEditor = ({
   const editor = useEditor({
     extensions: pluginsConfig(),
     content: content || null,
+    immediatelyRender: false,
     editable: !readOnly,
     autofocus: autofocus,
     editorProps: editorProps,
@@ -114,7 +115,7 @@ const DanteEditor = ({
       TextStyle,
       Color,
       Focus,
-      Link,
+      // Link,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
@@ -162,7 +163,7 @@ const DanteEditor = ({
 
   function pluginsConfig() {
     const newExtensions = extensions ? extensions : [];
-    return basePlugins().concat([...newPluginsConfig(), ...newExtensions]);
+    return basePlugins().concat(newPluginsConfig(), newExtensions);
   }
 
 
@@ -198,7 +199,7 @@ const DanteEditor = ({
         })
       }
 
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} suppressHydrationWarning={true} />
  
       { 
         defaultTooltips()

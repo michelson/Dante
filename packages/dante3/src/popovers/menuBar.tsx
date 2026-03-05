@@ -3,7 +3,7 @@ import { AnchorStyle } from "../styled/menu";
 import ImagePopover from "./image";
 import {
   BubbleMenu,
-} from '@tiptap/react'
+} from '@tiptap/react/menus'
 import DanteTooltipColor from "./color";
 
 import { useState } from "react";
@@ -61,6 +61,16 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
 
   if (!editor) {
     return null;
+  }
+
+  function isImageSelection(selection: any) {
+    const selectedNodeName = selection?.node?.type?.name;
+    const parentNodeName = selection?.$head?.parent?.type?.name;
+
+    return (
+      selectedNodeName === "ImageBlock" ||
+      parentNodeName === "ImageBlock"
+    );
   }
 
   function displayLinkMode() {
@@ -135,13 +145,6 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
 
   function renderMenu() {
     if (!editor.isEditable) return null;
-
-    const allowedElements = configTooltip.selectionElements || ["paragraph", "heading"]
-    const currentBlock = editor?.view?.state?.selection?.$head?.parent?.type.name
-
-    if(!allowedElements.includes(currentBlock)) return
-    // TODO: use the configuration for this!
-    // if (editor.isActive("ImageBlock")) return null;
 
     if(configTooltip.allowTools.length == 0) return
 
@@ -309,8 +312,7 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
   }
 
   function renderImageTooptip() {
-    if (!editor.isEditable) return;
-    if (!editor.isActive("ImageBlock")) return null;
+    if (!editor.isEditable) return null;
 
     return (
       <ImagePopover
@@ -318,9 +320,16 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
         handleClick={(e: any) => {
           //console.log("AAA", e);
           editor.commands.updateAttributes("ImageBlock", { direction: e });
-          const pos = editor?.view?.lastSelectedViewDesc?.spec?.getPos();
-          //console.log("POS", pos);
-          pos && editor.commands.setNodeSelection(pos);
+          const selection = editor?.state?.selection;
+          const pos =
+            selection?.node?.type?.name === "ImageBlock"
+              ? selection?.from
+              : editor?.view?.lastSelectedViewDesc?.spec?.getPos?.();
+
+          // Keep the image selected after applying direction
+          if (typeof pos === "number") {
+            editor.chain().focus().setNodeSelection(pos).run();
+          }
         }}
       />
     );
@@ -331,10 +340,39 @@ export default function MenuBar({ editor, configTooltip } : { editor: any, confi
       {fixed && renderMenu()}
 
       {!fixed && (
-        <BubbleMenu editor={editor}>
-          {renderMenu()}
-          {renderImageTooptip()}
-        </BubbleMenu>
+        <>
+          <BubbleMenu
+            editor={editor}
+            pluginKey="bubbleMenuText"
+            shouldShow={({ editor, view, state }: { editor: any, view: any, state: any }) => {
+              const selection = state?.selection;
+              const hasFocus = view?.hasFocus?.() || false;
+              const allowedElements = configTooltip.selectionElements || ["paragraph", "heading"];
+              const currentBlock = selection?.$head?.parent?.type?.name;
+
+              if (!editor?.isEditable || !hasFocus) return false;
+              if (isImageSelection(selection)) return false;
+              if (!allowedElements.includes(currentBlock)) return false;
+
+              return !selection?.empty;
+            }}
+          >
+            {renderMenu()}
+          </BubbleMenu>
+
+          <BubbleMenu
+            editor={editor}
+            pluginKey="bubbleMenuImage"
+            shouldShow={({ editor, view, state }: { editor: any, view: any, state: any }) => {
+              const selection = state?.selection;
+              const hasFocus = view?.hasFocus?.() || false;
+
+              return editor?.isEditable && hasFocus && isImageSelection(selection);
+            }}
+          >
+            {renderImageTooptip()}
+          </BubbleMenu>
+        </>
       )}
     </>
   );
