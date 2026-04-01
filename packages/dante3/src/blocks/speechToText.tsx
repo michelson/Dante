@@ -467,15 +467,12 @@ const SpeechToTextBlock = ({
   function syncDraft(finals: string[], interim: string) {
     sessionFinalSegmentsRef.current = finals;
     interimSegmentRef.current = interim;
-    setFinalSegments([...committedSegmentsRef.current, ...finals]);
+    setFinalSegments(committedSegmentsRef.current.concat(finals));
     setInterimSegment(interim);
   }
 
   function finalizeSessionDraft(promoteInterim = false) {
-    const nextCommitted = [
-      ...committedSegmentsRef.current,
-      ...sessionFinalSegmentsRef.current,
-    ];
+    const nextCommitted = committedSegmentsRef.current.concat(sessionFinalSegmentsRef.current);
     const interim = normalizeTranscript(interimSegmentRef.current);
 
     if (promoteInterim && interim) {

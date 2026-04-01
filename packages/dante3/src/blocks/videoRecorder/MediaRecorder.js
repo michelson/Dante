@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 
 class ReactMediaRecorder extends Component {
   constructor(props) {
@@ -251,20 +250,6 @@ class ReactMediaRecorder extends Component {
     );
   }
 }
-ReactMediaRecorder.propTypes = {
-  constraints: PropTypes.object,
-  className: PropTypes.string,
-  timeSlice: PropTypes.number,
-  mimeType: PropTypes.string,
-  render: PropTypes.func,
-  onGranted: PropTypes.func,
-  onDenied: PropTypes.func,
-  onStart: PropTypes.func,
-  onStop: PropTypes.func,
-  onPause: PropTypes.func,
-  onResume: PropTypes.func,
-  onError: PropTypes.func,
-};
 ReactMediaRecorder.defaultProps = {
   constraints: {
     audio: true,

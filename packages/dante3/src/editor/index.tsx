@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
-import { lowlight } from 'lowlight/lib/core'
-
-// import { lowlight } from 'lowlight'
+import { lowlight } from 'lowlight'
 
 import { Placeholder } from "../plugins/tipTapPlaceholder";
 import { Color } from "../plugins/colorStyle";
@@ -11,8 +9,6 @@ import StarterKit from "@tiptap/starter-kit";
 import {TextStyle} from "@tiptap/extension-text-style";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Focus from "@tiptap/extension-focus";
-import Link from "@tiptap/extension-link";
-import Dropcursor from '@tiptap/extension-dropcursor'
 import TextAlign from '@tiptap/extension-text-align'
 
 

@@ -1,79 +1,130 @@
 /* eslint-disable import/no-anonymous-default-export */
+import fs from "fs";
+import path from "path";
 import babel from "@rollup/plugin-babel";
 import postcss from "rollup-plugin-postcss";
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
-import multiInput from "rollup-plugin-multi-input";
-import autoExternal from "rollup-plugin-auto-external";
-// import packageJson from "./package.json"  assert { type: "json" };
-
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
 
-// this override is needed because Module format cjs does not support top-level await
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// const packageJson = require("./package.json");
+const dependencyNames = Object.keys({
+  ...(packageJson.dependencies || {}),
+  ...(packageJson.peerDependencies || {}),
+});
 
-const globals = {
-  ...packageJson.devDependencies,
+const subpathExternals = [
+  "@emotion/styled/base",
+  "@tiptap/pm/state",
+  "@tiptap/pm/view",
+  "@tiptap/react/menus",
+];
+
+const globalOverrides = {
+  react: "React",
+  "react-dom": "ReactDOM",
+  "@emotion/react": "EmotionReact",
+  "@emotion/styled": "EmotionStyled",
+  "@emotion/styled/base": "EmotionStyled",
+  "@tiptap/core": "TiptapCore",
+  "@tiptap/pm": "TiptapPm",
+  "@tiptap/pm/state": "TiptapPmState",
+  "@tiptap/pm/view": "TiptapPmView",
+  "@tiptap/react": "TiptapReact",
+  "@tiptap/react/menus": "TiptapReactMenus",
 };
 
-const pluginsConfig = [
-  autoExternal({
-    packagePath: [packageJson],
-  }),
-  peerDepsExternal(),
-  postcss({}),
-  babel({
-    exclude: "node_modules/**",
-    //runtimeHelpers: true,
-    //babelHelpers: 'runtime',
-    babelrc: false,
-    presets: [
-      ["@babel/preset-env", { modules: false }],
-      ["@babel/preset-react", { flow: true }],
-    ],
-    plugins: [
-      "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-export-default-from",
-      "@babel/plugin-proposal-logical-assignment-operators",
-      ["@babel/plugin-proposal-optional-chaining", { loose: false }],
-      ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
-      ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: false }],
-      '@emotion/babel-plugin',
-      "@babel/plugin-proposal-do-expressions",
-    ],
-  }),
-  json(),
-  resolve({
-    mainFields: ["module", "main"], // Default: ['module', 'main']
-    jsnext: true, // Default: false
-    main: true, // Default: true
-    browser: true, // Default: false
-    // not all files you want to resolve are .js files
-    extensions: [".mjs", ".js", ".jsx", ".json", "tsx", "ts", "tsx"], // Default: [ '.mjs', '.js', '.json', '.node' ]
-    dedupe: ["react", "react-dom"], // Default: []
-    moduleDirectories: [],
-    //customResolveOptions: {
-    //  moduleDirectory: "js_modules",
-    //},
-  }),
-  commonjs({
-    exclude: "node_modules",
-    ignoreGlobal: true,
-  }),
-  typescript({
-    
-    //useTsconfigDeclarationDir: true,
-    //tsconfigOverride: {
-    //  exclude: ["**/*.stories.*"],
-    //},
-  }),
-];
+function toGlobalName(id) {
+  return id
+    .replace(/^@/, "")
+    .split(/[/-]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function isExternal(id) {
+  if (!id || id.startsWith(".") || id.startsWith("\0") || path.isAbsolute(id)) {
+    return false;
+  }
+
+  return dependencyNames.some(
+    (dependencyName) => id === dependencyName || id.startsWith(`${dependencyName}/`)
+  );
+}
+
+const globals = [...new Set([...dependencyNames, ...subpathExternals])].reduce(
+  (result, dependencyName) => {
+    result[dependencyName] = globalOverrides[dependencyName] || toGlobalName(dependencyName);
+    return result;
+  },
+  {}
+);
+
+function collectSourceEntries(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return collectSourceEntries(fullPath);
+    }
+
+    return /\.(js|ts|tsx)$/.test(entry.name) ? [fullPath] : [];
+  });
+}
+
+const extensions = [".mjs", ".js", ".jsx", ".json", ".tsx", ".ts"];
+
+function createPlugins() {
+  return [
+    postcss({}),
+    babel({
+      babelHelpers: "bundled",
+      exclude: "node_modules/**",
+      babelrc: false,
+      extensions,
+      presets: [
+        ["@babel/preset-env", { modules: false }],
+        ["@babel/preset-react", { flow: true }],
+      ],
+      plugins: [
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-proposal-export-default-from",
+        "@babel/plugin-proposal-logical-assignment-operators",
+        ["@babel/plugin-proposal-optional-chaining", { loose: false }],
+        ["@babel/plugin-proposal-pipeline-operator", { proposal: "minimal" }],
+        ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: false }],
+        "@emotion/babel-plugin",
+        "@babel/plugin-proposal-do-expressions",
+      ],
+    }),
+    json(),
+    resolve({
+      browser: true,
+      dedupe: ["react", "react-dom"],
+      extensions,
+      mainFields: ["module", "main"],
+    }),
+    commonjs(),
+    typescript({
+      sourceMap: true,
+      tsconfig: "./tsconfig.json",
+    }),
+  ];
+}
+
+const pluginsConfig = createPlugins();
+
+const sourceEntries = collectSourceEntries("src").map((entryPath) =>
+  entryPath.replace(/\\/g, "/")
+);
+
+const sharedOutputConfig = {
+  exports: "named",
+};
 
 export default [
   {
@@ -83,47 +134,38 @@ export default [
         name: "Dante",
         file: packageJson.browser,
         format: "umd",
-        exports: "named" /** Disable warning for default imports */,
+        globals,
+        sourcemap: true,
+        ...sharedOutputConfig,
       },
       {
         file: packageJson.main,
-        format: "cjs", // commonJS
+        format: "cjs",
         sourcemap: true,
-        exports: "named" /** Disable warning for default imports */,
+        ...sharedOutputConfig,
       },
       {
         file: packageJson.module,
-        format: "esm", // ES Modules
+        format: "esm",
         sourcemap: true,
-        exports: "named" /** Disable warning for default imports */,
+        ...sharedOutputConfig,
       },
     ],
     plugins: pluginsConfig,
-    external: Object.keys(globals),
+    external: isExternal,
   },
 
   {
-    input: [
-      "src/editor/**/*.tsx",
-      "src/blocks/**/*.tsx",
-      "src/plugins/**/*.js",
-      "src/popovers/**/*.tsx",
-      "src/styled/**/*.tsx",
-      "src/styled/**/*.js",
-      "src/index.ts",
-    ],
-    /*output: {
-    name: 'Dante',
-    file: pkg.browser,
-    format: 'umd'
-  },*/
-
+    input: sourceEntries,
     output: {
+      entryFileNames: "[name].js",
       format: "esm",
       dir: "package/esm",
-      sourcemap: false,
+      preserveModules: true,
+      preserveModulesRoot: "src",
+      sourcemap: true,
     },
-    //@ts-ignore
-    plugins: [multiInput(), ...pluginsConfig],
+    plugins: pluginsConfig,
+    external: isExternal,
   },
 ];

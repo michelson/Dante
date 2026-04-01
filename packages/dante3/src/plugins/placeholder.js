@@ -1,5 +1,5 @@
-import { Plugin } from "prosemirror-state";
-import { Decoration, DecorationSet } from "prosemirror-view";
+import { Plugin } from "@tiptap/pm/state";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
 export default new Plugin({
   props: {

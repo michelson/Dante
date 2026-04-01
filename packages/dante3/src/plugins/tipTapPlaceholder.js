@@ -1,6 +1,6 @@
 import { Extension, isNodeEmpty } from "@tiptap/core";
-import { Decoration, DecorationSet } from "prosemirror-view";
-import { Plugin } from "prosemirror-state";
+import { Plugin } from "@tiptap/pm/state";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
 export const Placeholder = Extension.create({
   name: "placeholder",
