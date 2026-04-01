@@ -12,7 +12,6 @@
     "start": "next start",
     "lint": "next lint",
     "dante3:build": "npm run build --workspace=dante3",
-    "dante2:build": "npm run build --workspace=Dante2",
     "dante3:publish": "npm run release --workspace=dante3"
   },
   "dependencies": {

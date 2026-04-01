@@ -26,6 +26,7 @@
   },
   "include": [
     "next-env.d.ts",
+    "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "packages/dante3/src/blocks/videoRecorder/index.js",

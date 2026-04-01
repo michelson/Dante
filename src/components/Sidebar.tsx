@@ -1,26 +1,73 @@
 import Link from "next/link";
 
-export default function Index({ posts, path }: { posts: any, path: any }) {
+function filePathToSlug(filePath: string) {
+  const normalizedPath = filePath.replace(/\\/g, "/");
+  const slug = normalizedPath.replace(/\.mdx?$/, "").replace(/\/index$/, "");
+  return slug || "index";
+}
+
+function postPathToHref(slugOrFilePath: string) {
+  const slug = slugOrFilePath.includes(".md") ? filePathToSlug(slugOrFilePath) : slugOrFilePath;
+  return slug === "index" ? "/posts" : `/posts/${slug}`;
+}
+
+type SidebarProps = {
+  posts: Array<{
+    filePath: string;
+    slug?: string;
+    data: {
+      title?: string;
+      order?: number;
+    };
+  }>;
+  path?: string;
+  currentSlug?: string;
+};
+
+export default function Sidebar({ posts, path = "", currentSlug }: SidebarProps) {
   return (
-    <div className="py-5 fixed z-10 inset-0 flex-none h-full dark:bg-black bg-opacity-25 w-full lg:bg-white lg:static lg:h-auto lg:overflow-y-visible lg:pt-0 lg:w-60 xl:w-72 lg:block hidden">
-      <div className="py-5 h-full overflow-y-auto scrolling-touch lg:h-auto lg:block lg:relative lg:sticky lg:bg-transparent overflow-hidden lg:top-18 bg-white mr-24 lg:mr-0">
-        <p className="px-3 mb-3 lg:mb-3 uppercase tracking-wide font-semibold text-sm lg:text-xs text-gray-900 dark:text-gray-100">
-          Articles
-        </p>
-        <ul>
-          {posts.map((post: any) => (
-            <li key={post.filePath}>
+    <aside className="hidden xl:block xl:w-72 xl:flex-none">
+      <div className="sticky top-24 space-y-4">
+        <div className="rounded-[2rem] border border-black/5 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-300">
+            Documentation
+          </div>
+          <h2 className="mt-3 font-display text-3xl leading-none text-slate-950 dark:text-slate-50">
+            Dante 3 guides
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            Live examples, renderer notes, parser flows, and extension guides for the
+            current editor.
+          </p>
+        </div>
+
+        <nav className="rounded-[2rem] border border-black/5 bg-white/80 p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
+          {posts.map((post) => {
+            const slug = post.slug || filePathToSlug(post.filePath);
+            const href = path ? `${path}${postPathToHref(slug)}`.replace("//", "/") : postPathToHref(slug);
+            const active = slug === currentSlug;
+
+            return (
               <Link
-                className="px-3 py-2 transition-colors duration-200 relative block hover:text-gray-900 text-gray-500 dark:text-gray-400"
-                as={`${path}/posts/${post.filePath.replace(/\.mdx?$/, "")}`}
-                href={`${path}/posts/[slug]`}
+                key={post.filePath}
+                href={href}
+                className={`mb-2 block rounded-[1.4rem] px-4 py-3 transition last:mb-0 ${
+                  active
+                    ? "bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950"
+                    : "text-slate-700 hover:bg-slate-900 hover:text-white dark:text-slate-200 dark:hover:bg-white dark:hover:text-slate-950"
+                }`}
               >
-                {post.data.title}
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-70">
+                  Guide {post.data.order || "00"}
+                </div>
+                <div className="mt-1 text-sm font-medium leading-5">
+                  {post.data.title || slug}
+                </div>
               </Link>
-            </li>
-          ))}
-        </ul>
+            );
+          })}
+        </nav>
       </div>
-    </div>
+    </aside>
   );
 }
