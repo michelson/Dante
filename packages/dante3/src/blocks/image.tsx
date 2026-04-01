@@ -6,7 +6,7 @@ import styled from "@emotion/styled";
 import MediumImage from "./mediumImage";
 import { image } from "../icons";
 import ReactMediumZoom from "./mediumImage";
-import { getUrl } from "./blockUtils";
+import { exitBlockToParagraph, getUrl } from "./blockUtils";
 
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
@@ -335,18 +335,7 @@ export const ImageBlockConfig = (options = {}) => {
       return {
         Enter: ({ editor } : {editor: any}) => {
           if (editor.isActive("ImageBlock")) {
-            //editor.commands.selectNodeForward()
-            editor.commands.insertContent({
-              type: "paragraph",
-            });
-
-            editor
-              .chain()
-              .focus()
-              //.insertContent("<strong>It's happening</strong>")
-              .toggleNode("paragraph", "paragraph", {})
-              .run();
-            return true;
+            return exitBlockToParagraph(editor);
           }
         },
       };

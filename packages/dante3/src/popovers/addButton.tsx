@@ -29,11 +29,18 @@ const AddButton = React.forwardRef(
     }, [scaled]);
 
     React.useEffect(() => {
-      editor.on("selectionUpdate", ({ editor, s } : { editor: any, s: any }) => {
-        // The selection has changed.
+      if (!editor) return;
+
+      const handleSelectionUpdate = () => {
         setScaled(false);
-      });
-    }, []);
+      };
+
+      editor.on("selectionUpdate", handleSelectionUpdate);
+
+      return () => {
+        editor.off("selectionUpdate", handleSelectionUpdate);
+      };
+    }, [editor]);
 
     function scaledClass() {
       if (scaled || fixed) {
@@ -246,18 +253,41 @@ AddButton.displayName = "AddButton"
 
 
 function MaybeFloating({editor, children, fixed}: {editor: any, children: any, fixed: any}){
+  function shouldShow({
+    editor,
+    view,
+    state,
+  }: {
+    editor: any;
+    view: any;
+    state: any;
+  }) {
+    const selection = state?.selection;
+    const anchor = selection?.$anchor;
+    const parent = anchor?.parent;
+    const hasFocus = view?.hasFocus?.() || false;
+    const isRootDepth = anchor?.depth === 1;
+    const isParagraph = parent?.type?.name === "paragraph";
+    const isEmptyTextBlock =
+      parent?.isTextblock &&
+      !parent?.type?.spec?.code &&
+      !parent?.textContent &&
+      parent?.childCount === 0;
 
-
-  function isPopOverEnabledFor(a: any) {
-    //console.log("ENABLED FOR ", editor.state.selection.$anchor.parent);
-    const comp = editor?.state.selection.$anchor.parent;
-    if (comp && comp.type.name === "paragraph") return true;
+    return Boolean(
+      editor?.isEditable &&
+        hasFocus &&
+        selection?.empty &&
+        isRootDepth &&
+        isParagraph &&
+        isEmptyTextBlock
+    );
   }
 
-  
   if(!fixed) return <FloatingMenu 
-    editor={editor}>
-      {isPopOverEnabledFor("AddButton") && (children)}
+    editor={editor}
+    shouldShow={shouldShow}>
+      {children}
    </FloatingMenu>
 
   return children }

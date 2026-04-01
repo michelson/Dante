@@ -54,7 +54,7 @@ const EditorContainer = styled.div`
   .graf--pullquote,
   .graf--p,
   .graf--pre {
-    width:600px;
+    // width:600px;
     margin: 0;
     //position:relative;
   }

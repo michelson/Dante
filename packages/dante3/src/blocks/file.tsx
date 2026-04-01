@@ -4,7 +4,7 @@ import axios from "axios";
 import styled from "@emotion/styled";
 // import { isEmpty } from "../utils";
 import { file as FileIcon } from "../icons.js";
-import { getUrl } from "./blockUtils";
+import { exitBlockToParagraph, getUrl } from "./blockUtils";
 
 
 export const StyleWrapper = styled(NodeViewWrapper)``;
@@ -283,18 +283,7 @@ export const FileBlockConfig = (options = {}) => {
       return {
         Enter: ({ editor } : {editor: any}) => {
           if (editor.isActive("FileBlock")) {
-            //editor.commands.selectNodeForward()
-            editor.commands.insertContent({
-              type: "paragraph",
-            });
-
-            editor
-              .chain()
-              .focus()
-              //.insertContent("<strong>It's happening</strong>")
-              .toggleNode("paragraph", "paragraph", {})
-              .run();
-            return true;
+            return exitBlockToParagraph(editor);
           }
         },
       };
