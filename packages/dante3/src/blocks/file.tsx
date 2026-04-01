@@ -2,38 +2,346 @@ import React from "react";
 import { NodeViewWrapper, NodeViewContent } from "@tiptap/react";
 import axios from "axios";
 import styled from "@emotion/styled";
-// import { isEmpty } from "../utils";
 import { file as FileIcon } from "../icons.js";
 import { exitBlockToParagraph, getUrl } from "./blockUtils";
 
+const Wrapper = styled(NodeViewWrapper)`
+  display: block;
+`;
 
-export const StyleWrapper = styled(NodeViewWrapper)``;
+const Card = styled.div<{ selected?: boolean }>`
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid
+    ${(props) =>
+      props.selected ? "rgba(16, 185, 129, 0.28)" : "rgba(15, 23, 42, 0.08)"};
+  background:
+    radial-gradient(circle at top left, rgba(16, 185, 129, 0.1), transparent 28%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 1));
+  box-shadow:
+    0 18px 42px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.72) inset;
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px 0;
+`;
+
+const HandlePill = styled.div`
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: rgba(220, 252, 231, 0.78);
+  color: #047857;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+`;
+
+const StatusPill = styled.div<{ tone?: "default" | "accent" }>`
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid
+    ${(props) =>
+      props.tone === "accent" ? "rgba(59, 130, 246, 0.18)" : "rgba(15, 23, 42, 0.08)"};
+  background:
+    ${(props) =>
+      props.tone === "accent" ? "rgba(219, 234, 254, 0.82)" : "rgba(255, 255, 255, 0.72)"};
+  color:
+    ${(props) => (props.tone === "accent" ? "#1d4ed8" : "rgba(15, 23, 42, 0.66)")};
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: rgba(15, 23, 42, 0.72);
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease;
+
+  &:hover {
+    background: rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
+  }
+`;
+
+const Body = styled.div`
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+`;
+
+const FileLink = styled.a`
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  text-decoration: none;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+
+  @media (max-width: 640px) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+`;
+
+const DocBadge = styled.div`
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(59, 130, 246, 0.16));
+  color: #0f172a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+`;
+
+const FileInfo = styled.div`
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+`;
+
+const FileType = styled.div`
+  color: #047857;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+`;
+
+const FileName = styled.div`
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+`;
+
+const FileMeta = styled.div`
+  color: rgba(15, 23, 42, 0.62);
+  font-size: 13px;
+  line-height: 1.45;
+`;
+
+const OpenPill = styled.div`
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: rgba(15, 23, 42, 0.68);
+  font-size: 12px;
+  font-weight: 700;
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+`;
+
+const ProgressTrack = styled.div`
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+`;
+
+const ProgressValue = styled.div<{ progress: number }>`
+  width: ${(props) => Math.max(0, Math.min(100, props.progress))}%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  transition: width 180ms ease;
+`;
+
+const CaptionEditor = styled(NodeViewContent)`
+  position: relative;
+  min-height: 54px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.6;
+  outline: none;
+`;
+
+const CaptionText = styled.figcaption`
+  min-height: 54px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(15, 23, 42, 0.76);
+  font-size: 14px;
+  line-height: 1.6;
+`;
+
+const CaptionShell = styled.div`
+  position: relative;
+`;
+
+const CaptionGhost = styled.div`
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  color: rgba(15, 23, 42, 0.42);
+  pointer-events: none;
+  font-size: 14px;
+  line-height: 1.6;
+`;
+
+function getFileNameFromUrl(url: any) {
+  if (!url || typeof url !== "string") return "Document";
+  if (!url.includes("://")) return url.split("/").at(-1) || "Document";
+
+  let urlObject: URL;
+
+  try {
+    urlObject = new URL(url);
+  } catch (_error) {
+    return url.split("/").at(-1) || "Document";
+  }
+
+  const pathname = urlObject.pathname;
+  const blobRegex = /^\/([a-zA-Z0-9-_.]+\/){2}([a-zA-Z0-9-_.]+)$/;
+
+  if (blobRegex.test(pathname)) {
+    return urlObject.searchParams.get("filename") || "blob-file";
+  }
+
+  const segments = pathname.split("/");
+  return segments[segments.length - 1] || "Document";
+}
+
+function fileExtension(fileName: string) {
+  const extension = fileName.split(".").pop();
+  return extension ? extension.toUpperCase().slice(0, 5) : "DOC";
+}
+
+function hostLabel(url?: string | null) {
+  if (!url) return "Local document";
+
+  try {
+    return new URL(url).host.replace(/^www\./, "");
+  } catch (_error) {
+    return "Local document";
+  }
+}
+
+function renderFileSurface({
+  url,
+  fileName,
+  caption,
+  editable,
+  loading,
+  progress,
+  showCaptionPlaceholder,
+}: {
+  url: string;
+  fileName: string;
+  caption?: string | null;
+  editable: boolean;
+  loading: boolean;
+  progress: number;
+  showCaptionPlaceholder: boolean;
+}) {
+  const extension = fileExtension(fileName);
+
+  return (
+    <Body>
+      <FileLink href={url || "#"} target="_blank" rel="noreferrer" contentEditable={false}>
+        <DocBadge>
+          <FileIcon />
+        </DocBadge>
+
+        <FileInfo>
+          <FileType>{extension} Document</FileType>
+          <FileName>{fileName}</FileName>
+          <FileMeta>{hostLabel(url)}</FileMeta>
+        </FileInfo>
+
+        <OpenPill>Open File</OpenPill>
+      </FileLink>
+
+      {loading ? (
+        <ProgressTrack>
+          <ProgressValue progress={progress} />
+        </ProgressTrack>
+      ) : null}
+
+      {editable ? (
+        <CaptionShell>
+          {showCaptionPlaceholder ? (
+            <CaptionGhost>Type a caption (optional)</CaptionGhost>
+          ) : null}
+          <CaptionEditor />
+        </CaptionShell>
+      ) : caption ? (
+        <CaptionText>{caption || ""}</CaptionText>
+      ) : null}
+    </Body>
+  );
+}
 
 export default function FileBlock(props: any) {
-  // console.log("IMAGE:", props);
-  const imageUrl = props.node.attrs.url || props.node.attrs.src;
-
-  let img = null;
-  let file = null;
+  const fileUrl = props.node.attrs.url || props.node.attrs.src || "";
+  const loading = Boolean(props.node.attrs.loading);
+  const loadingProgress = Number(props.node.attrs.loading_progress || 0);
 
   React.useEffect(() => {
     replaceFile();
   }, []);
 
-  function setImage(url: any) {
+  function setFileUrl(url: any) {
     props.updateAttributes({
-      url: url,
+      url,
     });
   }
 
   function replaceFile() {
-    // exit only when not blob and not forceUload
-    if (
-      !props.node.attrs.url.includes('blob:') &&
-      !props.node.attrs.forceUpload
-    ) {
+    if (!fileUrl) return;
+
+    if (!fileUrl.includes("blob:") && !props.node.attrs.forceUpload) {
       return;
     }
+
     return handleUpload();
   }
 
@@ -50,185 +358,125 @@ export default function FileBlock(props: any) {
   }
 
   function handleUpload() {
-    startLoader()
+    startLoader();
     uploadFile();
   }
 
   function formatData() {
-    let formData = new FormData();
-    if (props.node.attrs.file) {
-      let formName = props.extension.options.upload_formName || 'file'
+    const formData = new FormData();
 
+    if (props.node.attrs.file) {
+      const formName = props.extension.options.upload_formName || "file";
       formData.append(formName, props.node.attrs.file);
       return formData;
-    } else {
-      // TODO: check this
-      formData.append("url", props.node.attrs.src);
-      return formData;
     }
+
+    formData.append("url", props.node.attrs.src);
+    return formData;
   }
 
   function uploadFile() {
-    // custom upload handler
     if (props.extension.options.upload_handler) {
-      return props.extension.options.upload_handler(
-        formatData().get("file"),
-        props
-      );
+      return props.extension.options.upload_handler(props.node.attrs.file, props);
     }
 
-    if (!props.extension.options.upload_url){
-      stopLoader()
-      return
+    if (!props.extension.options.upload_url) {
+      stopLoader();
+      return;
     }
-
-    //this.props.blockProps.addLock()
 
     function getUploadUrl() {
-      let url = props.extension.options.upload_url
-      if (typeof url === "function") {
-        return url();
-      } else {
-        return url;
-      }
+      const uploadUrl = props.extension.options.upload_url;
+      return typeof uploadUrl === "function" ? uploadUrl() : uploadUrl;
     }
 
     function getUploadHeaders() {
-      return props.extension.options.upload_headers || {}
+      return props.extension.options.upload_headers || {};
     }
 
     axios({
-      method: 'post',
+      method: "post",
       url: getUploadUrl(),
       headers: getUploadHeaders(),
       data: formatData(),
-      onUploadProgress: e => {
-				console.log("PROCVESSS ", e)
-        return updateProgressBar(e)
-      }
-    }).then(result => {
-      uploadCompleted(result.data.url)
-        if (props.extension.options.upload_callback) {
-          return props.extension.options.upload_callback(result, props)
-        }
-    }).catch(error => {
-      //this.uploadFailed()
-      console.log(`ERROR: got error uploading file ${ error }`)
-      if (props.extension.options.upload_error_callback) {
-        return props.extension.options.upload_error_callback(error, props)
-      }
+      onUploadProgress: (event) => {
+        updateProgressBar(event);
+      },
     })
+      .then((result) => {
+        uploadCompleted(result.data.url);
 
-    return (json_response: any) => {
-      // return uploadCompleted("https://i.imgur.com/XUWx1hA.jpeg");
-      return uploadCompleted(json_response.url)
-    }
+        if (props.extension.options.upload_callback) {
+          return props.extension.options.upload_callback(result, props);
+        }
+      })
+      .catch((error) => {
+        if (props.extension.options.upload_error_callback) {
+          return props.extension.options.upload_error_callback(error, props);
+        }
+      });
+
+    return (jsonResponse: any) => {
+      return uploadCompleted(jsonResponse.url);
+    };
   }
 
   function uploadCompleted(url: any) {
-    setImage(url);
-    //this.props.blockProps.removeLock()
-    stopLoader()
-    file = null;
+    setFileUrl(url);
+    stopLoader();
   }
 
-  function updateProgressBar(e: any) {
-    let complete = props.node.attrs.loading_progress
-    if (e.lengthComputable) {
-      complete = e.loaded / e.total * 100
-      complete = complete != null ? complete : { complete: 0 }
-      props.updateAttributes({ loading_progress: complete })
-      console.log(`complete: ${ complete }`)
-    }
-  }
+  function updateProgressBar(event: any) {
+    if (!event.lengthComputable) return;
 
-
-  function setActive() {
-    props.editor.commands.setNodeSelection(props.getPos());
+    const complete = (event.loaded / event.total) * 100;
+    props.updateAttributes({ loading_progress: complete });
   }
 
   return (
-    <StyleWrapper
-      selected={props.selected}
-      as="figure"
-      data-drag-handle="true"
-    >
-      
-      <a
-        href={imageUrl}
-        target="blank"
-        className="flex items-center border rounded text-sm text-gray-100 bg-gray-500 border-gray-600 p-2 py-2"
-      >
-        <FileIcon />
-        {getFileNameFromUrl(imageUrl)}
-      </a>
-    
+    <Wrapper as="figure">
+      <Card selected={props.selected}>
+        {props.editor.isEditable ? (
+          <DeleteButton type="button" onClick={() => props.deleteNode()}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </DeleteButton>
+        ) : null}
 
-      {/*loading && (
-        <Loader
-          toggle={loading}
-          progress={loading_progress}
-        />
-      )*/}
+        <TopBar>
+          <HandlePill contentEditable={false} data-drag-handle="true">
+            Document
+          </HandlePill>
+          <StatusPill tone={loading ? "accent" : "default"}>
+            {loading ? `${Math.round(loadingProgress)}% Uploaded` : fileExtension(getFileNameFromUrl(fileUrl))}
+          </StatusPill>
+        </TopBar>
 
-      <NodeViewContent as={"figcaption"} className="imageCaption">
-        {props.node.content.size === 0 && (
-          <span className="danteDefaultPlaceholder">
-            type a caption (optional)
-          </span>
-        )}
-      </NodeViewContent>
-    </StyleWrapper>
-  );
-}
-
-function getFileNameFromUrl(url: any) {
-  if(!url.includes("://"))
-    return url.split("/").at(-1)
-
-  let urlObject = new URL(url);
-
-  const pathname = urlObject.pathname;
-  const blobRegex = /^\/([a-zA-Z0-9-_.]+\/){2}([a-zA-Z0-9-_.]+)$/;
-
-  try {
-    if (blobRegex.test(pathname)) {
-      // Blob URL
-      const blobFileName = urlObject.searchParams.get("filename") || "blob-file";
-      return blobFileName;
-    } else {
-      // Regular URL
-      const segments = pathname.split("/");
-      const fileName = segments[segments.length - 1];
-      return fileName;
-    }  
-  } catch (error) {
-    null
-  }
-}
-
-function Loader(props: any) {
-  return (
-    <div>
-      {props.toggle ? (
-        <div className="image-upoader-loader">
-          <p>
-            {props.progress === 100 ? (
-              "processing image..."
-            ) : (
-              <span>
-                <span>loading</span> {Math.round(props.progress)}
-              </span>
-            )}
-          </p>
-        </div>
-      ) : undefined}
-    </div>
+        {renderFileSurface({
+          url: fileUrl,
+          fileName: getFileNameFromUrl(fileUrl),
+          caption: props.node.textContent,
+          editable: props.editor.isEditable,
+          loading,
+          progress: loadingProgress,
+          showCaptionPlaceholder: props.node.content.size === 0,
+        })}
+      </Card>
+    </Wrapper>
   );
 }
 
 export const FileBlockConfig = (options = {}) => {
-  let config = {
+  const config = {
     name: "FileBlock",
     icon: FileIcon,
     tag: "file-block",
@@ -245,7 +493,7 @@ export const FileBlockConfig = (options = {}) => {
       caption: { default: null },
       direction: { default: "center" },
       file: { default: null },
-      forceUpload: {default: false},
+      forceUpload: { default: false },
       aspect_ratio: {
         default: {
           width: 200,
@@ -254,34 +502,33 @@ export const FileBlockConfig = (options = {}) => {
         },
       },
     },
-    dataSerializer: (data: any)=>{
+    dataSerializer: (data: any) => {
       return {
         ...data,
-        src: data.url, 
+        src: data.url,
         aspect_ratio: JSON.stringify(data.aspect_ratio),
-        file: null
-      }
+        file: null,
+      };
     },
     options: {
       upload_handler: (file: any, ctx: any) => {
-        console.log("UPLOADED FILE", file)
+        console.log("UPLOADED FILE", file, ctx);
       },
     },
     parseHTML: [
       {
         tag: "file-block[url]",
-      }
+      },
     ],
-    // renderHTML: function(attributes){},
     widget_options: {
       displayOnInlineTooltip: true,
       insertion: "upload",
       insert_block: "FileBlock",
-      file_types: '*',
+      file_types: "*",
     },
     keyboardShortcuts: (editor: any) => {
       return {
-        Enter: ({ editor } : {editor: any}) => {
+        Enter: ({ editor }: { editor: any }) => {
           if (editor.isActive("FileBlock")) {
             return exitBlockToParagraph(editor);
           }
@@ -293,28 +540,35 @@ export const FileBlockConfig = (options = {}) => {
   return Object.assign(config, options);
 };
 
-export function FileBlockRenderer({ blockKey, data, domain }: { blockKey: any, data: any, domain?: any }) {
-  const { url, caption } = data;
+export function FileBlockRenderer({
+  blockKey,
+  data,
+  domain,
+}: {
+  blockKey: any;
+  data: any;
+  domain?: any;
+}) {
+  const url = getUrl(data.url, domain);
 
   return (
-    <figure key={blockKey} className={`graf graf--figure`}>
-      
-      <a
-        href={url}
-        target="blank"
-        className="flex items-center border rounded text-sm text-gray-100 bg-gray-500 border-gray-600 p-2 py-2"
-      >
-        <FileIcon />
-        {getFileNameFromUrl(getUrl(url, domain))}
-      </a>
+    <figure key={blockKey} className="graf graf--figure">
+      <Card>
+        <TopBar>
+          <HandlePill>Document</HandlePill>
+          <StatusPill>{fileExtension(getFileNameFromUrl(url))}</StatusPill>
+        </TopBar>
 
-      {caption && caption !== 'type a caption (optional)' && (
-        <figcaption className="imageCaption">
-          <span>
-            <span data-text="true">{caption}</span>
-          </span>
-        </figcaption>
-      )}
+        {renderFileSurface({
+          url,
+          fileName: getFileNameFromUrl(url),
+          caption: data.caption,
+          editable: false,
+          loading: false,
+          progress: 0,
+          showCaptionPlaceholder: false,
+        })}
+      </Card>
     </figure>
-  )
+  );
 }
