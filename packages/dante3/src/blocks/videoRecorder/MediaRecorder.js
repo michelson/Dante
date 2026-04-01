@@ -100,7 +100,11 @@ class ReactMediaRecorder extends Component {
           .then((stream) => handleSuccess(stream, cb))
           .catch(handleFailed);
       } else if (navigator.getUserMedia) {
-        navigator.getUserMedia(constraints, handleSuccess, handleFailed);
+        navigator.getUserMedia(
+          constraints,
+          (stream) => handleSuccess(stream, cb),
+          handleFailed
+        );
       } else {
         let errMessage = `Browser doesn't support UserMedia API. Please try with another browser.`;
         console.warn(errMessage);
@@ -164,19 +168,33 @@ class ReactMediaRecorder extends Component {
     }
   }
 
-  start() {
-    this.askPermission(() => {
-      if (!this.state.available) return;
+  beginRecording = () => {
+    if (!this.mediaRecorder) {
+      this.initMediaRecorder();
+    }
 
-      this.mediaChunk = [];
-      this.mediaRecorder.start(this.props.timeSlice);
+    if (!this.mediaRecorder) return;
+    if (this.mediaRecorder.state !== "inactive") return;
 
-      this.setState({
-        recording: true,
-      });
+    this.mediaChunk = [];
+    this.mediaRecorder.start(this.props.timeSlice);
 
-      this.props.onStart(this.stream);
+    this.setState({
+      available: true,
+      recording: true,
+      paused: false,
     });
+
+    this.props.onStart(this.stream);
+  };
+
+  start() {
+    if (this.stream && this.mediaRecorder) {
+      this.beginRecording();
+      return;
+    }
+
+    this.askPermission(this.beginRecording);
   }
 
   pause() {
@@ -200,7 +218,7 @@ class ReactMediaRecorder extends Component {
   }
 
   stop() {
-    if (!this.state.available) return;
+    if (!this.mediaRecorder) return;
     if (this.mediaRecorder.state === "inactive") return;
 
     this.mediaRecorder.stop();
