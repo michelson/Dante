@@ -5,7 +5,6 @@ import styled from "@emotion/styled";
 // import { isEmpty } from "../utils";
 import MediumImage from "./mediumImage";
 import { image } from "../icons";
-import ReactMediumZoom from "./mediumImage";
 import { exitBlockToParagraph, getUrl } from "./blockUtils";
 
 
@@ -185,8 +184,7 @@ export default function ImageBlock(props: any) {
     props.editor.chain().focus().setNodeSelection(props.getPos()).run();
   }
 
-  function handleMouseDown(e: any) {
-    e.preventDefault();
+  function handleClick() {
     setActive();
   }
 
@@ -218,17 +216,19 @@ export default function ImageBlock(props: any) {
   }
 
   const { width, height, ratio } = parseAspectRatio();
+  const isEditable = props.editor.isEditable;
+  const selectionClass = props.selected && !isEditable ? "is-selected is-mediaFocused" : "";
+
   return (
     <StyleWrapper
       selected={props.selected}
       as="figure"
       data-drag-handle="true"
-      className={`graf graf--figure ${directionClass()} ${
-        props.selected ? "is-selected is-mediaFocused" : ""
-      }`}
+      className={`graf graf--figure ${directionClass()} ${selectionClass}`}
     >
       <div
-        onMouseDown={handleMouseDown}
+        contentEditable={false}
+        onClick={handleClick}
         className="aspectRatioPlaceholder is-locked"
         style={{
           maxHeight: height,
@@ -253,10 +253,10 @@ export default function ImageBlock(props: any) {
           src={imageUrl}
           height={width}
           width={height}
-          className={`graf-image ${props.editor.isEditable ? ".no-zoom" : ""}`}
-          disabled={props.editor.isEditable}
+          className={`graf-image ${isEditable ? "no-zoom" : ""}`}
+          disabled={isEditable}
           contentEditable={false}
-          isEditable={props.editor.isEditable}
+          isEditable={isEditable}
           //onOpen={() => {
           //  return false;
           //}}
@@ -412,7 +412,7 @@ export function ImageRenderer({ blockKey, data, domain }: { blockKey: any, data:
             style={{ paddingBottom: `${safeRatio}%` }}
           ></div>
 
-          <ReactMediumZoom 
+          <MediumImage 
             src={getUrl(getSrc(), domain)} 
             width={width} 
             height={height} 
