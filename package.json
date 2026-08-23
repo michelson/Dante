@@ -2,6 +2,7 @@
   "name": "dante-next-tiptap",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.19",
   "workspaces": [
     "packages/*"
   ],
